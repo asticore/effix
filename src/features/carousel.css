@@ -1,0 +1,16 @@
+/* carousel — track fallback when Shine's .carousel is absent (low specificity) */
+:where(.efx-carousel:not(.carousel)) { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; overscroll-behavior-x: contain; }
+:where(.efx-carousel:not(.carousel)) > * { flex: 0 0 100%; scroll-snap-align: start; }
+.efx-carousel__nav { display: flex; align-items: center; justify-content: center; gap: .5rem; margin-block-start: .5rem; }
+.efx-carousel__dots { display: flex; gap: .5rem; }
+.efx-carousel__dot {
+  inline-size: .625rem; block-size: .625rem; padding: 0; border: 0; border-radius: 50%; cursor: pointer;
+  background: color-mix(in oklab, currentColor 30%, transparent); transition: background-color var(--efx-duration) var(--efx-ease), scale var(--efx-duration) var(--efx-ease);
+}
+.efx-carousel__dot[aria-current] { background: var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); scale: 1.3; }
+.efx-carousel__dot:focus-visible, .efx-carousel__nav .btn:focus-visible { outline: 2px solid var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); outline-offset: 2px; }
+.efx-carousel:focus-visible { outline: 2px solid var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); outline-offset: 2px; }
+.efx-carousel-fade { display: grid; overflow: hidden; scroll-snap-type: none; }
+.efx-carousel-fade > * { grid-area: 1 / 1; opacity: 0; visibility: hidden; transition: opacity var(--efx-duration) var(--efx-ease), visibility 0s linear var(--efx-duration); }
+.efx-carousel-fade > .is-active { opacity: 1; visibility: visible; transition-delay: 0s; }
+@media (prefers-reduced-motion: reduce) { .efx-carousel-fade > * { transition: none; } }

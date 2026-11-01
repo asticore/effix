@@ -69,7 +69,8 @@ const jsEsm = banner + bundle(src, { format: 'esm' });
 /* ---------------------------------------------------------------- CSS */
 const cssOf = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').trim() : '');
 const cssParts = [cssOf(path.join(SRC, 'css', 'base.css')), ...names.map(n => cssOf(path.join(FEAT, n + '.css')))].filter(Boolean);
-const cssFull = `${banner}@layer effix {\n${cssParts.join('\n\n')}\n}\n`;
+// `@layer shine, effix;` pins effix above Shine whatever order the two stylesheets load in.
+const cssFull = `${banner}@layer shine, effix;\n@layer effix {\n${cssParts.join('\n\n')}\n}\n`;
 const cssMin = banner + esbuild.transformSync(cssFull, { loader: 'css', minify: true, target: ['chrome90', 'firefox88', 'safari14'] }).code;
 
 fs.mkdirSync(OUT, { recursive: true });
