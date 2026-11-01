@@ -68,38 +68,59 @@ export function rafThrottle(fn) {
 }
 
 /* ---------------------------------------------- shared visibility observers */
-const visIOs = new Map(); // rootMargin -> { io, cbs: WeakMap(el -> Set) }
-/** Call `cb(isVisible, entry)` whenever `el` enters/leaves the viewport. Returns stop().
-    One IntersectionObserver is shared by every element using the same rootMargin. */
-export function onVisible(el, cb, rootMargin = '0px') {
-  if (typeof IntersectionObserver === 'undefined') { cb(true, { intersectionRatio: 1 }); return () => {}; }
-  let v = visIOs.get(rootMargin);
+const visIOs = new Map(); // "rootMargin|threshold" -> { io, cbs: WeakMap(el -> Set) }
+/** Call `cb(isVisible, entry)` whenever `el` enters/leaves the viewport. Returns stop() (idempotent).
+    One IntersectionObserver is shared by every element using the same rootMargin + threshold. */
+export function onVisible(el, cb, rootMargin = '0px', threshold = 0) {
+  if (typeof IntersectionObserver === 'undefined') { cb(true, { intersectionRatio: 1, intersectionRect: { height: 1e9 } }); return () => {}; }
+  const key = rootMargin + '|' + threshold;
+  let v = visIOs.get(key);
   if (!v) {
     const cbs = new WeakMap();
-    const io = new IntersectionObserver(es => es.forEach(e => { const s = cbs.get(e.target); if (s) s.forEach(f => f(e.isIntersecting, e)); }), { rootMargin });
+    const io = new IntersectionObserver(es => es.forEach(e => { const s = cbs.get(e.target); if (s) [...s].forEach(f => f(e.isIntersecting, e)); }), { rootMargin, threshold });
     v = { io, cbs };
-    visIOs.set(rootMargin, v);
+    visIOs.set(key, v);
   }
   let set = v.cbs.get(el);
   if (!set) { set = new Set(); v.cbs.set(el, set); v.io.observe(el); }
   set.add(cb);
-  return () => { set.delete(cb); if (!set.size) { v.cbs.delete(el); v.io.unobserve(el); } };
+  let done = false;
+  return () => {
+    if (done) return;
+    done = true;
+    set.delete(cb);
+    if (!set.size && v.cbs.get(el) === set) { v.cbs.delete(el); v.io.unobserve(el); }
+  };
 }
 
 /* ------------------------------------------------- shared scroll/resize loop */
 const scrollSubs = new Set();
 let scrollBound = false;
-const scrollTick = rafThrottle(() => { const y = scrollY, h = innerHeight; scrollSubs.forEach(f => f(y, h)); });
-/** Run `fn(scrollY, viewportHeight)` at most once per frame on scroll/resize. Returns stop(). */
+// Two phases per frame: every subscriber reads layout first and may return a write
+// function; all writes run afterwards, so N subscribers cause one reflow, not N.
+const runScroll = subs => {
+  const y = scrollY, h = innerHeight;
+  const writes = [];
+  subs.forEach(f => { const w = f(y, h); if (typeof w === 'function') writes.push(w); });
+  writes.forEach(w => w());
+};
+const scrollTick = rafThrottle(() => runScroll(scrollSubs));
+const bindScroll = on => {
+  const m = on ? 'addEventListener' : 'removeEventListener';
+  window[m]('scroll', scrollTick, { passive: true });
+  window[m]('resize', scrollTick, { passive: true });
+  scrollBound = on;
+};
+/** Run `fn(scrollY, viewportHeight)` at most once per frame on scroll/resize.
+    Read layout inside fn; return a function to do DOM writes after all reads. Returns stop(). */
 export function onScroll(fn) {
-  if (!scrollBound) {
-    addEventListener('scroll', scrollTick, { passive: true });
-    addEventListener('resize', scrollTick, { passive: true });
-    scrollBound = true;
-  }
+  if (!scrollBound) bindScroll(true);
   scrollSubs.add(fn);
-  fn(scrollY, innerHeight);
-  return () => scrollSubs.delete(fn);
+  runScroll([fn]);
+  return () => {
+    scrollSubs.delete(fn);
+    if (!scrollSubs.size && scrollBound) { bindScroll(false); scrollTick.cancel(); }
+  };
 }
 
 /* --------------------------------------------------------------- registry */
@@ -112,13 +133,14 @@ function mount(el, def) {
   if (m && m.has(def.name)) return;
   if (!m) { m = new Map(); mounted.set(el, m); }
   m.set(def.name, null); // reserve
-  let cleanup = null;
   try {
-    cleanup = def.init(el, options(el, def.defaults || {}), api) || null;
+    m.set(def.name, def.init(el, options(el, def.defaults || {}), api) || null);
   } catch (err) {
+    m.delete(def.name);
+    if (!m.size) mounted.delete(el);
     console.error(`[effix] ${def.name} failed`, err);
+    return;
   }
-  m.set(def.name, cleanup);
   el.setAttribute('data-efx-ready', [...m.keys()].join(' '));
 }
 
@@ -130,11 +152,12 @@ function queueLazy(el, def) {
       const names = lazyQueue.get(e.target);
       lazyIO.unobserve(e.target);
       lazyQueue.delete(e.target);
+      e.target.removeAttribute('data-efx-lazy');
       if (names) names.forEach(n => registry.has(n) && mount(e.target, registry.get(n)));
     }), { rootMargin: lazyMargin() });
   }
   let s = lazyQueue.get(el);
-  if (!s) { s = new Set(); lazyQueue.set(el, s); lazyIO.observe(el); }
+  if (!s) { s = new Set(); lazyQueue.set(el, s); lazyIO.observe(el); el.setAttribute('data-efx-lazy', ''); }
   s.add(def.name);
 }
 
@@ -143,7 +166,7 @@ function scan(root, def) {
   if (root.nodeType === 1 && root.matches(def.selector)) els.push(root);
   if (root.querySelectorAll) els.push(...root.querySelectorAll(def.selector));
   for (const el of els) {
-    if (mounted.get(el)?.has(def.name)) continue;
+    if (mounted.get(el)?.has(def.name) || lazyQueue.get(el)?.has(def.name) || el.closest('[data-efx-skip]')) continue;
     if (def.lazy) queueLazy(el, def); else mount(el, def);
   }
 }
@@ -170,8 +193,14 @@ export function init(root = doc, only) {
 /** Tear down features on `root` and its descendants (all, or only `name`). */
 export function destroy(root = doc, name) {
   if (!root) return api;
-  const els = root.nodeType === 1 ? [root, ...root.querySelectorAll('[data-efx-ready]')] : [...root.querySelectorAll('[data-efx-ready]')];
+  const sel = '[data-efx-ready], [data-efx-lazy]';
+  const els = root.nodeType === 1 ? [root, ...root.querySelectorAll(sel)] : [...root.querySelectorAll(sel)];
   for (const el of els) {
+    const q = lazyQueue.get(el);
+    if (q) {
+      if (name) q.delete(name); else q.clear();
+      if (!q.size) { lazyQueue.delete(el); lazyIO.unobserve(el); el.removeAttribute('data-efx-lazy'); }
+    }
     const m = mounted.get(el);
     if (!m) continue;
     for (const [n, cleanup] of m) {
@@ -193,14 +222,16 @@ export function refresh(root = doc, name) {
 
 /* ------------------------------------------- DOM watching (editors, SPAs) */
 let mo = null;
+// Nodes that features inject themselves (efx-<name>__<part>) never hold features: skip them.
+const injected = n => /(^|\s)efx-[\w-]+__/.test(n.getAttribute('class') || '');
 /** Watch the DOM: auto-init added nodes, destroy removed ones.
     Attribute edits are not watched (features toggle their own classes); call refresh(el) instead. */
 export function observe(target = doc && doc.body) {
   if (mo || !target || typeof MutationObserver === 'undefined') return api;
   mo = new MutationObserver(records => {
     for (const r of records) {
-      r.removedNodes.forEach(n => { if (n.nodeType === 1 && !n.isConnected) destroy(n); });
-      r.addedNodes.forEach(n => { if (n.nodeType === 1 && n.isConnected && !n.closest('[data-efx-skip]')) init(n); });
+      r.removedNodes.forEach(n => { if (n.nodeType === 1 && !n.isConnected && !injected(n)) destroy(n); });
+      r.addedNodes.forEach(n => { if (n.nodeType === 1 && n.isConnected && !injected(n) && !n.closest('[data-efx-skip]')) init(n); });
     }
   });
   mo.observe(target, { childList: true, subtree: true });

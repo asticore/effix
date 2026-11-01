@@ -13,3 +13,4 @@
 .efx-reveal-pending[data-efx-anim="blur"] { filter: blur(10px); }
 .efx-reveal-pending[data-efx-anim="flip"] { transform: perspective(800px) rotateX(-25deg); transform-origin: top; }
 .efx-reveal-pending.is-in { opacity: 1; transform: none; filter: none; }
+/* reduced motion: JS never adds .efx-reveal-pending, so content just shows */

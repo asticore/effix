@@ -1,374 +1,197 @@
-# 🎬 EFFIX - CSS Effects Framework
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![npm version](https://img.shields.io/badge/npm-v1.0.0-blue.svg)](https://www.npmjs.com/package/effix)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/yourusername/effix)
-
-**EFFIX** is a lightweight, open-source CSS effects framework inspired by Bootstrap. Apply powerful animations, transitions, and interactive effects to any HTML element using simple, intuitive CSS classes.
-
-## ✨ Features
-
-- 🎯 **Class-Based API** — Apply effects like Bootstrap classes
-- 📦 **Minimal Setup** — Just one CSS file + one JS file
-- ⚡ **Lightweight** — < 50KB gzipped (combined)
-- 🎨 **Highly Customizable** — CSS variables + data attributes
-- 🔄 **Multiple Triggers** — hover, click, scroll, load, focus, active
-- 🌊 **Shape Dividers** — Animated SVG shape dividers
-- 📜 **Scroll Reveals** — Smart reveal animations with stagger
-- ♿ **Accessible** — Respects `prefers-reduced-motion`
-- 🌐 **Modern Browsers** — No IE11, pure ES6+, zero dependencies
-
-## 🚀 Quick Start
-
-### Installation
-
-#### Option 1: NPM
-```bash
-npm install effix
-```
-
-#### Option 2: Direct Include
-```html
-<link rel="stylesheet" href="https://cdn.example.com/effix.min.css">
-<script src="https://cdn.example.com/effix.min.js"></script>
-```
-
-### Basic Usage
-
-```html
-<!-- Fade in on page load -->
-<div class="efx-fade-in efx-load">Content fades in</div>
-
-<!-- Bounce on hover -->
-<button class="efx-bounce efx-hover">Hover me</button>
-
-<!-- Pop on click -->
-<div class="efx-pop efx-click">Click me</div>
-
-<!-- Reveal on scroll with stagger -->
-<section class="efx-scroll-reveal" data-stagger="0.1s">
-  <div class="efx-fade-in">Item 1</div>
-  <div class="efx-slide-up">Item 2</div>
-  <div class="efx-pop-in">Item 3</div>
-</section>
-```
-
-That's it! No configuration needed.
-
-## 📚 Documentation
-
-### Effect Classes (30+)
-
-| Category | Classes |
-|----------|---------|
-| **Fades** | `efx-fade-in`, `efx-fade-out`, `efx-fade-in-up`, `efx-fade-in-down` |
-| **Bounces** | `efx-bounce`, `efx-bounce-in`, `efx-bounce-out`, `efx-bounce-up`, `efx-bounce-down` |
-| **Slides** | `efx-slide-up`, `efx-slide-down`, `efx-slide-left`, `efx-slide-right` |
-| **Pops** | `efx-pop`, `efx-pop-in`, `efx-pop-elastic` |
-| **Rotations** | `efx-rotate`, `efx-rotate-in`, `efx-spin`, `efx-spin-reverse` |
-| **Scales** | `efx-scale-up`, `efx-scale-down`, `efx-zoom-in`, `efx-zoom-out` |
-| **Flips** | `efx-flip-x`, `efx-flip-y`, `efx-flip-3d` |
-| **Borders** | `efx-border-rotate`, `efx-border-wipe`, `efx-border-gradient`, `efx-border-pulse` |
-| **Underlines** | `efx-underline-grow`, `efx-underline-left`, `efx-underline-right`, `efx-underline-center` |
-| **Text** | `efx-text-reveal`, `efx-text-slide`, `efx-text-glitch`, `efx-text-wave` |
-| **Scroll** | `efx-scroll-reveal`, `efx-parallax`, `efx-sticky-reveal`, `efx-progress-bar` |
-| **Shapes** | `efx-divider` with 10+ SVG shapes |
-
-### Trigger Classes
-
-| Trigger | When | Example |
-|---------|------|---------|
-| `efx-hover` | On mouse hover | `<button class="efx-bounce efx-hover">` |
-| `efx-click` | On element click | `<div class="efx-pop efx-click">` |
-| `efx-scroll` | When element enters viewport | `<section class="efx-fade-in efx-scroll">` |
-| `efx-load` | On page load | `<div class="efx-slide-up efx-load">` |
-| `efx-focus` | On form input focus (CSS) | `<input class="efx-scale-up efx-focus">` |
-| `efx-active` | On button/link active state (CSS) | `<button class="efx-scale-down efx-active">` |
-
-## ⚙️ Customization
-
-### Global CSS Variables
-
-Override these variables to customize all effects:
-
-```css
-:root {
-  --efx-duration: 0.6s;           /* Animation duration */
-  --efx-easing: cubic-bezier(...); /* Easing function */
-  --efx-delay: 0s;                /* Animation delay */
-  --efx-stagger: 0.1s;            /* Scroll reveal stagger */
-  --efx-divider-height: 100px;    /* Shape divider height */
-  --efx-divider-color: currentColor; /* Shape divider color */
-  --efx-divider-animate-speed: 3s; /* Animation speed */
-}
-```
-
-### Per-Element Customization
-
-Use data attributes to customize individual elements:
-
-```html
-<div class="efx-fade-in efx-scroll"
-     data-duration="1.2s"
-     data-easing="ease-in-out"
-     data-delay="0.5s">
-  Custom timing on this element
-</div>
-```
-
-### Scroll Reveal with Stagger
-
-```html
-<section class="efx-scroll-reveal" data-stagger="0.15s">
-  <div class="efx-fade-in">First item (0s delay)</div>
-  <div class="efx-slide-up">Second item (0.15s delay)</div>
-  <div class="efx-pop-in">Third item (0.30s delay)</div>
-</section>
-```
-
-### Shape Dividers
-
-```html
-<div class="efx-divider" 
-     data-shape="wave"
-     data-height="120"
-     data-color="#FF6B6B"
-     data-animate="true">
-</div>
-```
-
-**Available shapes:** `wave`, `triangle`, `curve`, `zigzag`, `sawtooth`, `chevron`, `swoosh`, `leaves`, `hills`, `clouds`
-
-## 📖 Full Documentation
-
-- **[Quick Start Guide](docs/QUICK-START.md)** — 5-minute setup
-- **[Effects Reference](docs/EFFECTS.md)** — All 30+ effects with examples
-- **[Shape Dividers Guide](docs/SHAPES.md)** — SVG shapes and customization
-- **[Customization Guide](docs/CUSTOMIZATION.md)** — CSS variables and data attributes
-- **[Trigger Types](docs/TRIGGERS.md)** — When and how to use each trigger
-- **[Interactive Demo](demo/index.html)** — Live examples of all effects
-
-## 🎯 Examples
-
-### Hover Animation
-```html
-<button class="efx-bounce efx-hover">
-  Click Me
-</button>
-```
-
-### Scroll Reveal
-```html
-<section class="efx-scroll-reveal" data-stagger="0.1s">
-  <h2 class="efx-fade-in">Heading</h2>
-  <p class="efx-slide-up">Paragraph</p>
-  <img class="efx-pop-in" src="image.jpg" />
-</section>
-```
-
-### Custom Timing
-```html
-<div class="efx-fade-in efx-scroll"
-     data-duration="1.5s"
-     data-easing="cubic-bezier(0.68, -0.55, 0.265, 1.55)"
-     data-delay="0.3s">
-  Takes 1.5s to fade in with elastic easing
-</div>
-```
-
-### Shape Divider with Animation
-```html
-<section style="background: linear-gradient(135deg, #667eea, #764ba2);">
-  <h2>My Section</h2>
-</section>
-
-<div class="efx-divider" 
-     data-shape="wave"
-     data-height="150"
-     data-color="white"
-     data-animate="true"
-     data-animation-speed="3s">
-</div>
-
-<section style="background: white;">
-  <h2>Next Section</h2>
-</section>
-```
-
-## 🌐 Browser Support
-
-| Browser | Support | Version |
-|---------|---------|---------|
-| Chrome | ✅ | 90+ |
-| Firefox | ✅ | 88+ |
-| Safari | ✅ | 14+ |
-| Edge | ✅ | 90+ |
-| Mobile (iOS/Android) | ✅ | Modern browsers |
-| Internet Explorer | ❌ | Not supported |
-
-## 📦 File Structure
-
-```
-effix/
-├── dist/
-│   ├── effix.min.css       (Production CSS)
-│   ├── effix.min.css.map   (CSS sourcemap)
-│   ├── effix.min.js        (Production JS)
-│   └── effix.min.js.map    (JS sourcemap)
-├── src/
-│   ├── css/                (Source CSS files)
-│   ├── js/                 (Source JS files)
-│   ├── templates/          (Demo template)
-│   └── docs/               (Detailed documentation)
-├── demo/                   (Interactive demo)
-├── docs/                   (User documentation)
-├── package.json
-├── webpack.config.js
-├── postcss.config.js
-├── README.md
-├── LICENSE
-└── .gitignore
-```
-
-## 🛠️ Development
-
-### Build from Source
-
-```bash
-# Install dependencies
-npm install
-
-# Build CSS and JS
-npm run build
-
-# Development mode (watch for changes)
-npm run dev
-
-# Run tests
-npm run test
-```
-
-### Project Structure
-
-- **src/css/** — Modular CSS organized by effect type
-  - `base.css` — Variables and defaults
-  - `effects/basic.css` — Fades, bounces, slides, pops, rotations, scales, flips
-  - `effects/interactive.css` — Border and underline animations
-  - `effects/text.css` — Text animations
-  - `effects/scroll.css` — Scroll trigger styles
-  - `effects/shapes.css` — Shape divider styles
-
-- **src/js/** — Vanilla JavaScript modules
-  - `core.js` — Main Effix class and initialization
-  - `modules/scroll.js` — Scroll triggers and parallax
-  - `modules/click.js` — Click event handling
-  - `modules/shapes.js` — SVG shape generation
-
-## 📝 Variables Reference
-
-### CSS Variables
-
-```css
---efx-duration        /* How long the animation runs (default: 0.6s) */
---efx-easing          /* Animation timing function */
---efx-delay           /* Delay before animation starts */
---efx-stagger         /* Delay between children in scroll reveal */
---efx-divider-height  /* Height of shape dividers */
---efx-divider-color   /* Color of shape dividers */
---efx-divider-animate-speed /* Speed of animated dividers */
-```
-
-### Data Attributes
-
-```html
-data-duration="0.8s"                    <!-- Override --efx-duration -->
-data-easing="ease-in-out"              <!-- Override --efx-easing -->
-data-delay="0.2s"                      <!-- Override --efx-delay -->
-data-stagger="0.1s"                    <!-- Override --efx-stagger (for containers) -->
-data-shape="wave"                      <!-- Shape divider type -->
-data-height="100"                      <!-- Divider height in px -->
-data-color="#FF6B6B"                   <!-- Divider fill color -->
-data-animate="true"                    <!-- Animate divider -->
-data-animation-speed="3s"              <!-- Divider animation speed -->
-data-flip="true"                       <!-- Flip divider horizontally -->
-```
-
-## 📄 License
-
-MIT License © 2026 — See [LICENSE](LICENSE) for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-### Before You Submit
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-effect`)
-3. Commit your changes (`git commit -am 'Add amazing effect'`)
-4. Push to the branch (`git push origin feature/amazing-effect`)
-5. Open a Pull Request
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
-## 🐛 Reporting Issues
-
-Found a bug? Please open an issue on [GitHub](https://github.com/yourusername/effix/issues) with:
-
-- Browser and version
-- Steps to reproduce
-- Expected vs actual behavior
-- Screenshots or minimal example
-
-## 🎯 Roadmap
-
-### v1.0 (Current)
-- ✅ 30+ effects across 7 categories
-- ✅ 6 trigger types (hover, click, scroll, load, focus, active)
-- ✅ 10 shape divider types
-- ✅ Full customization via CSS variables and data attributes
-- ✅ Comprehensive documentation
-- ✅ Interactive demo
-
-### v1.1 (Planned)
-- 3D WebGL effects
-- More shape dividers
-- React/Vue component wrappers
-- CDN distribution
-- TypeScript definitions
-
-### v2.0 (Future)
-- Motion path animations
-- Drag/drop effects
-- Advanced timing controls
-- Plugin system
-- Builder UI
-
-## 📮 Questions?
-
-- 💬 Check the [documentation](docs/)
-- 🎬 View the [interactive demo](demo/index.html)
-- 📖 See [QUICK-START.md](docs/QUICK-START.md)
-- 🐛 [Open an issue](https://github.com/yourusername/effix/issues)
-
-## 🎉 Support EFFIX
-
-If you find EFFIX useful, please consider:
-
-- ⭐ Starring the repository
-- 📢 Sharing with others
-- 🐛 Reporting bugs
-- 💡 Suggesting features
-- 🤝 Contributing code
-
-## 👨‍💻 Author
-
-**Matt Peterman** — [GitHub](https://github.com/yourusername) | [Twitter](https://twitter.com/yourusername)
+<p align="center">
+  <a href="https://github.com/asticore/effix">
+    <img src="docs/logo.svg" alt="Effix logo" width="88" height="88">
+  </a>
+</p>
+
+<h1 align="center">Effix</h1>
+
+<p align="center">
+  <strong>JavaScript effects you apply with classes: particles, parallax, tilt, magnetic buttons, rotating borders, shape dividers, carousels, popups and more.</strong>
+  <br>
+  Built to work with <a href="https://github.com/asticore/shine">Shine CSS</a>. Only the features on the page start. ~18 KB gzipped for all 25.
+  <br>
+  <br>
+  <a href="https://asticore.github.io/effix/docs/"><strong>Live docs &amp; playground</strong></a>
+  ·
+  <a href="#quick-start">Quick start</a>
+  ·
+  <a href="#features">Features</a>
+  ·
+  <a href="https://github.com/asticore/effix/issues">Report a bug</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/gzip-14.5%20KB%20JS%20%2B%204.1%20KB%20CSS-4f46e5" alt="Size: 14.5 KB JS + 4.1 KB CSS gzip">
+  <img src="https://img.shields.io/badge/core-2.0%20KB-16a34a" alt="Core 2.0 KB">
+  <img src="https://img.shields.io/badge/dependencies-0-16a34a" alt="Zero dependencies">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+</p>
 
 ---
 
-**Made with ❤️ for developers who care about smooth, beautiful animations.**
+## Why Effix
 
-Built with modern web standards. Zero dependencies. Infinitely customizable.
+[Shine](https://github.com/asticore/shine) does styling with **no JavaScript**: buttons, cards, modals, carousels, tooltips and colors.
+Some effects can't be done in CSS alone. Canvas particles, pointer tracking, scroll math, timers and focus handling all need code.
+**Effix is that code.** It works the same way Shine does:
 
-**[Get Started →](docs/QUICK-START.md)** | **[View Demo →](demo/index.html)** | **[Full Docs →](docs/)**
+| | Shine | Effix |
+|---|---|---|
+| Turn it on | `class="btn"` | `class="efx-tilt"` |
+| Tune it | `data-radius="3"` | `data-efx-max="15"` |
+| Restyle it | `--sh-primary` | `--efx-color`, which falls back to `--sh-tone` and then `--sh-primary` |
+
+Effix reads Shine's tokens. `tone-danger` and `--sh-primary` recolor particles, borders, progress bars and cursors too.
+Without Shine, Effix uses its own indigo default.
+
+## Quick start
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/asticore/shine@main/dist/shine.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.min.css">
+<script src="https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.min.js" defer></script>
+```
+
+You don't need to call anything. Add classes:
+
+```html
+<section class="section efx-particles" data-efx-count="60" data-efx-links="true">
+  <h1 class="efx-split" data-efx-by="letter">Hello</h1>
+  <a class="btn btn-lg efx-magnetic efx-border-spin" href="#go">Get started</a>
+</section>
+
+<div class="efx-divider" data-efx-shape="waves" data-efx-animate="drift"></div>
+
+<div class="efx-stagger grid md:grid-cols-3 gap-4">
+  <div class="card efx-reveal" data-efx-reveal="fade-up">One</div>
+  <div class="card efx-reveal" data-efx-reveal="zoom">Two</div>
+  <div class="card efx-tilt" data-efx-glare="true">Three</div>
+</div>
+```
+
+### npm
+
+```bash
+npm i effix shine-css
+```
+
+```js
+import 'shine-css';
+import 'effix/css';
+import Effix from 'effix';          // full bundle, starts itself
+```
+
+Or import only the features you use. Your bundler drops the rest:
+
+```js
+import { define, init } from 'effix/core';
+import reveal from 'effix/features/reveal';
+import particles from 'effix/features/particles';
+
+define(reveal, particles);
+init();
+```
+
+## How it stays fast
+
+- **Only features on the page start.** When the page loads, the core runs one `querySelectorAll` per feature. A missing feature costs nothing.
+- **Heavy features are lazy.** Particles only start when they come near the viewport. Every animation loop pauses when it scrolls off-screen or the tab is hidden.
+- **Shared observers.** All reveal, sticky and parallax elements share one `IntersectionObserver` and one passive, rAF-throttled scroll loop. Elements don't get their own.
+- **Tiny core.** The core is 2.0 KB gzip. Each feature adds 0.5 to 1.8 KB. Custom builds can cut it further: `node build.js --only=reveal,tilt`.
+- **Accessible defaults.**
+  - Reduced-motion users see the static end state.
+  - Pointer effects only run on mouse or trackpad.
+  - Content stays visible without JS.
+  - Dialogs and carousels support the keyboard and screen readers.
+
+## Features
+
+| Group | Feature | Classes | gzip |
+|---|---|---|---|
+| Scroll | Reveal on scroll | `efx-reveal` `efx-stagger` | 0.5 KB |
+| Scroll | Parallax | `efx-parallax` | 0.6 KB |
+| Scroll | Counter (count-up) | `efx-counter` | 0.5 KB |
+| Scroll | Marquee / ticker | `efx-marquee` | 0.8 KB |
+| Scroll | Scroll progress bar | `efx-progress` | 0.6 KB |
+| Scroll | Sticky header (stuck / hide on scroll / shrink) | `efx-sticky` | 0.6 KB |
+| Scroll | Scrollspy | `efx-scrollspy` | 0.6 KB |
+| Scroll | Back to top | `efx-totop` | 0.5 KB |
+| Text | Typed / rotating words | `efx-typed` | 1.0 KB |
+| Text | Split text (letter / word stagger) | `efx-split` | 0.8 KB |
+| Buttons & borders | Rotating, tracing, glowing and gradient borders, plus a click-to-load state | `efx-border-spin` `efx-border-trace` `efx-border-glow` `efx-border-gradient` | 1.1 KB |
+| Background | Particles (repel, attract, connect, links) | `efx-particles` | 1.4 KB |
+| Pointer | Tilt (+ glare) | `efx-tilt` | 0.7 KB |
+| Pointer | Magnetic | `efx-magnetic` | 0.5 KB |
+| Pointer | Spotlight | `efx-spotlight` | 0.7 KB |
+| Pointer | Ripple | `efx-ripple` | 0.7 KB |
+| Pointer | Custom cursor | `efx-cursor` | 1.0 KB |
+| Sections | Animated shape dividers (12 shapes, drift / layers / float) | `efx-divider` | 1.8 KB |
+| Components | Popup triggers for Shine's `<dialog class="modal">` (delay, scroll, exit intent, frequency) | `efx-popup` | 0.7 KB |
+| Components | Lightbox | `efx-lightbox` | 1.6 KB |
+| Components | Carousel controls for Shine's `.carousel` (arrows, dots, autoplay, fade) | `efx-carousel` | 1.7 KB |
+| Components | Before / after compare | `efx-compare` | 1.3 KB |
+| Components | Copy to clipboard | `efx-copy` | 0.5 KB |
+| Components | Schedule visibility (date, weekday and hour windows) | `efx-schedule` | 0.7 KB |
+| Time | Countdown | `efx-countdown` | 1.2 KB |
+
+The [docs](https://asticore.github.io/effix/docs/) list every option, CSS variable and event. Every example there is live, and you can edit it to try options.
+
+## Customising
+
+```html
+<!-- behaviour: data-efx-* -->
+<div class="efx-particles" data-efx-count="80" data-efx-interact="connect" data-efx-color="#f43f5e,#8b5cf6"></div>
+
+<!-- look: --efx-* (or Shine tokens) -->
+<button class="btn tone-accent efx-border-spin" style="--efx-border-speed:1.5s; --efx-border-width:3px">Loading…</button>
+```
+
+Global knobs: `--efx-duration`, `--efx-ease`, `--efx-distance`, `--efx-color`. Set them on `:root`, a section, or one element.
+
+### Page switches
+
+| Switch | Effect |
+|---|---|
+| `<html data-efx-manual>` | Don't auto-start. Call `Effix.init()` yourself. |
+| `<html data-efx-observe>` | Start features on elements added later (SPAs, visual editors). |
+| `<html data-efx-reduce>` | Force reduced motion. |
+| `<html data-efx-margin="200px">` | How early lazy features start before they enter the viewport. |
+| `window.EffixConfig = { auto: false, observe: true }` | The same switches from JS. Set it before the script loads. |
+
+## Visual editors and SPAs
+
+```js
+Effix.observe();              // auto start/clean up nodes as the editor adds/removes blocks
+Effix.refresh(block);         // re-read data-efx-* after a setting changed
+Effix.destroy(block);         // remove listeners, timers and injected nodes
+Effix.init(container);        // start features inside a container
+Effix.define({ name, selector, defaults, init });   // add your own feature
+```
+
+Each feature maps onto a block setting. The class picks the effect and each `data-efx-*` attribute is one field in the settings panel. A builder can store the settings as attributes and call `Effix.refresh(el)` when one changes.
+
+## Build
+
+```bash
+npm install
+npm run build                                   # dist/ + docs/index.html, fails over the gzip budget
+node build.js --only=reveal,parallax,tilt       # custom build -> dist/custom/
+node build.js --exclude=cursor,popup
+npm test                                        # Playwright smoke test (chromium firefox webkit)
+```
+
+| File | What |
+|---|---|
+| `dist/effix.min.js` | Minified bundle: `window.Effix`, starts itself |
+| `dist/effix.esm.js` | ES module build |
+| `dist/effix.min.css` | Styles, in `@layer effix` (ordered after Shine's layers) |
+| `src/core.js`, `src/features/*.js` | ES sources for per-feature imports |
+
+## Contributing
+
+Read [CONVENTIONS.md](CONVENTIONS.md) and [CONTRIBUTING.md](CONTRIBUTING.md). To add a feature, create `src/features/<name>.js` (+ `.css`, + `.meta.js` for the docs). The build and the docs find new files automatically.
+
+## License
+
+[MIT](LICENSE)

@@ -18,13 +18,13 @@ module.exports = {
   vars: [['--efx-per-view', '(unset)', 'Slides per view, set when per-view is > 0.']],
   examples: [
     { html: `<div class="carousel efx-carousel" tabindex="0" aria-label="Demo slides" data-efx-autoplay="4000">
-  <div class="card p-6 tone-primary" style="min-height:160px">Slide one</div>
-  <div class="card p-6 tone-success" style="min-height:160px">Slide two</div>
-  <div class="card p-6 tone-warning" style="min-height:160px">Slide three</div>
+  <div class="card p-6 bg-primary-soft" style="min-height:160px">Slide one</div>
+  <div class="card p-6 bg-success-soft" style="min-height:160px">Slide two</div>
+  <div class="card p-6 bg-warning-soft" style="min-height:160px">Slide three</div>
 </div>` },
     { html: `<div class="carousel efx-carousel" data-efx-fade tabindex="0" aria-label="Fading slides">
-  <div class="card p-6 tone-info" style="min-height:160px">Fade one</div>
-  <div class="card p-6 tone-danger" style="min-height:160px">Fade two</div>
+  <div class="card p-6 bg-info-soft" style="min-height:160px">Fade one</div>
+  <div class="card p-6 bg-danger-soft" style="min-height:160px">Fade two</div>
 </div>` },
   ],
 };
