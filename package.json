@@ -1,0 +1,56 @@
+{
+  "name": "effix",
+  "version": "0.1.0",
+  "description": "Class-driven JavaScript effects (particles, parallax, reveal, tilt, carousels, popups…) that pair with Shine CSS. Only features found on the page start.",
+  "main": "dist/effix.min.js",
+  "module": "dist/effix.esm.js",
+  "style": "dist/effix.min.css",
+  "unpkg": "dist/effix.min.js",
+  "jsdelivr": "dist/effix.min.js",
+  "exports": {
+    ".": {
+      "import": "./dist/effix.esm.js",
+      "default": "./dist/effix.min.js"
+    },
+    "./css": "./dist/effix.min.css",
+    "./core": "./src/core.js",
+    "./features/*": "./src/features/*.js",
+    "./src/*": "./src/*",
+    "./dist/*": "./dist/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "!src/**/*.meta.js"
+  ],
+  "sideEffects": [
+    "*.css",
+    "./dist/*.js"
+  ],
+  "scripts": {
+    "build": "node build.js && node docs.js",
+    "docs": "node docs.js",
+    "test": "node tests/smoke.js chromium firefox webkit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asticore/effix.git"
+  },
+  "keywords": [
+    "effects",
+    "animation",
+    "particles",
+    "parallax",
+    "scroll-reveal",
+    "shine-css",
+    "vanilla-js"
+  ],
+  "author": "Matt Peterman",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "playwright": "^1.56.0"
+  },
+  "homepage": "https://asticore.github.io/effix/docs/"
+}

@@ -1,0 +1,11 @@
+/* Effix base — shared knobs. Colors fall back to Shine tokens when Shine is loaded.
+   Override any knob on :root, a section, or a single element:
+     style="--efx-color:#e11d48; --efx-duration:900ms" */
+:root {
+  --efx-duration: 700ms;
+  --efx-ease: cubic-bezier(.22, 1, .36, 1);
+  --efx-distance: 24px;
+}
+[data-efx-reduce] *,
+[data-efx-reduce] *::before,
+[data-efx-reduce] *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
