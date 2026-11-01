@@ -1,11 +1,11 @@
-/* tilt — rotation comes from --efx-rx / --efx-ry set by JS (only when the effect is active) */
-.efx-tilt[data-efx-ready] {
-  position: relative;
+/* tilt — only active while JS has added .is-tilt-active (pointer inside + short settle); idle elements keep their own transforms/transitions */
+.efx-tilt.is-tilt-active {
   transform: perspective(var(--efx-persp, 900px)) rotateX(var(--efx-rx, 0deg)) rotateY(var(--efx-ry, 0deg)) scale(1);
   transition: transform .25s ease-out;
-  will-change: transform;
 }
-.efx-tilt.is-tilting { transform: perspective(var(--efx-persp, 900px)) rotateX(var(--efx-rx, 0deg)) rotateY(var(--efx-ry, 0deg)) scale(var(--efx-tscale, 1.02)); }
+.efx-tilt.is-tilt-active.is-tilting {
+  transform: perspective(var(--efx-persp, 900px)) rotateX(var(--efx-rx, 0deg)) rotateY(var(--efx-ry, 0deg)) scale(var(--efx-tscale, 1.02));
+}
 .efx-tilt__glare {
   position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .25s ease-out;
   background: radial-gradient(circle at var(--efx-gx, 50%) var(--efx-gy, 50%), rgba(255,255,255,.35), transparent 60%);

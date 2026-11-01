@@ -11,6 +11,8 @@ export default {
   },
   init(el, o) {
     if (!finePointer() || !motionOK()) return;
+    let hoverSel = o.hover;
+    try { document.querySelector(hoverSel); } catch { hoverSel = 'a,button,[role=button],input,select,textarea,label,summary,.efx-cursor-hover'; }
     const mk = k => {
       const d = document.createElement('div');
       d.className = 'efx-cursor__' + k;
@@ -42,7 +44,7 @@ export default {
         if (dot) put(dot, tx, ty);
         if (ring) { if (!seen) { rx = tx; ry = ty; put(ring, rx, ry); } else if (!raf) raf = requestAnimationFrame(tick); }
         seen = true; show(true);
-        const h = !!(e.target.closest && e.target.closest(o.hover));
+        const h = !!(e.target.closest && e.target.closest(hoverSel));
         parts.forEach(n => n.toggleAttribute('data-hover', h));
       }, { passive: true }),
       on(document, 'pointerdown', () => parts.forEach(n => n.setAttribute('data-down', ''))),

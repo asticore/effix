@@ -1,14 +1,14 @@
-/* spotlight — glow layer is ::before; content is lifted above it */
-.efx-spotlight { position: relative; overflow: hidden; }
-.efx-spotlight[data-efx-ready]::before {
-  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s;
+/* spotlight — glow layer is ::before at z-index:-1 inside an isolated host (no overflow clipping, children untouched).
+   Everything keys on .is-spot, which JS adds only on fine pointers. */
+.efx-spotlight.is-spot { isolation: isolate; }
+.efx-spotlight.is-spot::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s;
   --_c: var(--efx-spot, var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))));
   background: radial-gradient(var(--efx-size, 240px) circle at var(--efx-x, 50%) var(--efx-y, 50%), color-mix(in srgb, var(--_c) calc(var(--efx-spot-o, .18) * 100%), transparent), transparent 70%);
 }
 .efx-spotlight.is-lit::before { opacity: 1; }
-.efx-spotlight[data-efx-ready] > * { position: relative; }
 /* optional border light: ring masked to the border box */
-.efx-spotlight--border[data-efx-ready]::after {
+.efx-spotlight--border.is-spot::after {
   content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; opacity: 0; transition: opacity .3s;
   background: radial-gradient(calc(var(--efx-size, 240px) * .8) circle at var(--efx-x, 50%) var(--efx-y, 50%), var(--efx-spot, var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1)))), transparent 70%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;

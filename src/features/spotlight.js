@@ -8,6 +8,9 @@ export default {
   defaults: { size: 240, color: '', opacity: 0.18, border: false },
   init(el, o) {
     if (!finePointer()) return;
+    let restorePos = false;
+    if (getComputedStyle(el).position === 'static') { el.style.position = 'relative'; restorePos = true; }
+    el.classList.add('is-spot');
     el.style.setProperty('--efx-size', o.size + 'px');
     el.style.setProperty('--efx-spot-o', o.opacity);
     if (o.color) el.style.setProperty('--efx-spot', o.color);
@@ -22,7 +25,8 @@ export default {
     return () => {
       offs.forEach(f => f()); move.cancel();
       ['--efx-x', '--efx-y', '--efx-size', '--efx-spot-o', '--efx-spot'].forEach(v => el.style.removeProperty(v));
-      el.classList.remove('is-lit', 'efx-spotlight--border');
+      el.classList.remove('is-lit', 'is-spot', 'efx-spotlight--border');
+      if (restorePos) el.style.position = '';
     };
   },
 };

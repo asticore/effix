@@ -1,5 +1,6 @@
-/* magnetic — uses the individual `translate` property so it composes with other transforms */
-.efx-magnetic[data-efx-ready] {
+/* magnetic — uses the individual `translate` property so it composes with other transforms.
+   Only applied while JS has the element pulled/settling (.is-magnetic), so Shine's own transitions are untouched otherwise. */
+.efx-magnetic.is-magnetic {
   translate: var(--efx-mx, 0px) var(--efx-my, 0px);
   transition: translate .3s cubic-bezier(.22, 1, .36, 1);
 }

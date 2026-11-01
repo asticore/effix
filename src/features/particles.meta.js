@@ -8,7 +8,7 @@ module.exports = {
   ],
   options: [
     ['data-efx-count', '50', 'Max particles (also capped by area / 14000).'],
-    ['data-efx-color', '(theme)', 'One color or a comma list for multicolor. Empty = Shine tone/primary.'],
+    ['data-efx-color', '(theme)', 'One color or a list separated by | (commas outside parentheses also work) for multicolor, e.g. rgb(1,2,3)|#f00. Empty = Shine tone/primary.'],
     ['data-efx-size-min', '1', 'Smallest radius in px.'],
     ['data-efx-size-max', '2.8', 'Largest radius in px.'],
     ['data-efx-speed', '100', 'Speed in percent.'],
@@ -26,7 +26,7 @@ module.exports = {
     { html: `<section class="efx-particles p-6 rounded-lg" data-efx-links data-efx-interact="connect" style="min-height:280px;background:#0f172a;color:#fff">
   <div class="stack"><h3>Connected particles</h3><p>Move the pointer over this area.</p><button class="btn">Still clickable</button></div>
 </section>` },
-    { html: `<section class="efx-particles p-6 rounded-lg" data-efx-color="#f43f5e,#f59e0b,#22d3ee" data-efx-shape="square" data-efx-count="70" style="min-height:280px;background:#111827;color:#fff">
+    { html: `<section class="efx-particles p-6 rounded-lg" data-efx-color="#f43f5e|#f59e0b|rgb(34,211,238)" data-efx-shape="square" data-efx-count="70" style="min-height:280px;background:#111827;color:#fff">
   <h3>Multicolor squares</h3>
 </section>` },
   ],

@@ -1,5 +1,5 @@
 /* ripple */
-.efx-ripple { position: relative; overflow: hidden; }
+.efx-ripple__clip { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
 .efx-ripple__wave {
   position: absolute; border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%) scale(0);
   background: var(--efx-ripple-color, color-mix(in srgb, currentColor 25%, transparent));

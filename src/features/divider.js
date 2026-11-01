@@ -4,6 +4,20 @@
    Shapes: wave waves tilt curve triangle arrow zigzag clouds mountains drips steps spikes. */
 import { onVisible, motionOK } from '../core.js';
 
+/* parent -> { count, prev }: several dividers may share one parent; the first forces position:relative,
+   the last to leave restores the original inline value. */
+const parents = new WeakMap();
+const claimParent = p => {
+  let rec = parents.get(p);
+  if (!rec) { rec = { count: 0, prev: p.style.position }; parents.set(p, rec); p.style.position = 'relative'; }
+  rec.count++;
+};
+const releaseParent = p => {
+  const rec = parents.get(p);
+  if (!rec) return;
+  if (--rec.count <= 0) { p.style.position = rec.prev; parents.delete(p); }
+};
+
 const f = n => +n.toFixed(1);
 // wave layer: sampled sine, integer cycles per 1200 so tiles join seamlessly
 const wave = (amp, cyc, ph, base) => [base + amp * Math.sin(ph), 'b', ox => {
@@ -42,14 +56,14 @@ export default {
     const W = drift ? 2400 : 1200;
     const side = layers[0][1];
     const saved = st.cssText;
-    let restorePos = '';
+    let claimed = false;
     if (o.color) st.setProperty('--efx-divider-color', o.color);
     st.height = o.height + 'px';
     if (o.flip || o.invert) st.transform = `scale(${o.flip ? -1 : 1},${o.invert ? -1 : 1})`;
     if (o.position) {
       st.position = 'absolute'; st.left = st.right = '0'; st.zIndex = '1';
       st[o.position === 'top' ? 'top' : 'bottom'] = '0';
-      if (parent && getComputedStyle(parent).position === 'static') { parent.style.position = 'relative'; restorePos = '1'; }
+      if (parent && (parents.has(parent) || getComputedStyle(parent).position === 'static')) { claimParent(parent); claimed = true; }
     }
     el.setAttribute('aria-hidden', 'true');
     el.setAttribute('data-efx-mode', move ? mode : 'none');
@@ -79,7 +93,7 @@ export default {
       el.removeAttribute('aria-hidden'); el.removeAttribute('data-efx-mode');
       el.classList.remove('is-ready', 'is-paused', 'efx-divider--drift', 'efx-divider--float');
       st.cssText = saved;
-      if (restorePos) parent.style.position = '';
+      if (claimed) releaseParent(parent);
     };
   },
 };

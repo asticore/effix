@@ -1,6 +1,7 @@
 /* border — masked ring pseudo-element; only the border area shows */
 @property --efx-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-.efx-border-spin, .efx-border-trace, .efx-border-glow, .efx-border-gradient { position: relative; isolation: isolate; }
+/* position:relative is added by border.js only when the element is statically positioned */
+.efx-border-spin, .efx-border-trace, .efx-border-glow, .efx-border-gradient { isolation: isolate; }
 .efx-border-spin::before, .efx-border-trace::before, .efx-border-glow::before, .efx-border-gradient::before {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   padding: var(--efx-border-width, 2px);
