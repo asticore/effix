@@ -1,5 +1,5 @@
 /* compare — clip-path driven by --efx-pos */
-.efx-compare { --efx-pos: 50%; position: relative; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: ew-resize; }
+.efx-compare { --efx-pos: 50%; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: ew-resize; }
 .efx-compare > img, .efx-compare__clip > img { display: block; width: 100%; height: auto; max-width: 100%; }
 .efx-compare__clip { position: absolute; inset: 0; clip-path: inset(0 0 0 var(--efx-pos)); }
 .efx-compare__clip > img { height: 100%; object-fit: cover; }

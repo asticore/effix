@@ -34,7 +34,7 @@ export default {
       const v = (x ? innerWidth : innerHeight) / 2;
       last = o.bg ? 0 : (c - v) * -o.speed;
       const d = o.bg ? (c - v) * -o.speed : last;
-      target.style.transform = x ? `translate3d(${d.toFixed(1)}px,0,0)` : `translate3d(0,${d.toFixed(1)}px,0)`;
+      return () => { target.style.transform = x ? `translate3d(${d.toFixed(1)}px,0,0)` : `translate3d(0,${d.toFixed(1)}px,0)`; };
     });
     return () => {
       stop(); stopVis();

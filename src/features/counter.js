@@ -7,7 +7,7 @@ export default {
   selector: '.efx-counter',
   defaults: { from: 0, to: NaN, duration: 1600, decimals: -1, separator: ',', prefix: '', suffix: '', once: true },
   init(el, o) {
-    const orig = el.textContent, had = el.getAttribute('aria-label');
+    const orig = el.textContent, hadHidden = el.getAttribute('aria-hidden');
     const to = Number.isFinite(o.to) ? o.to : parseFloat(orig.replace(/[^0-9.\-]/g, ''));
     if (!Number.isFinite(to)) return;
     const dec = o.decimals >= 0 ? o.decimals : Math.max((String(Number.isFinite(o.to) ? o.to : orig.replace(/[^0-9.]/g, '')).split('.')[1] || '').length, (String(o.from).split('.')[1] || '').length);
@@ -15,7 +15,6 @@ export default {
       const [i, d] = Math.abs(n).toFixed(dec).split('.');
       return o.prefix + (n < 0 ? '-' : '') + i.replace(/\B(?=(\d{3})+(?!\d))/g, o.separator) + (d ? '.' + d : '') + o.suffix;
     };
-    el.setAttribute('aria-label', fmt(to));
     const final = () => { el.textContent = fmt(to); };
     let raf = 0;
     const run = () => {
@@ -28,7 +27,13 @@ export default {
       };
       raf = requestAnimationFrame(step);
     };
-    if (!motionOK()) { final(); return () => { el.textContent = orig; had === null ? el.removeAttribute('aria-label') : el.setAttribute('aria-label', had); }; }
+    if (!motionOK()) { final(); return () => { el.textContent = orig; }; }
+    // aria-label on a span is ignored: expose the final value in an sr-only sibling, hide the animated text
+    const sr = document.createElement('span');
+    sr.className = 'efx-counter__sr';
+    sr.textContent = fmt(to);
+    el.after(sr);
+    el.setAttribute('aria-hidden', 'true');
     el.textContent = fmt(o.from);
     let stop = () => {};
     stop = onVisible(el, v => {
@@ -38,7 +43,8 @@ export default {
     return () => {
       stop(); cancelAnimationFrame(raf);
       el.textContent = orig;
-      had === null ? el.removeAttribute('aria-label') : el.setAttribute('aria-label', had);
+      sr.remove();
+      hadHidden === null ? el.removeAttribute('aria-hidden') : el.setAttribute('aria-hidden', hadHidden);
     };
   },
 };

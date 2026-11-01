@@ -17,6 +17,8 @@ export default {
     Object.assign(input, { type: 'range', min: 0, max: 100, step: 1 });
     input.setAttribute('aria-label', 'Comparison position');
     if (o.vertical) { el.classList.add('efx-compare-vertical'); input.setAttribute('aria-orientation', 'vertical'); }
+    const pos = el.style.position, setPos = getComputedStyle(el).position === 'static';
+    if (setPos) el.style.position = 'relative';
     after.before(clip);
     clip.appendChild(after);
     el.append(input, handle);
@@ -49,6 +51,7 @@ export default {
       input.remove(); handle.remove();
       el.classList.remove('efx-compare-vertical', 'is-dragging');
       el.style.removeProperty('--efx-pos');
+      if (setPos) el.style.position = pos;
     };
   },
 };

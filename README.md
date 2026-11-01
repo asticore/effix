@@ -9,7 +9,7 @@
 <p align="center">
   <strong>JavaScript effects you apply with classes: particles, parallax, tilt, magnetic buttons, rotating borders, shape dividers, carousels, popups and more.</strong>
   <br>
-  Built to work with <a href="https://github.com/asticore/shine">Shine CSS</a>. Only the features on the page start. ~18 KB gzipped for all 25.
+  Built to work with <a href="https://github.com/asticore/shine">Shine CSS</a>. Only the features on the page start. ~20 KB gzipped for all 25.
   <br>
   <br>
   <a href="https://asticore.github.io/effix/docs/"><strong>Live docs &amp; playground</strong></a>
@@ -22,8 +22,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/gzip-14.5%20KB%20JS%20%2B%204.1%20KB%20CSS-4f46e5" alt="Size: 14.5 KB JS + 4.1 KB CSS gzip">
-  <img src="https://img.shields.io/badge/core-2.0%20KB-16a34a" alt="Core 2.0 KB">
+  <img src="https://img.shields.io/badge/gzip-16.0%20KB%20JS%20%2B%204.1%20KB%20CSS-4f46e5" alt="Size: 16.0 KB JS + 4.1 KB CSS gzip">
+  <img src="https://img.shields.io/badge/core-2.3%20KB-16a34a" alt="Core 2.3 KB">
   <img src="https://img.shields.io/badge/dependencies-0-16a34a" alt="Zero dependencies">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
 </p>
@@ -98,7 +98,7 @@ init();
 - **Only features on the page start.** When the page loads, the core runs one `querySelectorAll` per feature. A missing feature costs nothing.
 - **Heavy features are lazy.** Particles only start when they come near the viewport. Every animation loop pauses when it scrolls off-screen or the tab is hidden.
 - **Shared observers.** All reveal, sticky and parallax elements share one `IntersectionObserver` and one passive, rAF-throttled scroll loop. Elements don't get their own.
-- **Tiny core.** The core is 2.0 KB gzip. Each feature adds 0.5 to 1.8 KB. Custom builds can cut it further: `node build.js --only=reveal,tilt`.
+- **Tiny core.** The core is 2.3 KB gzip. Each feature adds 0.5 to 1.9 KB. Custom builds can cut it further: `node build.js --only=reveal,tilt`.
 - **Accessible defaults.**
   - Reduced-motion users see the static end state.
   - Pointer effects only run on mouse or trackpad.
@@ -109,30 +109,30 @@ init();
 
 | Group | Feature | Classes | gzip |
 |---|---|---|---|
-| Scroll | Reveal on scroll | `efx-reveal` `efx-stagger` | 0.5 KB |
+| Scroll | Reveal on scroll | `efx-reveal` `efx-stagger` | 0.6 KB |
 | Scroll | Parallax | `efx-parallax` | 0.6 KB |
-| Scroll | Counter (count-up) | `efx-counter` | 0.5 KB |
-| Scroll | Marquee / ticker | `efx-marquee` | 0.8 KB |
+| Scroll | Counter (count-up) | `efx-counter` | 0.6 KB |
+| Scroll | Marquee / ticker | `efx-marquee` | 0.9 KB |
 | Scroll | Scroll progress bar | `efx-progress` | 0.6 KB |
-| Scroll | Sticky header (stuck / hide on scroll / shrink) | `efx-sticky` | 0.6 KB |
-| Scroll | Scrollspy | `efx-scrollspy` | 0.6 KB |
+| Scroll | Sticky header (stuck / hide on scroll / shrink) | `efx-sticky` | 0.7 KB |
+| Scroll | Scrollspy | `efx-scrollspy` | 0.8 KB |
 | Scroll | Back to top | `efx-totop` | 0.5 KB |
-| Text | Typed / rotating words | `efx-typed` | 1.0 KB |
-| Text | Split text (letter / word stagger) | `efx-split` | 0.8 KB |
-| Buttons & borders | Rotating, tracing, glowing and gradient borders, plus a click-to-load state | `efx-border-spin` `efx-border-trace` `efx-border-glow` `efx-border-gradient` | 1.1 KB |
-| Background | Particles (repel, attract, connect, links) | `efx-particles` | 1.4 KB |
-| Pointer | Tilt (+ glare) | `efx-tilt` | 0.7 KB |
-| Pointer | Magnetic | `efx-magnetic` | 0.5 KB |
+| Text | Typed / rotating words | `efx-typed` | 0.9 KB |
+| Text | Split text (letter / word stagger) | `efx-split` | 0.9 KB |
+| Buttons & borders | Rotating, tracing, glowing and gradient borders, plus a click-to-load state | `efx-border-spin` `efx-border-trace` `efx-border-glow` `efx-border-gradient` | 1.2 KB |
+| Background | Particles (repel, attract, connect, links) | `efx-particles` | 1.6 KB |
+| Pointer | Tilt (+ glare) | `efx-tilt` | 0.8 KB |
+| Pointer | Magnetic | `efx-magnetic` | 0.6 KB |
 | Pointer | Spotlight | `efx-spotlight` | 0.7 KB |
 | Pointer | Ripple | `efx-ripple` | 0.7 KB |
-| Pointer | Custom cursor | `efx-cursor` | 1.0 KB |
-| Sections | Animated shape dividers (12 shapes, drift / layers / float) | `efx-divider` | 1.8 KB |
+| Pointer | Custom cursor | `efx-cursor` | 1.1 KB |
+| Sections | Animated shape dividers (12 shapes, drift / layers / float) | `efx-divider` | 1.9 KB |
 | Components | Popup triggers for Shine's `<dialog class="modal">` (delay, scroll, exit intent, frequency) | `efx-popup` | 0.7 KB |
 | Components | Lightbox | `efx-lightbox` | 1.6 KB |
-| Components | Carousel controls for Shine's `.carousel` (arrows, dots, autoplay, fade) | `efx-carousel` | 1.7 KB |
+| Components | Carousel controls for Shine's `.carousel` (arrows, dots, autoplay, fade) | `efx-carousel` | 1.8 KB |
 | Components | Before / after compare | `efx-compare` | 1.3 KB |
-| Components | Copy to clipboard | `efx-copy` | 0.5 KB |
-| Components | Schedule visibility (date, weekday and hour windows) | `efx-schedule` | 0.7 KB |
+| Components | Copy to clipboard | `efx-copy` | 0.6 KB |
+| Components | Schedule visibility (date, weekday and hour windows) | `efx-schedule` | 0.8 KB |
 | Time | Countdown | `efx-countdown` | 1.2 KB |
 
 The [docs](https://asticore.github.io/effix/docs/) list every option, CSS variable and event. Every example there is live, and you can edit it to try options.

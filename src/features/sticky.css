@@ -1,10 +1,17 @@
-/* sticky */
+/* sticky — transitions apply only while hide/shrink is active (class added by JS) so Shine navbar transitions stay intact */
 .efx-sticky {
   position: sticky;
   top: 0;
   z-index: 50;
-  transition: transform var(--efx-duration, 700ms) var(--efx-ease, ease), box-shadow .3s, padding .3s, background-color .3s;
+}
+.efx-sticky-anim {
+  transition-property: translate, box-shadow, padding, background-color;
+  transition-duration: var(--efx-duration, 700ms), .3s, .3s, .3s;
+  transition-timing-function: var(--efx-ease, ease), ease, ease, ease;
 }
 .efx-sticky.is-stuck { box-shadow: var(--sh-shadow-2, 0 4px 14px rgba(0, 0, 0, .15)); }
-.efx-sticky.is-hidden { transform: translateY(-100%); }
+.efx-sticky.is-hidden { translate: 0 -100%; }
 .efx-sticky.is-shrunk { padding-top: .35rem; padding-bottom: .35rem; }
+@media (prefers-reduced-motion: reduce) {
+  .efx-sticky-anim { transition: none; }
+}

@@ -27,10 +27,10 @@ ${feats.map(f => `<section class="box" id="s-${f.n}">${f.html}</section><div sty
 <script src="effix.min.js"></script></body></html>`;
 fs.writeFileSync(page, html);
 
-async function run(name) {
+async function run(name, reducedMotion = 'no-preference') {
   // PW_EXECUTABLE lets a preinstalled browser be used when Playwright's own download is missing.
   const browser = await playwright[name].launch(process.env.PW_EXECUTABLE ? { executablePath: process.env.PW_EXECUTABLE } : {});
-  const p = await browser.newPage({ viewport: { width: 1100, height: 750 } });
+  const p = await browser.newPage({ viewport: { width: 1100, height: 750 }, reducedMotion });
   const errors = [];
   p.on('pageerror', e => errors.push(String(e)));
   p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
@@ -60,6 +60,19 @@ async function run(name) {
   const featureList = await p.evaluate(() => Effix.features());
   for (const n of names) if (!featureList.includes(n)) fails.push(`${n}: missing from bundle`);
 
+  // refresh() twice must not duplicate injected UI or throw
+  // (lazy features re-queue on refresh, so compare after scrolling again)
+  const count = () => p.evaluate(() => [...document.querySelectorAll('section.box')].map(s => s.id + ':' + s.querySelectorAll('*').length));
+  const before = await count();
+  await p.evaluate(() => { Effix.refresh(document); Effix.refresh(document); });
+  await p.evaluate(async () => {
+    for (let y = 0; y < document.body.scrollHeight; y += 300) { scrollTo(0, y); await new Promise(r => setTimeout(r, 30)); }
+    scrollTo(0, 0);
+  });
+  await p.waitForTimeout(300);
+  const after = await count();
+  before.forEach((b, i) => { if (b !== after[i]) fails.push(`refresh changed DOM: ${b} -> ${after[i].split(':')[1]}`); });
+
   // destroy() must remove every running instance
   const left = await p.evaluate(() => { Effix.destroy(document); return document.querySelectorAll('[data-efx-ready]').length; });
   if (left) fails.push(`destroy left ${left} element(s) running`);
@@ -75,9 +88,11 @@ async function run(name) {
   const browsers = process.argv.slice(2).length ? process.argv.slice(2) : ['chromium'];
   let failed = 0;
   for (const b of browsers) {
-    const fails = await run(b);
-    if (fails.length) { failed++; console.error(`✗ ${b}\n  ` + fails.join('\n  ')); }
-    else console.log(`✓ ${b}: ${feats.length} features start, destroy + re-init clean`);
+    for (const rm of ['no-preference', 'reduce']) {
+      const fails = await run(b, rm);
+      if (fails.length) { failed++; console.error(`✗ ${b} (motion: ${rm})\n  ` + fails.join('\n  ')); }
+      else console.log(`✓ ${b} (motion: ${rm}): ${feats.length} features start, refresh, destroy + re-init clean`);
+    }
   }
   fs.rmSync(page, { force: true });
   process.exit(failed ? 1 : 0);

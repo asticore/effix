@@ -13,3 +13,4 @@
 .efx-split-pending.is-in .efx-split__p { opacity: 1; transform: none; filter: none; }
 .efx-split-wave.is-in .efx-split__p { animation: efx-split-wave 1.4s ease-in-out infinite; animation-delay: calc(var(--i) * var(--efx-split-stagger, 40ms)); }
 @keyframes efx-split-wave { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-.35em); } }
+.efx-split__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }

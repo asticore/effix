@@ -1,0 +1,2 @@
+/* counter — screen-reader copy of the final value (the animated text is aria-hidden) */
+.efx-counter__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }

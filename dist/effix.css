@@ -1,0 +1,318 @@
+/*! Effix v0.1.0 | MIT | https://github.com/asticore/effix */
+@layer shine, effix;
+@layer effix {
+/* Effix base — shared knobs. Colors fall back to Shine tokens when Shine is loaded.
+   Override any knob on :root, a section, or a single element:
+     style="--efx-color:#e11d48; --efx-duration:900ms" */
+:root {
+  --efx-duration: 700ms;
+  --efx-ease: cubic-bezier(.22, 1, .36, 1);
+  --efx-distance: 24px;
+}
+/* <html data-efx-reduce>: freeze Effix animations only (not Shine spinners etc.) */
+[data-efx-reduce] [class*="efx-"],
+[data-efx-reduce] [class*="efx-"]::before,
+[data-efx-reduce] [class*="efx-"]::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+
+/* border — masked ring pseudo-element; only the border area shows */
+@property --efx-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+/* position:relative is added by border.js only when the element is statically positioned */
+.efx-border-spin, .efx-border-trace, .efx-border-glow, .efx-border-gradient { isolation: isolate; }
+.efx-border-spin::before, .efx-border-trace::before, .efx-border-glow::before, .efx-border-gradient::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  padding: var(--efx-border-width, 2px);
+  border-radius: var(--efx-border-radius, inherit);
+  background: conic-gradient(from var(--efx-angle), var(--efx-border-colors,
+    var(--sh-primary, #6366f1), var(--sh-accent, #ec4899), var(--sh-secondary, #06b6d4), var(--sh-primary, #6366f1)));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: efx-border-rot var(--efx-border-speed, 3s) linear infinite;
+}
+.efx-border-trace::before {
+  background: conic-gradient(from var(--efx-angle), transparent 0 70%,
+    var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 100%);
+}
+.efx-border-gradient::before {
+  background: linear-gradient(90deg, var(--efx-border-colors,
+    var(--sh-primary, #6366f1), var(--sh-accent, #ec4899), var(--sh-secondary, #06b6d4), var(--sh-primary, #6366f1)));
+  background-size: 300% 100%;
+  animation: efx-border-shift calc(var(--efx-border-speed, 3s) * 3) linear infinite;
+}
+.efx-border-glow { animation: efx-border-pulse var(--efx-border-speed, 3s) ease-in-out infinite; }
+@keyframes efx-border-rot { to { --efx-angle: 360deg; } }
+@keyframes efx-border-shift { to { background-position: 300% 0; } }
+@keyframes efx-border-pulse {
+  0%, 100% { box-shadow: 0 0 4px 0 color-mix(in srgb, var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 40%, transparent); }
+  50% { box-shadow: 0 0 20px 2px color-mix(in srgb, var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 70%, transparent); }
+}
+.efx-border-spin.is-paused, .efx-border-trace.is-paused, .efx-border-glow.is-paused, .efx-border-gradient.is-paused { animation-play-state: paused; }
+[class*="efx-border-"].is-paused::before { animation-play-state: paused; }
+[class*="efx-border-"].is-static, [class*="efx-border-"].is-static::before { animation: none !important; }
+.efx-border-trace.is-paused:not(.is-loading):not(.is-static)::before { opacity: .35; }
+@media (prefers-reduced-motion: reduce) {
+  .efx-border-spin, .efx-border-trace, .efx-border-glow, .efx-border-gradient,
+  .efx-border-spin::before, .efx-border-trace::before, .efx-border-glow::before, .efx-border-gradient::before { animation: none !important; }
+}
+
+/* carousel — track fallback when Shine's .carousel is absent (low specificity) */
+:where(.efx-carousel:not(.carousel)) { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; overscroll-behavior-x: contain; }
+:where(.efx-carousel:not(.carousel)) > * { flex: 0 0 100%; scroll-snap-align: start; }
+.efx-carousel__nav { display: flex; align-items: center; justify-content: center; gap: .5rem; margin-block-start: .5rem; }
+.efx-carousel__dots { display: flex; gap: 0; }
+.efx-carousel__dot {
+  position: relative; inline-size: 1.5rem; block-size: 1.5rem; padding: 0; border: 0; background: none; color: inherit; cursor: pointer;
+}
+.efx-carousel__dot::before {
+  content: ""; position: absolute; inset: 0; margin: auto; inline-size: .625rem; block-size: .625rem; border-radius: 50%;
+  background: color-mix(in oklab, currentColor 30%, transparent); transition: background-color var(--efx-duration) var(--efx-ease), scale var(--efx-duration) var(--efx-ease);
+}
+.efx-carousel__dot[aria-current]::before { background: var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); scale: 1.3; }
+.efx-carousel__dot:focus-visible, .efx-carousel__nav .btn:focus-visible { outline: 2px solid var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); outline-offset: 2px; }
+.efx-carousel:focus-visible { outline: 2px solid var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); outline-offset: 2px; }
+.efx-carousel-fade { display: grid; overflow: hidden; scroll-snap-type: none; }
+.efx-carousel-fade > * { grid-area: 1 / 1; opacity: 0; visibility: hidden; transition: opacity var(--efx-duration) var(--efx-ease), visibility 0s linear var(--efx-duration); }
+.efx-carousel-fade > .is-active { opacity: 1; visibility: visible; transition-delay: 0s; }
+@media (prefers-reduced-motion: reduce) { .efx-carousel-fade > * { transition: none; } }
+
+/* compare — clip-path driven by --efx-pos */
+.efx-compare { --efx-pos: 50%; overflow: hidden; touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: ew-resize; }
+.efx-compare > img, .efx-compare__clip > img { display: block; width: 100%; height: auto; max-width: 100%; }
+.efx-compare__clip { position: absolute; inset: 0; clip-path: inset(0 0 0 var(--efx-pos)); }
+.efx-compare__clip > img { height: 100%; object-fit: cover; }
+.efx-compare__handle {
+  position: absolute; inset-block: 0; inset-inline-start: var(--efx-pos); inline-size: 2px;
+  translate: -50% 0; pointer-events: none;
+  background: var(--efx-handle, var(--sh-bg, #fff)); box-shadow: 0 0 0 1px rgb(0 0 0 / .15);
+}
+.efx-compare__knob {
+  position: absolute; inset-block-start: 50%; inset-inline-start: 50%; translate: -50% -50%;
+  display: grid; place-items: center; inline-size: 2.5rem; block-size: 2.5rem; border-radius: 50%;
+  background: var(--sh-surface, #fff); color: var(--sh-text, #0f172a);
+  border: var(--sh-border-width, 1px) solid var(--sh-border, #e2e8f0); box-shadow: var(--sh-shadow-3, 0 2px 8px rgb(0 0 0 / .25));
+}
+.efx-compare__knob::before { content: "\2039\00a0\203A"; font-size: 1.25rem; line-height: 1; }
+.efx-compare__range { position: absolute; inline-size: 1px; block-size: 1px; margin: -1px; opacity: 0; overflow: hidden; pointer-events: none; }
+.efx-compare__range:focus-visible ~ .efx-compare__handle .efx-compare__knob { outline: 2px solid var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); outline-offset: 2px; }
+.efx-compare-vertical { touch-action: pan-x; cursor: ns-resize; }
+.efx-compare-vertical > .efx-compare__clip { clip-path: inset(var(--efx-pos) 0 0 0); }
+.efx-compare-vertical > .efx-compare__handle { inset: var(--efx-pos) 0 auto 0; inline-size: auto; block-size: 2px; translate: 0 -50%; }
+.efx-compare-vertical .efx-compare__knob::before { content: "\2c4\00a0\2c5"; display: inline-block; rotate: 0deg; }
+
+/* copy — visually hidden live region */
+.efx-copy__live { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* countdown */
+.efx-countdown { display: flex; flex-wrap: wrap; gap: .75rem; font-variant-numeric: tabular-nums; }
+.efx-countdown__unit { display: flex; flex-direction: column; align-items: center; min-width: 4.5rem; padding: .75rem 1rem;
+  background: var(--efx-countdown-bg, var(--sh-surface-2, var(--sh-surface, rgba(127, 127, 127, .12))));
+  border-radius: var(--sh-radius, .5rem); }
+.efx-countdown__num { font-size: 2rem; font-weight: 700; line-height: 1.1; }
+.efx-countdown__label { font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; opacity: .7; }
+
+/* counter — screen-reader copy of the final value (the animated text is aria-hidden) */
+.efx-counter__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* cursor — fixed, non-interactive follower elements injected by JS */
+.efx-cursor__ring, .efx-cursor__dot {
+  position: fixed; left: 0; top: 0; pointer-events: none; z-index: 2147483000; border-radius: 50%;
+  transition: opacity .2s, width .2s, height .2s, background-color .2s, scale .2s;
+}
+.efx-cursor__ring {
+  width: var(--efx-cursor-size, 32px); height: var(--efx-cursor-size, 32px);
+  border: 1.5px solid var(--efx-cursor-color, var(--sh-primary, #6366f1));
+}
+.efx-cursor__dot { width: var(--efx-cursor-size, 6px); height: var(--efx-cursor-size, 6px); background: var(--efx-cursor-color, var(--sh-primary, #6366f1)); }
+.efx-cursor__ring[data-hover] { scale: 1.6; background: color-mix(in srgb, var(--efx-cursor-color, var(--sh-primary, #6366f1)) 15%, transparent); }
+.efx-cursor__ring[data-down] { scale: .8; }
+.efx-cursor__dot[data-hover] { scale: .5; }
+.efx-cursor--blend { mix-blend-mode: difference; border-color: #fff; }
+.efx-cursor__dot.efx-cursor--blend { background: #fff; }
+.efx-cursor-hide, .efx-cursor-hide * { cursor: none !important; }
+
+/* divider — svg inherits the next section's color via --sh-bg */
+.efx-divider { display: block; overflow: hidden; line-height: 0; pointer-events: none;
+  color: var(--efx-divider-color, var(--sh-bg, #fff)); }
+.efx-divider__svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+.efx-divider--drift .efx-divider__svg { animation: efx-div-drift var(--efx-dv-t, 12s) linear infinite; }
+.efx-divider--float .efx-divider__svg { position: relative; height: 112%; top: -6%;
+  animation: efx-div-float calc(var(--efx-dv-t, 12s) / 3) ease-in-out infinite alternate; }
+.efx-divider.is-paused .efx-divider__svg { animation-play-state: paused; }
+@keyframes efx-div-drift { to { transform: translateX(-50%); } }
+@keyframes efx-div-float { to { transform: translateY(calc(var(--efx-dv-dir, -1) * 6%)); } }
+@media (prefers-reduced-motion: reduce) { .efx-divider__svg { animation: none !important; } }
+
+/* lightbox — layout inside Shine's .modal */
+.efx-lightbox a { cursor: zoom-in; }
+.efx-lightbox__dialog { position: fixed; inset: 0; margin: auto; max-width: min(64rem, 100% - 2rem); width: fit-content; height: fit-content; max-height: calc(100% - 2rem); overflow: visible; background: var(--efx-lb-bg, var(--sh-surface, #fff)); touch-action: pan-y; }
+.efx-lightbox__fig { margin: 0; display: grid; justify-items: center; }
+.efx-lightbox__fig img { display: block; max-inline-size: 100%; max-block-size: calc(100vh - 8rem); object-fit: contain; }
+.efx-lightbox__fig figcaption { padding: .75rem 1rem; text-align: center; }
+.efx-lightbox__close { position: absolute; inset-block-start: .5rem; inset-inline-end: .5rem; z-index: 2; background: color-mix(in oklab, var(--sh-surface, #fff) 80%, transparent); opacity: 1; }
+.efx-lightbox__prev, .efx-lightbox__next { position: absolute; inset-block-start: 50%; translate: 0 -50%; z-index: 2; border-radius: 50%; }
+.efx-lightbox__prev { inset-inline-start: .5rem; }
+.efx-lightbox__next { inset-inline-end: .5rem; }
+.efx-lightbox__prev[hidden], .efx-lightbox__next[hidden] { display: none; }
+.efx-lightbox__count { position: absolute; inset-block-start: .75rem; inset-inline-start: .75rem; padding: .125rem .5rem; border-radius: 99px; font-size: .8125rem; background: color-mix(in oklab, var(--sh-surface, #fff) 80%, transparent); }
+.efx-lightbox__count:empty { display: none; }
+
+/* magnetic — uses the individual `translate` property so it composes with other transforms.
+   Only applied while JS has the element pulled/settling (.is-magnetic), so Shine's own transitions are untouched otherwise. */
+.efx-magnetic.is-magnetic {
+  translate: var(--efx-mx, 0px) var(--efx-my, 0px);
+  transition: translate .3s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* marquee — track holds N identical groups, animated by one group width */
+.efx-marquee--on { display: flex; overflow: hidden; }
+.efx-marquee__track { display: flex; flex: none; width: max-content; animation: efx-marquee 20s linear infinite; will-change: transform; }
+.efx-marquee__group { display: flex; flex: none; align-items: center; gap: var(--efx-gap, 32px); padding-right: var(--efx-gap, 32px); }
+.efx-marquee--pause:hover .efx-marquee__track,
+.efx-marquee--pause:focus-within .efx-marquee__track,
+.efx-marquee.is-paused .efx-marquee__track { animation-play-state: paused; }
+.efx-marquee--static { display: flex; flex-wrap: wrap; gap: var(--efx-gap, 32px); }
+@keyframes efx-marquee { to { transform: translate3d(var(--efx-shift, -50%), 0, 0); } }
+
+/* parallax — injected background layer is oversized so movement never shows gaps */
+.efx-parallax__bg { position: absolute; inset: -20% 0; z-index: -1; pointer-events: none; }
+.efx-parallax[data-efx-axis="x"] > .efx-parallax__bg { inset: 0 -20%; }
+
+/* particles — canvas sits behind content; container becomes its own stacking context */
+.efx-particles { isolation: isolate; } /* position:relative is added by JS only when the host is static */
+.efx-particles__canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; display: block; }
+
+/* progress — scaleX bar driven by --efx-progress (0..1) */
+.efx-progress {
+  display: block;
+  height: var(--efx-progress-height, 4px);
+  background: var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1)));
+  transform: scaleX(var(--efx-progress, 0));
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+.efx-progress--top, .efx-progress--bottom { position: fixed; left: 0; right: 0; width: 100%; z-index: 1000; }
+.efx-progress--top { top: 0; }
+.efx-progress--bottom { bottom: 0; }
+
+/* reveal — hidden only once JS has claimed the element, so no-JS pages still show content */
+.efx-reveal-pending {
+  opacity: 0;
+  transition: opacity var(--efx-duration) var(--efx-ease) var(--efx-delay, 0ms),
+              transform var(--efx-duration) var(--efx-ease) var(--efx-delay, 0ms),
+              filter var(--efx-duration) var(--efx-ease) var(--efx-delay, 0ms);
+}
+.efx-reveal-pending[data-efx-anim="fade-up"] { transform: translateY(var(--efx-distance)); }
+.efx-reveal-pending[data-efx-anim="fade-down"] { transform: translateY(calc(var(--efx-distance) * -1)); }
+.efx-reveal-pending[data-efx-anim="slide-left"] { transform: translateX(var(--efx-distance)); }
+.efx-reveal-pending[data-efx-anim="slide-right"] { transform: translateX(calc(var(--efx-distance) * -1)); }
+.efx-reveal-pending[data-efx-anim="zoom"] { transform: scale(.92); }
+.efx-reveal-pending[data-efx-anim="blur"] { filter: blur(10px); }
+.efx-reveal-pending[data-efx-anim="flip"] { transform: perspective(800px) rotateX(-25deg); transform-origin: top; }
+.efx-reveal-pending.is-in { opacity: 1; transform: none; filter: none; }
+/* reduced motion: JS never adds .efx-reveal-pending, so content just shows */
+
+/* ripple */
+.efx-ripple__clip { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.efx-ripple__wave {
+  position: absolute; border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%) scale(0);
+  background: var(--efx-ripple-color, color-mix(in srgb, currentColor 25%, transparent));
+  animation: efx-ripple var(--efx-ripple-dur, 600ms) ease-out forwards;
+}
+@keyframes efx-ripple { to { transform: translate(-50%, -50%) scale(1); opacity: 0; } }
+
+/* schedule — beat display utilities (.grid, .flex…) so [hidden] always hides */
+.efx-schedule[hidden] { display: none !important; }
+
+/* scrollspy — minimal default highlight; Shine nav styles can override */
+.efx-scrollspy a { transition: color .2s, background-color .2s, box-shadow .2s; }
+.efx-scrollspy a.is-active { color: var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); font-weight: 600; }
+
+/* split — pieces hidden only after JS claims the element */
+.efx-split__p { display: inline-block; white-space: pre; }
+.efx-split__w { display: inline-block; white-space: nowrap; }
+.efx-split-pending .efx-split__p {
+  opacity: 0;
+  transition: opacity var(--efx-split-dur, 600ms) var(--efx-ease, ease), transform var(--efx-split-dur, 600ms) var(--efx-ease, ease),
+    filter var(--efx-split-dur, 600ms) var(--efx-ease, ease);
+  transition-delay: calc(var(--i) * var(--efx-split-stagger, 40ms));
+}
+.efx-split-pending[data-efx-effect="fade-up"] .efx-split__p { transform: translateY(.6em); }
+.efx-split-pending[data-efx-effect="slide"] .efx-split__p { transform: translateX(-.6em); }
+.efx-split-pending[data-efx-effect="blur"] .efx-split__p { filter: blur(.4em); }
+.efx-split-pending.is-in .efx-split__p { opacity: 1; transform: none; filter: none; }
+.efx-split-wave.is-in .efx-split__p { animation: efx-split-wave 1.4s ease-in-out infinite; animation-delay: calc(var(--i) * var(--efx-split-stagger, 40ms)); }
+@keyframes efx-split-wave { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-.35em); } }
+.efx-split__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* spotlight — glow layer is ::before at z-index:-1 inside an isolated host (no overflow clipping, children untouched).
+   Everything keys on .is-spot, which JS adds only on fine pointers. */
+.efx-spotlight.is-spot { isolation: isolate; }
+.efx-spotlight.is-spot::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .3s;
+  --_c: var(--efx-spot, var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))));
+  background: radial-gradient(var(--efx-size, 240px) circle at var(--efx-x, 50%) var(--efx-y, 50%), color-mix(in srgb, var(--_c) calc(var(--efx-spot-o, .18) * 100%), transparent), transparent 70%);
+}
+.efx-spotlight.is-lit::before { opacity: 1; }
+/* optional border light: ring masked to the border box */
+.efx-spotlight--border.is-spot::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; opacity: 0; transition: opacity .3s;
+  background: radial-gradient(calc(var(--efx-size, 240px) * .8) circle at var(--efx-x, 50%) var(--efx-y, 50%), var(--efx-spot, var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1)))), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.efx-spotlight--border.is-lit::after { opacity: 1; }
+
+/* sticky — transitions apply only while hide/shrink is active (class added by JS) so Shine navbar transitions stay intact */
+.efx-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.efx-sticky-anim {
+  transition-property: translate, box-shadow, padding, background-color;
+  transition-duration: var(--efx-duration, 700ms), .3s, .3s, .3s;
+  transition-timing-function: var(--efx-ease, ease), ease, ease, ease;
+}
+.efx-sticky.is-stuck { box-shadow: var(--sh-shadow-2, 0 4px 14px rgba(0, 0, 0, .15)); }
+.efx-sticky.is-hidden { translate: 0 -100%; }
+.efx-sticky.is-shrunk { padding-top: .35rem; padding-bottom: .35rem; }
+@media (prefers-reduced-motion: reduce) {
+  .efx-sticky-anim { transition: none; }
+}
+
+/* tilt — only active while JS has added .is-tilt-active (pointer inside + short settle); idle elements keep their own transforms/transitions */
+.efx-tilt.is-tilt-active {
+  transform: perspective(var(--efx-persp, 900px)) rotateX(var(--efx-rx, 0deg)) rotateY(var(--efx-ry, 0deg)) scale(1);
+  transition: transform .25s ease-out;
+}
+.efx-tilt.is-tilt-active.is-tilting {
+  transform: perspective(var(--efx-persp, 900px)) rotateX(var(--efx-rx, 0deg)) rotateY(var(--efx-ry, 0deg)) scale(var(--efx-tscale, 1.02));
+}
+.efx-tilt__glare {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .25s ease-out;
+  background: radial-gradient(circle at var(--efx-gx, 50%) var(--efx-gy, 50%), rgba(255,255,255,.35), transparent 60%);
+}
+.efx-tilt.is-tilting > .efx-tilt__glare { opacity: 1; }
+
+/* totop — fixed bottom-right unless data-efx-fixed="false"; hidden elements leave the tab order */
+.efx-totop {
+  opacity: 0; visibility: hidden; transform: translateY(12px);
+  transition: opacity .3s, transform .3s, visibility 0s .3s;
+}
+.efx-totop:not([data-efx-fixed="false"]) { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 900; }
+.efx-totop.is-shown { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+
+/* typed */
+.efx-typed__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.efx-typed__t { display: inline-block; white-space: pre; }
+.efx-typed[data-efx-mode="fade"] .efx-typed__t, .efx-typed[data-efx-mode="slide"] .efx-typed__t {
+  transition: opacity .28s var(--efx-ease, ease), transform .28s var(--efx-ease, ease); }
+.efx-typed .efx-typed__t.is-out { opacity: 0; }
+.efx-typed[data-efx-mode="slide"] .efx-typed__t.is-out { transform: translateY(-.5em); }
+.efx-typed[data-efx-mode="slide"] .efx-typed__t.is-pre { transform: translateY(.5em); transition: none; }
+.efx-typed__t.is-pre { transition: none !important; }
+.efx-typed__cursor { display: inline-block; width: .08em; height: 1em; margin-left: .08em; vertical-align: -.12em;
+  background: currentColor; animation: efx-typed-blink 1s steps(1) infinite; }
+@keyframes efx-typed-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .efx-typed__cursor { animation: none; } }
+}

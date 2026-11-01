@@ -3,6 +3,7 @@
 import { on } from '../core.js';
 
 const fallback = text => {
+  const prev = document.activeElement;
   const t = document.createElement('textarea');
   t.value = text; t.setAttribute('readonly', '');
   t.style.cssText = 'position:fixed;top:0;opacity:0';
@@ -10,6 +11,7 @@ const fallback = text => {
   let ok = false;
   try { ok = document.execCommand('copy'); } catch (e) {}
   t.remove();
+  if (prev && prev.focus && prev !== document.body) try { prev.focus({ preventScroll: true }); } catch (e) {}
   return ok;
 };
 
@@ -23,23 +25,30 @@ export default {
     live.className = 'efx-copy__live';
     live.setAttribute('aria-live', 'polite');
     el.after(live);
-    let timer = 0;
+    let timer = 0, dead = false, changed = false;
+    const restore = () => {
+      if (changed) { el.innerHTML = html; changed = false; }
+      el.classList.remove('is-copied');
+      live.textContent = '';
+    };
     const off = on(el, 'click', async () => {
       let text = o.text;
       if (!text && o.target) {
-        const t = document.querySelector(o.target);
+        let t = null;
+        try { t = document.querySelector(o.target); } catch (e) {}
         text = t ? ('value' in t ? t.value : t.textContent) : '';
       }
       if (!text) return;
       let ok = false;
       try { await navigator.clipboard.writeText(text); ok = true; } catch (e) { ok = fallback(text); }
-      if (!ok) return;
+      if (dead || !ok) return;
       el.textContent = o.done;
+      changed = true;
       el.classList.add('is-copied');
       live.textContent = o.done;
       clearTimeout(timer);
-      timer = setTimeout(() => { el.innerHTML = html; el.classList.remove('is-copied'); live.textContent = ''; }, o.duration);
+      timer = setTimeout(restore, o.duration);
     });
-    return () => { off(); clearTimeout(timer); el.innerHTML = html; el.classList.remove('is-copied'); live.remove(); };
+    return () => { dead = true; off(); clearTimeout(timer); restore(); live.remove(); };
   },
 };

@@ -1,0 +1,110 @@
+{
+  "version": "0.1.0",
+  "core": 2316,
+  "total": {
+    "js": 16402,
+    "css": 4243
+  },
+  "features": {
+    "border": {
+      "js": 506,
+      "css": 724
+    },
+    "carousel": {
+      "js": 1266,
+      "css": 624
+    },
+    "compare": {
+      "js": 647,
+      "css": 683
+    },
+    "copy": {
+      "js": 494,
+      "css": 122
+    },
+    "countdown": {
+      "js": 932,
+      "css": 299
+    },
+    "counter": {
+      "js": 525,
+      "css": 137
+    },
+    "cursor": {
+      "js": 719,
+      "css": 368
+    },
+    "divider": {
+      "js": 1549,
+      "css": 368
+    },
+    "lightbox": {
+      "js": 1171,
+      "css": 510
+    },
+    "magnetic": {
+      "js": 480,
+      "css": 112
+    },
+    "marquee": {
+      "js": 586,
+      "css": 293
+    },
+    "parallax": {
+      "js": 520,
+      "css": 127
+    },
+    "particles": {
+      "js": 1501,
+      "css": 131
+    },
+    "popup": {
+      "js": 743,
+      "css": 0
+    },
+    "progress": {
+      "js": 425,
+      "css": 231
+    },
+    "reveal": {
+      "js": 379,
+      "css": 286
+    },
+    "ripple": {
+      "js": 483,
+      "css": 266
+    },
+    "schedule": {
+      "js": 735,
+      "css": 66
+    },
+    "scrollspy": {
+      "js": 653,
+      "css": 150
+    },
+    "split": {
+      "js": 547,
+      "css": 412
+    },
+    "spotlight": {
+      "js": 314,
+      "css": 410
+    },
+    "sticky": {
+      "js": 389,
+      "css": 284
+    },
+    "tilt": {
+      "js": 542,
+      "css": 296
+    },
+    "totop": {
+      "js": 363,
+      "css": 195
+    },
+    "typed": {
+      "js": 567,
+      "css": 400
+    }
+  }
+}

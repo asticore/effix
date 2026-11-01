@@ -36,6 +36,8 @@ export default {
     }
     if (nav.children.length) el.after(nav);
 
+    const tab = el.getAttribute('tabindex');
+    if (tab === null) el.setAttribute('tabindex', '0');
     if (o.fade) el.classList.add('efx-carousel-fade');
     if (o.perView > 0 && !o.fade) {
       el.style.setProperty('--efx-per-view', o.perView);
@@ -63,7 +65,9 @@ export default {
     offs.push(on(prev, 'click', () => { goPrev(); sched(); }), on(next, 'click', () => { goNext(); sched(); }));
     dots.forEach((d, i) => offs.push(on(d, 'click', () => { go(i); sched(); })));
     offs.push(on(el, 'keydown', e => {
-      if (e.target !== el || e.altKey || e.ctrlKey || e.metaKey) return;
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.defaultPrevented) return;
+      const t = e.target;
+      if (t !== el && t.closest && t.closest('input,textarea,select,[contenteditable]:not([contenteditable="false"])')) return;
       if (e.key === 'ArrowRight') { e.preventDefault(); goNext(); sched(); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); sched(); }
     }));
@@ -96,6 +100,7 @@ export default {
       offs.forEach(f => f());
       io && io.disconnect();
       nav.remove();
+      if (tab === null) el.removeAttribute('tabindex');
       el.classList.remove('efx-carousel-fade');
       el.style.removeProperty('--efx-per-view');
       slides.forEach(s => { s.classList.remove('is-active'); s.style.flexBasis = ''; });

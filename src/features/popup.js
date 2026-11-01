@@ -2,7 +2,7 @@
    <dialog class="modal efx-popup" id="promo" data-efx-delay="5" data-efx-frequency="session">…
      <button class="btn-close" data-efx-close aria-label="Close"></button></dialog>
    Manual openers: <button data-efx-open="promo"> or <a href="#promo">. One auto popup per page view. */
-import { on } from '../core.js';
+import { on, onScroll } from '../core.js';
 
 let shown = false; // only one auto popup per page view
 const bot = /bot|crawl|spider|lighthouse/i;
@@ -30,9 +30,11 @@ export default {
       opener = by || document.activeElement;
       el.showModal();
     };
+    let stopScroll = null, fired = false;
+    const unscroll = () => { if (stopScroll) { stopScroll(); stopScroll = null; } };
     const auto = () => {
       if (shown || el.open || !canAuto()) return;
-      shown = true; mark(); open();
+      shown = true; mark(); open(); unscroll();
     };
     const close = () => el.open && el.close();
 
@@ -53,16 +55,20 @@ export default {
     if (!bot.test(navigator.userAgent)) {
       if (o.delay >= 0) timer = setTimeout(auto, o.delay * 1000);
       if (o.scroll > 0) {
-        const chk = () => {
-          const h = document.documentElement.scrollHeight - innerHeight;
-          if (h <= 0 || scrollY / h * 100 >= o.scroll) auto();
-        };
-        offs.push(on(window, 'scroll', chk, { passive: true }));
+        if (canAuto() && !shown) {
+          // read-only check; the (DOM-touching) open runs as the write phase
+          stopScroll = onScroll((y, ih) => {
+            const h = document.documentElement.scrollHeight - ih;
+            if (h <= 0 || y / h * 100 < o.scroll) return;
+            return () => { fired = true; auto(); unscroll(); };
+          });
+          if (fired) unscroll(); // fired synchronously during subscribe
+        }
       }
       if (o.exit && matchMedia('(hover: hover) and (pointer: fine)').matches) {
         offs.push(on(document, 'mouseout', e => { if (!e.relatedTarget && e.clientY <= 0) auto(); }));
       }
     }
-    return () => { clearTimeout(timer); offs.forEach(f => f()); close(); };
+    return () => { clearTimeout(timer); unscroll(); offs.forEach(f => f()); close(); };
   },
 };

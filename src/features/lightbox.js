@@ -94,8 +94,10 @@ export default {
       off();
       if (--S.refs > 0) return;
       S.offs.forEach(f => f());
+      const op = S.opener;
       if (S.d.open) S.d.close();
       S.d.remove();
+      if (op && op.isConnected && op.focus) op.focus();
       S = null;
     };
   },

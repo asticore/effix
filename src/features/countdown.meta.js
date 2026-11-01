@@ -15,8 +15,8 @@ module.exports = {
   vars: [['--efx-countdown-bg', 'var(--sh-surface-2)', 'Unit card background.']],
   examples: [
     { html: `<div class="stack gap-4 p-6">
-  <div class="efx-countdown" data-efx-to="2099-01-31T18:00"></div>
-  <div class="efx-countdown" data-efx-compact data-efx-to="2099-01-31T18:00" data-efx-units="dhms"></div>
+  <div class="efx-countdown" data-efx-to="2027-12-31T23:59"></div>
+  <div class="efx-countdown" data-efx-compact data-efx-to="2027-12-31T23:59" data-efx-units="dhms"></div>
 </div>` },
   ],
 };

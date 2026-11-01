@@ -11,7 +11,7 @@ export default {
     if (!motionOK()) return;
     const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
     if (!text) return;
-    const saved = el.innerHTML, prevLabel = el.getAttribute('aria-label');
+    const saved = el.innerHTML;
     const words = text.split(' ');
     const letters = o.by === 'letter' && text.replace(/ /g, '').length <= o.max;
     const wave = o.effect === 'wave', st = el.style;
@@ -30,21 +30,27 @@ export default {
       [...w].forEach(c => wrap.append(piece(c)));
       frag.append(wrap);
     });
-    el.setAttribute('aria-label', text);
+    // aria-label on non-headings is ignored: keep the text in an sr-only copy, hide the pieces
+    const sr = document.createElement('span');
+    sr.className = 'efx-split__sr';
+    sr.textContent = text;
+    const pieces = document.createElement('span');
+    pieces.className = 'efx-split__pieces';
+    pieces.setAttribute('aria-hidden', 'true');
+    pieces.append(frag);
     el.textContent = '';
-    el.append(frag);
+    el.append(sr, pieces);
     el.setAttribute('data-efx-effect', o.effect);
     st.setProperty('--efx-split-stagger', o.stagger + 'ms');
     st.setProperty('--efx-split-dur', o.duration + 'ms');
     el.classList.add(wave ? 'efx-split-wave' : 'efx-split-pending');
-    const stop = onVisible(el, v => {
-      if (v) el.classList.add('is-in');
+    const stop = onVisible(el, (v, e) => {
+      if (v) { if (e.intersectionRatio >= 0.1 || e.intersectionRect.height >= innerHeight * 0.25) el.classList.add('is-in'); }
       else if (wave || !o.once) el.classList.remove('is-in');
-    }, '0px 0px -10% 0px');
+    }, '0px', [0, 0.1]);
     return () => {
       stop();
       el.innerHTML = saved;
-      prevLabel === null ? el.removeAttribute('aria-label') : el.setAttribute('aria-label', prevLabel);
       el.removeAttribute('data-efx-effect');
       el.classList.remove('efx-split-pending', 'efx-split-wave', 'is-in');
       st.removeProperty('--efx-split-stagger'); st.removeProperty('--efx-split-dur');

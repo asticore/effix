@@ -1,0 +1,1258 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Effix — JavaScript effects for Shine CSS</title>
+<meta name="description" content="Effix adds particles, parallax, scroll reveals, tilt, magnetic buttons, rotating borders, shape dividers, carousels, popups and more with plain classes. Pairs with Shine CSS. 16.0 KB gzipped, only features on the page start.">
+<link rel="canonical" href="https://asticore.github.io/effix/docs/">
+<link rel="icon" href="logo.svg">
+<link rel="stylesheet" href="vendor/shine.min.css">
+<link rel="stylesheet" href="../dist/effix.min.css">
+<style>
+.text-gradient{background-image:linear-gradient(100deg,var(--sh-primary),var(--sh-accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.code-edit{display:block;inline-size:100%;border:0;border-block-start:1px solid var(--sh-border);background:var(--sh-surface);color:var(--sh-text);font:13px/1.55 var(--sh-font-mono);padding:.75rem 1rem;resize:vertical;tab-size:2;white-space:pre}
+.code-edit:focus{outline:2px solid var(--sh-primary);outline-offset:-2px}
+.demo{position:relative;min-block-size:8rem}
+.hero{position:relative;overflow:hidden}
+@media (min-width:1024px){.sticky-lg{position:sticky;top:5rem;align-self:start}.scroll-lg{max-block-size:calc(100vh - 7rem);overflow:auto}}
+.feature{scroll-margin-top:5rem}
+</style>
+<script defer src="../dist/effix.min.js"></script>
+<script defer src="portal.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="efx-progress" data-efx-position="top" aria-label="Page progress"></div>
+
+<header class="sticky top-0 z-50 bg-surface border-b efx-sticky">
+  <nav class="navbar container mx-auto max-w-7xl" aria-label="Main">
+    <a class="navbar-brand flex items-center gap-2" href="#top"><img src="logo.svg" alt="" width="28" height="28">Effix</a>
+    <ul class="navbar-nav efx-scrollspy">
+      <li><a href="#start">Start</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#build">Custom build</a></li>
+      <li><a href="#editors">Editors &amp; API</a></li>
+      <li><a href="#features">Features</a></li>
+    </ul>
+    <div class="navbar-end flex items-center gap-2">
+      <label class="sr-only" for="page-theme">Page theme</label>
+      <select class="select input-sm" id="page-theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
+      <a class="btn btn-sm btn-outline" href="https://github.com/asticore/effix">GitHub</a>
+    </div>
+  </nav>
+</header>
+
+<main id="main">
+<section id="top" class="hero section efx-particles" data-efx-count="60" data-efx-links="true" data-efx-opacity="0.5" aria-labelledby="h-hero">
+  <div class="container mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+    <div class="lg:col-span-7 stack gap-6">
+      <p class="cluster gap-2">
+        <span class="badge badge-solid">20.2 KB gzipped, all 25 features</span>
+        <span class="badge tone-success">core 2.3 KB</span>
+        <span class="badge tone-neutral">MIT · 0 dependencies</span>
+      </p>
+      <h1 id="h-hero" class="text-5xl md:text-6xl font-extrabold tracking-tight m-0"><span class="text-gradient">Effix</span><span class="sr-only"> JavaScript effects</span></h1>
+      <p class="lead m-0 max-w-xl">Effects that need JavaScript — <span class="efx-typed" data-efx-words="particles|parallax|tilt|magnetic buttons|rotating borders|shape dividers|carousels|popups">particles</span> — applied with classes, tuned with <code>data-efx-*</code>.</p>
+      <p class="text-muted m-0 max-w-xl">Built as the partner of <a href="https://asticore.github.io/shine/docs/">Shine CSS</a>: Shine handles styling with zero JS, Effix adds behaviour and reads Shine's tokens, so <code>tone-*</code> classes and <code>--sh-primary</code> recolour every effect. Only the features found on the page start; heavy ones wait until they scroll into view.</p>
+      <div class="cluster gap-3">
+        <a class="btn btn-lg efx-magnetic efx-ripple" href="#start">Get started</a>
+        <a class="btn btn-lg btn-outline efx-border-spin" href="#features">Browse 25 features</a>
+      </div>
+    </div>
+    <div class="lg:col-span-5">
+      <div class="card efx-tilt efx-spotlight" data-efx-glare="true">
+        <div class="card-body stack">
+          <p class="label m-0">Drop it in your &lt;head&gt;</p>
+          <div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="install-code" tabindex="0"><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/shine@main/dist/shine.min.css&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.min.css&quot;&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.min.js&quot; defer&gt;&lt;/script&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#install-code">Copy</button></div>
+          <p class="text-sm text-muted m-0">Then add classes: <code>efx-reveal</code>, <code>efx-particles</code>, <code>efx-tilt</code>…</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="start" class="section" aria-labelledby="h-start">
+  <div class="container mx-auto max-w-7xl stack gap-6">
+    <header class="stack gap-2 max-w-3xl"><p class="label m-0 text-primary">Quick start</p><h2 id="h-start" class="text-3xl md:text-4xl font-bold tracking-tight m-0">Three ways in</h2></header>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">1 · CDN</h3><p class="text-sm m-0">Shine for styling, Effix for behaviour. The script is <code>defer</code>red and starts itself.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-cdn" tabindex="0"><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/shine@main/dist/shine.min.css&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.min.css&quot;&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.min.js&quot; defer&gt;&lt;/script&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-cdn">Copy</button></div></div></div>
+      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">2 · npm</h3><p class="text-sm m-0">Full bundle; auto-starts on import.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-npm" tabindex="0"><code>npm i effix shine-css
+
+import 'shine-css';
+import 'effix/css';
+import Effix from 'effix';</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-npm">Copy</button></div></div></div>
+      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">3 · Pick features</h3><p class="text-sm m-0">Import only what you use from the ES sources — bundlers drop the rest.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-esm" tabindex="0"><code>import { define, init } from 'effix/core';
+import reveal from 'effix/features/reveal';
+import tilt from 'effix/features/tilt';
+
+define(reveal, tilt);
+init();</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-esm">Copy</button></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="section pt-0" aria-labelledby="h-how">
+  <div class="container mx-auto max-w-7xl stack gap-6">
+    <header class="stack gap-2 max-w-3xl"><p class="label m-0 text-primary">How it works</p><h2 id="h-how" class="text-3xl md:text-4xl font-bold tracking-tight m-0">Class turns it on, attributes tune it, variables style it</h2>
+    <p class="lead m-0">Every feature follows one pattern, so learning one teaches all.</p></header>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="how-code" tabindex="0"><code>&lt;button class=&quot;btn tone-accent efx-border-spin efx-magnetic&quot;
+        data-efx-strength=&quot;0.4&quot;
+        style=&quot;--efx-border-speed:2s&quot;&gt;
+  Subscribe
+&lt;/button&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#how-code">Copy</button></div>
+      <ol class="stack gap-3 m-0">
+        <li><strong><code>efx-*</code> class</strong> — picks the feature. Combine as many as you like on one element.</li>
+        <li><strong><code>data-efx-*</code> attributes</strong> — behaviour options (counts, speeds, triggers). Each feature lists its options below.</li>
+        <li><strong><code>--efx-*</code> CSS variables</strong> — visual knobs. Colors fall back to Shine: <code>--efx-color → --sh-tone → --sh-primary</code>.</li>
+        <li><strong>Speed</strong> — on load the core asks the page once per feature (<code>querySelectorAll</code>); missing features cost nothing. Canvas features are lazy and every loop pauses off-screen and in hidden tabs.</li>
+        <li><strong>Accessible by default</strong> — reduced-motion users get the static end state, pointer effects only run with a mouse, content is visible without JS.</li>
+      </ol>
+    </div>
+    <h3 class="text-xl font-bold m-0">Page-level switches</h3>
+    <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Switch</th><th scope="col">Effect</th></tr></thead>
+<tbody><tr><td><code>&lt;html data-efx-manual&gt;</code></td><td>Do not auto-start. Call Effix.init() yourself.</td></tr>
+<tr><td><code>&lt;html data-efx-observe&gt;</code></td><td>Auto-start features on elements added later (SPAs, visual editors, infinite lists).</td></tr>
+<tr><td><code>&lt;html data-efx-reduce&gt;</code></td><td>Force reduced motion (static end states), e.g. for an editor canvas or a user toggle.</td></tr>
+<tr><td><code>&lt;html data-efx-margin=&quot;200px&quot;&gt;</code></td><td>How early lazy features (particles…) start before entering the viewport.</td></tr>
+<tr><td><code>data-efx-skip</code></td><td>On any element: observe() ignores nodes inside it.</td></tr>
+<tr><td><code>window.EffixConfig = { auto:false, observe:true }</code></td><td>Same switches from JS, set before the script loads.</td></tr></tbody></table></div>
+  </div>
+</section>
+
+<section id="build" class="section pt-0" aria-labelledby="h-build">
+  <div class="container mx-auto max-w-7xl stack gap-6">
+    <header class="stack gap-2 max-w-3xl"><p class="label m-0 text-primary">Custom build</p><h2 id="h-build" class="text-3xl md:text-4xl font-bold tracking-tight m-0">Ship only what you use</h2>
+    <p class="lead m-0">The full build is already small, but you can cut it further. Tick features to see the size and the command.</p></header>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+      <fieldset class="card lg:col-span-2"><legend class="sr-only">Features</legend><div class="card-body">
+        <div class="cluster gap-2 mb-3"><button class="btn btn-sm btn-outline" type="button" id="pick-all">All</button><button class="btn btn-sm btn-outline" type="button" id="pick-none">None</button></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2" id="picker"><label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="totop" data-size="558" checked> Back to top <span class="text-muted ml-auto">0.5 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="counter" data-size="662" checked> Counter <span class="text-muted ml-auto">0.6 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="marquee" data-size="879" checked> Marquee <span class="text-muted ml-auto">0.9 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="parallax" data-size="647" checked> Parallax <span class="text-muted ml-auto">0.6 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="reveal" data-size="665" checked> Reveal on scroll <span class="text-muted ml-auto">0.6 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="progress" data-size="656" checked> Scroll progress <span class="text-muted ml-auto">0.6 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="scrollspy" data-size="803" checked> Scrollspy <span class="text-muted ml-auto">0.8 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="sticky" data-size="673" checked> Sticky header <span class="text-muted ml-auto">0.7 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="split" data-size="959" checked> Split text <span class="text-muted ml-auto">0.9 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="typed" data-size="967" checked> Typed text <span class="text-muted ml-auto">0.9 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="border" data-size="1230" checked> Animated border <span class="text-muted ml-auto">1.2 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="particles" data-size="1632" checked> Particles <span class="text-muted ml-auto">1.6 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="cursor" data-size="1087" checked> Custom cursor <span class="text-muted ml-auto">1.1 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="magnetic" data-size="592" checked> Magnetic <span class="text-muted ml-auto">0.6 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="ripple" data-size="749" checked> Ripple <span class="text-muted ml-auto">0.7 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="spotlight" data-size="724" checked> Spotlight <span class="text-muted ml-auto">0.7 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="tilt" data-size="838" checked> Tilt <span class="text-muted ml-auto">0.8 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="divider" data-size="1917" checked> Shape dividers <span class="text-muted ml-auto">1.9 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="compare" data-size="1330" checked> Before / after compare <span class="text-muted ml-auto">1.3 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="carousel" data-size="1890" checked> Carousel controls <span class="text-muted ml-auto">1.8 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="copy" data-size="616" checked> Copy to clipboard <span class="text-muted ml-auto">0.6 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="lightbox" data-size="1681" checked> Lightbox <span class="text-muted ml-auto">1.6 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="popup" data-size="743" checked> Popup triggers <span class="text-muted ml-auto">0.7 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="schedule" data-size="801" checked> Schedule visibility <span class="text-muted ml-auto">0.8 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="countdown" data-size="1231" checked> Countdown <span class="text-muted ml-auto">1.2 KB</span></label></div>
+      </div></fieldset>
+      <div class="card"><div class="card-body stack">
+        <p class="m-0">Estimated: <strong id="pick-size" data-core="2316">20.2 KB</strong> gzip</p>
+        <div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="pick-cmd" tabindex="0"><code>node build.js</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#pick-cmd">Copy</button></div>
+        <div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="pick-esm" tabindex="0"><code>import { define, init } from 'effix/core';</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#pick-esm">Copy</button></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section id="editors" class="section pt-0" aria-labelledby="h-editors">
+  <div class="container mx-auto max-w-7xl stack gap-6">
+    <header class="stack gap-2 max-w-3xl"><p class="label m-0 text-primary">Visual editors &amp; SPAs</p><h2 id="h-editors" class="text-3xl md:text-4xl font-bold tracking-tight m-0">Works when the page keeps changing</h2>
+    <p class="lead m-0">Page builders re-render blocks constantly. Turn on <code>observe</code> and Effix starts new blocks and cleans up removed ones. When the editor changes an option, call <code>Effix.refresh(el)</code>.</p></header>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="ed-code" tabindex="0"><code>&lt;html data-efx-observe&gt;
+…
+// editor changed a block's settings
+block.dataset.efxCount = 80;
+Effix.refresh(block);
+
+// editor canvas: keep things still while editing
+document.documentElement.toggleAttribute('data-efx-reduce', editing);</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#ed-code">Copy</button></div>
+      <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Method</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>Effix.init(root?)</code></td><td>Scan root (default document) and start every feature found. Safe to call again — already-running elements are skipped.</td></tr>
+<tr><td><code>Effix.destroy(root?, name?)</code></td><td>Stop features on root and its children, removing listeners, timers and injected nodes.</td></tr>
+<tr><td><code>Effix.refresh(el, name?)</code></td><td>destroy + init: re-reads data-efx-* after you change them.</td></tr>
+<tr><td><code>Effix.observe(target?)</code></td><td>Watch the DOM: new nodes start automatically, removed nodes are cleaned up. Same as &lt;html data-efx-observe&gt;.</td></tr>
+<tr><td><code>Effix.disconnect()</code></td><td>Stop watching the DOM.</td></tr>
+<tr><td><code>Effix.define(feature)</code></td><td>Register your own feature ({ name, selector, defaults, init }).</td></tr>
+<tr><td><code>Effix.features()</code></td><td>Names of the features in this build.</td></tr>
+<tr><td><code>Effix.isMounted(el, name)</code></td><td>Whether a feature is running on el.</td></tr></tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="section pt-0" aria-labelledby="h-features">
+  <div class="container mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <nav class="sticky-lg scroll-lg" aria-label="Features"><ul class="stack gap-3 efx-scrollspy" data-efx-offset="120"><li><span class="text-xs font-semibold uppercase text-muted">Scroll</span><ul class="stack gap-1 mt-1"><li><a href="#f-totop">Back to top</a></li><li><a href="#f-counter">Counter</a></li><li><a href="#f-marquee">Marquee</a></li><li><a href="#f-parallax">Parallax</a></li><li><a href="#f-reveal">Reveal on scroll</a></li><li><a href="#f-progress">Scroll progress</a></li><li><a href="#f-scrollspy">Scrollspy</a></li><li><a href="#f-sticky">Sticky header</a></li></ul></li>
+<li><span class="text-xs font-semibold uppercase text-muted">Text</span><ul class="stack gap-1 mt-1"><li><a href="#f-split">Split text</a></li><li><a href="#f-typed">Typed text</a></li></ul></li>
+<li><span class="text-xs font-semibold uppercase text-muted">Buttons &amp; borders</span><ul class="stack gap-1 mt-1"><li><a href="#f-border">Animated border</a></li></ul></li>
+<li><span class="text-xs font-semibold uppercase text-muted">Background</span><ul class="stack gap-1 mt-1"><li><a href="#f-particles">Particles</a></li></ul></li>
+<li><span class="text-xs font-semibold uppercase text-muted">Pointer</span><ul class="stack gap-1 mt-1"><li><a href="#f-cursor">Custom cursor</a></li><li><a href="#f-magnetic">Magnetic</a></li><li><a href="#f-ripple">Ripple</a></li><li><a href="#f-spotlight">Spotlight</a></li><li><a href="#f-tilt">Tilt</a></li></ul></li>
+<li><span class="text-xs font-semibold uppercase text-muted">Sections</span><ul class="stack gap-1 mt-1"><li><a href="#f-divider">Shape dividers</a></li></ul></li>
+<li><span class="text-xs font-semibold uppercase text-muted">Components</span><ul class="stack gap-1 mt-1"><li><a href="#f-compare">Before / after compare</a></li><li><a href="#f-carousel">Carousel controls</a></li><li><a href="#f-copy">Copy to clipboard</a></li><li><a href="#f-lightbox">Lightbox</a></li><li><a href="#f-popup">Popup triggers</a></li><li><a href="#f-schedule">Schedule visibility</a></li></ul></li>
+<li><span class="text-xs font-semibold uppercase text-muted">Time</span><ul class="stack gap-1 mt-1"><li><a href="#f-countdown">Countdown</a></li></ul></li></ul></nav>
+    <div class="lg:col-span-3 stack gap-12 min-w-0">
+      <header class="stack gap-2"><p class="label m-0 text-primary">Features</p><h2 id="h-features" class="text-3xl md:text-4xl font-bold tracking-tight m-0">25 features</h2>
+      <p class="m-0 text-muted">Every demo is live: edit the HTML under it and the demo restarts with your options.</p></header>
+      <section id="f-totop" class="stack gap-4 feature" aria-labelledby="h-totop">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-totop" class="text-2xl font-bold m-0">Back to top</h3>
+      <span class="badge tone-neutral"><code>totop</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.5 KB</span></div>
+    <p class="m-0 text-muted">A button that fades in after scrolling and returns to the top (smooth when motion is allowed).</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-totop-1"><div class="cluster"><button class="btn efx-totop" data-efx-show="100" data-efx-fixed="false" style="position:static" aria-label="Back to top">↑ Top</button><span>Appears after scrolling 100px.</span></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-totop-1-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-totop-1-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-totop-1-code" data-demo="ex-totop-1" spellcheck="false" rows="2">&lt;div class=&quot;cluster&quot;&gt;&lt;button class=&quot;btn efx-totop&quot; data-efx-show=&quot;100&quot; data-efx-fixed=&quot;false&quot; style=&quot;position:static&quot; aria-label=&quot;Back to top&quot;&gt;↑ Top&lt;/button&gt;&lt;span&gt;Appears after scrolling 100px.&lt;/span&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-totop</code></td><td>The button. Fixed bottom-right by default; gets is-shown after scrolling.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-show</code></td><td><code>400</code></td><td>Scroll distance in px before it appears.</td></tr>
+<tr><td><code>data-efx-fixed</code></td><td><code>true</code></td><td>false = no fixed positioning, place it yourself.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-counter" class="stack gap-4 feature" aria-labelledby="h-counter">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-counter" class="text-2xl font-bold m-0">Counter</h3>
+      <span class="badge tone-neutral"><code>counter</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.6 KB</span></div>
+    <p class="m-0 text-muted">Counts up to the number written in the element when it scrolls into view. Without JS (or with reduced motion) the final value shows.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-counter-2"><div class="grid md:grid-cols-3 gap-4 text-center">
+  <div class="card p-6"><div class="efx-counter" style="font-size:2.25rem;font-weight:700" data-efx-suffix="+">12840</div>Users</div>
+  <div class="card p-6"><div class="efx-counter" style="font-size:2.25rem;font-weight:700" data-efx-prefix="$">9.99</div>Price</div>
+  <div class="card p-6"><div class="efx-counter" style="font-size:2.25rem;font-weight:700" data-efx-suffix="%" data-efx-once="false">99</div>Uptime</div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-counter-2-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-counter-2-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-counter-2-code" data-demo="ex-counter-2" spellcheck="false" rows="6">&lt;div class=&quot;grid md:grid-cols-3 gap-4 text-center&quot;&gt;
+  &lt;div class=&quot;card p-6&quot;&gt;&lt;div class=&quot;efx-counter&quot; style=&quot;font-size:2.25rem;font-weight:700&quot; data-efx-suffix=&quot;+&quot;&gt;12840&lt;/div&gt;Users&lt;/div&gt;
+  &lt;div class=&quot;card p-6&quot;&gt;&lt;div class=&quot;efx-counter&quot; style=&quot;font-size:2.25rem;font-weight:700&quot; data-efx-prefix=&quot;$&quot;&gt;9.99&lt;/div&gt;Price&lt;/div&gt;
+  &lt;div class=&quot;card p-6&quot;&gt;&lt;div class=&quot;efx-counter&quot; style=&quot;font-size:2.25rem;font-weight:700&quot; data-efx-suffix=&quot;%&quot; data-efx-once=&quot;false&quot;&gt;99&lt;/div&gt;Uptime&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-counter</code></td><td>Element whose text is the final number.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-from</code></td><td><code>0</code></td><td>Start value.</td></tr>
+<tr><td><code>data-efx-to</code></td><td><code>from text</code></td><td>End value (defaults to the number in the text).</td></tr>
+<tr><td><code>data-efx-duration</code></td><td><code>1600</code></td><td>Duration in ms (ease-out cubic).</td></tr>
+<tr><td><code>data-efx-decimals</code></td><td><code>-1</code></td><td>Decimal places; -1 = infer from the target.</td></tr>
+<tr><td><code>data-efx-separator</code></td><td><code>,</code></td><td>Thousands separator.</td></tr>
+<tr><td><code>data-efx-prefix</code></td><td><code>&quot;&quot;</code></td><td>Text before the number, e.g. $.</td></tr>
+<tr><td><code>data-efx-suffix</code></td><td><code>&quot;&quot;</code></td><td>Text after the number, e.g. + or %.</td></tr>
+<tr><td><code>data-efx-once</code></td><td><code>true</code></td><td>false = replay every time it re-enters the viewport.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-marquee" class="stack gap-4 feature" aria-labelledby="h-marquee">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-marquee" class="text-2xl font-bold m-0">Marquee</h3>
+      <span class="badge tone-neutral"><code>marquee</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.9 KB</span></div>
+    <p class="m-0 text-muted">Infinite scrolling ticker. Content is cloned (aria-hidden) to fill the width; pauses on hover/focus and when off-screen; wraps statically with reduced motion.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-marquee-3"><div class="efx-marquee" data-efx-speed="80"><span class="btn">Alpha</span><span class="btn tone-primary">Beta</span><span class="btn">Gamma</span><span class="btn tone-secondary">Delta</span><span class="btn">Epsilon</span></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-marquee-3-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-marquee-3-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-marquee-3-code" data-demo="ex-marquee-3" spellcheck="false" rows="2">&lt;div class=&quot;efx-marquee&quot; data-efx-speed=&quot;80&quot;&gt;&lt;span class=&quot;btn&quot;&gt;Alpha&lt;/span&gt;&lt;span class=&quot;btn tone-primary&quot;&gt;Beta&lt;/span&gt;&lt;span class=&quot;btn&quot;&gt;Gamma&lt;/span&gt;&lt;span class=&quot;btn tone-secondary&quot;&gt;Delta&lt;/span&gt;&lt;span class=&quot;btn&quot;&gt;Epsilon&lt;/span&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-marquee</code></td><td>Container whose children scroll endlessly.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-speed</code></td><td><code>60</code></td><td>Pixels per second.</td></tr>
+<tr><td><code>data-efx-direction</code></td><td><code>left</code></td><td>left · right</td></tr>
+<tr><td><code>data-efx-pause</code></td><td><code>true</code></td><td>Pause on hover and keyboard focus.</td></tr>
+<tr><td><code>data-efx-gap</code></td><td><code>32</code></td><td>Space between items in px.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-gap</code></td><td><code>set from data-efx-gap</code></td><td>Space between items.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-parallax" class="stack gap-4 feature" aria-labelledby="h-parallax">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-parallax" class="text-2xl font-bold m-0">Parallax</h3>
+      <span class="badge tone-neutral"><code>parallax</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.6 KB</span></div>
+    <p class="m-0 text-muted">Moves an element slower, faster or opposite to the scroll. Only computes while visible; static with reduced motion.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-parallax-4"><div class="grid md:grid-cols-2 gap-4" style="min-height:300px;overflow:hidden">
+  <div class="card tone-primary p-6 efx-parallax" data-efx-speed="0.25">Slow drift</div>
+  <div class="card tone-secondary p-6 efx-parallax" data-efx-speed="-0.25">Opposite drift</div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-parallax-4-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-parallax-4-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-parallax-4-code" data-demo="ex-parallax-4" spellcheck="false" rows="5">&lt;div class=&quot;grid md:grid-cols-2 gap-4&quot; style=&quot;min-height:300px;overflow:hidden&quot;&gt;
+  &lt;div class=&quot;card tone-primary p-6 efx-parallax&quot; data-efx-speed=&quot;0.25&quot;&gt;Slow drift&lt;/div&gt;
+  &lt;div class=&quot;card tone-secondary p-6 efx-parallax&quot; data-efx-speed=&quot;-0.25&quot;&gt;Opposite drift&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-parallax-5"><section class="efx-parallax rounded-lg p-6" data-efx-bg data-efx-speed="0.4" style="min-height:300px;background-image:linear-gradient(135deg,#6366f1,#ec4899 60%,#f59e0b);color:#fff">
+  <h3>Background parallax</h3><p>The gradient layer moves behind this text.</p>
+</section></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-parallax-5-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-parallax-5-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-parallax-5-code" data-demo="ex-parallax-5" spellcheck="false" rows="4">&lt;section class=&quot;efx-parallax rounded-lg p-6&quot; data-efx-bg data-efx-speed=&quot;0.4&quot; style=&quot;min-height:300px;background-image:linear-gradient(135deg,#6366f1,#ec4899 60%,#f59e0b);color:#fff&quot;&gt;
+  &lt;h3&gt;Background parallax&lt;/h3&gt;&lt;p&gt;The gradient layer moves behind this text.&lt;/p&gt;
+&lt;/section&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-parallax</code></td><td>Shift this element (or its background image with data-efx-bg) as the page scrolls.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-speed</code></td><td><code>0.3</code></td><td>Strength, -1 to 1. Negative moves against the scroll.</td></tr>
+<tr><td><code>data-efx-axis</code></td><td><code>y</code></td><td>y · x</td></tr>
+<tr><td><code>data-efx-bg</code></td><td><code>false</code></td><td>Move the CSS background-image through an injected oversized layer instead of the element.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-reveal" class="stack gap-4 feature" aria-labelledby="h-reveal">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-reveal" class="text-2xl font-bold m-0">Reveal on scroll</h3>
+      <span class="badge tone-neutral"><code>reveal</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.6 KB</span></div>
+    <p class="m-0 text-muted">Fades, slides, zooms or blurs elements in as they enter the viewport. Content stays visible without JS.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-reveal-6"><div class="efx-stagger grid md:grid-cols-3 gap-4" data-efx-stagger="120">
+  <div class="card efx-reveal" data-efx-reveal="fade-up">Fade up</div>
+  <div class="card efx-reveal" data-efx-reveal="zoom">Zoom</div>
+  <div class="card efx-reveal" data-efx-reveal="blur">Blur</div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-reveal-6-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-reveal-6-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-reveal-6-code" data-demo="ex-reveal-6" spellcheck="false" rows="6">&lt;div class=&quot;efx-stagger grid md:grid-cols-3 gap-4&quot; data-efx-stagger=&quot;120&quot;&gt;
+  &lt;div class=&quot;card efx-reveal&quot; data-efx-reveal=&quot;fade-up&quot;&gt;Fade up&lt;/div&gt;
+  &lt;div class=&quot;card efx-reveal&quot; data-efx-reveal=&quot;zoom&quot;&gt;Zoom&lt;/div&gt;
+  &lt;div class=&quot;card efx-reveal&quot; data-efx-reveal=&quot;blur&quot;&gt;Blur&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-reveal</code></td><td>Animate this element in when it scrolls into view.</td></tr>
+<tr><td><code>efx-stagger</code></td><td>Container: cascades the delay of every .efx-reveal inside it.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-reveal</code></td><td><code>fade-up</code></td><td>fade · fade-up · fade-down · slide-left · slide-right · zoom · blur · flip</td></tr>
+<tr><td><code>data-efx-delay</code></td><td><code>0</code></td><td>Extra delay in ms.</td></tr>
+<tr><td><code>data-efx-once</code></td><td><code>true</code></td><td>false = hide again when it leaves the viewport.</td></tr>
+<tr><td><code>data-efx-threshold</code></td><td><code>0.15</code></td><td>How far into the viewport (0–1) before it plays.</td></tr>
+<tr><td><code>data-efx-stagger</code></td><td><code>80</code></td><td>On .efx-stagger: ms between children.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-duration</code></td><td><code>700ms</code></td><td>Animation length.</td></tr>
+<tr><td><code>--efx-ease</code></td><td><code>cubic-bezier(.22,1,.36,1)</code></td><td>Easing.</td></tr>
+<tr><td><code>--efx-distance</code></td><td><code>24px</code></td><td>Travel distance for fade/slide.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-progress" class="stack gap-4 feature" aria-labelledby="h-progress">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-progress" class="text-2xl font-bold m-0">Scroll progress</h3>
+      <span class="badge tone-neutral"><code>progress</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.6 KB</span></div>
+    <p class="m-0 text-muted">A bar that fills as the page (or one article) is scrolled. Exposes --efx-progress and role="progressbar".</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-progress-7"><div class="card p-6 stack"><div class="efx-progress" data-efx-position="none" data-efx-height="8" data-efx-target="#efx-prog-art" style="border-radius:4px"></div>
+  <article id="efx-prog-art" class="stack" style="min-height:700px"><p>This bar tracks how far you have scrolled through this article.</p><p>Keep scrolling the page.</p></article></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-progress-7-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-progress-7-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-progress-7-code" data-demo="ex-progress-7" spellcheck="false" rows="3">&lt;div class=&quot;card p-6 stack&quot;&gt;&lt;div class=&quot;efx-progress&quot; data-efx-position=&quot;none&quot; data-efx-height=&quot;8&quot; data-efx-target=&quot;#efx-prog-art&quot; style=&quot;border-radius:4px&quot;&gt;&lt;/div&gt;
+  &lt;article id=&quot;efx-prog-art&quot; class=&quot;stack&quot; style=&quot;min-height:700px&quot;&gt;&lt;p&gt;This bar tracks how far you have scrolled through this article.&lt;/p&gt;&lt;p&gt;Keep scrolling the page.&lt;/p&gt;&lt;/article&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-progress</code></td><td>The bar element. Fixed to the top by default.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-target</code></td><td><code>&quot;&quot;</code></td><td>CSS selector of an article to measure instead of the whole page.</td></tr>
+<tr><td><code>data-efx-position</code></td><td><code>top</code></td><td>top · bottom · none (none = you position it).</td></tr>
+<tr><td><code>data-efx-height</code></td><td><code>4</code></td><td>Bar thickness in px.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-color</code></td><td><code>var(--sh-tone, --sh-primary)</code></td><td>Bar color (Shine .tone-* classes work).</td></tr>
+<tr><td><code>--efx-progress</code></td><td><code>0..1</code></td><td>Set by JS; use it to style anything else.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-scrollspy" class="stack gap-4 feature" aria-labelledby="h-scrollspy">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-scrollspy" class="text-2xl font-bold m-0">Scrollspy</h3>
+      <span class="badge tone-neutral"><code>scrollspy</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.8 KB</span></div>
+    <p class="m-0 text-muted">Highlights the table-of-contents link whose section is in view and optionally smooth-scrolls on click.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-scrollspy-8"><div class="grid md:grid-cols-2 gap-4">
+  <nav class="efx-scrollspy stack" data-efx-offset="20" aria-label="Contents">
+    <a href="#efx-spy-a">Section A</a><a href="#efx-spy-b">Section B</a><a href="#efx-spy-c">Section C</a>
+  </nav>
+  <div class="stack"><section id="efx-spy-a" class="card p-6" style="min-height:240px">A</section><section id="efx-spy-b" class="card p-6" style="min-height:240px">B</section><section id="efx-spy-c" class="card p-6" style="min-height:240px">C</section></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-scrollspy-8-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-scrollspy-8-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-scrollspy-8-code" data-demo="ex-scrollspy-8" spellcheck="false" rows="7">&lt;div class=&quot;grid md:grid-cols-2 gap-4&quot;&gt;
+  &lt;nav class=&quot;efx-scrollspy stack&quot; data-efx-offset=&quot;20&quot; aria-label=&quot;Contents&quot;&gt;
+    &lt;a href=&quot;#efx-spy-a&quot;&gt;Section A&lt;/a&gt;&lt;a href=&quot;#efx-spy-b&quot;&gt;Section B&lt;/a&gt;&lt;a href=&quot;#efx-spy-c&quot;&gt;Section C&lt;/a&gt;
+  &lt;/nav&gt;
+  &lt;div class=&quot;stack&quot;&gt;&lt;section id=&quot;efx-spy-a&quot; class=&quot;card p-6&quot; style=&quot;min-height:240px&quot;&gt;A&lt;/section&gt;&lt;section id=&quot;efx-spy-b&quot; class=&quot;card p-6&quot; style=&quot;min-height:240px&quot;&gt;B&lt;/section&gt;&lt;section id=&quot;efx-spy-c&quot; class=&quot;card p-6&quot; style=&quot;min-height:240px&quot;&gt;C&lt;/section&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-scrollspy</code></td><td>Nav/TOC containing a[href^=&quot;#&quot;] links. The active link gets is-active and aria-current=&quot;true&quot;.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-offset</code></td><td><code>80</code></td><td>Px from the top where a section becomes active (also scroll offset on click).</td></tr>
+<tr><td><code>data-efx-active-class</code></td><td><code>is-active</code></td><td>Class added to the active link.</td></tr>
+<tr><td><code>data-efx-smooth</code></td><td><code>true</code></td><td>Smooth scroll on click (respects reduced motion).</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-sticky" class="stack gap-4 feature" aria-labelledby="h-sticky">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-sticky" class="text-2xl font-bold m-0">Sticky header</h3>
+      <span class="badge tone-neutral"><code>sticky</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.7 KB</span></div>
+    <p class="m-0 text-muted">Makes an element position: sticky and adds state classes: is-stuck (with shadow), is-hidden (hide on scroll down) and is-shrunk.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-sticky-9"><div>
+  <div class="efx-sticky card p-4 tone-primary" data-efx-shrink data-efx-shrink-at="20" style="top:0">Sticky bar: gets is-stuck (shadow) and is-shrunk while scrolling</div>
+  <div class="p-6" style="min-height:900px">Scroll the page so the bar sticks.</div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-sticky-9-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-sticky-9-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-sticky-9-code" data-demo="ex-sticky-9" spellcheck="false" rows="5">&lt;div&gt;
+  &lt;div class=&quot;efx-sticky card p-4 tone-primary&quot; data-efx-shrink data-efx-shrink-at=&quot;20&quot; style=&quot;top:0&quot;&gt;Sticky bar: gets is-stuck (shadow) and is-shrunk while scrolling&lt;/div&gt;
+  &lt;div class=&quot;p-6&quot; style=&quot;min-height:900px&quot;&gt;Scroll the page so the bar sticks.&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-sticky</code></td><td>Sticky element. Gets is-stuck, is-hidden, is-shrunk.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-offset</code></td><td><code>0</code></td><td>Distance from the top edge in px.</td></tr>
+<tr><td><code>data-efx-hide</code></td><td><code>false</code></td><td>Hide when scrolling down, show when scrolling up.</td></tr>
+<tr><td><code>data-efx-shrink</code></td><td><code>false</code></td><td>Add is-shrunk after scrolling past shrinkAt.</td></tr>
+<tr><td><code>data-efx-shrink-at</code></td><td><code>80</code></td><td>Scroll distance in px for is-shrunk.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-split" class="stack gap-4 feature" aria-labelledby="h-split">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-split" class="text-2xl font-bold m-0">Split text</h3>
+      <span class="badge tone-neutral"><code>split</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.9 KB</span></div>
+    <p class="m-0 text-muted">Splits a heading into words or letters and animates them in with a stagger when scrolled into view. Screen readers get the original text; no JS or reduced motion = plain text.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-split-10"><div class="stack gap-4 p-6">
+  <h2 class="efx-split" data-efx-by="letter" data-efx-effect="fade-up">Letters rise in</h2>
+  <h3 class="efx-split" data-efx-effect="blur">Words fade from blur into focus</h3>
+  <h3 class="efx-split" data-efx-by="letter" data-efx-effect="wave" data-efx-stagger="60">Looping wave</h3>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-split-10-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-split-10-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-split-10-code" data-demo="ex-split-10" spellcheck="false" rows="6">&lt;div class=&quot;stack gap-4 p-6&quot;&gt;
+  &lt;h2 class=&quot;efx-split&quot; data-efx-by=&quot;letter&quot; data-efx-effect=&quot;fade-up&quot;&gt;Letters rise in&lt;/h2&gt;
+  &lt;h3 class=&quot;efx-split&quot; data-efx-effect=&quot;blur&quot;&gt;Words fade from blur into focus&lt;/h3&gt;
+  &lt;h3 class=&quot;efx-split&quot; data-efx-by=&quot;letter&quot; data-efx-effect=&quot;wave&quot; data-efx-stagger=&quot;60&quot;&gt;Looping wave&lt;/h3&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-split</code></td><td>Element whose text is split and animated. Inline markup inside is flattened.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-by</code></td><td><code>word</code></td><td>word · letter (falls back to word above max pieces).</td></tr>
+<tr><td><code>data-efx-effect</code></td><td><code>fade-up</code></td><td>fade · fade-up · blur · slide · wave (looping).</td></tr>
+<tr><td><code>data-efx-stagger</code></td><td><code>40</code></td><td>Delay between pieces in ms.</td></tr>
+<tr><td><code>data-efx-duration</code></td><td><code>600</code></td><td>Per-piece animation time in ms.</td></tr>
+<tr><td><code>data-efx-once</code></td><td><code>true</code></td><td>false = replay when re-entering the viewport.</td></tr>
+<tr><td><code>data-efx-max</code></td><td><code>200</code></td><td>Max letters to split; beyond this, split by word.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-ease</code></td><td><code>cubic-bezier(.22,1,.36,1)</code></td><td>Easing.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-typed" class="stack gap-4 feature" aria-labelledby="h-typed">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-typed" class="text-2xl font-bold m-0">Typed text</h3>
+      <span class="badge tone-neutral"><code>typed</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.9 KB</span></div>
+    <p class="m-0 text-muted">Typewriter or rotating words with a blinking cursor. Screen readers get the first word; reduced motion shows it statically.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-typed-11"><div class="stack gap-4 p-6">
+  <h2>Build <span class="efx-typed" data-efx-words="fast|light|accessible|beautiful">fast</span> sites</h2>
+  <h3>Make it <span class="efx-typed" data-efx-mode="slide" data-efx-cursor="false" data-efx-words="simple|bold|yours">simple</span></h3>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-typed-11-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-typed-11-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-typed-11-code" data-demo="ex-typed-11" spellcheck="false" rows="5">&lt;div class=&quot;stack gap-4 p-6&quot;&gt;
+  &lt;h2&gt;Build &lt;span class=&quot;efx-typed&quot; data-efx-words=&quot;fast|light|accessible|beautiful&quot;&gt;fast&lt;/span&gt; sites&lt;/h2&gt;
+  &lt;h3&gt;Make it &lt;span class=&quot;efx-typed&quot; data-efx-mode=&quot;slide&quot; data-efx-cursor=&quot;false&quot; data-efx-words=&quot;simple|bold|yours&quot;&gt;simple&lt;/span&gt;&lt;/h3&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-typed</code></td><td>Inline element whose text rotates through data-efx-words.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-words</code></td><td></td><td>Words separated by | or ,.</td></tr>
+<tr><td><code>data-efx-speed</code></td><td><code>60</code></td><td>Typing speed, ms per character.</td></tr>
+<tr><td><code>data-efx-back</code></td><td><code>30</code></td><td>Deleting speed, ms per character.</td></tr>
+<tr><td><code>data-efx-pause</code></td><td><code>1600</code></td><td>Hold time per word in ms.</td></tr>
+<tr><td><code>data-efx-loop</code></td><td><code>true</code></td><td>false = stop on the last word.</td></tr>
+<tr><td><code>data-efx-cursor</code></td><td><code>true</code></td><td>Show blinking cursor.</td></tr>
+<tr><td><code>data-efx-mode</code></td><td><code>type</code></td><td>type · fade · slide (fade/slide swap whole words).</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-border" class="stack gap-4 feature" aria-labelledby="h-border">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-border" class="text-2xl font-bold m-0">Animated border</h3>
+      <span class="badge tone-neutral"><code>border</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.2 KB</span></div>
+    <p class="m-0 text-muted">Spinning, tracing, glowing or shifting gradient borders for buttons, cards or anything. Optional loading mode driven by clicks.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-border-12"><div class="grid md:grid-cols-2 gap-4 p-6">
+  <div class="card p-6 efx-border-spin">Spinning border</div>
+  <div class="card p-6 efx-border-glow">Glow pulse</div>
+  <div class="card p-6 efx-border-gradient">Shifting gradient</div>
+  <div class="stack gap-3 p-6"><button class="btn efx-border-trace" data-efx-loading="click" data-efx-timeout="3000">Click to load</button>
+  <button class="btn efx-border-spin" data-efx-speed="1.5">Fast spin</button></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-border-12-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-border-12-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-border-12-code" data-demo="ex-border-12" spellcheck="false" rows="8">&lt;div class=&quot;grid md:grid-cols-2 gap-4 p-6&quot;&gt;
+  &lt;div class=&quot;card p-6 efx-border-spin&quot;&gt;Spinning border&lt;/div&gt;
+  &lt;div class=&quot;card p-6 efx-border-glow&quot;&gt;Glow pulse&lt;/div&gt;
+  &lt;div class=&quot;card p-6 efx-border-gradient&quot;&gt;Shifting gradient&lt;/div&gt;
+  &lt;div class=&quot;stack gap-3 p-6&quot;&gt;&lt;button class=&quot;btn efx-border-trace&quot; data-efx-loading=&quot;click&quot; data-efx-timeout=&quot;3000&quot;&gt;Click to load&lt;/button&gt;
+  &lt;button class=&quot;btn efx-border-spin&quot; data-efx-speed=&quot;1.5&quot;&gt;Fast spin&lt;/button&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-border-spin</code></td><td>Rotating conic-gradient ring.</td></tr>
+<tr><td><code>efx-border-trace</code></td><td>A short comet segment travelling around the border (loading indicator).</td></tr>
+<tr><td><code>efx-border-glow</code></td><td>Gradient ring with a pulsing glow.</td></tr>
+<tr><td><code>efx-border-gradient</code></td><td>Slowly shifting linear gradient border.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-colors</code></td><td><code>(Shine primary/accent/secondary)</code></td><td>Gradient colors, e.g. #f0f|#0ff|#f0f (end with the first color for a seamless loop).</td></tr>
+<tr><td><code>data-efx-speed</code></td><td><code>0</code></td><td>Seconds per cycle; 0 = CSS default (3s).</td></tr>
+<tr><td><code>data-efx-width</code></td><td><code>0</code></td><td>Border width in px; 0 = CSS default (2px).</td></tr>
+<tr><td><code>data-efx-loading</code></td><td></td><td>&quot;&quot; = always animate · click = animate only while loading (after a click) · always.</td></tr>
+<tr><td><code>data-efx-timeout</code></td><td><code>0</code></td><td>With loading=click: auto-stop after ms (0 = until efx:done).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-border-colors</code></td><td><code>primary, accent, secondary</code></td><td>Comma list of gradient colors.</td></tr>
+<tr><td><code>--efx-border-color</code></td><td><code>var(--sh-tone, --sh-primary)</code></td><td>Single color for trace and glow.</td></tr>
+<tr><td><code>--efx-border-width</code></td><td><code>2px</code></td><td>Ring thickness.</td></tr>
+<tr><td><code>--efx-border-speed</code></td><td><code>3s</code></td><td>Cycle duration.</td></tr>
+<tr><td><code>--efx-border-radius</code></td><td><code>inherit</code></td><td>Ring radius (inherits Shine button/card radius).</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-particles" class="stack gap-4 feature" aria-labelledby="h-particles">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-particles" class="text-2xl font-bold m-0">Particles</h3>
+      <span class="badge tone-neutral"><code>particles</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.6 KB</span></div>
+    <p class="m-0 text-muted">Drifting canvas particles behind any section, optionally linked by lines and reacting to the pointer. Pauses off-screen and in hidden tabs.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-particles-13"><section class="efx-particles p-6 rounded-lg" data-efx-links data-efx-interact="connect" style="min-height:280px;background:#0f172a;color:#fff">
+  <div class="stack"><h3>Connected particles</h3><p>Move the pointer over this area.</p><button class="btn">Still clickable</button></div>
+</section></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-particles-13-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-particles-13-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-particles-13-code" data-demo="ex-particles-13" spellcheck="false" rows="4">&lt;section class=&quot;efx-particles p-6 rounded-lg&quot; data-efx-links data-efx-interact=&quot;connect&quot; style=&quot;min-height:280px;background:#0f172a;color:#fff&quot;&gt;
+  &lt;div class=&quot;stack&quot;&gt;&lt;h3&gt;Connected particles&lt;/h3&gt;&lt;p&gt;Move the pointer over this area.&lt;/p&gt;&lt;button class=&quot;btn&quot;&gt;Still clickable&lt;/button&gt;&lt;/div&gt;
+&lt;/section&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-particles-14"><section class="efx-particles p-6 rounded-lg" data-efx-color="#f43f5e|#f59e0b|rgb(34,211,238)" data-efx-shape="square" data-efx-count="70" style="min-height:280px;background:#111827;color:#fff">
+  <h3>Multicolor squares</h3>
+</section></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-particles-14-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-particles-14-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-particles-14-code" data-demo="ex-particles-14" spellcheck="false" rows="4">&lt;section class=&quot;efx-particles p-6 rounded-lg&quot; data-efx-color=&quot;#f43f5e|#f59e0b|rgb(34,211,238)&quot; data-efx-shape=&quot;square&quot; data-efx-count=&quot;70&quot; style=&quot;min-height:280px;background:#111827;color:#fff&quot;&gt;
+  &lt;h3&gt;Multicolor squares&lt;/h3&gt;
+&lt;/section&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-particles</code></td><td>Injects a canvas behind the content (content stays clickable and above).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-count</code></td><td><code>50</code></td><td>Max particles (also capped by area / 14000).</td></tr>
+<tr><td><code>data-efx-color</code></td><td><code>(theme)</code></td><td>One color or a list separated by | (commas outside parentheses also work) for multicolor, e.g. rgb(1,2,3)|#f00. Empty = Shine tone/primary.</td></tr>
+<tr><td><code>data-efx-size-min</code></td><td><code>1</code></td><td>Smallest radius in px.</td></tr>
+<tr><td><code>data-efx-size-max</code></td><td><code>2.8</code></td><td>Largest radius in px.</td></tr>
+<tr><td><code>data-efx-speed</code></td><td><code>100</code></td><td>Speed in percent.</td></tr>
+<tr><td><code>data-efx-opacity</code></td><td><code>1</code></td><td>Particle opacity (0–1).</td></tr>
+<tr><td><code>data-efx-links</code></td><td><code>false</code></td><td>Draw lines between nearby particles.</td></tr>
+<tr><td><code>data-efx-link-distance</code></td><td><code>110</code></td><td>Max link length in px.</td></tr>
+<tr><td><code>data-efx-interact</code></td><td><code>repel</code></td><td>none · repel · attract · connect (pointer joins the network).</td></tr>
+<tr><td><code>data-efx-interact-radius</code></td><td><code>120</code></td><td>Pointer influence radius in px.</td></tr>
+<tr><td><code>data-efx-shape</code></td><td><code>circle</code></td><td>circle · square · triangle</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-color</code></td><td><code>Shine tone / primary</code></td><td>Particle color when data-efx-color is empty.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-cursor" class="stack gap-4 feature" aria-labelledby="h-cursor">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-cursor" class="text-2xl font-bold m-0">Custom cursor</h3>
+      <span class="badge tone-neutral"><code>cursor</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.1 KB</span></div>
+    <p class="m-0 text-muted">A ring and/or dot cursor that eases toward the pointer, grows over interactive elements and hides when the pointer leaves the window. Fine pointers and motion-OK only.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-cursor-15"><div class="efx-cursor p-6 rounded-lg stack" data-efx-style="dot-ring" data-efx-hide-native style="min-height:240px;background:var(--sh-surface,#f1f5f9)">
+  <h3>Custom cursor zone</h3><div class="cluster gap-4"><button class="btn">Hover me</button><a href="#">A link</a></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-cursor-15-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-cursor-15-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-cursor-15-code" data-demo="ex-cursor-15" spellcheck="false" rows="4">&lt;div class=&quot;efx-cursor p-6 rounded-lg stack&quot; data-efx-style=&quot;dot-ring&quot; data-efx-hide-native style=&quot;min-height:240px;background:var(--sh-surface,#f1f5f9)&quot;&gt;
+  &lt;h3&gt;Custom cursor zone&lt;/h3&gt;&lt;div class=&quot;cluster gap-4&quot;&gt;&lt;button class=&quot;btn&quot;&gt;Hover me&lt;/button&gt;&lt;a href=&quot;#&quot;&gt;A link&lt;/a&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-cursor</code></td><td>On &lt;body&gt; (page-wide) or any container to enable the custom cursor.</td></tr>
+<tr><td><code>efx-cursor-hover</code></td><td>Mark extra elements that should trigger the hover state.</td></tr>
+<tr><td><code>efx-cursor-hide</code></td><td>Added automatically with data-efx-hide-native (cursor:none).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-style</code></td><td><code>ring</code></td><td>ring · dot · dot-ring</td></tr>
+<tr><td><code>data-efx-size</code></td><td><code>32</code></td><td>Ring diameter in px.</td></tr>
+<tr><td><code>data-efx-color</code></td><td><code>(theme)</code></td><td>Cursor color.</td></tr>
+<tr><td><code>data-efx-hide-native</code></td><td><code>false</code></td><td>Hide the native cursor.</td></tr>
+<tr><td><code>data-efx-blend</code></td><td><code>false</code></td><td>mix-blend-mode: difference.</td></tr>
+<tr><td><code>data-efx-hover</code></td><td><code>a,button,[role=button],input,select,textarea,label,summary,.efx-cursor-hover</code></td><td>Selector that triggers the hover state.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-cursor-color</code></td><td><code>theme</code></td><td>Set on the injected cursor elements.</td></tr>
+<tr><td><code>--efx-cursor-size</code></td><td><code>size option</code></td><td>Set on the injected cursor elements.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-magnetic" class="stack gap-4 feature" aria-labelledby="h-magnetic">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-magnetic" class="text-2xl font-bold m-0">Magnetic</h3>
+      <span class="badge tone-neutral"><code>magnetic</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.6 KB</span></div>
+    <p class="m-0 text-muted">Pulls a button or element toward the pointer as it approaches, then springs back. Fine pointers and motion-OK only.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-magnetic-16"><div class="cluster gap-4 p-6" style="min-height:200px;align-items:center;justify-content:center">
+  <button class="btn efx-magnetic">Magnetic</button>
+  <button class="btn efx-magnetic" data-efx-strength="0.6" data-efx-max="40" data-efx-radius="180">Strong pull</button>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-magnetic-16-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-magnetic-16-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-magnetic-16-code" data-demo="ex-magnetic-16" spellcheck="false" rows="5">&lt;div class=&quot;cluster gap-4 p-6&quot; style=&quot;min-height:200px;align-items:center;justify-content:center&quot;&gt;
+  &lt;button class=&quot;btn efx-magnetic&quot;&gt;Magnetic&lt;/button&gt;
+  &lt;button class=&quot;btn efx-magnetic&quot; data-efx-strength=&quot;0.6&quot; data-efx-max=&quot;40&quot; data-efx-radius=&quot;180&quot;&gt;Strong pull&lt;/button&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-magnetic</code></td><td>Make this element magnetic.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-strength</code></td><td><code>0.3</code></td><td>Fraction of the pointer offset applied.</td></tr>
+<tr><td><code>data-efx-radius</code></td><td><code>120</code></td><td>Activation distance (px) beyond the element edge.</td></tr>
+<tr><td><code>data-efx-max</code></td><td><code>24</code></td><td>Max displacement in px.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-mx / --efx-my</code></td><td><code>set by JS</code></td><td>Current offset.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-ripple" class="stack gap-4 feature" aria-labelledby="h-ripple">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-ripple" class="text-2xl font-bold m-0">Ripple</h3>
+      <span class="badge tone-neutral"><code>ripple</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.7 KB</span></div>
+    <p class="m-0 text-muted">Material-style click ripple for buttons and cards. Enter/Space ripple from the centre. Disabled under reduced motion.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-ripple-17"><div class="cluster gap-4 p-6">
+  <button class="btn efx-ripple">Click me</button>
+  <button class="btn efx-ripple" data-efx-center data-efx-duration="900">Centered</button>
+  <div class="card efx-ripple p-6" tabindex="0">Cards ripple too</div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-ripple-17-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-ripple-17-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-ripple-17-code" data-demo="ex-ripple-17" spellcheck="false" rows="6">&lt;div class=&quot;cluster gap-4 p-6&quot;&gt;
+  &lt;button class=&quot;btn efx-ripple&quot;&gt;Click me&lt;/button&gt;
+  &lt;button class=&quot;btn efx-ripple&quot; data-efx-center data-efx-duration=&quot;900&quot;&gt;Centered&lt;/button&gt;
+  &lt;div class=&quot;card efx-ripple p-6&quot; tabindex=&quot;0&quot;&gt;Cards ripple too&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-ripple</code></td><td>Adds position:relative, overflow:hidden and the click ripple.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-color</code></td><td><code>(currentColor 25%)</code></td><td>Ripple color.</td></tr>
+<tr><td><code>data-efx-duration</code></td><td><code>600</code></td><td>Duration in ms.</td></tr>
+<tr><td><code>data-efx-center</code></td><td><code>false</code></td><td>Always ripple from the centre.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-ripple-color</code></td><td><code>currentColor 25%</code></td><td>Ripple color.</td></tr>
+<tr><td><code>--efx-ripple-dur</code></td><td><code>600ms</code></td><td>Duration.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-spotlight" class="stack gap-4 feature" aria-labelledby="h-spotlight">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-spotlight" class="text-2xl font-bold m-0">Spotlight</h3>
+      <span class="badge tone-neutral"><code>spotlight</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.7 KB</span></div>
+    <p class="m-0 text-muted">A radial glow that follows the pointer inside a card or section, optionally lighting the border too. Fine pointers only.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-spotlight-18"><div class="grid md:grid-cols-2 gap-4">
+  <div class="card efx-spotlight p-6"><h3>Spotlight</h3><p>Move the pointer around.</p></div>
+  <div class="card efx-spotlight p-6" data-efx-border data-efx-opacity="0.3" data-efx-size="300"><h3>Lit border</h3><p>Border glows too.</p></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-spotlight-18-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-spotlight-18-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-spotlight-18-code" data-demo="ex-spotlight-18" spellcheck="false" rows="5">&lt;div class=&quot;grid md:grid-cols-2 gap-4&quot;&gt;
+  &lt;div class=&quot;card efx-spotlight p-6&quot;&gt;&lt;h3&gt;Spotlight&lt;/h3&gt;&lt;p&gt;Move the pointer around.&lt;/p&gt;&lt;/div&gt;
+  &lt;div class=&quot;card efx-spotlight p-6&quot; data-efx-border data-efx-opacity=&quot;0.3&quot; data-efx-size=&quot;300&quot;&gt;&lt;h3&gt;Lit border&lt;/h3&gt;&lt;p&gt;Border glows too.&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-spotlight</code></td><td>Add the pointer-following glow to this element.</td></tr>
+<tr><td><code>efx-spotlight--border</code></td><td>Added automatically with data-efx-border.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-size</code></td><td><code>240</code></td><td>Glow radius in px.</td></tr>
+<tr><td><code>data-efx-color</code></td><td><code>(theme)</code></td><td>Glow color. Empty = Shine tone/primary.</td></tr>
+<tr><td><code>data-efx-opacity</code></td><td><code>0.18</code></td><td>Glow strength (0–1).</td></tr>
+<tr><td><code>data-efx-border</code></td><td><code>false</code></td><td>Also light the border.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-x / --efx-y</code></td><td><code>set by JS</code></td><td>Pointer position inside the element.</td></tr>
+<tr><td><code>--efx-color</code></td><td><code>Shine tone / primary</code></td><td>Glow color fallback.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-tilt" class="stack gap-4 feature" aria-labelledby="h-tilt">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-tilt" class="text-2xl font-bold m-0">Tilt</h3>
+      <span class="badge tone-neutral"><code>tilt</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.8 KB</span></div>
+    <p class="m-0 text-muted">3D tilt toward the pointer with optional glare. Fine pointers and motion-OK only.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-tilt-19"><div class="grid md:grid-cols-2 gap-4">
+  <div class="card efx-tilt p-6"><h3>Tilt</h3><p>Hover me.</p></div>
+  <div class="card efx-tilt p-6" data-efx-glare data-efx-max="16" data-efx-scale="1.05"><h3>With glare</h3><p>Stronger tilt.</p></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-tilt-19-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-tilt-19-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-tilt-19-code" data-demo="ex-tilt-19" spellcheck="false" rows="5">&lt;div class=&quot;grid md:grid-cols-2 gap-4&quot;&gt;
+  &lt;div class=&quot;card efx-tilt p-6&quot;&gt;&lt;h3&gt;Tilt&lt;/h3&gt;&lt;p&gt;Hover me.&lt;/p&gt;&lt;/div&gt;
+  &lt;div class=&quot;card efx-tilt p-6&quot; data-efx-glare data-efx-max=&quot;16&quot; data-efx-scale=&quot;1.05&quot;&gt;&lt;h3&gt;With glare&lt;/h3&gt;&lt;p&gt;Stronger tilt.&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-tilt</code></td><td>Tilt this element toward the pointer.</td></tr>
+<tr><td><code>efx-tilt__glare</code></td><td>Injected glare layer (data-efx-glare).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-max</code></td><td><code>10</code></td><td>Max rotation in degrees.</td></tr>
+<tr><td><code>data-efx-perspective</code></td><td><code>900</code></td><td>Perspective in px.</td></tr>
+<tr><td><code>data-efx-scale</code></td><td><code>1.02</code></td><td>Scale while hovered.</td></tr>
+<tr><td><code>data-efx-glare</code></td><td><code>false</code></td><td>Add a light glare following the pointer.</td></tr>
+<tr><td><code>data-efx-reset</code></td><td><code>true</code></td><td>Ease back to flat when the pointer leaves.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-rx / --efx-ry</code></td><td><code>set by JS</code></td><td>Current rotation (read-only in practice).</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-divider" class="stack gap-4 feature" aria-labelledby="h-divider">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-divider" class="text-2xl font-bold m-0">Shape dividers</h3>
+      <span class="badge tone-neutral"><code>divider</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.9 KB</span></div>
+    <p class="m-0 text-muted">Animated SVG dividers (waves, clouds, mountains, drips…) generated inline and colored to match the neighbouring section.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-divider-20"><section class="p-6 tone-primary" style="position:relative;height:280px;overflow:hidden;background:var(--sh-primary,#4f46e5);color:#fff">
+  <h3>Wavy section</h3><p>Dividers drift along the bottom edge.</p>
+  <div class="efx-divider" data-efx-shape="waves" data-efx-animate="drift" data-efx-position="bottom" data-efx-height="90" data-efx-color="#fff"></div>
+</section></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-divider-20-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-divider-20-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-divider-20-code" data-demo="ex-divider-20" spellcheck="false" rows="5">&lt;section class=&quot;p-6 tone-primary&quot; style=&quot;position:relative;height:280px;overflow:hidden;background:var(--sh-primary,#4f46e5);color:#fff&quot;&gt;
+  &lt;h3&gt;Wavy section&lt;/h3&gt;&lt;p&gt;Dividers drift along the bottom edge.&lt;/p&gt;
+  &lt;div class=&quot;efx-divider&quot; data-efx-shape=&quot;waves&quot; data-efx-animate=&quot;drift&quot; data-efx-position=&quot;bottom&quot; data-efx-height=&quot;90&quot; data-efx-color=&quot;#fff&quot;&gt;&lt;/div&gt;
+&lt;/section&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-divider</code></td><td>Placeholder block; JS fills it with an SVG. Shapes: wave, waves, tilt, curve, triangle, arrow, zigzag, clouds, mountains, drips (hangs from the top), steps, spikes.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-shape</code></td><td><code>wave</code></td><td>wave · waves · tilt · curve · triangle · arrow · zigzag · clouds · mountains · drips · steps · spikes</td></tr>
+<tr><td><code>data-efx-color</code></td><td></td><td>Fill color; empty = --efx-divider-color or Shine --sh-bg.</td></tr>
+<tr><td><code>data-efx-height</code></td><td><code>80</code></td><td>Height in px.</td></tr>
+<tr><td><code>data-efx-flip</code></td><td><code>false</code></td><td>Mirror horizontally.</td></tr>
+<tr><td><code>data-efx-invert</code></td><td><code>false</code></td><td>Mirror vertically (for dividers at the top of a section).</td></tr>
+<tr><td><code>data-efx-animate</code></td><td><code>none</code></td><td>none · drift (periodic shapes scroll sideways) · layers (3 drifting copies) · float (bob). Non-periodic shapes fall back to float.</td></tr>
+<tr><td><code>data-efx-speed</code></td><td><code>12</code></td><td>Seconds per drift loop.</td></tr>
+<tr><td><code>data-efx-position</code></td><td></td><td>top · bottom = absolutely placed on the parent section edge; empty = normal block.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-divider-color</code></td><td><code>var(--sh-bg)</code></td><td>Fill color (use the next section's background).</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-compare" class="stack gap-4 feature" aria-labelledby="h-compare">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-compare" class="text-2xl font-bold m-0">Before / after compare</h3>
+      <span class="badge tone-neutral"><code>compare</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.3 KB</span></div>
+    <p class="m-0 text-muted">Drag a handle to reveal the second image over the first. Keyboard and screen reader friendly via a hidden range input.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-compare-21"><div class="efx-compare rounded-lg" style="max-width:480px">
+  <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22600%22%20height%3D%22300%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%2364748b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2248%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EBefore%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Before">
+  <img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22600%22%20height%3D%22300%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%236366f1%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2248%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EAfter%3C%2Ftext%3E%3C%2Fsvg%3E" alt="After">
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-compare-21-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-compare-21-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-compare-21-code" data-demo="ex-compare-21" spellcheck="false" rows="5">&lt;div class=&quot;efx-compare rounded-lg&quot; style=&quot;max-width:480px&quot;&gt;
+  &lt;img src=&quot;data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22600%22%20height%3D%22300%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%2364748b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2248%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EBefore%3C%2Ftext%3E%3C%2Fsvg%3E&quot; alt=&quot;Before&quot;&gt;
+  &lt;img src=&quot;data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22600%22%20height%3D%22300%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%236366f1%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2248%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EAfter%3C%2Ftext%3E%3C%2Fsvg%3E&quot; alt=&quot;After&quot;&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-compare</code></td><td>Container with exactly two &lt;img&gt; children: before, then after. Gets .is-dragging while dragging.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-start</code></td><td><code>50</code></td><td>Starting position, percent.</td></tr>
+<tr><td><code>data-efx-vertical</code></td><td><code>false</code></td><td>Split top/bottom instead of left/right.</td></tr>
+<tr><td><code>data-efx-hover</code></td><td><code>false</code></td><td>Follow the mouse without dragging (fine pointers only).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-pos</code></td><td><code>50%</code></td><td>Current split position (set by JS).</td></tr>
+<tr><td><code>--efx-handle</code></td><td><code>var(--sh-bg)</code></td><td>Handle line color.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-carousel" class="stack gap-4 feature" aria-labelledby="h-carousel">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-carousel" class="text-2xl font-bold m-0">Carousel controls</h3>
+      <span class="badge tone-neutral"><code>carousel</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.8 KB</span></div>
+    <p class="m-0 text-muted">Adds arrows, dots, keyboard, accessible autoplay and an optional fade mode to Shine's scroll-snap .carousel.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-carousel-22"><div class="carousel efx-carousel" tabindex="0" aria-label="Demo slides" data-efx-autoplay="4000">
+  <div class="card p-6 bg-primary-soft" style="min-height:160px">Slide one</div>
+  <div class="card p-6 bg-success-soft" style="min-height:160px">Slide two</div>
+  <div class="card p-6 bg-warning-soft" style="min-height:160px">Slide three</div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-carousel-22-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-carousel-22-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-carousel-22-code" data-demo="ex-carousel-22" spellcheck="false" rows="6">&lt;div class=&quot;carousel efx-carousel&quot; tabindex=&quot;0&quot; aria-label=&quot;Demo slides&quot; data-efx-autoplay=&quot;4000&quot;&gt;
+  &lt;div class=&quot;card p-6 bg-primary-soft&quot; style=&quot;min-height:160px&quot;&gt;Slide one&lt;/div&gt;
+  &lt;div class=&quot;card p-6 bg-success-soft&quot; style=&quot;min-height:160px&quot;&gt;Slide two&lt;/div&gt;
+  &lt;div class=&quot;card p-6 bg-warning-soft&quot; style=&quot;min-height:160px&quot;&gt;Slide three&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-carousel-23"><div class="carousel efx-carousel" data-efx-fade tabindex="0" aria-label="Fading slides">
+  <div class="card p-6 bg-info-soft" style="min-height:160px">Fade one</div>
+  <div class="card p-6 bg-danger-soft" style="min-height:160px">Fade two</div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-carousel-23-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-carousel-23-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-carousel-23-code" data-demo="ex-carousel-23" spellcheck="false" rows="5">&lt;div class=&quot;carousel efx-carousel&quot; data-efx-fade tabindex=&quot;0&quot; aria-label=&quot;Fading slides&quot;&gt;
+  &lt;div class=&quot;card p-6 bg-info-soft&quot; style=&quot;min-height:160px&quot;&gt;Fade one&lt;/div&gt;
+  &lt;div class=&quot;card p-6 bg-danger-soft&quot; style=&quot;min-height:160px&quot;&gt;Fade two&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-carousel</code></td><td>Add next to Shine's .carousel (the track itself). Children are the slides; the active ones get .is-active. Add tabindex=&quot;0&quot; for ←/→ keys.</td></tr>
+<tr><td><code>efx-carousel__nav</code></td><td>Generated after the track: prev/next buttons, dots and a pause button when autoplay is on.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-autoplay</code></td><td><code>0</code></td><td>Ms between slides. 0 = off. Pauses on hover, focus, offscreen, and via a pause button. Ignored with reduced motion.</td></tr>
+<tr><td><code>data-efx-loop</code></td><td><code>true</code></td><td>Wrap around at the ends.</td></tr>
+<tr><td><code>data-efx-dots</code></td><td><code>true</code></td><td>Show dot navigation.</td></tr>
+<tr><td><code>data-efx-arrows</code></td><td><code>true</code></td><td>Show prev/next buttons.</td></tr>
+<tr><td><code>data-efx-per-view</code></td><td><code>0</code></td><td>Slides visible at once. 0 = respect CSS (e.g. .carousel-peek).</td></tr>
+<tr><td><code>data-efx-fade</code></td><td><code>false</code></td><td>Crossfade stacked slides instead of scrolling (hero sliders).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-per-view</code></td><td><code>(unset)</code></td><td>Slides per view, set when per-view is &gt; 0.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-copy" class="stack gap-4 feature" aria-labelledby="h-copy">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-copy" class="text-2xl font-bold m-0">Copy to clipboard</h3>
+      <span class="badge tone-neutral"><code>copy</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.6 KB</span></div>
+    <p class="m-0 text-muted">Copies an element's text (or a literal) to the clipboard, swaps the label and announces it to screen readers.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-copy-24"><div class="card p-6 stack gap-4">
+  <code id="demo-copy-code">npm install effix</code>
+  <div class="cluster gap-2">
+    <button class="btn efx-copy" data-efx-target="#demo-copy-code">Copy command</button>
+    <button class="btn btn-outline efx-copy" data-efx-text="https://example.com" data-efx-done="Link copied">Copy link</button>
+  </div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-copy-24-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-copy-24-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-copy-24-code" data-demo="ex-copy-24" spellcheck="false" rows="8">&lt;div class=&quot;card p-6 stack gap-4&quot;&gt;
+  &lt;code id=&quot;demo-copy-code&quot;&gt;npm install effix&lt;/code&gt;
+  &lt;div class=&quot;cluster gap-2&quot;&gt;
+    &lt;button class=&quot;btn efx-copy&quot; data-efx-target=&quot;#demo-copy-code&quot;&gt;Copy command&lt;/button&gt;
+    &lt;button class=&quot;btn btn-outline efx-copy&quot; data-efx-text=&quot;https://example.com&quot; data-efx-done=&quot;Link copied&quot;&gt;Copy link&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-copy</code></td><td>Add to a button. Gets .is-copied while the done label shows.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-target</code></td><td></td><td>CSS selector of the element to copy. Inputs/textareas use their value, others textContent.</td></tr>
+<tr><td><code>data-efx-text</code></td><td></td><td>Literal text to copy (wins over target).</td></tr>
+<tr><td><code>data-efx-done</code></td><td><code>Copied!</code></td><td>Label shown after copying.</td></tr>
+<tr><td><code>data-efx-duration</code></td><td><code>1800</code></td><td>Ms before the label reverts.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-lightbox" class="stack gap-4 feature" aria-labelledby="h-lightbox">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-lightbox" class="text-2xl font-bold m-0">Lightbox</h3>
+      <span class="badge tone-neutral"><code>lightbox</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.6 KB</span></div>
+    <p class="m-0 text-muted">Opens linked images in one shared Shine modal with captions, prev/next, counter, arrow keys and touch swipe. Links still work without JS.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-lightbox-25"><div class="efx-lightbox cluster gap-3">
+  <a href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%236366f1%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EOne%3C%2Ftext%3E%3C%2Fsvg%3E" data-efx-caption="One caption"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%236366f1%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EOne%3C%2Ftext%3E%3C%2Fsvg%3E" alt="One" class="rounded-lg" style="width:120px;height:75px;object-fit:cover"></a>
+  <a href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%230f766e%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ETwo%3C%2Ftext%3E%3C%2Fsvg%3E" data-efx-caption="Two caption"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%230f766e%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ETwo%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Two" class="rounded-lg" style="width:120px;height:75px;object-fit:cover"></a>
+  <a href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23be123c%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EThree%3C%2Ftext%3E%3C%2Fsvg%3E" data-efx-caption="Three caption"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23be123c%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EThree%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Three" class="rounded-lg" style="width:120px;height:75px;object-fit:cover"></a>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-lightbox-25-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-lightbox-25-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-lightbox-25-code" data-demo="ex-lightbox-25" spellcheck="false" rows="6">&lt;div class=&quot;efx-lightbox cluster gap-3&quot;&gt;
+  &lt;a href=&quot;data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%236366f1%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EOne%3C%2Ftext%3E%3C%2Fsvg%3E&quot; data-efx-caption=&quot;One caption&quot;&gt;&lt;img src=&quot;data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%236366f1%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EOne%3C%2Ftext%3E%3C%2Fsvg%3E&quot; alt=&quot;One&quot; class=&quot;rounded-lg&quot; style=&quot;width:120px;height:75px;object-fit:cover&quot;&gt;&lt;/a&gt;
+  &lt;a href=&quot;data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%230f766e%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ETwo%3C%2Ftext%3E%3C%2Fsvg%3E&quot; data-efx-caption=&quot;Two caption&quot;&gt;&lt;img src=&quot;data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%230f766e%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ETwo%3C%2Ftext%3E%3C%2Fsvg%3E&quot; alt=&quot;Two&quot; class=&quot;rounded-lg&quot; style=&quot;width:120px;height:75px;object-fit:cover&quot;&gt;&lt;/a&gt;
+  &lt;a href=&quot;data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23be123c%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EThree%3C%2Ftext%3E%3C%2Fsvg%3E&quot; data-efx-caption=&quot;Three caption&quot;&gt;&lt;img src=&quot;data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23be123c%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EThree%3C%2Ftext%3E%3C%2Fsvg%3E&quot; alt=&quot;Three&quot; class=&quot;rounded-lg&quot; style=&quot;width:120px;height:75px;object-fit:cover&quot;&gt;&lt;/a&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-lightbox</code></td><td>Container of &lt;a href=&quot;full.jpg&quot;&gt;&lt;img&gt;&lt;/a&gt; links (or any element with data-efx-src). Caption: data-efx-caption, img alt, or figcaption.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-loop</code></td><td><code>true</code></td><td>Wrap from last to first.</td></tr>
+<tr><td><code>data-efx-captions</code></td><td><code>true</code></td><td>Show captions.</td></tr>
+<tr><td><code>data-efx-group</code></td><td></td><td>Containers sharing the same group value form one gallery.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-lb-bg</code></td><td><code>var(--sh-surface)</code></td><td>Dialog background.</td></tr></tbody></table></div>
+  
+</section>
+<section id="f-popup" class="stack gap-4 feature" aria-labelledby="h-popup">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-popup" class="text-2xl font-bold m-0">Popup triggers</h3>
+      <span class="badge tone-neutral"><code>popup</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.7 KB</span></div>
+    <p class="m-0 text-muted">Auto-opens a Shine modal on a timer, after scrolling, or on exit intent, with frequency capping. Also wires up open/close buttons.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-popup-26"><button class="btn" data-efx-open="demo-popup">Open popup</button>
+<dialog class="modal efx-popup" id="demo-popup" aria-labelledby="demo-popup-t">
+  <div class="modal-header"><strong id="demo-popup-t">Join the newsletter</strong><button class="btn-close" data-efx-close aria-label="Close"></button></div>
+  <div class="modal-body">Auto popups wait for a delay, scroll depth or exit intent, and respect a frequency cap.</div>
+  <div class="modal-footer"><button class="btn btn-ghost" data-efx-close>Not now</button><button class="btn" data-efx-close>Subscribe</button></div>
+</dialog></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-popup-26-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-popup-26-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-popup-26-code" data-demo="ex-popup-26" spellcheck="false" rows="7">&lt;button class=&quot;btn&quot; data-efx-open=&quot;demo-popup&quot;&gt;Open popup&lt;/button&gt;
+&lt;dialog class=&quot;modal efx-popup&quot; id=&quot;demo-popup&quot; aria-labelledby=&quot;demo-popup-t&quot;&gt;
+  &lt;div class=&quot;modal-header&quot;&gt;&lt;strong id=&quot;demo-popup-t&quot;&gt;Join the newsletter&lt;/strong&gt;&lt;button class=&quot;btn-close&quot; data-efx-close aria-label=&quot;Close&quot;&gt;&lt;/button&gt;&lt;/div&gt;
+  &lt;div class=&quot;modal-body&quot;&gt;Auto popups wait for a delay, scroll depth or exit intent, and respect a frequency cap.&lt;/div&gt;
+  &lt;div class=&quot;modal-footer&quot;&gt;&lt;button class=&quot;btn btn-ghost&quot; data-efx-close&gt;Not now&lt;/button&gt;&lt;button class=&quot;btn&quot; data-efx-close&gt;Subscribe&lt;/button&gt;&lt;/div&gt;
+&lt;/dialog&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-popup</code></td><td>Add to a &lt;dialog class=&quot;modal&quot;&gt;. Opens with showModal(): Esc, focus trap and backdrop come from the browser.</td></tr>
+<tr><td><code>[data-efx-open=&quot;id&quot;]</code></td><td>Any element (or a[href=&quot;#id&quot;]) that opens the popup manually.</td></tr>
+<tr><td><code>[data-efx-close]</code></td><td>Inside the dialog: closes it. Clicking the backdrop closes it too.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-delay</code></td><td><code>-1</code></td><td>Seconds before auto-opening. -1 = off.</td></tr>
+<tr><td><code>data-efx-scroll</code></td><td><code>0</code></td><td>Open after scrolling this percent of the page. 0 = off.</td></tr>
+<tr><td><code>data-efx-exit</code></td><td><code>false</code></td><td>Open on exit intent (pointer leaves the top of the window, desktop only).</td></tr>
+<tr><td><code>data-efx-frequency</code></td><td><code>always</code></td><td>always · session · days · once.</td></tr>
+<tr><td><code>data-efx-days</code></td><td><code>7</code></td><td>With frequency=&quot;days&quot;: wait this many days before showing again.</td></tr>
+<tr><td><code>data-efx-id</code></td><td><code>(element id)</code></td><td>Storage key suffix: efx-popup:&lt;id&gt;.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-schedule" class="stack gap-4 feature" aria-labelledby="h-schedule">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-schedule" class="text-2xl font-bold m-0">Schedule visibility</h3>
+      <span class="badge tone-neutral"><code>schedule</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">0.8 KB</span></div>
+    <p class="m-0 text-muted">Shows or hides content by date window, weekday and hours of day (visitor local time). Re-evaluates at the next boundary with one timer, no polling.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-schedule-27"><div class="stack gap-3">
+  <div class="card p-4 tone-success efx-schedule" hidden data-efx-from="2020-01-01" data-efx-until="2099-01-01">Visible now: inside the window.</div>
+  <div class="card p-4 tone-danger efx-schedule" hidden data-efx-from="2099-01-01">Hidden now: starts in 2099.</div>
+  <div class="card p-4 efx-schedule" data-efx-days="mon-fri" data-efx-hours="09:00-17:00" data-efx-mode="hide">Shown outside weekday office hours.</div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-schedule-27-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-schedule-27-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-schedule-27-code" data-demo="ex-schedule-27" spellcheck="false" rows="6">&lt;div class=&quot;stack gap-3&quot;&gt;
+  &lt;div class=&quot;card p-4 tone-success efx-schedule&quot; hidden data-efx-from=&quot;2020-01-01&quot; data-efx-until=&quot;2099-01-01&quot;&gt;Visible now: inside the window.&lt;/div&gt;
+  &lt;div class=&quot;card p-4 tone-danger efx-schedule&quot; hidden data-efx-from=&quot;2099-01-01&quot;&gt;Hidden now: starts in 2099.&lt;/div&gt;
+  &lt;div class=&quot;card p-4 efx-schedule&quot; data-efx-days=&quot;mon-fri&quot; data-efx-hours=&quot;09:00-17:00&quot; data-efx-mode=&quot;hide&quot;&gt;Shown outside weekday office hours.&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-schedule</code></td><td>Gets [hidden] and .is-scheduled-off while outside its window. Fires &quot;efx:change&quot; with detail {on}. Tip: add `hidden` in the HTML for mode=&quot;show&quot; items to avoid a flash.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-from</code></td><td></td><td>Start, e.g. 2026-12-01 or 2026-12-01T09:00 (local time).</td></tr>
+<tr><td><code>data-efx-until</code></td><td></td><td>End (exclusive), e.g. 2026-12-26T00:00.</td></tr>
+<tr><td><code>data-efx-days</code></td><td></td><td>Weekdays, e.g. mon-fri or sat,sun.</td></tr>
+<tr><td><code>data-efx-hours</code></td><td></td><td>Daily hours, e.g. 09:00-17:00 (may wrap past midnight).</td></tr>
+<tr><td><code>data-efx-mode</code></td><td><code>show</code></td><td>show = visible inside the window · hide = visible outside it.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-countdown" class="stack gap-4 feature" aria-labelledby="h-countdown">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-countdown" class="text-2xl font-bold m-0">Countdown</h3>
+      <span class="badge tone-neutral"><code>countdown</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.2 KB</span></div>
+    <p class="m-0 text-muted">Live countdown to a date, rendered as a cluster of small cards (or one compact line). Pauses while the tab is hidden and fires efx:done at zero.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-countdown-28"><div class="stack gap-4 p-6">
+  <div class="efx-countdown" data-efx-to="2027-12-31T23:59"></div>
+  <div class="efx-countdown" data-efx-compact data-efx-to="2027-12-31T23:59" data-efx-units="dhms"></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-countdown-28-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-countdown-28-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-countdown-28-code" data-demo="ex-countdown-28" spellcheck="false" rows="5">&lt;div class=&quot;stack gap-4 p-6&quot;&gt;
+  &lt;div class=&quot;efx-countdown&quot; data-efx-to=&quot;2027-12-31T23:59&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;efx-countdown&quot; data-efx-compact data-efx-to=&quot;2027-12-31T23:59&quot; data-efx-units=&quot;dhms&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-countdown</code></td><td>Container; renders .efx-countdown__unit &gt; __num + __label.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-to</code></td><td></td><td>Target date/time, e.g. 2027-01-31T18:00 (local) or with Z.</td></tr>
+<tr><td><code>data-efx-units</code></td><td><code>dhms</code></td><td>Subset of d h m s; larger omitted units roll into the next.</td></tr>
+<tr><td><code>data-efx-labels</code></td><td><code>Days|Hours|Minutes|Seconds</code></td><td>Unit labels separated by |.</td></tr>
+<tr><td><code>data-efx-expired</code></td><td></td><td>Text shown when finished; empty = keep zeros.</td></tr>
+<tr><td><code>data-efx-pad</code></td><td><code>true</code></td><td>Zero-pad hours/minutes/seconds.</td></tr>
+<tr><td><code>data-efx-compact</code></td><td><code>false</code></td><td>Single line like &quot;3d 04:05:06&quot;.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-countdown-bg</code></td><td><code>var(--sh-surface-2)</code></td><td>Unit card background.</td></tr></tbody></table></div>
+  
+</section>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="border-t py-8">
+  <div class="container mx-auto max-w-7xl cluster justify-between gap-4 text-sm text-muted">
+    <span>Effix v0.1.0 · MIT · pairs with <a href="https://github.com/asticore/shine">Shine CSS</a></span>
+    <button class="btn btn-sm btn-ghost efx-totop" type="button" aria-label="Back to top">↑ Top</button>
+  </div>
+</footer>
+</body>
+</html>

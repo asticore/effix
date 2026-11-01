@@ -31,6 +31,8 @@ export default {
           const c = g.cloneNode(true);
           c.setAttribute('aria-hidden', 'true');
           c.setAttribute('data-efx-skip', '');
+          c.setAttribute('inert', '');
+          [c, ...c.querySelectorAll('[data-efx-ready],[data-efx-lazy]')].forEach(x => { x.removeAttribute('data-efx-ready'); x.removeAttribute('data-efx-lazy'); });
           c.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
           track.appendChild(c);
         }
@@ -41,7 +43,7 @@ export default {
     };
     build();
     const ro = typeof ResizeObserver !== 'undefined' && new ResizeObserver(build);
-    ro && ro.observe(el);
+    ro && (ro.observe(el), ro.observe(g));
     const stop = onVisible(el, v => el.classList.toggle('is-paused', !v));
     return () => {
       ro && ro.disconnect(); stop();

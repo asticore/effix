@@ -2,19 +2,21 @@
    <div class="efx-schedule" hidden data-efx-from="2026-12-01" data-efx-until="2026-12-26T00:00">…</div>
    Add `hidden` in the HTML for mode="show" items to avoid a flash; JS removes it inside the window. */
 const DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-const date = s => { if (!s) return 0; const d = new Date(/^\d{4}-\d\d-\d\d$/.test(s) ? s + 'T00:00' : s); return isNaN(d) ? 0 : +d; };
+const date = s => { if (!s) return 0; s = String(s); const d = new Date(/^\d{4}-\d\d-\d\d$/.test(s) ? s + 'T00:00' : s); return isNaN(d) ? 0 : +d; };
 const dayIdx = s => DAYS.indexOf(s.trim().slice(0, 3).toLowerCase());
 const parseDays = s => {
   const set = new Set();
   s.split(',').forEach(p => {
     const [a, b] = p.split('-').map(dayIdx);
-    if (a < 0) return;
+    if (!(a >= 0)) return;
     if (b === undefined) return set.add(a);
-    for (let i = a; ; i = (i + 1) % 7) { set.add(i); if (i === b) break; }
+    if (b < 0) return; // invalid range end: ignore token
+    for (let k = 0, i = a; k < 7; k++, i = (i + 1) % 7) { set.add(i); if (i === b) break; }
   });
-  return set;
+  return set.size ? set : null;
 };
 const mins = s => { const [h, m = 0] = s.split(':'); return +h * 60 + +m; };
+const parseHours = s => { const r = s.split('-').map(mins); return r.length === 2 && r.every(x => Number.isFinite(x)) ? r : null; };
 
 export default {
   name: 'schedule',
@@ -22,8 +24,8 @@ export default {
   defaults: { from: '', until: '', days: '', hours: '', mode: 'show' },
   init(el, o) {
     const from = date(o.from), until = date(o.until);
-    const days = o.days ? parseDays(o.days) : null;
-    const hr = o.hours ? o.hours.split('-').map(mins) : null;
+    const days = o.days ? parseDays(String(o.days)) : null;
+    const hr = o.hours ? parseHours(o.hours) : null;
     const wasHidden = el.hidden;
     let timer = 0, last;
     const run = () => {
