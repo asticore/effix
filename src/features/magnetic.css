@@ -1,0 +1,5 @@
+/* magnetic — uses the individual `translate` property so it composes with other transforms */
+.efx-magnetic[data-efx-ready] {
+  translate: var(--efx-mx, 0px) var(--efx-my, 0px);
+  transition: translate .3s cubic-bezier(.22, 1, .36, 1);
+}

@@ -1,0 +1,15 @@
+/* reveal — hidden only once JS has claimed the element, so no-JS pages still show content */
+.efx-reveal-pending {
+  opacity: 0;
+  transition: opacity var(--efx-duration) var(--efx-ease) var(--efx-delay, 0ms),
+              transform var(--efx-duration) var(--efx-ease) var(--efx-delay, 0ms),
+              filter var(--efx-duration) var(--efx-ease) var(--efx-delay, 0ms);
+}
+.efx-reveal-pending[data-efx-anim="fade-up"] { transform: translateY(var(--efx-distance)); }
+.efx-reveal-pending[data-efx-anim="fade-down"] { transform: translateY(calc(var(--efx-distance) * -1)); }
+.efx-reveal-pending[data-efx-anim="slide-left"] { transform: translateX(var(--efx-distance)); }
+.efx-reveal-pending[data-efx-anim="slide-right"] { transform: translateX(calc(var(--efx-distance) * -1)); }
+.efx-reveal-pending[data-efx-anim="zoom"] { transform: scale(.92); }
+.efx-reveal-pending[data-efx-anim="blur"] { filter: blur(10px); }
+.efx-reveal-pending[data-efx-anim="flip"] { transform: perspective(800px) rotateX(-25deg); transform-origin: top; }
+.efx-reveal-pending.is-in { opacity: 1; transform: none; filter: none; }

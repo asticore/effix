@@ -1,0 +1,3 @@
+/* parallax — injected background layer is oversized so movement never shows gaps */
+.efx-parallax__bg { position: absolute; inset: -20% 0; z-index: -1; pointer-events: none; }
+.efx-parallax[data-efx-axis="x"] > .efx-parallax__bg { inset: 0 -20%; }

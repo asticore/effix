@@ -1,0 +1,10 @@
+/* sticky */
+.efx-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition: transform var(--efx-duration, 700ms) var(--efx-ease, ease), box-shadow .3s, padding .3s, background-color .3s;
+}
+.efx-sticky.is-stuck { box-shadow: var(--sh-shadow-2, 0 4px 14px rgba(0, 0, 0, .15)); }
+.efx-sticky.is-hidden { transform: translateY(-100%); }
+.efx-sticky.is-shrunk { padding-top: .35rem; padding-bottom: .35rem; }
