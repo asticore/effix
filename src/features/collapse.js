@@ -60,7 +60,7 @@ export default {
     }).flat().filter(Boolean);
     return () => {
       offs.forEach(f => f());
-      anim.forEach((rec, d) => { rec.a.cancel(); [d.style.overflow, d.style.boxSizing] = rec.saved; });
+      anim.forEach((rec, d) => { rec.a.cancel(); d.open = rec.to; [d.style.overflow, d.style.boxSizing] = rec.saved; });
       anim.clear();
       names.forEach((n, d) => d.setAttribute('name', n));
       names.clear();

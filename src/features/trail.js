@@ -62,7 +62,7 @@ export default {
       const offLeave = on(el, 'pointerleave', () => { on_ = false; pv.classList.remove('is-on'); });
       stopVis = onVisible(el, v => {
         if (v && !unsub) unsub = subscribe(handle);
-        else if (!v && unsub) { unsub(); unsub = null; pv.classList.remove('is-on'); }
+        else if (!v && unsub) { unsub(); unsub = null; on_ = false; pv.classList.remove('is-on'); }
       });
       cleanupMode = offLeave;
     } else {

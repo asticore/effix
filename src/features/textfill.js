@@ -18,24 +18,39 @@ export default {
       const s = document.createElement('span');
       s.className = 'efx-textfill__p'; s.textContent = t; spans.push(s); return s;
     };
-    const frag = document.createDocumentFragment();
-    text.split(' ').forEach((w, k) => {
-      if (k) frag.append(' ');
-      if (!letters) return frag.append(piece(w));
-      const wrap = document.createElement('span');
-      wrap.className = 'efx-textfill__w';
-      [...w].forEach(c => wrap.append(piece(c)));
-      frag.append(wrap);
-    });
-    const sr = document.createElement('span');
-    sr.className = 'efx-textfill__sr';
-    sr.textContent = text;
-    const pieces = document.createElement('span');
-    pieces.className = 'efx-textfill__pieces';
-    pieces.setAttribute('aria-hidden', 'true');
-    pieces.append(frag);
-    el.textContent = '';
-    el.append(sr, pieces);
+    // Wrap words inside text nodes only, so links / <em> / <strong> keep their markup.
+    const wrapText = root => {
+      const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), nodes = [];
+      while (w.nextNode()) nodes.push(w.currentNode);
+      for (const n of nodes) {
+        const parts = n.nodeValue.split(/(\s+)/);
+        if (!parts.some(p => p && !/^\s+$/.test(p))) continue;
+        const frag = document.createDocumentFragment();
+        for (const p of parts) {
+          if (!p) continue;
+          if (/^\s+$/.test(p)) { frag.append(' '); continue; }
+          if (!letters) { frag.append(piece(p)); continue; }
+          const wrap = document.createElement('span');
+          wrap.className = 'efx-textfill__w';
+          [...p].forEach(c => wrap.append(piece(c)));
+          frag.append(wrap);
+        }
+        n.replaceWith(frag);
+      }
+    };
+    if (el.querySelector('a,button,input,select,textarea,summary,[tabindex],[contenteditable]')) {
+      wrapText(el); // interactive children: wrap in place, keep them reachable by AT and keyboard
+    } else {
+      const pieces = document.createElement('span');
+      pieces.className = 'efx-textfill__pieces';
+      pieces.setAttribute('aria-hidden', 'true');
+      while (el.firstChild) pieces.appendChild(el.firstChild);
+      wrapText(pieces);
+      const sr = document.createElement('span');
+      sr.className = 'efx-textfill__sr';
+      sr.textContent = text;
+      el.append(sr, pieces);
+    }
     const prev = [st.getPropertyValue('--efx-textfill-dim'), st.getPropertyValue('--efx-textfill-color')];
     if (el.dataset.efxDim !== undefined) st.setProperty('--efx-textfill-dim', o.dim);
     if (o.color) st.setProperty('--efx-textfill-color', o.color);

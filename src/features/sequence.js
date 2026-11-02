@@ -14,7 +14,8 @@ export default {
     const anim = motionOK(), video = el.tagName === 'VIDEO';
     const host = document.createElement('div'); // tall scroll track
     host.className = 'efx-sequence__track';
-    let canvas, ctx, ro, parent, saved, pump = () => {}, stop;
+    let canvas, ctx, ro, parent, saved, pin, saveH = '', dead = false, pump = () => {}, stop;
+    const loading = new Set();
     const prog = (r, vh) => Math.min(1, Math.max(0, -r.top / ((r.height - vh) || 1)));
     if (video) {
       parent = el.parentNode;
@@ -35,23 +36,28 @@ export default {
         stop = () => { un(); el.removeEventListener('loadedmetadata', sync); };
       }
     } else {
-      const urls = o.list.length ? o.list : Array.from({ length: o.frames }, (_, i) => o.src.replace('{i}', String(o.start + i).padStart(o.pad, '0')));
+      const MAX = 2000, nf = Math.min(MAX, Math.max(0, o.frames | 0));
+      const urls = o.list.length ? o.list.slice(0, MAX) : Array.from({ length: nf }, (_, i) => o.src.replace('{i}', String(o.start + i).padStart(o.pad, '0')));
       const n = urls.length;
       if (!n) return;
-      const imgs = [], req = new Set();
+      const imgs = [], req = new Set(), loaded = []; // loaded: sorted frame indexes
       let active = 0, want = 0, drawn = -1;
-      const pin = document.createElement('div');
+      pin = document.createElement('div');
       pin.className = 'efx-sequence__pin';
       pin.setAttribute('aria-hidden', 'true');
       canvas = document.createElement('canvas');
       pin.appendChild(canvas);
       el.appendChild(pin);
       ctx = canvas.getContext('2d');
+      saveH = el.style.height;
       if (anim) { el.style.height = o.height + 'vh'; el.classList.add('efx-sequence-on'); }
       const draw = () => {
-        let k = -1;
-        for (let d = 0; d < n && k < 0; d++) k = imgs[want - d] ? want - d : imgs[want + d] ? want + d : -1;
-        if (k < 0 || (k === drawn && canvas.dataset.w === canvas.width + 'x' + canvas.height)) return;
+        if (dead || !loaded.length) return;
+        let lo = 0, hi = loaded.length; // first loaded index >= want
+        while (lo < hi) { const m = (lo + hi) >> 1; if (loaded[m] < want) lo = m + 1; else hi = m; }
+        const a = loaded[lo - 1], b = loaded[lo];
+        const k = a === undefined ? b : b === undefined ? a : (want - a <= b - want ? a : b);
+        if (k === undefined || (k === drawn && canvas.dataset.w === canvas.width + 'x' + canvas.height)) return;
         const im = imgs[k], cw = canvas.width, ch = canvas.height;
         const s = (o.fit === 'contain' ? Math.min : Math.max)(cw / im.naturalWidth, ch / im.naturalHeight);
         ctx.clearRect(0, 0, cw, ch);
@@ -59,15 +65,25 @@ export default {
         drawn = k; canvas.dataset.w = cw + 'x' + ch;
       };
       pump = () => {
-        while (active < 6) {
+        while (!dead && active < 6 && req.size < n) {
           let k = -1;
-          const free = i => i >= 0 && i < n && !imgs[i] && !req.has(i);
-          for (let d = 0; d < n && k < 0; d++) k = free(want + d) ? want + d : free(want - d) ? want - d : -1;
+          const free = i => i >= 0 && i < n && !req.has(i);
+          if (!anim) { if (free(want)) k = want; } // reduced motion: only the needed frame
+          else for (let d = 0; d < n && k < 0; d++) k = free(want + d) ? want + d : free(want - d) ? want - d : -1;
           if (k < 0) return;
           req.add(k); active++;
           const im = new Image();
-          im.onload = () => { imgs[k] = im; active--; draw(); pump(); };
-          im.onerror = () => { active--; pump(); };
+          loading.add(im);
+          im.onload = () => {
+            loading.delete(im);
+            if (dead) return;
+            imgs[k] = im; active--;
+            let lo = 0, hi = loaded.length;
+            while (lo < hi) { const m = (lo + hi) >> 1; if (loaded[m] < k) lo = m + 1; else hi = m; }
+            loaded.splice(lo, 0, k);
+            draw(); pump();
+          };
+          im.onerror = () => { loading.delete(im); if (dead) return; active--; pump(); };
           im.src = urls[k];
         }
       };
@@ -82,9 +98,11 @@ export default {
       else goto(0);
     }
     return () => {
+      dead = true;
       stop && stop(); ro && ro.disconnect();
-      if (video) { parent.insertBefore(el, host); host.remove(); el.className = saved[0]; el.style.cssText = saved[1]; }
-      else { el.querySelector(':scope > .efx-sequence__pin').remove(); el.style.height = ''; el.classList.remove('efx-sequence-on'); }
+      loading.forEach(im => { im.onload = im.onerror = null; im.src = ''; }); loading.clear();
+      if (video) { host.parentNode ? host.parentNode.insertBefore(el, host) : parent.appendChild(el); host.remove(); el.className = saved[0]; el.style.cssText = saved[1]; }
+      else { pin && pin.remove(); el.style.height = saveH; el.classList.remove('efx-sequence-on'); }
     };
   },
 };

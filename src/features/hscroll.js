@@ -19,21 +19,21 @@ export default {
     }
     const mq = matchMedia('(max-width: 767px)');
     const pinned = () => motionOK() && !mq.matches;
-    let pin, off = [], timer = 0, W = 0, H = 0, dist = 0, stop = () => {};
+    let pin, saveH = '', off = [], timer = 0, W = 0, H = 0, dist = 0, stop = () => {};
     const teardown = () => {
       stop(); stop = () => {};
       off.forEach(f => f()); off = [];
       clearTimeout(timer);
       track.style.transform = track.style.willChange = '';
-      el.style.height = '';
-      if (pin) { el.insertBefore(track, pin); pin.remove(); pin = null; }
+      if (pin) { el.style.height = saveH; if (pin.parentNode === el) el.insertBefore(track, pin); else el.appendChild(track); pin.remove(); pin = null; }
       el.classList.remove('efx-hscroll-on', 'efx-hscroll-native');
     };
-    const measure = () => {
+    const measure = () => { // read phase: returns the write
       const vw = innerWidth, vh = innerHeight - o.offset;
       dist = Math.max(0, track.scrollWidth - vw);
       W = vw; H = vh;
-      el.style.height = (dist + vh) + 'px';
+      const h = (dist + vh) + 'px';
+      return () => { el.style.height = h; };
     };
     const setup = () => {
       if (!pinned()) { el.classList.add('efx-hscroll-native'); return; }
@@ -45,14 +45,15 @@ export default {
       pin.appendChild(track);
       el.classList.add('efx-hscroll-on');
       track.style.willChange = 'transform';
-      measure();
+      saveH = el.style.height;
+      measure()();
       if (typeof ResizeObserver !== 'undefined') {
-        const ro = new ResizeObserver(measure);
+        const ro = new ResizeObserver(() => measure()());
         ro.observe(track);
         off.push(() => ro.disconnect());
       }
       stop = onScroll((y, vh) => {
-        if (innerWidth !== W || vh - o.offset !== H) measure();
+        const wm = innerWidth !== W || vh - o.offset !== H ? measure() : null;
         const top = el.getBoundingClientRect().top;
         const p = dist ? Math.min(1, Math.max(0, (o.offset - top) / dist)) : 0;
         if (o.snap) {
@@ -64,7 +65,7 @@ export default {
             scrollBy({ top: best - at, behavior: 'smooth' });
           }, 140);
         }
-        return () => { track.style.transform = `translate3d(${(-p * dist).toFixed(1)}px,0,0)`; };
+        return () => { wm && wm(); track.style.transform = `translate3d(${(-p * dist).toFixed(1)}px,0,0)`; };
       });
     };
     const rebuild = () => { teardown(); setup(); };

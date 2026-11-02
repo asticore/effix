@@ -38,12 +38,12 @@ export default {
       }
       if (moving) raf = requestAnimationFrame(frame);
     };
-    const go = (x, y) => { tx = x; ty = y; if (!raf) raf = requestAnimationFrame(frame); };
+    const go = (x, y) => { if (!Number.isFinite(x) || !Number.isFinite(y)) x = y = 0; tx = x; ty = y; if (!raf) raf = requestAnimationFrame(frame); };
     const handle = e => {
       if (page) return go(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1);
       const r = el.getBoundingClientRect();
       if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return go(0, 0);
-      go((e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1);
+      go((e.clientX - r.left) / (r.width || 1) * 2 - 1, (e.clientY - r.top) / (r.height || 1) * 2 - 1);
     };
     const stopVis = onVisible(el, v => {
       if (v && !unsub) unsub = subscribe(handle);

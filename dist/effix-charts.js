@@ -52,33 +52,37 @@
     let out = null;
     const json = el.querySelector(':scope > script[type="application/json"]');
     try {
-      if (o.source) {
+      if (o.update) out = o.update;
+      if (!out && o.source) {
         const t = document.querySelector(o.source);
         if (t) out = fromTable(t);
       }
-      if (!out && json) out = JSON.parse(json.textContent);
       if (!out && o.data) {
-        const raw = o.data.trim();
+        const raw = String(o.data).trim();
         if (raw[0] === "[" || raw[0] === "{") out = JSON.parse(raw);
         else out = { series: raw.split("|").map((s2) => ({ values: s2.split(",").map(num) })) };
       }
+      if (!out && json) out = JSON.parse(json.textContent);
     } catch (err) {
       console.warn("[effix] chart data", err);
     }
-    out = out || { series: [] };
-    if (Array.isArray(out)) out = { series: out };
-    let series = (out.series || out.datasets || []).map((s2, i) => {
-      if (Array.isArray(s2)) s2 = { values: s2 };
-      const values = (s2.values || s2.data || []).map(num);
-      return { name: s2.name || s2.label || o.names[i] || `Series ${i + 1}`, values, color: s2.color };
+    if (!out || typeof out !== "object") out = {};
+    const arr = (v) => Array.isArray(v) ? v : [];
+    if (Array.isArray(out)) {
+      if (out.length && out.every((d) => d == null || typeof d !== "object" || !Array.isArray(d) && !("data" in d) && !("values" in d))) out = { data: out };
+      else out = { series: out };
+    }
+    let series = arr(out.series || out.datasets).filter((x) => x != null).map((s0, i) => {
+      var _a, _b, _c;
+      const sr = Array.isArray(s0) ? { values: s0 } : typeof s0 === "object" ? s0 : { values: [s0] };
+      const values = arr(sr.values || sr.data).map((v) => num(v && typeof v === "object" ? v.value : v));
+      return { name: String((_c = (_b = (_a = sr.name) != null ? _a : sr.label) != null ? _b : o.names[i]) != null ? _c : `Series ${i + 1}`), values, color: typeof sr.color === "string" ? sr.color : void 0 };
     });
-    if (!series.length && Array.isArray(out.data)) series = [{ name: o.names[0] || "", values: out.data.map((d) => {
-      var _a;
-      return num((_a = d.value) != null ? _a : d);
-    }) }];
-    const n = Math.max(0, ...series.map((s2) => s2.values.length));
-    const labels = (o.labels.length ? o.labels : out.labels || (Array.isArray(out.data) ? out.data.map((d) => d.label) : [])).slice();
-    for (let i = labels.length; i < n; i++) labels.push(String(i + 1));
+    const flat = arr(out.data);
+    if (!series.length && flat.length) series = [{ name: String(o.names[0] || ""), values: flat.map((d) => num(d && typeof d === "object" ? d.value : d)) }];
+    const n = Math.max(0, ...series.map((s0) => s0.values.length));
+    const labels = (o.labels.length ? o.labels : arr(out.labels).length ? arr(out.labels) : flat.map((d) => d && typeof d === "object" ? d.label : void 0)).slice(0, Math.max(n, o.labels.length));
+    for (let i = 0; i < n; i++) if (labels[i] == null) labels[i] = String(i + 1);
     return { labels: labels.map(String), series };
   }
   var TOKENS = ["--sh-primary", "--sh-accent", "--sh-success", "--sh-warning", "--sh-info", "--sh-danger", "--sh-secondary"];
@@ -105,7 +109,8 @@
     const step = tickStep(min, max, count);
     const lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step;
     const ticks = [];
-    for (let v = lo; v <= hi + step / 2; v += step) ticks.push(+v.toFixed(10));
+    if (!Number.isFinite(lo) || !Number.isFinite(hi) || !(step > 0)) return { min: min || 0, max: max || 1, ticks: [min || 0, max || 1] };
+    for (let i = 0, v = lo; v <= hi + step / 2 && i < 100; v = lo + ++i * step) ticks.push(+v.toFixed(10));
     return { min: lo, max: hi, ticks };
   }
   function linear([d0, d1], [r0, r1]) {
@@ -311,6 +316,7 @@
           move.cancel();
           hide();
         }),
+        () => move.cancel(),
         on(svg, "click", (e) => {
           const i = nearest(...pos(e));
           if (i >= 0) select(i);
@@ -337,26 +343,30 @@
     }
     offs.push(on(el, "efx:data", (e) => {
       const d = e.detail || {};
-      data = parseData(el, { ...o, source: "", data: JSON.stringify(d), labels: d.labels || [] });
+      data = parseData(el, { ...o, update: d, labels: Array.isArray(d.labels) ? d.labels : [] });
+      hidden.clear();
       renderLegend();
       render(true);
     }));
-    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(rafThrottle(() => {
+    const onResize = rafThrottle(() => {
       if (Math.abs(el.clientWidth - w) > 1 || deco && Math.abs(el.clientHeight - h) > 1) render(true);
-    })) : null;
+    });
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
     if (ro) ro.observe(el);
     renderLegend();
     render(false);
-    const stopVis = played ? () => {
-    } : onVisible(el, (vis, e) => {
+    let stopVis = () => {
+    };
+    if (!played) stopVis = onVisible(el, (vis, e) => {
       if (!vis || e.intersectionRatio < 0.25 && e.intersectionRect.height < innerHeight * 0.25) return;
       played = true;
       svg.querySelectorAll(".efx-chart__plot").forEach((p) => p.classList.add("is-in"));
       stopVis();
-    }, "0px", [0, 0.25]);
+    }, "0px", [0, 0.01, 0.05, 0.1, 0.25]);
     return () => {
       offs.forEach((f) => f());
       stopVis();
+      onResize.cancel();
       if (ro) ro.disconnect();
       wrap.remove();
       tip.remove();
@@ -436,12 +446,16 @@
   };
 
   // src/charts/chart-flow.js
+  var safe = (v) => {
+    const d = v && typeof v === "object" && !Array.isArray(v) ? v : {};
+    return { nodes: Array.isArray(d.nodes) ? d.nodes : [], links: Array.isArray(d.links) ? d.links.filter((l) => l && typeof l === "object") : [] };
+  };
   var read = (el, o) => {
     try {
       const j = el.querySelector(':scope > script[type="application/json"]');
-      return JSON.parse(o.data.trim() || j.textContent);
+      return safe(JSON.parse((o.data || "").trim() || j.textContent));
     } catch (e) {
-      return {};
+      return safe(null);
     }
   };
   var chart_flow_default = {
@@ -452,13 +466,10 @@
     init(el, o) {
       let d = read(el, o);
       const off = on(el, "efx:data", (e) => {
-        d = e.detail || d;
+        d = e.detail ? safe(e.detail) : d;
       });
       const draw = ({ g, w, h, deco, fmt }) => {
-        const names = (d.nodes || []).map((n) => {
-          var _a;
-          return String((_a = n.name) != null ? _a : n);
-        });
+        const names = (d.nodes || []).map((n) => String(n && n.name != null ? n.name : n == null ? "" : n));
         const id = (v) => {
           if (typeof v === "number" && names[v] != null) return v;
           const k = String(v), i = names.indexOf(k);
@@ -589,7 +600,10 @@
         const hz = o.horizontal, st = o.style, bars = st === "bars", pyr = st === "pyramid", curved = st === "curved";
         const cmp = S.length > 1, ghost = cmp && o.compare === "ghost", conv = o.conversion && !deco;
         const sh = deco ? "none" : o.show, nk = Math.min(0.95, Math.max(0, o.neck));
-        const V = [0, 1].map((j) => (i) => S[j] && S[j].values[i] || 0);
+        const V = [0, 1].map((j) => (i) => {
+          const x = S[j] && S[j].values[i];
+          return Number.isFinite(x) && x > 0 ? x : 0;
+        });
         const max = Math.max(1e-9, ...idx.map(V[0]), ...cmp ? idx.map(V[1]) : []);
         const pd = deco ? { t: 0, r: 0, b: 0, l: 0 } : hz ? { t: conv ? 22 : 6, r: 6, b: sh === "none" ? 6 : 36, l: 6 } : { t: 6, r: conv ? 54 : 6, b: 6, l: sh === "side" ? Math.min(150, w * 0.3) : conv ? 54 : 6 };
         const L = hz ? w - pd.l - pd.r : h - pd.t - pd.b, W = hz ? h - pd.t - pd.b : w - pd.l - pd.r;
@@ -662,9 +676,9 @@
               class: "efx-chart__mark " + (pass ? "efx-chart__fade" : hz ? "efx-fn-y" : "efx-fn-x"),
               style: `--i:${k};` + (pass ? "" : `transform-origin:${org}`)
             }, g);
-            const first = V[0](idx[0]), prev = k ? V[0](idx[k - 1]) : v, vv = V[0](i), other = V[1](i);
+            const first = V[gj](idx[0]), prev = k ? V[0](idx[k - 1]) : v, vv = V[0](i), other = V[1](i);
             const dd = prev - vv;
-            const html = `<strong>${esc(data.labels[i])}</strong>${half ? `<span>${esc(S[gj].name)}</span>` : ""}<b>${esc(fmt(half ? v : vv))}</b>` + (ghost ? `<span>${esc(S[1].name)}: ${esc(fmt(other))}</span>` : "") + `<span>${pc(first ? v / first * 100 : 0)} of total${k && prev ? ` \xB7 ${pc(v / (half ? V[gj](idx[k - 1]) : prev) * 100)} of previous` : ""}</span>` + (k ? `<span>${dd >= 0 ? "\u2212" : "+"}${esc(fmt(Math.abs(half ? V[gj](idx[k - 1]) - v : dd)))} vs previous</span>` : "");
+            const html = `<strong>${esc(data.labels[i])}</strong>${half ? `<span>${esc(S[gj].name)}</span>` : ""}<b>${esc(fmt(half ? v : vv))}</b>` + (ghost ? `<span>${esc(S[1].name)}: ${esc(fmt(other))}</span>` : "") + `<span>${pc(first ? v / first * 100 : 0)} of total${k && (half ? V[gj](idx[k - 1]) : prev) ? ` \xB7 ${pc(v / (half ? V[gj](idx[k - 1]) : prev) * 100)} of previous` : ""}</span>` + (k ? `<span>${dd >= 0 ? "\u2212" : "+"}${esc(fmt(Math.abs(half ? V[gj](idx[k - 1]) - v : dd)))} vs previous</span>` : "");
             const [mx, my] = P(mid, half ? gj ? e / 2 : -e / 2 : 0);
             rows[k][pass ? 1 : j] = {
               x: mx,
@@ -742,7 +756,11 @@
     lazy: true,
     defaults: { ...COMMON, legend: false, type: "gauge", value: NaN, min: 0, max: 100, thick: 0.18, needle: false, target: NaN, label: "" },
     init(el, o) {
-      return chart(el, o, ({ g, w, h, data, fmt, deco }) => {
+      const off = on(el, "efx:data", (e) => {
+        const v = e.detail && e.detail.value;
+        o.value = v != null && v !== "" && Number.isFinite(+v) ? +v : NaN;
+      });
+      const stop = chart(el, o, ({ g, w, h, data, fmt, deco }) => {
         const ty = o.type, rad = ty === "radial", gauge = ty === "gauge", S = data.series[0] || { values: [] };
         const pal = palette(el, o, Math.max(1, data.labels.length));
         if (rad && !S.values.length) return [];
@@ -761,7 +779,7 @@
         const marks = [];
         const text = !deco && Math.min(w, h) >= 90;
         vals.forEach((v2, i) => {
-          const r = rad ? R - ring / 2 - i * (R * 0.78 / n) : R - ring / 2, a1 = a0 + sw * p(v2), name = rad ? data.labels[i] : o.label || (data.labels[0] !== "1" ? data.labels[0] : "Value");
+          const r = rad ? R - ring / 2 - i * (R * 0.78 / n) : R - ring / 2, a1 = a0 + sw * p(v2), name = rad ? data.labels[i] || String(i + 1) : o.label || (data.labels[0] && data.labels[0] !== "1" ? data.labels[0] : "Value");
           s("path", { d: arc(r, a0, a0 + sw), class: "efx-gauge-track", "stroke-width": ring, "stroke-linecap": "round", fill: "none" }, g);
           const node = s("path", { d: arc(r, a0, a1 || a0 + 1e-3), pathLength: 1, class: "efx-chart__mark efx-gauge-sweep", style: `--i:${i * 3}`, stroke: pal[rad ? i : 0], "stroke-width": ring, "stroke-linecap": "round", fill: "none", visibility: p(v2) > 0 ? null : "hidden" }, g);
           const [x, y] = pt(cx, cy, r, a1);
@@ -796,7 +814,7 @@
           s("circle", { cx, cy, r: 6, class: "efx-gauge-hub" }, g);
         }
         if (text) {
-          const str = fmt(v), cap = o.label || (data.labels[0] !== "1" ? data.labels[0] : "");
+          const str = fmt(v), cap = o.label || (data.labels[0] && data.labels[0] !== "1" ? data.labels[0] : "");
           const f = Math.min(ri * (gauge ? o.needle ? 0.36 : 0.5 : 0.5), ri * 1.6 / (str.length * 0.58)), ty0 = gauge ? o.needle ? cy + ri * 0.4 : cy + ri * 0.02 : cy - (cap ? f * 0.3 : 0);
           const big = s("text", { x: cx, y: ty0, "text-anchor": "middle", "dominant-baseline": "central", class: "efx-chart__value efx-chart__fade", style: `font-size:${f}px` }, g);
           big.textContent = str;
@@ -804,6 +822,10 @@
         }
         return marks;
       });
+      return () => {
+        off();
+        stop();
+      };
     }
   };
 
@@ -813,12 +835,21 @@
     const m = String(d).match(/\d+/g) || [];
     return Date.UTC(m[0], m[1] - 1, m[2]);
   };
+  var parseDays = (raw) => {
+    let r = typeof raw === "string" ? JSON.parse(raw) : raw;
+    r = Array.isArray(r) ? r : r && r.data || [];
+    if (!Array.isArray(r)) return [];
+    return capDays(r.filter((d) => d && d.date).map((d) => ({ t: utc(d.date), v: +d.value || 0 })).filter((d) => Number.isFinite(d.t)));
+  };
+  var capDays = (a) => {
+    if (!a.length) return a;
+    const max = Math.max(...a.map((d) => d.t)), min = max - (53 * 7 - 1) * DAY;
+    return a.filter((d) => d.t >= min);
+  };
   var rd = (el, t) => {
     try {
       const j = el.querySelector(':scope > script[type="application/json"]');
-      let r = JSON.parse(j ? j.textContent : t);
-      r = Array.isArray(r) ? r : r.data || [];
-      return r.filter((d) => d && d.date).map((d) => ({ t: utc(d.date), v: +d.value || 0 }));
+      return parseDays(j ? j.textContent : t);
     } catch (e) {
       return [];
     }
@@ -839,8 +870,13 @@
       if (!o.background && !H0) Object.defineProperty(o, "height", { get: () => cal ? days.length ? 18 + 7 * geo(Math.max(40, el.clientWidth)).cell : 60 : 22 + 30 * Math.max(1, rows) });
       const off = on(el, "efx:data", (e) => {
         const d = e.detail;
-        if (cal) days = rd(el, JSON.stringify(d));
-        else rows = (d && d.series || []).length || rows;
+        if (cal) {
+          try {
+            days = parseDays(d);
+          } catch (err) {
+            days = [];
+          }
+        } else rows = (d && d.series || []).length || rows;
       });
       const fmtDate = (t) => new Date(t).toLocaleDateString(void 0, { dateStyle: "medium", timeZone: "UTC" });
       const draw = ({ g, w, h, data, visible, fmt, deco }) => {
@@ -872,15 +908,15 @@
         } else {
           const nc = data.labels.length;
           if (!nc || !visible.length) return [];
-          ox = deco ? 0 : Math.min(120, 12 + 6.5 * Math.max(...visible.map((v) => v.name.length)));
+          ox = deco ? 0 : Math.min(120, 12 + 6.5 * Math.max(...visible.map((v) => String(v.name).length)));
           oy = deco ? 0 : 22;
           cw = (w - ox) / nc;
           ch = (h - oy) / visible.length;
           const every = Math.ceil(nc / Math.max(1, Math.floor((w - ox) / 48)));
           if (!deco) data.labels.forEach((l, c) => c % every || text({ x: ox + (c + 0.5) * cw, y: 14, "text-anchor": "middle" }, l));
           visible.forEach((sr, r) => {
-            if (!deco) text({ x: ox - 8, y: oy + (r + 0.5) * ch, "text-anchor": "end", "dominant-baseline": "middle" }, sr.name);
-            data.labels.forEach((l, c) => cells.push({ c, r, v: sr.values[c] == null ? null : sr.values[c], label: l, series: sr.name }));
+            if (!deco) text({ x: ox - 8, y: oy + (r + 0.5) * ch, "text-anchor": "end", "dominant-baseline": "middle" }, String(sr.name));
+            data.labels.forEach((l, c) => cells.push({ c, r, v: sr.values[c] == null ? null : sr.values[c], label: l, series: String(sr.name) }));
           });
         }
         const vs = cells.filter((k) => k.v != null).map((k) => k.v), lo = Math.min(...vs), hi = Math.max(...vs), div = o.scheme === "diverging", m = Math.max(Math.abs(lo), Math.abs(hi)) || 1;
@@ -904,6 +940,13 @@
   };
 
   // src/charts/chart-line.js
+  var safeColor = (c) => {
+    try {
+      return typeof c === "string" && CSS.supports("color", c) && !/[;{}"'<>]/.test(c) ? c : "#6366f1";
+    } catch (e) {
+      return "#6366f1";
+    }
+  };
   var uid2 = 0;
   var chart_line_default = {
     name: "chart-line",
@@ -924,7 +967,8 @@
           return { sr, lo, hi, c: colors[sr.index] };
         });
         const vals = rows.flatMap((r) => r.hi).concat(area ? 0 : []);
-        const sc = nice(o.min === "" ? Math.min(...vals) : +o.min, Math.max(...vals), Math.max(2, Math.floor(h / 50)));
+        const lo0 = o.min === "" || o.min == null ? NaN : +o.min;
+        const sc = nice(Number.isFinite(lo0) ? lo0 : Math.min(...vals), Math.max(...vals), Math.max(2, Math.floor(h / 50)));
         const y = linear([sc.min, sc.max], [h - pad.b, pad.t]);
         const x = (i) => n > 1 ? pad.l + i * (w - pad.l - pad.r) / (n - 1) : (pad.l + w - pad.r) / 2;
         if (!deco) axes(g, { w, h, pad, y, ticks: sc.ticks, labels: data.labels, x, fmt, grid: o.grid });
@@ -959,7 +1003,7 @@
             group: i,
             value: o.stacked ? rows[rows.length - 1].hi[i] : rows[0].sr.values[i] || 0,
             series: multi ? "" : rows[0].sr.name,
-            html: `<strong>${esc(label)}</strong>` + rows.map((r) => `<span>${multi ? `<i style="color:${r.c}">\u25CF</i> ${esc(r.sr.name)} ` : ""}<b>${esc(fmt(r.sr.values[i] || 0))}</b></span>`).join("")
+            html: `<strong>${esc(label)}</strong>` + rows.map((r) => `<span>${multi ? `<i style="color:${esc(safeColor(r.c))}">\u25CF</i> ${esc(r.sr.name)} ` : ""}<b>${esc(fmt(r.sr.values[i] || 0))}</b></span>`).join("")
           };
         });
       };
@@ -1145,7 +1189,7 @@
         const n = data.labels.length;
         if (n < 3 || !visible.length) return [];
         const all = visible.flatMap((sr) => sr.values), top = Math.max(...all, 0);
-        const nt = nice(0, top || 1, o.levels), fixed = parseFloat(o.max) > 0, lv = fixed ? Math.max(1, o.levels) : nt.ticks.length - 1, mx = fixed ? parseFloat(o.max) : nt.max;
+        const nt = nice(0, top || 1, o.levels), fixed = Number.isFinite(parseFloat(o.max)) && parseFloat(o.max) > 0, lv = fixed ? Math.max(1, o.levels) : nt.ticks.length - 1, mx = fixed ? parseFloat(o.max) : nt.max;
         const long = Math.max(...data.labels.map((l) => l.length));
         const R = deco ? Math.min(w, h) / 2 - 2 : Math.max(20, Math.min(w / 2 - Math.min(w * 0.3, long * 6.2 + 16), h / 2 - 24));
         const cx = w / 2, cy = h / 2, ang = (k) => k * TAU3 / n;
@@ -1181,10 +1225,16 @@
   };
 
   // src/charts/chart-scatter.js
-  var norm = (r) => {
+  var isObj = (d) => d && typeof d === "object";
+  var norm = (r, names = []) => {
+    if (!isObj(r)) return [];
     r = Array.isArray(r) ? r : r.series || r.datasets || [r];
-    if (r[0] && r[0].x != null) r = [r];
-    return r.map((q) => ({ n: q.name, p: (Array.isArray(q) ? q : q.points || q.data || []).map((d) => ({ ...d, x: +d.x, y: +d.y, r: +d.r || 1 })).filter((d) => isFinite(d.x) && isFinite(d.y)) }));
+    if (!Array.isArray(r)) return [];
+    if (isObj(r[0]) && !Array.isArray(r[0]) && r[0].x != null) r = [r];
+    return r.filter(isObj).map((q, i) => {
+      const pts = Array.isArray(q) ? q : q.points || q.data || [];
+      return { n: String(!Array.isArray(q) && q.name != null ? q.name : names[i] != null ? names[i] : `Series ${i + 1}`), p: (Array.isArray(pts) ? pts : []).filter(isObj).map((d) => ({ ...d, x: +d.x, y: +d.y, r: +d.r || 1 })).filter((d) => isFinite(d.x) && isFinite(d.y)) };
+    });
   };
   var nf = new Intl.NumberFormat(void 0, { maximumFractionDigits: 2 });
   var chart_scatter_default = {
@@ -1195,7 +1245,7 @@
     init(el, o) {
       const read2 = (d) => {
         try {
-          return norm(d);
+          return norm(d, o.names);
         } catch (e) {
           return [];
         }
@@ -1207,11 +1257,16 @@
       } catch (e) {
         console.warn("[effix] chart data", e);
       }
-      o.data = JSON.stringify({ series: sets.map((q) => ({ name: q.n, values: [] })) });
+      const jt = j && j.getAttribute("type");
+      if (j) j.setAttribute("type", "application/x-efx-json");
+      const names = () => JSON.stringify({ series: sets.map((q) => ({ name: q.n, values: [] })) });
+      o.source = "";
+      o.data = names();
       const off = on(el, "efx:data", (e) => {
-        sets = read2(e.detail || {});
+        sets = read2(e.detail);
       });
-      const draw = ({ g, w, h, data, visible, colors, fmt, deco }) => {
+      const draw = ({ g, w, h, hidden, fmt, deco }) => {
+        const colors = palette(el, o, sets.length), visible = sets.map((q, index) => ({ index, name: q.n })).filter((v) => !hidden.has(v.index));
         const all = visible.flatMap((v) => sets[v.index] ? sets[v.index].p : []);
         if (!all.length) return [];
         const rmax = Math.max(...all.map((p) => Math.abs(p.r)));
@@ -1231,7 +1286,7 @@
           if (o.xLabel) s("text", { x: (pad.l + w - pad.r) / 2, y: h - 4, "text-anchor": "middle" }, ax).textContent = o.xLabel;
           if (o.yLabel) s("text", { x: 12, y: (pad.t + h - pad.b) / 2, "text-anchor": "middle", transform: `rotate(-90 12 ${(pad.t + h - pad.b) / 2})` }, ax).textContent = o.yLabel;
         }
-        const multi = data.series.length > 1, items = [];
+        const multi = sets.length > 1, items = [];
         visible.forEach((v) => (sets[v.index] ? sets[v.index].p : []).forEach((p) => items.push({ p, v, cx: x(p.x), cy: y(p.y), r: R(p) })));
         const step = Math.min(1, 24 / items.length);
         [...items].sort((a, b) => b.r - a.r).forEach((t, k) => {
@@ -1253,6 +1308,10 @@
       return () => {
         off();
         stop();
+        if (j) {
+          if (jt == null) j.removeAttribute("type");
+          else j.setAttribute("type", jt);
+        }
       };
     }
   };

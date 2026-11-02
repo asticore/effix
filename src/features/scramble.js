@@ -20,13 +20,13 @@ export default {
     el.append(sr, vis);
     const pool = [...(o.chars || '#')];
     vis.style.minWidth = Math.max(...words.map(w => w.length)) + 'ch';
-    let cur = words[0], tm = 0, running = false, played = false, i = 0;
+    let cur = words[0], tgt = cur, tm = 0, running = false, played = false, i = 0;
     const show = t => { vis.textContent = t; };
     const set = t => { cur = t; sr.textContent = t; show(t); };
     set(cur);
     const run = (to, done) => {
       clearTimeout(tm);
-      running = true;
+      running = true; tgt = to;
       const from = cur, len = Math.max(from.length, to.length), t0 = performance.now();
       const step = () => {
         const p = Math.min(1, (performance.now() - t0) / Math.max(1, o.duration));
@@ -47,7 +47,7 @@ export default {
     let stopVis = () => {}, seen = true;
     if (cycle) {
       const next = () => { i = (i + 1) % words.length; run(words[i], () => { tm = setTimeout(next, o.pause); }); };
-      stopVis = onVisible(el, v => { seen = v; clearTimeout(tm); if (v && !running) tm = setTimeout(next, o.pause); });
+      stopVis = onVisible(el, v => { seen = v; clearTimeout(tm); if (!v && running) { running = false; set(tgt); } if (v && !running) tm = setTimeout(next, o.pause); });
     } else if (o.trigger === 'hover') offs.push(on(el, 'pointerenter', play), on(el, 'focus', play));
     else if (o.trigger === 'click') offs.push(on(el, 'click', play));
     else if (o.trigger === 'load') play();

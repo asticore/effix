@@ -13,9 +13,10 @@ export default {
     let target = (el.textContent || '').trim();
     if (!target) return;
     const grouped = target.includes(',');
+    const ok = v => (typeof v === 'number' ? Number.isFinite(v) : typeof v === 'string' && /\d/.test(v));
     const fmt = v => (typeof v === 'number' ? (grouped ? v.toLocaleString('en-US', { maximumFractionDigits: 6 }) : String(v)) : String(v));
     if (!motionOK()) {
-      const off = on(el, 'efx:data', e => { el.textContent = fmt(e.detail && e.detail.value); });
+      const off = on(el, 'efx:data', e => { const v = e.detail && e.detail.value; if (ok(v)) el.textContent = fmt(v); });
       return () => { off(); el.innerHTML = orig; };
     }
     let strips = [], shown = false;
@@ -52,7 +53,9 @@ export default {
       else if (!o.once && shown) reset();
     });
     const offData = on(el, 'efx:data', e => {
-      const next = fmt(e.detail && e.detail.value).trim();
+      const v = e.detail && e.detail.value;
+      if (!ok(v)) return;
+      const next = fmt(v).trim();
       if (!next || next === target) return;
       const prev = target;
       target = next;

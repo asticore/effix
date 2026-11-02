@@ -28,7 +28,7 @@ export default {
       on(el, 'pointerenter', e => mouse(e) && enter(edge(e))),
       on(el, 'pointerleave', e => mouse(e) && leave(edge(e))),
       on(el, 'focusin', e => { try { if (e.target.matches(':focus-visible')) enter('left'); } catch (_) {} }),
-      on(el, 'focusout', () => leave('left')),
+      on(el, 'focusout', e => { if (el.matches(':hover') || (e.relatedTarget && el.contains(e.relatedTarget))) return; leave('left'); }),
     ];
     return () => {
       offs.forEach(f => f());

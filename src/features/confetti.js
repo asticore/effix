@@ -41,7 +41,8 @@ const burst = (x, y, o, colors) => {
   }
   const shapes = o.shapes.length ? o.shapes : ['square'];
   const spread = o.spread * Math.PI / 180;
-  for (let i = 0; i < o.count; i++) {
+  const count = Math.min(500, Math.max(0, o.count | 0));
+  for (let i = 0; i < count; i++) {
     const a = -Math.PI / 2 + rnd(-spread / 2, spread / 2), v = o.velocity * rnd(0.4, 1);
     ps.push({ x, y, vx: Math.cos(a) * v / 2, vy: Math.sin(a) * v / 2, g: o.gravity, rot: rnd(0, 6.28), vr: rnd(-0.3, 0.3),
       s: rnd(6, 11), life: (rnd(70, 120)) | 0, c: colors[(Math.random() * colors.length) | 0], shape: shapes[(Math.random() * shapes.length) | 0] });
@@ -68,7 +69,9 @@ const fire = (el, o, e) => {
 const onEvt = e => {
   const d = e.detail || {}, o = { ...DEF, ...d };
   if (typeof o.colors === 'string') o.colors = o.colors.split('|');
-  fire(e.target, o);
+  const t = e.target instanceof Element ? e.target : null;
+  if (t) fire(t, o);
+  else if (motionOK()) burst(innerWidth / 2, innerHeight / 2, o, palette(document.documentElement, o));
 };
 
 export default {

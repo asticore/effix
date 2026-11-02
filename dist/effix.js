@@ -379,7 +379,7 @@
         cv2.height = h * dpr2;
         ctx2.setTransform(dpr2, 0, 0, dpr2, 0, 0);
         const [div, max] = AUTO[mode];
-        const n = o.count || Math.max(3, Math.min(max, w * h / div | 0));
+        const n = o.count ? Math.min(600, Math.max(0, o.count | 0)) : Math.max(3, Math.min(max, w * h / div | 0));
         ps2 = Array.from({ length: n }, (_, i) => spawn({ i }, 1));
         draw2();
       };
@@ -825,6 +825,7 @@
         offs.forEach((f2) => f2());
         anim.forEach((rec, d) => {
           rec.a.cancel();
+          d.open = rec.to;
           [d.style.overflow, d.style.boxSizing] = rec.saved;
         });
         anim.clear();
@@ -960,7 +961,8 @@
     }
     const shapes = o.shapes.length ? o.shapes : ["square"];
     const spread = o.spread * Math.PI / 180;
-    for (let i = 0; i < o.count; i++) {
+    const count = Math.min(500, Math.max(0, o.count | 0));
+    for (let i = 0; i < count; i++) {
       const a = -Math.PI / 2 + rnd(-spread / 2, spread / 2), v = o.velocity * rnd(0.4, 1);
       ps.push({
         x,
@@ -1009,7 +1011,9 @@
   var onEvt = (e) => {
     const d = e.detail || {}, o = { ...DEF, ...d };
     if (typeof o.colors === "string") o.colors = o.colors.split("|");
-    fire(e.target, o);
+    const t = e.target instanceof Element ? e.target : null;
+    if (t) fire(t, o);
+    else if (motionOK()) burst(innerWidth / 2, innerHeight / 2, o, palette(document.documentElement, o));
   };
   var confetti_default = {
     name: "confetti",
@@ -1392,7 +1396,10 @@
           } catch (_) {
           }
         }),
-        on(el, "focusout", () => leave("left"))
+        on(el, "focusout", (e) => {
+          if (el.matches(":hover") || e.relatedTarget && el.contains(e.relatedTarget)) return;
+          leave("left");
+        })
       ];
       return () => {
         offs.forEach((f2) => f2());
@@ -1688,7 +1695,7 @@
       }
       const mq2 = matchMedia("(max-width: 767px)");
       const pinned = () => motionOK() && !mq2.matches;
-      let pin, off = [], timer = 0, W = 0, H = 0, dist = 0, stop = () => {
+      let pin, saveH = "", off = [], timer = 0, W = 0, H = 0, dist = 0, stop = () => {
       };
       const teardown = () => {
         stop();
@@ -1698,9 +1705,10 @@
         off = [];
         clearTimeout(timer);
         track.style.transform = track.style.willChange = "";
-        el.style.height = "";
         if (pin) {
-          el.insertBefore(track, pin);
+          el.style.height = saveH;
+          if (pin.parentNode === el) el.insertBefore(track, pin);
+          else el.appendChild(track);
           pin.remove();
           pin = null;
         }
@@ -1711,7 +1719,10 @@
         dist = Math.max(0, track.scrollWidth - vw);
         W = vw;
         H = vh;
-        el.style.height = dist + vh + "px";
+        const h = dist + vh + "px";
+        return () => {
+          el.style.height = h;
+        };
       };
       const setup = () => {
         if (!pinned()) {
@@ -1726,14 +1737,15 @@
         pin.appendChild(track);
         el.classList.add("efx-hscroll-on");
         track.style.willChange = "transform";
-        measure();
+        saveH = el.style.height;
+        measure()();
         if (typeof ResizeObserver !== "undefined") {
-          const ro = new ResizeObserver(measure);
+          const ro = new ResizeObserver(() => measure()());
           ro.observe(track);
           off.push(() => ro.disconnect());
         }
         stop = onScroll((y, vh) => {
-          if (innerWidth !== W || vh - o.offset !== H) measure();
+          const wm = innerWidth !== W || vh - o.offset !== H ? measure() : null;
           const top = el.getBoundingClientRect().top;
           const p = dist ? Math.min(1, Math.max(0, (o.offset - top) / dist)) : 0;
           if (o.snap) {
@@ -1752,6 +1764,7 @@
             }, 140);
           }
           return () => {
+            wm && wm();
             track.style.transform = `translate3d(${(-p * dist).toFixed(1)}px,0,0)`;
           };
         });
@@ -2067,6 +2080,7 @@
         if (moving) raf2 = requestAnimationFrame(frame);
       };
       const go = (x, y) => {
+        if (!Number.isFinite(x) || !Number.isFinite(y)) x = y = 0;
         tx = x;
         ty = y;
         if (!raf2) raf2 = requestAnimationFrame(frame);
@@ -2075,7 +2089,7 @@
         if (page) return go(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1);
         const r = el.getBoundingClientRect();
         if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return go(0, 0);
-        go((e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1);
+        go((e.clientX - r.left) / (r.width || 1) * 2 - 1, (e.clientY - r.top) / (r.height || 1) * 2 - 1);
       };
       const stopVis = onVisible(el, (v) => {
         if (v && !unsub) unsub = subscribe2(handle);
@@ -2108,10 +2122,12 @@
       let target = (el.textContent || "").trim();
       if (!target) return;
       const grouped = target.includes(",");
+      const ok = (v) => typeof v === "number" ? Number.isFinite(v) : typeof v === "string" && /\d/.test(v);
       const fmt = (v) => typeof v === "number" ? grouped ? v.toLocaleString("en-US", { maximumFractionDigits: 6 }) : String(v) : String(v);
       if (!motionOK()) {
         const off = on(el, "efx:data", (e) => {
-          el.textContent = fmt(e.detail && e.detail.value);
+          const v = e.detail && e.detail.value;
+          if (ok(v)) el.textContent = fmt(v);
         });
         return () => {
           off();
@@ -2173,7 +2189,9 @@
         } else if (!o.once && shown2) reset();
       });
       const offData = on(el, "efx:data", (e) => {
-        const next = fmt(e.detail && e.detail.value).trim();
+        const v = e.detail && e.detail.value;
+        if (!ok(v)) return;
+        const next = fmt(v).trim();
         if (!next || next === target) return;
         const prev = target;
         target = next;
@@ -2777,7 +2795,7 @@
       el.append(sr, vis);
       const pool = [...o.chars || "#"];
       vis.style.minWidth = Math.max(...words.map((w) => w.length)) + "ch";
-      let cur = words[0], tm = 0, running = false, played = false, i = 0;
+      let cur = words[0], tgt = cur, tm = 0, running = false, played = false, i = 0;
       const show2 = (t) => {
         vis.textContent = t;
       };
@@ -2790,6 +2808,7 @@
       const run = (to, done) => {
         clearTimeout(tm);
         running = true;
+        tgt = to;
         const from = cur, len = Math.max(from.length, to.length), t0 = performance.now();
         const step = () => {
           const p = Math.min(1, (performance.now() - t0) / Math.max(1, o.duration));
@@ -2825,6 +2844,10 @@
         stopVis = onVisible(el, (v) => {
           seen = v;
           clearTimeout(tm);
+          if (!v && running) {
+            running = false;
+            set(tgt);
+          }
           if (v && !running) tm = setTimeout(next, o.pause);
         });
       } else if (o.trigger === "hover") offs.push(on(el, "pointerenter", play), on(el, "focus", play));
@@ -2976,8 +2999,9 @@
       const anim = motionOK(), video = el.tagName === "VIDEO";
       const host = document.createElement("div");
       host.className = "efx-sequence__track";
-      let canvas, ctx2, ro, parent, saved, pump = () => {
+      let canvas, ctx2, ro, parent, saved, pin, saveH = "", dead = false, pump = () => {
       }, stop;
+      const loading = /* @__PURE__ */ new Set();
       const prog = (r, vh) => Math.min(1, Math.max(0, -r.top / (r.height - vh || 1)));
       if (video) {
         parent = el.parentNode;
@@ -3009,26 +3033,35 @@
           };
         }
       } else {
-        const urls = o.list.length ? o.list : Array.from({ length: o.frames }, (_, i) => o.src.replace("{i}", String(o.start + i).padStart(o.pad, "0")));
+        const MAX = 2e3, nf = Math.min(MAX, Math.max(0, o.frames | 0));
+        const urls = o.list.length ? o.list.slice(0, MAX) : Array.from({ length: nf }, (_, i) => o.src.replace("{i}", String(o.start + i).padStart(o.pad, "0")));
         const n = urls.length;
         if (!n) return;
-        const imgs = [], req = /* @__PURE__ */ new Set();
+        const imgs = [], req = /* @__PURE__ */ new Set(), loaded = [];
         let active = 0, want = 0, drawn = -1;
-        const pin = document.createElement("div");
+        pin = document.createElement("div");
         pin.className = "efx-sequence__pin";
         pin.setAttribute("aria-hidden", "true");
         canvas = document.createElement("canvas");
         pin.appendChild(canvas);
         el.appendChild(pin);
         ctx2 = canvas.getContext("2d");
+        saveH = el.style.height;
         if (anim) {
           el.style.height = o.height + "vh";
           el.classList.add("efx-sequence-on");
         }
         const draw2 = () => {
-          let k = -1;
-          for (let d = 0; d < n && k < 0; d++) k = imgs[want - d] ? want - d : imgs[want + d] ? want + d : -1;
-          if (k < 0 || k === drawn && canvas.dataset.w === canvas.width + "x" + canvas.height) return;
+          if (dead || !loaded.length) return;
+          let lo = 0, hi = loaded.length;
+          while (lo < hi) {
+            const m = lo + hi >> 1;
+            if (loaded[m] < want) lo = m + 1;
+            else hi = m;
+          }
+          const a = loaded[lo - 1], b = loaded[lo];
+          const k = a === void 0 ? b : b === void 0 ? a : want - a <= b - want ? a : b;
+          if (k === void 0 || k === drawn && canvas.dataset.w === canvas.width + "x" + canvas.height) return;
           const im = imgs[k], cw = canvas.width, ch = canvas.height;
           const s = (o.fit === "contain" ? Math.min : Math.max)(cw / im.naturalWidth, ch / im.naturalHeight);
           ctx2.clearRect(0, 0, cw, ch);
@@ -3037,21 +3070,35 @@
           canvas.dataset.w = cw + "x" + ch;
         };
         pump = () => {
-          while (active < 6) {
+          while (!dead && active < 6 && req.size < n) {
             let k = -1;
-            const free = (i) => i >= 0 && i < n && !imgs[i] && !req.has(i);
-            for (let d = 0; d < n && k < 0; d++) k = free(want + d) ? want + d : free(want - d) ? want - d : -1;
+            const free = (i) => i >= 0 && i < n && !req.has(i);
+            if (!anim) {
+              if (free(want)) k = want;
+            } else for (let d = 0; d < n && k < 0; d++) k = free(want + d) ? want + d : free(want - d) ? want - d : -1;
             if (k < 0) return;
             req.add(k);
             active++;
             const im = new Image();
+            loading.add(im);
             im.onload = () => {
+              loading.delete(im);
+              if (dead) return;
               imgs[k] = im;
               active--;
+              let lo = 0, hi = loaded.length;
+              while (lo < hi) {
+                const m = lo + hi >> 1;
+                if (loaded[m] < k) lo = m + 1;
+                else hi = m;
+              }
+              loaded.splice(lo, 0, k);
               draw2();
               pump();
             };
             im.onerror = () => {
+              loading.delete(im);
+              if (dead) return;
               active--;
               pump();
             };
@@ -3080,16 +3127,22 @@
         else goto(0);
       }
       return () => {
+        dead = true;
         stop && stop();
         ro && ro.disconnect();
+        loading.forEach((im) => {
+          im.onload = im.onerror = null;
+          im.src = "";
+        });
+        loading.clear();
         if (video) {
-          parent.insertBefore(el, host);
+          host.parentNode ? host.parentNode.insertBefore(el, host) : parent.appendChild(el);
           host.remove();
           el.className = saved[0];
           el.style.cssText = saved[1];
         } else {
-          el.querySelector(":scope > .efx-sequence__pin").remove();
-          el.style.height = "";
+          pin && pin.remove();
+          el.style.height = saveH;
           el.classList.remove("efx-sequence-on");
         }
       };
@@ -3291,24 +3344,44 @@
         spans.push(s);
         return s;
       };
-      const frag = document.createDocumentFragment();
-      text.split(" ").forEach((w, k) => {
-        if (k) frag.append(" ");
-        if (!letters) return frag.append(piece(w));
-        const wrap = document.createElement("span");
-        wrap.className = "efx-textfill__w";
-        [...w].forEach((c) => wrap.append(piece(c)));
-        frag.append(wrap);
-      });
-      const sr = document.createElement("span");
-      sr.className = "efx-textfill__sr";
-      sr.textContent = text;
-      const pieces = document.createElement("span");
-      pieces.className = "efx-textfill__pieces";
-      pieces.setAttribute("aria-hidden", "true");
-      pieces.append(frag);
-      el.textContent = "";
-      el.append(sr, pieces);
+      const wrapText = (root) => {
+        const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), nodes = [];
+        while (w.nextNode()) nodes.push(w.currentNode);
+        for (const n2 of nodes) {
+          const parts = n2.nodeValue.split(/(\s+)/);
+          if (!parts.some((p) => p && !/^\s+$/.test(p))) continue;
+          const frag = document.createDocumentFragment();
+          for (const p of parts) {
+            if (!p) continue;
+            if (/^\s+$/.test(p)) {
+              frag.append(" ");
+              continue;
+            }
+            if (!letters) {
+              frag.append(piece(p));
+              continue;
+            }
+            const wrap = document.createElement("span");
+            wrap.className = "efx-textfill__w";
+            [...p].forEach((c) => wrap.append(piece(c)));
+            frag.append(wrap);
+          }
+          n2.replaceWith(frag);
+        }
+      };
+      if (el.querySelector("a,button,input,select,textarea,summary,[tabindex],[contenteditable]")) {
+        wrapText(el);
+      } else {
+        const pieces = document.createElement("span");
+        pieces.className = "efx-textfill__pieces";
+        pieces.setAttribute("aria-hidden", "true");
+        while (el.firstChild) pieces.appendChild(el.firstChild);
+        wrapText(pieces);
+        const sr = document.createElement("span");
+        sr.className = "efx-textfill__sr";
+        sr.textContent = text;
+        el.append(sr, pieces);
+      }
       const prev = [st.getPropertyValue("--efx-textfill-dim"), st.getPropertyValue("--efx-textfill-color")];
       if (el.dataset.efxDim !== void 0) st.setProperty("--efx-textfill-dim", o.dim);
       if (o.color) st.setProperty("--efx-textfill-color", o.color);
@@ -3528,6 +3601,7 @@
           else if (!v && unsub) {
             unsub();
             unsub = null;
+            on_ = false;
             pv.classList.remove("is-on");
           }
         });

@@ -61,7 +61,7 @@ export default {
       cv.width = w * dpr; cv.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const [div, max] = AUTO[mode];
-      const n = o.count || Math.max(3, Math.min(max, (w * h / div) | 0));
+      const n = o.count ? Math.min(600, Math.max(0, o.count | 0)) : Math.max(3, Math.min(max, (w * h / div) | 0));
       ps = Array.from({ length: n }, (_, i) => spawn({ i }, 1));
       draw();
     };
