@@ -3,6 +3,7 @@
    <img class="efx-scrub" data-efx-from="y:60 opacity:0" data-efx-to="y:0 opacity:1" data-efx-end=".5">
    Progress p: 0 when the top hits the viewport bottom, 1 when the bottom leaves the top. Writes --efx-p. */
 import { onScroll, motionOK } from '../core.js';
+import { ease as getEase } from './_easing.js';
 
 const NEUTRAL = { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, blur: 0 };
 const parse = s => {
@@ -10,7 +11,6 @@ const parse = s => {
   String(s).split(/[\s;,]+/).forEach(t => { const [k, v] = t.split(':'), n = parseFloat(v); if (k in NEUTRAL && Number.isFinite(n)) o[k] = n; });
   return o;
 };
-const EASE = { linear: t => t, in: t => t * t, out: t => 1 - (1 - t) * (1 - t), inout: t => (t < .5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t)) };
 
 export default {
   name: 'scrub',
@@ -20,7 +20,7 @@ export default {
     if (!motionOK()) return;
     const A = { ...NEUTRAL, ...parse(o.from) };
     const B = { ...NEUTRAL, x: o.x, y: o.y, rotate: o.rotate, scale: o.scale, blur: o.blur, ...(o.opacity >= 0 ? { opacity: o.opacity } : {}), ...parse(o.to) };
-    const ease = EASE[o.ease] || EASE.linear, span = (o.end - o.start) || 1;
+    const ease = getEase(o.ease), span = (o.end - o.start) || 1;
     const s = el.style, saved = [s.translate, s.rotate, s.scale, s.opacity, s.filter, s.transition, s.willChange, s.getPropertyValue('--efx-p')];
     const use = k => A[k] !== B[k];
     const moves = use('x') || use('y'), turns = use('rotate'), zooms = use('scale'), fades = use('opacity'), blurs = use('blur');

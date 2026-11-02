@@ -17,8 +17,17 @@ module.exports = {
     ['data-efx-link-distance', '110', 'Max link length in px.'],
     ['data-efx-interact', 'repel', 'none · repel · attract · connect (pointer joins the network).'],
     ['data-efx-interact-radius', '120', 'Pointer influence radius in px.'],
-    ['data-efx-shape', 'circle', 'circle · square · triangle'],
+    ['data-efx-shape', 'circle', 'circle · square · triangle · star · heart, a list like circle|star, or any registered particle-shape.'],
   ],
+  extend: [
+    ['particle-shape', '(ctx2d, size, particle) => void', 'Build a path (no beginPath/fill) centered on 0,0; size is the particle radius. Feature translates, fills and uses data-efx-shape="name" or "a|b".'],
+  ],
+  extendExample: `<script>
+window.EffixConfig = { extend(E) {
+  E.add('particle-shape', 'plus', (ctx, s) => { ctx.rect(-s * .3, -s * 1.2, s * .6, s * 2.4); ctx.rect(-s * 1.2, -s * .3, s * 2.4, s * .6); });
+} };
+</script>
+<div class="efx-particles" data-efx-shape="plus|star" style="min-height:240px"></div>`,
   vars: [
     ['--efx-color', 'Shine tone / primary', 'Particle color when data-efx-color is empty.'],
   ],

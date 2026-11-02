@@ -18,7 +18,7 @@ const feats = found.map(({ n, dir }) => {
   const selector = (src.match(/selector:\s*(['"`])([\s\S]*?)\1/) || [])[2];
   const meta = fs.existsSync(path.join(dir, n + '.meta.js')) ? require(path.join(dir, n + '.meta.js')) : {};
   const ex = (meta.examples || [])[0];
-  return { n, selector, html: ex ? (typeof ex === 'string' ? ex : ex.html) : '' };
+  return { n, selector, skip: meta.smoke === false, html: ex ? (typeof ex === 'string' ? ex : ex.html) : '' };
 });
 
 const html = `<!doctype html><html><head><meta charset="utf-8">
@@ -34,7 +34,8 @@ async function run(name, reducedMotion = 'no-preference') {
   const p = await browser.newPage({ viewport: { width: 1100, height: 750 }, reducedMotion });
   const errors = [];
   p.on('pageerror', e => errors.push(String(e)));
-  p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+  // Network failures (example images/videos on remote hosts) are not code errors.
+  p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
   await p.goto('file://' + page);
   await p.waitForFunction(() => window.Effix);
 
@@ -47,6 +48,7 @@ async function run(name, reducedMotion = 'no-preference') {
 
   const fails = [];
   for (const f of feats) {
+    if (f.skip) continue;
     if (!f.html) { fails.push(`${f.n}: no docs example`); continue; }
     if (!f.selector) { fails.push(`${f.n}: no selector found`); continue; }
     const res = await p.evaluate(({ id, sel, n }) => {

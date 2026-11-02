@@ -1,5 +1,6 @@
 /* Docs data for transition (not bundled). */
 module.exports = {
+  smoke: false, // page-level: lives on <html>, so the docs show code instead of a live demo
   title: 'Page transitions',
   group: 'Page',
   summary: 'Smooth navigation between pages: same-origin links play an exit animation, the next page plays the enter animation. Uses native cross-document View Transitions when available, a JS curtain otherwise. Optional link prefetch on hover.',

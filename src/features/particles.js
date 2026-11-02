@@ -1,7 +1,16 @@
 /* particles — drifting canvas particles behind an element's content.
    <section class="efx-particles" data-efx-links data-efx-interact="connect">…</section>
    color accepts one color or a list separated by '|' (or commas outside parentheses, so rgb()/hsl() work); interact: none | repel | attract | connect. */
-import { onVisible, motionOK, finePointer, themeColor, on } from '../core.js';
+import { onVisible, motionOK, finePointer, themeColor, on, add, get } from '../core.js';
+
+/* shapes: fn(ctx, size, particle) builds a path centered on 0,0 (feature translates, fills). Extend: add('particle-shape', name, fn) */
+add('particle-shape', {
+  circle: (c, r) => c.arc(0, 0, r, 0, 6.2832),
+  square: (c, r) => c.rect(-r, -r, r * 2, r * 2),
+  triangle: (c, r) => { c.moveTo(0, -r * 1.3); c.lineTo(r * 1.2, r); c.lineTo(-r * 1.2, r); c.closePath(); },
+  star: (c, r) => { for (let i = 0; i < 10; i++) { const a = i * .6283 - 1.5708, d = i % 2 ? r * .6 : r * 1.5; c[i ? 'lineTo' : 'moveTo'](Math.cos(a) * d, Math.sin(a) * d); } c.closePath(); },
+  heart: (c, r) => { c.moveTo(0, r); c.bezierCurveTo(-r * 2, -r * .2, -r * .8, -r * 1.6, 0, -r * .5); c.bezierCurveTo(r * .8, -r * 1.6, r * 2, -r * .2, 0, r); },
+});
 
 /* split a color list on '|' or on commas that are not inside parentheses */
 const splitColors = s => {
@@ -43,6 +52,8 @@ export default {
     const colors = o.color ? splitColors(o.color) : [];
     if (!colors.length) colors.push(themeColor(el));
     const sp = o.speed / 100;
+    const shapes = splitColors(o.shape).map(n => get('particle-shape', n) || get('particle-shape', 'circle'));
+    if (!shapes.length) shapes.push(get('particle-shape', 'circle'));
     let w = 0, h = 0, dpr = 1, ps = [], raf = 0, vis = true, hidden = document.hidden;
     const ptr = { x: -1e4, y: -1e4 };
     const rnd = (a, b) => a + Math.random() * (b - a);
@@ -55,7 +66,7 @@ export default {
       const n = Math.min(o.count, Math.round(w * h / 14000));
       ps = Array.from({ length: n }, () => ({
         x: rnd(0, w), y: rnd(0, h), vx: rnd(-.5, .5) * sp, vy: rnd(-.5, .5) * sp,
-        r: rnd(o.sizeMin, o.sizeMax), c: colors[(Math.random() * colors.length) | 0],
+        r: rnd(o.sizeMin, o.sizeMax), c: colors[(Math.random() * colors.length) | 0], s: shapes[(Math.random() * shapes.length) | 0],
       }));
       draw();
     };
@@ -65,12 +76,12 @@ export default {
       ctx.globalAlpha = o.opacity;
       for (const p of ps) {
         ctx.fillStyle = p.c;
+        ctx.setTransform(dpr, 0, 0, dpr, p.x * dpr, p.y * dpr);
         ctx.beginPath();
-        if (o.shape === 'square') ctx.rect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
-        else if (o.shape === 'triangle') { ctx.moveTo(p.x, p.y - p.r * 1.3); ctx.lineTo(p.x + p.r * 1.2, p.y + p.r); ctx.lineTo(p.x - p.r * 1.2, p.y + p.r); ctx.closePath(); }
-        else ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+        p.s(ctx, p.r, p);
         ctx.fill();
       }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (o.links || o.interact === 'connect') {
         const L = o.linkDistance, nodes = o.interact === 'connect' && ptr.x > -1e3 ? ps.concat({ x: ptr.x, y: ptr.y, c: colors[0] }) : ps;
         ctx.lineWidth = 1;

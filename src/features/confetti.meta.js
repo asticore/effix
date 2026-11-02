@@ -13,9 +13,18 @@ module.exports = {
     ['data-efx-velocity', '45', 'Launch speed.'],
     ['data-efx-gravity', '1', 'Gravity multiplier.'],
     ['data-efx-colors', '', 'red|#0af|… (default: Shine primary, accent, success, warning, danger).'],
-    ['data-efx-shapes', 'square|circle|strip', 'Particle shapes.'],
+    ['data-efx-shapes', 'square|circle|strip', 'square · circle · strip, or any registered confetti-shape.'],
     ['data-efx-origin', '', '"x% y%" of the viewport; empty = pointer / element center.'],
   ],
+  extend: [
+    ['confetti-shape', '(ctx, size, piece) => void', 'Paint centered on 0,0 (fillStyle set, already translated/rotated); size is in canvas px; call ctx.fill()/fillRect yourself. piece = { x, y, rot, c, shape }.'],
+  ],
+  extendExample: `<script>
+window.EffixConfig = { extend(E) {
+  E.add('confetti-shape', 'heart', (c, s) => { c.beginPath(); c.moveTo(0, s / 2); c.bezierCurveTo(-s, -s / 6, -s / 3, -s, 0, -s / 4); c.bezierCurveTo(s / 3, -s, s, -s / 6, 0, s / 2); c.fill(); });
+} };
+</script>
+<button class="btn efx-confetti" data-efx-shapes="heart|circle" data-efx-colors="#f43f5e|#fb7185">Love</button>`,
   vars: [],
   examples: [
     { html: `<div class="cluster gap-4 p-6" style="min-height:200px;align-items:center;justify-content:center">

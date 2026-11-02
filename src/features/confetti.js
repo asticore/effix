@@ -2,7 +2,14 @@
    <button class="btn efx-confetti">Celebrate</button>
    trigger: click | view | done (listens for efx:done). Any element can dispatch a bubbling
    new CustomEvent('efx:confetti', {bubbles:true, detail:{count:120}}) to burst from itself. */
-import { on, onVisible, motionOK, themeColor, cssVar } from '../core.js';
+import { on, onVisible, motionOK, themeColor, cssVar, add, get } from '../core.js';
+
+/* shapes: fn(ctx, size, piece) paints centered on 0,0 with fillStyle set (feature translates/rotates). Extend: add('confetti-shape', name, fn) */
+add('confetti-shape', {
+  square: (c, s) => c.fillRect(-s / 2, -s / 2, s, s),
+  circle: (c, s) => { c.beginPath(); c.arc(0, 0, s / 2, 0, 7); c.fill(); },
+  strip: (c, s) => c.fillRect(-s / 2, -s / 6, s, s / 3),
+});
 
 let cv = null, ctx = null, ps = [], raf = 0, dpr = 1;
 const rnd = (a, b) => a + Math.random() * (b - a);
@@ -19,9 +26,7 @@ const draw = () => {
     ctx.rotate(p.rot);
     ctx.fillStyle = p.c;
     const s = p.s * dpr;
-    if (p.shape === 'circle') { ctx.beginPath(); ctx.arc(0, 0, s / 2, 0, 7); ctx.fill(); }
-    else if (p.shape === 'strip') ctx.fillRect(-s / 2, -s / 6, s, s / 3);
-    else ctx.fillRect(-s / 2, -s / 2, s, s);
+    (get('confetti-shape', p.shape) || get('confetti-shape', 'square'))(ctx, s, p);
     ctx.restore();
     return true;
   });

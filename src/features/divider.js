@@ -2,7 +2,7 @@
    <section style="position:relative"><div class="efx-divider" data-efx-shape="waves" data-efx-position="bottom"
      data-efx-animate="drift" data-efx-color="#fff"></div></section>
    Shapes: wave waves tilt curve triangle arrow zigzag clouds mountains drips steps spikes. */
-import { onVisible, motionOK } from '../core.js';
+import { onVisible, motionOK, add, get } from '../core.js';
 
 /* parent -> { count, prev }: several dividers may share one parent; the first forces position:relative,
    the last to leave restores the original inline value. */
@@ -27,7 +27,7 @@ const wave = (amp, cyc, ph, base) => [base + amp * Math.sin(ph), 'b', ox => {
 }];
 const rep = (n, fn) => ox => { let d = '', w = 1200 / n; for (let i = 0; i < n; i++) d += fn(ox + i * w, w, i); return d; };
 const poly = pts => ox => pts.map(p => `L${ox + p[0]},${p[1]}`).join('');
-// shape -> [periodic, layers[[y0, fillSide, tile(ox)]], opacities]
+// built-ins as [periodic, layers[[y0, fillSide, tile(ox)]], opacities]; registered below as { periodic, layers, ops }
 const SHAPES = {
   wave: [1, [wave(28, 2, 0, 70)]],
   waves: [1, [wave(18, 2, 1, 50), wave(22, 3, 3, 70), wave(26, 2, 0, 85)], [.25, .5, 1]],
@@ -42,13 +42,14 @@ const SHAPES = {
   steps: [0, [[120, 'b', poly([[0, 100], [150, 100], [150, 85], [300, 85], [300, 65], [450, 65], [450, 50], [600, 50], [600, 35], [750, 35], [750, 20], [1200, 20], [1200, 120]])]]],
   spikes: [1, [[100, 'b', rep(24, (x, w) => `L${x + w / 2},20L${x + w},100`)]]],
 };
+add('divider-shape', Object.fromEntries(Object.entries(SHAPES).map(([k, [periodic, layers, ops]]) => [k, { periodic, layers, ops }])));
 
 export default {
   name: 'divider',
   selector: '.efx-divider',
   defaults: { shape: 'wave', color: '', height: 80, flip: false, invert: false, animate: 'none', speed: 12, position: '' },
   init(el, o) {
-    const [per, layers, ops = []] = SHAPES[o.shape] || SHAPES.wave;
+    const { periodic: per, layers, ops = [] } = get('divider-shape', o.shape) || get('divider-shape', 'wave');
     const st = el.style, parent = el.parentElement;
     const move = motionOK() && o.animate !== 'none';
     const mode = o.animate === 'layers' ? 'layers' : !per && o.animate === 'drift' ? 'float' : o.animate;

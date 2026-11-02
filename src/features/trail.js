@@ -1,7 +1,10 @@
 /* trail — images / shapes spawn along the pointer path inside an element, then fade out.
    <section class="efx-trail" data-efx-images="a.jpg|b.jpg|c.jpg">…</section>
    <ul class="efx-trail" data-efx-mode="hover"><li data-efx-image="a.jpg">Link</li></ul>   (floating preview) */
-import { on, onVisible, motionOK, finePointer } from '../core.js';
+import { on, onVisible, motionOK, finePointer, add, get } from '../core.js';
+
+/* shapes: fn(size, arg) -> DOM node shown inside the pooled item (data-efx-shape="name:arg"). dot and ring are CSS-only. */
+add('trail-shape', 'emoji', (s, a) => { const e = document.createElement('span'); e.textContent = a || '✨'; e.style.fontSize = s * .5 + 'px'; return e; });
 
 const subs = new Set();
 let docOff = null;
@@ -78,7 +81,7 @@ export default {
         n.style.backgroundImage = '';
         n.textContent = '';
         if (imgs.length) n.style.backgroundImage = 'url("' + imgs[(Math.random() * imgs.length) | 0].replace(/["\\]/g, '') + '")';
-        else if (shape.startsWith('emoji:')) { n.textContent = shape.slice(6) || '✨'; n.style.fontSize = o.size * 0.5 + 'px'; }
+        else if (shape) { const [k, ...a] = shape.split(':'), fn = get('trail-shape', k); if (fn) n.append(fn(o.size, a.join(':'))); }
         const t = 'translate(' + x + 'px,' + y + 'px) translate(-50%,-50%) rotate(' + rnd(o.rotate).toFixed(1) + 'deg)';
         n._a = n.animate([
           { opacity: 0, transform: t + ' scale(.6)' },

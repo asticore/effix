@@ -14,10 +14,23 @@ module.exports = {
     ['data-efx-size', '140', 'Item size in px (preview width in hover mode).'],
     ['data-efx-rotate', '12', 'Random rotation +/- degrees.'],
     ['data-efx-max', '12', 'Pool size (items alive at once).'],
-    ['data-efx-shape', '', 'Without images: dot · ring · emoji:✨'],
+    ['data-efx-shape', '', 'Without images: dot · ring · emoji:✨ · or name[:arg] of any registered trail-shape'],
     ['data-efx-mode', 'trail', 'trail · hover (floating preview of the hovered [data-efx-image]).'],
     ['data-efx-image', '', 'On a child in hover mode: preview image URL.'],
   ],
+  extend: [
+    ['trail-shape', '(size, arg) => Node', 'Return a DOM node placed inside each pooled item (item is size x size, centered; style the node yourself). data-efx-shape="name:arg" passes arg. Built-in: emoji.'],
+  ],
+  extendExample: `<script>
+window.EffixConfig = { extend(E) {
+  E.add('trail-shape', 'box', (size, arg) => {
+    const n = document.createElement('i');
+    n.style.cssText = 'width:' + size / 3 + 'px;height:' + size / 3 + 'px;background:' + (arg || 'hotpink') + ';border-radius:20%';
+    return n;
+  });
+} };
+</script>
+<div class="efx-trail" data-efx-shape="box:tomato" data-efx-size="60" style="min-height:240px"></div>`,
   vars: [
     ['--efx-color', 'Shine tone/primary', 'Color for dot and ring shapes.'],
   ],

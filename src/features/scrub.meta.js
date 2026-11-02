@@ -17,8 +17,17 @@ module.exports = {
     ['data-efx-to', '', 'Advanced end state, same keys. Overrides the single options.'],
     ['data-efx-start', '0', 'Progress (0–1) where the scrub begins.'],
     ['data-efx-end', '1', 'Progress (0–1) where it finishes.'],
-    ['data-efx-ease', 'linear', 'linear · in · out · inout'],
+    ['data-efx-ease', 'linear', 'linear · ease-in · ease-out · ease-in-out · ease-out-cubic · back-out · elastic-out (in/out/inout aliases), or any registered easing'],
   ],
+  extend: [
+    ['easing', '(t: 0..1) => number', 'Shared by scrub and counter (data-efx-ease). Return 0..1 (overshoot allowed).'],
+  ],
+  extendExample: `<script>
+window.EffixConfig = { extend(E) {
+  E.add('easing', 'steps4', t => Math.floor(t * 4) / 4);
+} };
+</script>
+<div class="efx-scrub" data-efx-ease="steps4" data-efx-y="120"></div>`,
   vars: [
     ['--efx-p', '0', 'Written on the element: eased progress 0–1. Use it in your own CSS calc().'],
   ],

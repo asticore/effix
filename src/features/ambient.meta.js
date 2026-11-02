@@ -7,13 +7,27 @@ module.exports = {
     ['efx-ambient', 'Injects a canvas behind the content (content stays clickable and above). Pick the look with data-efx-mode.'],
   ],
   options: [
-    ['data-efx-mode', 'stars', 'stars · warp · orbs · waves · snow · leaves · bubbles'],
+    ['data-efx-mode', 'stars', 'stars · warp · orbs · waves · snow · leaves · bubbles, or any registered ambient-mode'],
     ['data-efx-count', '0', 'Number of particles / orbs / wave layers. 0 = automatic by area and mode.'],
     ['data-efx-color', '(theme)', 'One color or a list separated by | (commas outside parentheses also work). Empty = Shine tone/primary.'],
     ['data-efx-speed', '1', 'Speed multiplier.'],
     ['data-efx-opacity', '1', 'Overall opacity (0–1).'],
     ['data-efx-interact', 'true', 'Stars, warp and orbs react to the pointer (fine pointers only). false = ignore the pointer.'],
   ],
+  extend: [
+    ['ambient-mode', '{ count(area)->n, spawn(p,S,first), step(p,S)->alive, draw(ctx,p,S), blend?, ptr? }', 'S = { w, h, t, sp, op, px, py, ptr:{x,y,on}, rnd(a,b) }. Feature sets p.c (color), p.i (index), fillStyle/strokeStyle/globalAlpha before draw; step returning false respawns p. blend = globalCompositeOperation; ptr:1 enables pointer tracking.'],
+  ],
+  extendExample: `<script>
+window.EffixConfig = { extend(E) {
+  E.add('ambient-mode', 'rain', {
+    count: a => Math.min(150, a / 6e3 | 0),
+    spawn: (p, S, first) => { p.x = S.rnd(0, S.w); p.y = first ? S.rnd(0, S.h) : -20; p.v = S.rnd(6, 12); },
+    step: (p, S) => (p.y += p.v * S.sp) < S.h,
+    draw: (c, p, S) => { c.lineWidth = 1; c.beginPath(); c.moveTo(p.x, p.y); c.lineTo(p.x, p.y + 10); c.stroke(); },
+  });
+} };
+</script>
+<section class="efx-ambient" data-efx-mode="rain" style="min-height:240px;background:#0f172a"></section>`,
   vars: [
     ['--efx-color', 'Shine tone / primary', 'Color when data-efx-color is empty.'],
   ],
