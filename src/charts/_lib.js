@@ -49,26 +49,33 @@ export function parseData(el, o) {
   let out = null;
   const json = el.querySelector(':scope > script[type="application/json"]');
   try {
-    if (o.source) { const t = document.querySelector(o.source); if (t) out = fromTable(t); }
-    if (!out && json) out = JSON.parse(json.textContent);
+    // Precedence: live update (o.update) > table source > data-efx-data > inline <script> JSON.
+    if (o.update) out = o.update;
+    if (!out && o.source) { const t = document.querySelector(o.source); if (t) out = fromTable(t); }
     if (!out && o.data) {
-      const raw = o.data.trim();
+      const raw = String(o.data).trim();
       if (raw[0] === '[' || raw[0] === '{') out = JSON.parse(raw);
       else out = { series: raw.split('|').map(s => ({ values: s.split(',').map(num) })) };
     }
+    if (!out && json) out = JSON.parse(json.textContent);
   } catch (err) { console.warn('[effix] chart data', err); }
-  out = out || { series: [] };
-  if (Array.isArray(out)) out = { series: out };
-  let series = (out.series || out.datasets || []).map((s, i) => {
-    if (Array.isArray(s)) s = { values: s };
-    const values = (s.values || s.data || []).map(num);
-    return { name: s.name || s.label || o.names[i] || `Series ${i + 1}`, values, color: s.color };
+  if (!out || typeof out !== 'object') out = {};
+  const arr = v => (Array.isArray(v) ? v : []);
+  // Flat shorthands: [1,2,3] -> one series; [{label,value}] -> labels + one series.
+  if (Array.isArray(out)) {
+    if (out.length && out.every(d => d == null || typeof d !== 'object' || (!Array.isArray(d) && !('data' in d) && !('values' in d)))) out = { data: out };
+    else out = { series: out };
+  }
+  let series = arr(out.series || out.datasets).filter(x => x != null).map((s0, i) => {
+    const sr = Array.isArray(s0) ? { values: s0 } : typeof s0 === 'object' ? s0 : { values: [s0] };
+    const values = arr(sr.values || sr.data).map(v => num(v && typeof v === 'object' ? v.value : v));
+    return { name: String(sr.name ?? sr.label ?? o.names[i] ?? `Series ${i + 1}`), values, color: typeof sr.color === 'string' ? sr.color : undefined };
   });
-  // [{label, value}] shorthand
-  if (!series.length && Array.isArray(out.data)) series = [{ name: o.names[0] || '', values: out.data.map(d => num(d.value ?? d)) }];
-  const n = Math.max(0, ...series.map(s => s.values.length));
-  const labels = (o.labels.length ? o.labels : out.labels || (Array.isArray(out.data) ? out.data.map(d => d.label) : [])).slice();
-  for (let i = labels.length; i < n; i++) labels.push(String(i + 1));
+  const flat = arr(out.data);
+  if (!series.length && flat.length) series = [{ name: String(o.names[0] || ''), values: flat.map(d => num(d && typeof d === 'object' ? d.value : d)) }];
+  const n = Math.max(0, ...series.map(s0 => s0.values.length));
+  const labels = (o.labels.length ? o.labels : arr(out.labels).length ? arr(out.labels) : flat.map(d => (d && typeof d === 'object' ? d.label : undefined))).slice(0, Math.max(n, o.labels.length));
+  for (let i = 0; i < n; i++) if (labels[i] == null) labels[i] = String(i + 1);
   return { labels: labels.map(String), series };
 }
 
@@ -98,7 +105,8 @@ export function nice(min, max, count = 5) {
   const step = tickStep(min, max, count);
   const lo = Math.floor(min / step) * step, hi = Math.ceil(max / step) * step;
   const ticks = [];
-  for (let v = lo; v <= hi + step / 2; v += step) ticks.push(+v.toFixed(10));
+  if (!Number.isFinite(lo) || !Number.isFinite(hi) || !(step > 0)) return { min: min || 0, max: max || 1, ticks: [min || 0, max || 1] };
+  for (let i = 0, v = lo; v <= hi + step / 2 && i < 100; v = lo + ++i * step) ticks.push(+v.toFixed(10));
   return { min: lo, max: hi, ticks };
 }
 /** Linear scale function with .ticks and .domain. */
@@ -304,6 +312,7 @@ export function chart(el, o, draw) {
     offs.push(
       on(svg, 'pointermove', move),
       on(svg, 'pointerleave', () => { move.cancel(); hide(); }),
+      () => move.cancel(),
       on(svg, 'click', e => { const i = nearest(...pos(e)); if (i >= 0) select(i); }),
       on(svg, 'keydown', e => {
         if (!marks.length) return;
@@ -328,26 +337,31 @@ export function chart(el, o, draw) {
   /* data updates: el.dispatchEvent(new CustomEvent('efx:data', { detail: { labels, series } })) */
   offs.push(on(el, 'efx:data', e => {
     const d = e.detail || {};
-    data = parseData(el, { ...o, source: '', data: JSON.stringify(d), labels: d.labels || [] });
+    data = parseData(el, { ...o, update: d, labels: Array.isArray(d.labels) ? d.labels : [] });
+    hidden.clear(); // old hidden indexes may not exist in the new data
     renderLegend();
     render(true);
   }));
 
-  const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(rafThrottle(() => { if (Math.abs(el.clientWidth - w) > 1 || deco && Math.abs(el.clientHeight - h) > 1) render(true); })) : null;
+  const onResize = rafThrottle(() => { if (Math.abs(el.clientWidth - w) > 1 || deco && Math.abs(el.clientHeight - h) > 1) render(true); });
+  const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onResize) : null;
   if (ro) ro.observe(el);
 
   renderLegend();
   render(false);
-  const stopVis = played ? () => {} : onVisible(el, (vis, e) => {
+  let stopVis = () => {};
+  if (!played) stopVis = onVisible(el, (vis, e) => {
+    // play at 25% visible, or when a tall element fills a quarter of the viewport
     if (!vis || (e.intersectionRatio < 0.25 && e.intersectionRect.height < innerHeight * 0.25)) return;
     played = true;
     svg.querySelectorAll('.efx-chart__plot').forEach(p => p.classList.add('is-in'));
     stopVis();
-  }, '0px', [0, 0.25]);
+  }, '0px', [0, 0.01, 0.05, 0.1, 0.25]);
 
   return () => {
     offs.forEach(f => f());
     stopVis();
+    onResize.cancel();
     if (ro) ro.disconnect();
     wrap.remove(); tip.remove(); legend.remove(); sr.remove();
     el.classList.remove('efx-chart');
