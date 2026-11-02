@@ -28,6 +28,22 @@ ${feats.map(f => `<section class="box" id="s-${f.n}">${f.html}</section><div sty
 <script src="effix.all.min.js"></script></body></html>`;
 fs.writeFileSync(page, html);
 
+// Scroll every demo section into view and wait (up to 3 s each) until its feature has started.
+// Lazy features (particles, charts) only start near the viewport, and IntersectionObserver timing
+// differs between engines, so a fixed scroll delay is flaky (WebKit in CI).
+async function visitAll(p) {
+  for (const f of feats) {
+    if (f.skip || !f.html || !f.selector) continue;
+    await p.evaluate(id => document.getElementById(id).scrollIntoView({ block: 'center' }), 's-' + f.n);
+    await p.waitForFunction(({ id, sel, n }) => {
+      const els = [...document.querySelectorAll(`#${id} ${sel.split(',').join(`, #${id} `)}`)];
+      return els.length && els.every(e => (e.getAttribute('data-efx-ready') || '').split(' ').includes(n));
+    }, { id: 's-' + f.n, sel: f.selector, n: f.n }, { timeout: 3000 }).catch(() => {});
+  }
+  await p.evaluate(() => scrollTo(0, 0));
+  await p.waitForTimeout(200);
+}
+
 async function run(name, reducedMotion = 'no-preference') {
   // PW_EXECUTABLE lets a preinstalled browser be used when Playwright's own download is missing.
   const browser = await playwright[name].launch(process.env.PW_EXECUTABLE ? { executablePath: process.env.PW_EXECUTABLE } : {});
@@ -39,12 +55,7 @@ async function run(name, reducedMotion = 'no-preference') {
   await p.goto('file://' + page);
   await p.waitForFunction(() => window.Effix);
 
-  // Scroll through the page so lazy features start.
-  await p.evaluate(async () => {
-    for (let y = 0; y < document.body.scrollHeight; y += 300) { scrollTo(0, y); await new Promise(r => setTimeout(r, 30)); }
-    scrollTo(0, 0);
-  });
-  await p.waitForTimeout(300);
+  await visitAll(p);
 
   const fails = [];
   for (const f of feats) {
@@ -68,11 +79,7 @@ async function run(name, reducedMotion = 'no-preference') {
   const count = () => p.evaluate(() => [...document.querySelectorAll('section.box')].map(s => s.id + ':' + s.querySelectorAll('*').length));
   const before = await count();
   await p.evaluate(() => { Effix.refresh(document); Effix.refresh(document); });
-  await p.evaluate(async () => {
-    for (let y = 0; y < document.body.scrollHeight; y += 300) { scrollTo(0, y); await new Promise(r => setTimeout(r, 30)); }
-    scrollTo(0, 0);
-  });
-  await p.waitForTimeout(300);
+  await visitAll(p);
   const after = await count();
   before.forEach((b, i) => { if (b !== after[i]) fails.push(`refresh changed DOM: ${b} -> ${after[i].split(':')[1]}`); });
 
