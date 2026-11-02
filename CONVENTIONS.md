@@ -63,3 +63,21 @@ Motion: `var(--efx-duration)` / `var(--efx-ease)`. Shine's `.tone-*` classes the
 
 ## Style
 2-space indent, ES2019+, no classes/`this` needed, short header comment with a usage example per file.
+
+## Charts (`src/charts/`)
+Charts ship as a separate add-on bundle (`effix-charts.min.js`) so effect-only pages never download them.
+```
+src/charts/_lib.js        shared toolkit: data parsing, scales, nice ticks, curves, arcs, tooltip, legend, keyboard, resize
+src/charts/_lib.css       shared chart styles + entrance animation classes
+src/charts/chart-<type>.js  one chart type (+ .css, + .meta.js)
+```
+- Name `chart-<type>`, selector `.efx-chart-<type>`, `lazy: true`, `defaults: { ...COMMON, ...own }`.
+- `init` returns `chart(el, opts, draw)`. `draw(ctx)` paints into `ctx.g` and returns marks
+  `[{ x, y, label, value, series, node, index, hit?, xOnly?, group?, html? }]`. The toolkit turns marks into tooltips,
+  hover dimming, ←/→ keyboard focus, `efx:select` events and the screen-reader value list.
+- Data: `data-efx-data` ("1,2,3", "1,2|3,4", JSON), `data-efx-labels`, `data-efx-names`, inline
+  `<script type="application/json">`, or `data-efx-source="#table"` to read a Shine table. Live updates:
+  `el.dispatchEvent(new CustomEvent('efx:data', { detail: { labels, series } }))`.
+- Colors come from `ctx.colors` (Shine tones → `--efx-chart-1…7` → `data-efx-colors`). No hard-coded colors.
+- `data-efx-background` must work: no axes, fill the element, sit behind its content. Any chart can then decorate a button, card or section.
+- Entrance animation uses the toolkit classes (`efx-chart__grow`, `__grow-x`, `__draw` + `pathLength="1"`, `__fade`, `--i` stagger).

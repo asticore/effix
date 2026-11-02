@@ -99,10 +99,10 @@
   }
   var scrollSubs = /* @__PURE__ */ new Set();
   var scrollBound = false;
-  var runScroll = (subs2) => {
+  var runScroll = (subs4) => {
     const y = scrollY, h = innerHeight;
     const writes = [];
-    subs2.forEach((f2) => {
+    subs4.forEach((f2) => {
       const w = f2(y, h);
       if (typeof w === "function") writes.push(w);
     });
@@ -153,11 +153,11 @@
     if (!lazyIO) {
       lazyIO = new IntersectionObserver((es) => es.forEach((e) => {
         if (!e.isIntersecting) return;
-        const names = lazyQueue.get(e.target);
+        const names2 = lazyQueue.get(e.target);
         lazyIO.unobserve(e.target);
         lazyQueue.delete(e.target);
         e.target.removeAttribute("data-efx-lazy");
-        if (names) names.forEach((n) => registry.has(n) && mount(e.target, registry.get(n)));
+        if (names2) names2.forEach((n) => registry.has(n) && mount(e.target, registry.get(n)));
       }), { rootMargin: lazyMargin() });
     }
     let s = lazyQueue.get(el);
@@ -286,6 +286,8 @@
     if (!doc) return;
     const html = doc.documentElement;
     const cfg = typeof window !== "undefined" && window.EffixConfig || {};
+    const pending = typeof window !== "undefined" && window.EffixPending || [];
+    if (pending.length) define(pending.splice(0));
     if (cfg.auto === false || html.hasAttribute("data-efx-manual")) return;
     const go = () => {
       init();
@@ -295,6 +297,236 @@
     else go();
   }
   var core_default = api;
+
+  // src/features/ambient.js
+  var split = (s) => {
+    const out = [];
+    let d = 0, cur = "";
+    for (const ch of String(s)) {
+      if (ch === "(") d++;
+      else if (ch === ")") d = Math.max(0, d - 1);
+      if ((ch === "|" || ch === ",") && !d) {
+        out.push(cur);
+        cur = "";
+      } else cur += ch;
+    }
+    out.push(cur);
+    return out.map((c) => c.trim()).filter(Boolean);
+  };
+  var visSubs = /* @__PURE__ */ new Set();
+  var visOff = null;
+  var onDocVis = () => visSubs.forEach((fn) => fn(document.hidden));
+  var subVis = (fn) => {
+    visSubs.add(fn);
+    if (!visOff) visOff = on(document, "visibilitychange", onDocVis);
+    return () => {
+      visSubs.delete(fn);
+      if (!visSubs.size && visOff) {
+        visOff();
+        visOff = null;
+      }
+    };
+  };
+  var AUTO = { stars: [5e3, 200], warp: [8e3, 160], orbs: [1e5, 6], waves: [1e9, 3], snow: [9e3, 120], leaves: [3e4, 25], bubbles: [16e3, 40] };
+  var ambient_default = {
+    name: "ambient",
+    selector: ".efx-ambient",
+    lazy: true,
+    defaults: { mode: "stars", count: 0, color: "", speed: 1, opacity: 1, interact: true },
+    init(el, o) {
+      let restorePos = false;
+      if (getComputedStyle(el).position === "static") {
+        el.style.position = "relative";
+        restorePos = true;
+      }
+      const cv2 = document.createElement("canvas");
+      cv2.className = "efx-ambient__canvas";
+      cv2.setAttribute("aria-hidden", "true");
+      el.insertBefore(cv2, el.firstChild);
+      const ctx2 = cv2.getContext("2d");
+      const mode = AUTO[o.mode] ? o.mode : "stars";
+      const motion = motionOK();
+      const colors = o.color ? split(o.color) : [];
+      if (!colors.length) colors.push(themeColor(el));
+      const sp = o.speed;
+      let w = 0, h = 0, ps2 = [], raf2 = 0, vis = true, hidden = document.hidden, t = 0;
+      const ptr = { x: 0, y: 0, on: 0 };
+      const rnd2 = (a, b) => a + Math.random() * (b - a);
+      const spawn = (p, first) => {
+        p.c = colors[Math.random() * colors.length | 0];
+        p.a = rnd2(0, 6.28);
+        p.x = rnd2(0, w);
+        p.y = first ? rnd2(0, h) : mode === "bubbles" ? h + 20 : -20;
+        p.r = mode === "orbs" ? rnd2(0.25, 0.45) * Math.max(w, h) : mode === "leaves" ? rnd2(5, 11) : mode === "bubbles" ? rnd2(3, 14) : rnd2(0.6, 2.4);
+        p.v = rnd2(0.4, 1.2);
+        if (mode === "warp") {
+          p.x = rnd2(-1, 1);
+          p.y = rnd2(-1, 1);
+          p.z = first ? rnd2(0.05, 1) : 1;
+        }
+        if (mode === "orbs") {
+          p.y = rnd2(0, h);
+          p.vx = rnd2(-0.3, 0.3);
+          p.vy = rnd2(-0.3, 0.3);
+        }
+        return p;
+      };
+      const seed = () => {
+        const dpr2 = Math.min(devicePixelRatio || 1, 1.5);
+        w = el.clientWidth;
+        h = el.clientHeight;
+        cv2.width = w * dpr2;
+        cv2.height = h * dpr2;
+        ctx2.setTransform(dpr2, 0, 0, dpr2, 0, 0);
+        const [div, max] = AUTO[mode];
+        const n = o.count || Math.max(3, Math.min(max, w * h / div | 0));
+        ps2 = Array.from({ length: n }, (_, i) => spawn({ i }, 1));
+        draw2();
+      };
+      const draw2 = () => {
+        ctx2.clearRect(0, 0, w, h);
+        ctx2.globalCompositeOperation = mode === "orbs" ? "lighter" : "source-over";
+        ctx2.globalAlpha = o.opacity;
+        const px = ptr.on ? (ptr.x - w / 2) / w : 0, py = ptr.on ? (ptr.y - h / 2) / h : 0;
+        if (mode === "waves") {
+          ps2.forEach((p, i) => {
+            ctx2.globalAlpha = o.opacity * (0.22 + i * 0.08);
+            ctx2.fillStyle = p.c;
+            ctx2.beginPath();
+            ctx2.moveTo(0, h);
+            const base = h * (0.55 + i * 0.12), amp = h * 0.06 * (1 + p.v * 0.5);
+            for (let x = 0; x <= w + 8; x += 8) ctx2.lineTo(x, base + Math.sin(x / w * (3 + i) * 2 + t * p.v + p.a) * amp + Math.sin(x / w * 7 - t * 0.7 * p.v) * amp * 0.3);
+            ctx2.lineTo(w, h);
+            ctx2.fill();
+          });
+        } else for (const p of ps2) {
+          ctx2.fillStyle = ctx2.strokeStyle = p.c;
+          ctx2.beginPath();
+          if (mode === "orbs") {
+            const g = ctx2.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+            g.addColorStop(0, p.c);
+            g.addColorStop(1, "transparent");
+            ctx2.globalAlpha = o.opacity * 0.55;
+            ctx2.fillStyle = g;
+            ctx2.arc(p.x, p.y, p.r, 0, 6.2832);
+          } else if (mode === "warp") {
+            const f2 = w * 0.3, cx = w / 2 + px * w * 0.3, cy = h / 2 + py * h * 0.3, z2 = Math.min(1, p.z + 0.04 * sp);
+            ctx2.globalAlpha = o.opacity * (1 - p.z);
+            ctx2.lineWidth = Math.max(0.5, 1.6 * (1 - p.z));
+            ctx2.lineCap = "round";
+            ctx2.moveTo(cx + p.x / z2 * f2, cy + p.y / z2 * f2);
+            ctx2.lineTo(cx + p.x / p.z * f2, cy + p.y / p.z * f2);
+            ctx2.stroke();
+            continue;
+          } else if (mode === "stars") {
+            ctx2.globalAlpha = o.opacity * (0.55 + 0.45 * Math.sin(t * 2 * p.v + p.a));
+            ctx2.arc(p.x - px * p.r * 12, p.y - py * p.r * 12, p.r, 0, 6.2832);
+          } else if (mode === "bubbles") {
+            ctx2.globalAlpha = o.opacity * 0.5;
+            ctx2.lineWidth = 1;
+            ctx2.arc(p.x, p.y, p.r, 0, 6.2832);
+            ctx2.stroke();
+            ctx2.globalAlpha = o.opacity * 0.6;
+            ctx2.beginPath();
+            ctx2.arc(p.x - p.r * 0.35, p.y - p.r * 0.35, p.r * 0.2, 0, 6.2832);
+          } else if (mode === "leaves") {
+            ctx2.globalAlpha = o.opacity * 0.85;
+            ctx2.ellipse(p.x, p.y, p.r, p.r * 0.45, p.a, 0, 6.2832);
+          } else ctx2.arc(p.x, p.y, p.r, 0, 6.2832);
+          ctx2.fill();
+        }
+        ctx2.globalAlpha = 1;
+        ctx2.globalCompositeOperation = "source-over";
+      };
+      const step = () => {
+        raf2 = 0;
+        t += 0.016 * sp;
+        for (const p of ps2) {
+          if (mode === "warp") {
+            p.z -= 6e-3 * sp * p.v;
+            if (p.z < 0.03) spawn(p);
+            continue;
+          }
+          if (mode === "orbs") {
+            if (ptr.on) {
+              p.vx += (ptr.x - p.x) * 2e-6;
+              p.vy += (ptr.y - p.y) * 2e-6;
+            }
+            p.vx *= 0.998;
+            p.vy *= 0.998;
+            p.x += p.vx * sp;
+            p.y += p.vy * sp;
+            if (p.x < -p.r * 0.3 || p.x > w + p.r * 0.3) p.vx *= -1;
+            if (p.y < -p.r * 0.3 || p.y > h + p.r * 0.3) p.vy *= -1;
+            continue;
+          }
+          if (mode === "stars") continue;
+          const up = mode === "bubbles";
+          p.y += (up ? -p.v * 1.2 : p.v * (mode === "leaves" ? 1 : p.r * 0.4 + 0.3)) * sp;
+          p.x += Math.sin(t * p.v + p.a) * (mode === "leaves" ? 1 : 0.4) * sp;
+          if (mode === "leaves") p.a += 0.02 * p.v * sp;
+          if (up ? p.y < -p.r * 2 : p.y > h + 20) spawn(p);
+        }
+        draw2();
+        go();
+      };
+      const go = () => {
+        if (motion && vis && !hidden && !raf2) raf2 = requestAnimationFrame(step);
+      };
+      const offs = [];
+      seed();
+      if (motion) {
+        offs.push(onVisible(el, (v) => {
+          vis = v;
+          if (v) go();
+          else {
+            cancelAnimationFrame(raf2);
+            raf2 = 0;
+          }
+        }));
+        offs.push(subVis((hd) => {
+          hidden = hd;
+          if (hd) {
+            cancelAnimationFrame(raf2);
+            raf2 = 0;
+          } else go();
+        }));
+        if (o.interact && finePointer() && (mode === "orbs" || mode === "stars" || mode === "warp")) {
+          let rect = null;
+          const stale = () => {
+            rect = null;
+          };
+          offs.push(on(el, "pointermove", (e) => {
+            const r = rect || (rect = el.getBoundingClientRect());
+            ptr.x = e.clientX - r.left;
+            ptr.y = e.clientY - r.top;
+            ptr.on = 1;
+          }));
+          offs.push(on(el, "pointerleave", () => {
+            ptr.on = 0;
+            rect = null;
+          }));
+          offs.push(on(window, "scroll", stale, { passive: true, capture: true }), on(window, "resize", stale, { passive: true }));
+        }
+      }
+      let ro;
+      if (typeof ResizeObserver !== "undefined") {
+        ro = new ResizeObserver(() => {
+          if (el.clientWidth !== w || el.clientHeight !== h) seed();
+        });
+        ro.observe(el);
+      }
+      return () => {
+        cancelAnimationFrame(raf2);
+        raf2 = 0;
+        vis = false;
+        offs.forEach((f2) => f2());
+        ro && ro.disconnect();
+        cv2.remove();
+        if (restorePos) el.style.position = "";
+      };
+    }
+  };
 
   // src/features/border.js
   var border_default = {
@@ -524,6 +756,84 @@
     }
   };
 
+  // src/features/collapse.js
+  var names = /* @__PURE__ */ new Map();
+  var collapse_default = {
+    name: "collapse",
+    selector: ".efx-collapse",
+    defaults: { duration: 300, easing: "ease" },
+    init(el, o) {
+      const list = el.matches("details") ? [el] : [...el.querySelectorAll("details")];
+      const anim = /* @__PURE__ */ new Map();
+      const closedH = (d) => {
+        const cs = getComputedStyle(d), s = d.querySelector(":scope > summary");
+        return (s ? s.getBoundingClientRect().bottom : d.getBoundingClientRect().top) - d.getBoundingClientRect().top + parseFloat(cs.paddingBottom) + parseFloat(cs.borderBottomWidth);
+      };
+      const run = (d, to) => {
+        const h0 = d.offsetHeight, prev = anim.get(d);
+        if (prev) prev.a.cancel();
+        if (to) d.open = true;
+        const h1 = to ? d.offsetHeight : closedH(d), s = d.style;
+        const saved = prev ? prev.saved : [s.overflow, s.boxSizing];
+        s.overflow = "hidden";
+        s.boxSizing = "border-box";
+        const a = d.animate({ height: [h0 + "px", h1 + "px"] }, { duration: o.duration, easing: o.easing });
+        const rec = { a, to, saved };
+        anim.set(d, rec);
+        return a.finished.then(() => {
+          if (anim.get(d) !== rec) return 0;
+          anim.delete(d);
+          [s.overflow, s.boxSizing] = saved;
+          if (!to) d.open = false;
+          return 1;
+        }, () => 0);
+      };
+      const click = (e) => {
+        const d = e.currentTarget.parentElement;
+        if (!motionOK() || e.target.closest("a[href]")) return;
+        e.preventDefault();
+        const to = anim.has(d) ? !anim.get(d).to : !d.open, jobs = [];
+        const name = d.getAttribute("name");
+        const others = to && name ? [...document.querySelectorAll(`details[name="${CSS.escape(name)}"][open]`)].filter((x) => x !== d) : [];
+        if (others.length) {
+          [d, ...others].forEach((x) => {
+            names.set(x, name);
+            x.removeAttribute("name");
+          });
+          others.forEach((x) => jobs.push(run(x, false)));
+        }
+        jobs.push(run(d, to));
+        if (others.length) Promise.all(jobs).then(() => [d, ...others].forEach((x) => {
+          if (names.has(x)) {
+            x.setAttribute("name", names.get(x));
+            names.delete(x);
+          }
+        }));
+      };
+      const toggled = (e) => {
+        const rec = anim.get(e.target);
+        if (rec && e.target.open !== rec.to && !(rec.to === false && e.target.open)) {
+          rec.a.cancel();
+          anim.delete(e.target);
+        }
+      };
+      const offs = list.map((d) => {
+        const s = d.querySelector(":scope > summary");
+        return [s && on(s, "click", click), on(d, "toggle", toggled)];
+      }).flat().filter(Boolean);
+      return () => {
+        offs.forEach((f2) => f2());
+        anim.forEach((rec, d) => {
+          rec.a.cancel();
+          [d.style.overflow, d.style.boxSizing] = rec.saved;
+        });
+        anim.clear();
+        names.forEach((n, d) => d.setAttribute("name", n));
+        names.clear();
+      };
+    }
+  };
+
   // src/features/compare.js
   var compare_default = {
     name: "compare",
@@ -592,6 +902,141 @@
         el.classList.remove("efx-compare-vertical", "is-dragging");
         el.style.removeProperty("--efx-pos");
         if (setPos) el.style.position = pos;
+      };
+    }
+  };
+
+  // src/features/confetti.js
+  var cv = null;
+  var ctx = null;
+  var ps = [];
+  var raf = 0;
+  var dpr = 1;
+  var rnd = (a, b) => a + Math.random() * (b - a);
+  var draw = () => {
+    raf = 0;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ps = ps.filter((p) => {
+      p.vy += 0.35 * p.g;
+      p.vx *= 0.985;
+      p.vy *= 0.985;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.life--;
+      if (p.life <= 0 || p.y > innerHeight + 20) return false;
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, p.life / 25);
+      ctx.translate(p.x * dpr, p.y * dpr);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.c;
+      const s = p.s * dpr;
+      if (p.shape === "circle") {
+        ctx.beginPath();
+        ctx.arc(0, 0, s / 2, 0, 7);
+        ctx.fill();
+      } else if (p.shape === "strip") ctx.fillRect(-s / 2, -s / 6, s, s / 3);
+      else ctx.fillRect(-s / 2, -s / 2, s, s);
+      ctx.restore();
+      return true;
+    });
+    if (ps.length) raf = requestAnimationFrame(draw);
+    else {
+      cv.remove();
+      cv = ctx = null;
+    }
+  };
+  var burst = (x, y, o, colors) => {
+    if (!cv) {
+      cv = document.createElement("canvas");
+      cv.className = "efx-confetti__canvas";
+      cv.setAttribute("aria-hidden", "true");
+      cv.style.cssText = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:2147483000";
+      dpr = Math.min(devicePixelRatio || 1, 2);
+      cv.width = innerWidth * dpr;
+      cv.height = innerHeight * dpr;
+      ctx = cv.getContext("2d");
+      document.body.append(cv);
+    }
+    const shapes = o.shapes.length ? o.shapes : ["square"];
+    const spread = o.spread * Math.PI / 180;
+    for (let i = 0; i < o.count; i++) {
+      const a = -Math.PI / 2 + rnd(-spread / 2, spread / 2), v = o.velocity * rnd(0.4, 1);
+      ps.push({
+        x,
+        y,
+        vx: Math.cos(a) * v / 2,
+        vy: Math.sin(a) * v / 2,
+        g: o.gravity,
+        rot: rnd(0, 6.28),
+        vr: rnd(-0.3, 0.3),
+        s: rnd(6, 11),
+        life: rnd(70, 120) | 0,
+        c: colors[Math.random() * colors.length | 0],
+        shape: shapes[Math.random() * shapes.length | 0]
+      });
+    }
+    if (!raf) raf = requestAnimationFrame(draw);
+  };
+  var refs = 0;
+  var docOff = null;
+  var DEF = { count: 80, spread: 70, velocity: 45, gravity: 1, colors: [], shapes: ["square", "circle", "strip"], origin: "" };
+  var palette = (el, o) => {
+    if (o.colors.length) return o.colors;
+    const c = [themeColor(el)];
+    for (const [n, f2] of [["--sh-accent", "#db2777"], ["--sh-success", "#15803d"], ["--sh-warning", "#b45309"], ["--sh-danger", "#dc2626"]]) c.push(cssVar(el, n, f2));
+    return c;
+  };
+  var fire = (el, o, e) => {
+    if (!motionOK()) {
+      el.animate && el.animate({ scale: [1, 1.06, 1] }, 220);
+      return;
+    }
+    const r = el.getBoundingClientRect();
+    let x = r.left + r.width / 2, y = r.top + r.height / 2;
+    if (o.origin) {
+      const [ox, oy] = o.origin.split(/[ ,]+/).map(parseFloat);
+      if (ox === ox && oy === oy) {
+        x = ox / 100 * innerWidth;
+        y = oy / 100 * innerHeight;
+      }
+    } else if (e && e.type === "click" && e.clientX) {
+      x = e.clientX;
+      y = e.clientY;
+    }
+    burst(x, y, o, palette(el, o));
+  };
+  var onEvt = (e) => {
+    const d = e.detail || {}, o = { ...DEF, ...d };
+    if (typeof o.colors === "string") o.colors = o.colors.split("|");
+    fire(e.target, o);
+  };
+  var confetti_default = {
+    name: "confetti",
+    selector: ".efx-confetti",
+    defaults: { trigger: "click", count: 80, spread: 70, velocity: 45, gravity: 1, colors: [], shapes: ["square", "circle", "strip"], origin: "" },
+    init(el, o) {
+      if (!refs++) docOff = on(document, "efx:confetti", onEvt);
+      const offs = [() => {
+        if (!--refs && docOff) {
+          docOff();
+          docOff = null;
+        }
+      }];
+      let stopVis = () => {
+      };
+      if (o.trigger === "done") offs.push(on(el, "efx:done", () => fire(el, o)));
+      else if (o.trigger === "view") {
+        stopVis = onVisible(el, (v) => {
+          if (v) {
+            fire(el, o);
+            stopVis();
+          }
+        }, "0px", 0.5);
+      } else offs.push(on(el, "click", (e) => fire(el, o, e)));
+      return () => {
+        stopVis();
+        offs.forEach((f2) => f2());
       };
     }
   };
@@ -773,16 +1218,16 @@
       const final = () => {
         el.textContent = fmt(to);
       };
-      let raf = 0;
+      let raf2 = 0;
       const run = () => {
-        cancelAnimationFrame(raf);
+        cancelAnimationFrame(raf2);
         const t0 = performance.now();
         const step = (t) => {
           const p = Math.min(1, (t - t0) / o.duration);
           el.textContent = fmt(o.from + (to - o.from) * (1 - Math.pow(1 - p, 3)));
-          if (p < 1) raf = requestAnimationFrame(step);
+          if (p < 1) raf2 = requestAnimationFrame(step);
         };
-        raf = requestAnimationFrame(step);
+        raf2 = requestAnimationFrame(step);
       };
       if (!motionOK()) {
         final();
@@ -803,13 +1248,13 @@
           run();
           if (o.once) stop();
         } else if (!o.once) {
-          cancelAnimationFrame(raf);
+          cancelAnimationFrame(raf2);
           el.textContent = fmt(o.from);
         }
       });
       return () => {
         stop();
-        cancelAnimationFrame(raf);
+        cancelAnimationFrame(raf2);
         el.textContent = orig;
         sr.remove();
         hadHidden === null ? el.removeAttribute("aria-hidden") : el.setAttribute("aria-hidden", hadHidden);
@@ -852,18 +1297,18 @@
       const dot = o.style !== "ring" ? mk("dot") : null;
       const parts = [ring, dot].filter(Boolean);
       if (o.hideNative) el.classList.add("efx-cursor-hide");
-      let tx = 0, ty = 0, rx = 0, ry = 0, raf = 0, seen = false;
+      let tx = 0, ty = 0, rx = 0, ry = 0, raf2 = 0, seen = false;
       const put = (n, x, y) => {
         n.style.transform = "translate3d(" + x + "px," + y + "px,0) translate(-50%,-50%)";
       };
       const tick = () => {
-        raf = 0;
+        raf2 = 0;
         rx += (tx - rx) * 0.2;
         ry += (ty - ry) * 0.2;
         if (Math.abs(tx - rx) < 0.3 && Math.abs(ty - ry) < 0.3) {
           rx = tx;
           ry = ty;
-        } else raf = requestAnimationFrame(tick);
+        } else raf2 = requestAnimationFrame(tick);
         put(ring, rx, ry);
       };
       const show2 = (v) => parts.forEach((n) => {
@@ -880,7 +1325,7 @@
               rx = tx;
               ry = ty;
               put(ring, rx, ry);
-            } else if (!raf) raf = requestAnimationFrame(tick);
+            } else if (!raf2) raf2 = requestAnimationFrame(tick);
           }
           seen = true;
           show2(true);
@@ -900,9 +1345,60 @@
       ];
       return () => {
         offs.forEach((f2) => f2());
-        cancelAnimationFrame(raf);
+        cancelAnimationFrame(raf2);
         parts.forEach((n) => n.remove());
         el.classList.remove("efx-cursor-hide");
+      };
+    }
+  };
+
+  // src/features/direction.js
+  var direction_default = {
+    name: "direction",
+    selector: ".efx-direction",
+    defaults: { fill: true },
+    init(el, o) {
+      let restorePos = false;
+      if (o.fill) {
+        if (getComputedStyle(el).position === "static") {
+          el.style.position = "relative";
+          restorePos = true;
+        }
+        el.classList.add("efx-direction-fill");
+      }
+      const edge = (e) => {
+        const r = el.getBoundingClientRect();
+        const dx = (e.clientX - r.left) / (r.width || 1) - 0.5, dy = (e.clientY - r.top) / (r.height || 1) - 0.5;
+        return Math.abs(dx) > Math.abs(dy) ? dx < 0 ? "left" : "right" : dy < 0 ? "top" : "bottom";
+      };
+      const enter = (from) => {
+        el.setAttribute("data-efx-from", from);
+        el.classList.add("efx-direction-snap");
+        void el.offsetWidth;
+        el.classList.remove("efx-direction-snap");
+        el.classList.add("is-hover");
+      };
+      const leave = (from) => {
+        el.setAttribute("data-efx-from", from);
+        el.classList.remove("is-hover");
+      };
+      const mouse = (e) => e.pointerType !== "touch";
+      const offs = [
+        on(el, "pointerenter", (e) => mouse(e) && enter(edge(e))),
+        on(el, "pointerleave", (e) => mouse(e) && leave(edge(e))),
+        on(el, "focusin", (e) => {
+          try {
+            if (e.target.matches(":focus-visible")) enter("left");
+          } catch (_) {
+          }
+        }),
+        on(el, "focusout", () => leave("left"))
+      ];
+      return () => {
+        offs.forEach((f2) => f2());
+        el.classList.remove("is-hover", "efx-direction-fill", "efx-direction-snap");
+        el.removeAttribute("data-efx-from");
+        if (restorePos) el.style.position = "";
       };
     }
   };
@@ -1008,6 +1504,272 @@
         el.classList.remove("is-ready", "is-paused", "efx-divider--drift", "efx-divider--float");
         st.cssText = saved;
         if (claimed) releaseParent(parent);
+      };
+    }
+  };
+
+  // src/features/drag.js
+  var drag_default = {
+    name: "drag",
+    selector: ".efx-drag",
+    defaults: { inertia: true, axis: "x" },
+    init(el, o) {
+      const ax = o.axis === "y" || o.axis === "both" ? o.axis : "x";
+      const inertia = o.inertia && motionOK();
+      const st = el.style, saved = [st.scrollSnapType, st.scrollBehavior];
+      let id = 0, down = null, moved = 0, block = false, vx = 0, vy = 0, offsMove = [];
+      const stopInertia = () => {
+        cancelAnimationFrame(id);
+        id = 0;
+      };
+      const restore = () => {
+        st.scrollSnapType = saved[0];
+        st.scrollBehavior = saved[1];
+        el.classList.remove("is-dragging");
+      };
+      const glide = () => {
+        vx *= 0.95;
+        vy *= 0.95;
+        if (Math.abs(vx) < 0.1 && Math.abs(vy) < 0.1) {
+          id = 0;
+          return restore();
+        }
+        el.scrollLeft -= vx;
+        el.scrollTop -= vy;
+        id = requestAnimationFrame(glide);
+      };
+      const mv = (e) => {
+        if (!down) return;
+        const dx = ax === "y" ? 0 : e.clientX - down.x, dy = ax === "x" ? 0 : e.clientY - down.y;
+        moved += Math.abs(e.clientX - down.x) + Math.abs(e.clientY - down.y);
+        if (!el.classList.contains("is-dragging") && moved > 5) {
+          el.classList.add("is-dragging");
+          st.scrollSnapType = "none";
+          st.scrollBehavior = "auto";
+          try {
+            el.setPointerCapture(e.pointerId);
+          } catch (_) {
+          }
+        }
+        if (!el.classList.contains("is-dragging")) return;
+        el.scrollLeft -= dx;
+        el.scrollTop -= dy;
+        vx = dx;
+        vy = dy;
+        down.x = e.clientX;
+        down.y = e.clientY;
+      };
+      const up = (e) => {
+        if (!down) return;
+        const dragged = moved > 5;
+        offsMove.forEach((f2) => f2());
+        offsMove = [];
+        try {
+          el.releasePointerCapture(down.id);
+        } catch (_) {
+        }
+        down = null;
+        if (dragged) {
+          block = true;
+          setTimeout(() => {
+            block = false;
+          });
+        }
+        if (dragged && inertia) id = requestAnimationFrame(glide);
+        else restore();
+      };
+      const offs = [
+        on(el, "pointerdown", (e) => {
+          if (e.pointerType !== "mouse" || e.button !== 0 || e.target.closest("input,textarea,select,[contenteditable]")) return;
+          stopInertia();
+          restore();
+          down = { x: e.clientX, y: e.clientY, id: e.pointerId };
+          moved = vx = vy = 0;
+          offsMove = [on(window, "pointermove", mv), on(window, "pointerup", up), on(window, "pointercancel", up)];
+        }),
+        on(el, "click", (e) => {
+          if (block) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, true),
+        on(el, "dragstart", (e) => e.preventDefault())
+      ];
+      el.classList.add("efx-drag-on");
+      return () => {
+        stopInertia();
+        offs.forEach((f2) => f2());
+        offsMove.forEach((f2) => f2());
+        restore();
+        el.classList.remove("efx-drag-on");
+      };
+    }
+  };
+
+  // src/features/draw.js
+  var SHAPES2 = "path,line,polyline,polygon,circle,ellipse,rect";
+  var clamp = (v) => Math.min(1, Math.max(0, v));
+  var draw_default = {
+    name: "draw",
+    selector: ".efx-draw",
+    defaults: { mode: "scroll", duration: 1500, start: 0, end: 0.7, stagger: 0, fill: false },
+    init(el, o) {
+      if (!motionOK()) return;
+      const root = el.matches("svg") ? el : el.querySelector("svg");
+      if (!root) return;
+      const marked = root.querySelectorAll("[data-efx-draw-item]");
+      const items = [...marked.length ? marked : root.querySelectorAll(SHAPES2)].filter((n2) => n2.getTotalLength);
+      const parts = items.map((n2) => {
+        let len = 0;
+        try {
+          len = n2.getTotalLength();
+        } catch (e) {
+        }
+        const s = n2.style;
+        const p = { n: n2, len, saved: [s.strokeDasharray, s.strokeDashoffset, s.fill, s.fillOpacity] };
+        if (o.fill && getComputedStyle(n2).fill === "none") s.fill = getComputedStyle(n2).stroke;
+        return p;
+      }).filter((p) => p.len > 0);
+      if (!parts.length) return;
+      const n = parts.length, st = o.stagger;
+      const set = (p, q) => {
+        p.n.style.strokeDashoffset = (p.len * (1 - q)).toFixed(2);
+        if (o.fill) p.n.style.fillOpacity = clamp((q - 0.8) / 0.2).toFixed(2);
+      };
+      parts.forEach((p) => {
+        p.n.style.strokeDasharray = p.len;
+        set(p, 0);
+      });
+      let stop = () => {
+      }, anims = [];
+      if (o.mode === "view") {
+        stop = onVisible(el, (v) => {
+          if (!v) return;
+          stop();
+          parts.forEach((p, i) => {
+            const a = p.n.animate({ strokeDashoffset: [p.len, 0] }, { duration: o.duration, delay: i * st, easing: "ease-in-out", fill: "both" });
+            anims.push(a);
+            if (o.fill) anims.push(p.n.animate({ fillOpacity: [0, 1] }, { duration: o.duration * 0.3, delay: i * st + o.duration * 0.7, fill: "both" }));
+          });
+        });
+      } else {
+        const span = o.end - o.start || 1, tail = Math.max(0.05, 1 - (n - 1) * st);
+        stop = onScroll((y, vh) => {
+          const r = el.getBoundingClientRect();
+          const q = clamp(((vh - r.top) / (vh + r.height) - o.start) / span);
+          return () => parts.forEach((p, i) => set(p, clamp((q - i * st) / tail)));
+        });
+      }
+      return () => {
+        stop();
+        anims.forEach((a) => a.cancel());
+        parts.forEach((p) => {
+          const s = p.n.style;
+          [s.strokeDasharray, s.strokeDashoffset, s.fill, s.fillOpacity] = p.saved;
+        });
+      };
+    }
+  };
+
+  // src/features/hscroll.js
+  var hscroll_default = {
+    name: "hscroll",
+    selector: ".efx-hscroll",
+    defaults: { offset: 0, snap: false },
+    init(el, o) {
+      const made = [];
+      let track = [...el.children].find((c) => c.classList.contains("efx-hscroll__track"));
+      if (!track) {
+        track = document.createElement("div");
+        track.className = "efx-hscroll__track";
+        while (el.firstChild) track.appendChild(el.firstChild);
+        el.appendChild(track);
+        made.push(track);
+      }
+      const mq2 = matchMedia("(max-width: 767px)");
+      const pinned = () => motionOK() && !mq2.matches;
+      let pin, off = [], timer = 0, W = 0, H = 0, dist = 0, stop = () => {
+      };
+      const teardown = () => {
+        stop();
+        stop = () => {
+        };
+        off.forEach((f2) => f2());
+        off = [];
+        clearTimeout(timer);
+        track.style.transform = track.style.willChange = "";
+        el.style.height = "";
+        if (pin) {
+          el.insertBefore(track, pin);
+          pin.remove();
+          pin = null;
+        }
+        el.classList.remove("efx-hscroll-on", "efx-hscroll-native");
+      };
+      const measure = () => {
+        const vw = innerWidth, vh = innerHeight - o.offset;
+        dist = Math.max(0, track.scrollWidth - vw);
+        W = vw;
+        H = vh;
+        el.style.height = dist + vh + "px";
+      };
+      const setup = () => {
+        if (!pinned()) {
+          el.classList.add("efx-hscroll-native");
+          return;
+        }
+        pin = document.createElement("div");
+        pin.className = "efx-hscroll__pin";
+        pin.style.top = o.offset + "px";
+        pin.style.height = `calc(100vh - ${o.offset}px)`;
+        el.insertBefore(pin, track);
+        pin.appendChild(track);
+        el.classList.add("efx-hscroll-on");
+        track.style.willChange = "transform";
+        measure();
+        if (typeof ResizeObserver !== "undefined") {
+          const ro = new ResizeObserver(measure);
+          ro.observe(track);
+          off.push(() => ro.disconnect());
+        }
+        stop = onScroll((y, vh) => {
+          if (innerWidth !== W || vh - o.offset !== H) measure();
+          const top = el.getBoundingClientRect().top;
+          const p = dist ? Math.min(1, Math.max(0, (o.offset - top) / dist)) : 0;
+          if (o.snap) {
+            clearTimeout(timer);
+            if (p > 0 && p < 1) timer = setTimeout(() => {
+              const kids = [...track.children], at = p * dist;
+              let best = at, d = 1e9;
+              kids.forEach((k) => {
+                const t = Math.min(dist, k.offsetLeft);
+                if (Math.abs(t - at) < d) {
+                  d = Math.abs(t - at);
+                  best = t;
+                }
+              });
+              scrollBy({ top: best - at, behavior: "smooth" });
+            }, 140);
+          }
+          return () => {
+            track.style.transform = `translate3d(${(-p * dist).toFixed(1)}px,0,0)`;
+          };
+        });
+      };
+      const rebuild = () => {
+        teardown();
+        setup();
+      };
+      setup();
+      const offMq = mq2.addEventListener ? on(mq2, "change", rebuild) : () => {
+      };
+      return () => {
+        offMq();
+        teardown();
+        made.forEach((t) => {
+          while (t.firstChild) el.insertBefore(t.firstChild, t);
+          t.remove();
+        });
       };
     }
   };
@@ -1124,16 +1886,16 @@
 
   // src/features/magnetic.js
   var subs = /* @__PURE__ */ new Set();
-  var docOff = null;
+  var docOff2 = null;
   var dispatch = rafThrottle((e) => subs.forEach((fn) => fn(e)));
   var subscribe = (fn) => {
     subs.add(fn);
-    if (!docOff) docOff = on(document, "pointermove", dispatch, { passive: true });
+    if (!docOff2) docOff2 = on(document, "pointermove", dispatch, { passive: true });
     return () => {
       subs.delete(fn);
-      if (!subs.size && docOff) {
-        docOff();
-        docOff = null;
+      if (!subs.size && docOff2) {
+        docOff2();
+        docOff2 = null;
         dispatch.cancel();
       }
     };
@@ -1145,12 +1907,12 @@
     init(el, o) {
       if (!finePointer() || !motionOK()) return;
       let unsub = null, pulled = false, settle = 0;
-      const clamp = (v) => Math.max(-o.max, Math.min(o.max, v));
+      const clamp2 = (v) => Math.max(-o.max, Math.min(o.max, v));
       const set = (x, y) => {
         el.style.setProperty("--efx-mx", x + "px");
         el.style.setProperty("--efx-my", y + "px");
       };
-      const release = () => {
+      const release2 = () => {
         if (!pulled) return;
         pulled = false;
         set(0, 0);
@@ -1162,20 +1924,20 @@
         const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
         const dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right), dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom);
         if (Math.hypot(dx, dy) > o.radius) {
-          release();
+          release2();
           return;
         }
         clearTimeout(settle);
         pulled = true;
         el.classList.add("is-magnetic", "is-pulled");
-        set(clamp((e.clientX - cx) * o.strength).toFixed(1), clamp((e.clientY - cy) * o.strength).toFixed(1));
+        set(clamp2((e.clientX - cx) * o.strength).toFixed(1), clamp2((e.clientY - cy) * o.strength).toFixed(1));
       };
       const stopVis = onVisible(el, (v) => {
         if (v && !unsub) unsub = subscribe(handle);
         else if (!v && unsub) {
           unsub();
           unsub = null;
-          release();
+          release2();
         }
       });
       return () => {
@@ -1253,6 +2015,180 @@
     }
   };
 
+  // src/features/mouse.js
+  var subs2 = /* @__PURE__ */ new Set();
+  var docOff3 = null;
+  var subscribe2 = (fn) => {
+    subs2.add(fn);
+    if (!docOff3) docOff3 = on(document, "pointermove", (e) => subs2.forEach((f2) => f2(e)), { passive: true });
+    return () => {
+      subs2.delete(fn);
+      if (!subs2.size && docOff3) {
+        docOff3();
+        docOff3 = null;
+      }
+    };
+  };
+  var mouse_default = {
+    name: "mouse",
+    selector: ".efx-mouse",
+    defaults: { strength: 20, scope: "self", invert: false, rotate: 0, ease: 0.12 },
+    init(el, o) {
+      if (!finePointer() || !motionOK()) return;
+      const found = [...el.querySelectorAll("[data-efx-depth]")];
+      const layers = (found.length ? found : [el]).map((n) => ({
+        n,
+        d: found.length ? parseFloat(n.dataset.efxDepth) || 0 : 1,
+        x: 0,
+        y: 0,
+        r: 0,
+        pt: n.style.translate,
+        pr: n.style.rotate
+      }));
+      const sign = o.invert ? 1 : -1, page = o.scope === "page", ease = Math.min(1, Math.max(0.01, o.ease));
+      let tx = 0, ty = 0, raf2 = 0, unsub = null, rect = null;
+      const frame = () => {
+        raf2 = 0;
+        let moving = false;
+        for (const l of layers) {
+          const gx = tx * l.d * o.strength * sign, gy = ty * l.d * o.strength * sign, gr = tx * l.d * o.rotate * sign;
+          l.x += (gx - l.x) * ease;
+          l.y += (gy - l.y) * ease;
+          l.r += (gr - l.r) * ease;
+          const settled = Math.abs(gx - l.x) < 0.05 && Math.abs(gy - l.y) < 0.05 && Math.abs(gr - l.r) < 0.05;
+          if (settled) {
+            l.x = gx;
+            l.y = gy;
+            l.r = gr;
+          } else moving = true;
+          l.n.style.translate = l.x.toFixed(2) + "px " + l.y.toFixed(2) + "px";
+          if (o.rotate) l.n.style.rotate = l.r.toFixed(2) + "deg";
+        }
+        if (moving) raf2 = requestAnimationFrame(frame);
+      };
+      const go = (x, y) => {
+        tx = x;
+        ty = y;
+        if (!raf2) raf2 = requestAnimationFrame(frame);
+      };
+      const handle = (e) => {
+        if (page) return go(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1);
+        const r = el.getBoundingClientRect();
+        if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return go(0, 0);
+        go((e.clientX - r.left) / r.width * 2 - 1, (e.clientY - r.top) / r.height * 2 - 1);
+      };
+      const stopVis = onVisible(el, (v) => {
+        if (v && !unsub) unsub = subscribe2(handle);
+        else if (!v && unsub) {
+          unsub();
+          unsub = null;
+          go(0, 0);
+        }
+      });
+      return () => {
+        stopVis();
+        unsub && unsub();
+        cancelAnimationFrame(raf2);
+        for (const l of layers) {
+          l.n.style.translate = l.pt;
+          l.n.style.rotate = l.pr;
+        }
+      };
+    }
+  };
+
+  // src/features/odometer.js
+  var DIGITS = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9";
+  var odometer_default = {
+    name: "odometer",
+    selector: ".efx-odometer",
+    defaults: { duration: 1800, from: "", stagger: 60, once: true },
+    init(el, o) {
+      const orig = el.innerHTML;
+      let target = (el.textContent || "").trim();
+      if (!target) return;
+      const grouped = target.includes(",");
+      const fmt = (v) => typeof v === "number" ? grouped ? v.toLocaleString("en-US", { maximumFractionDigits: 6 }) : String(v) : String(v);
+      if (!motionOK()) {
+        const off = on(el, "efx:data", (e) => {
+          el.textContent = fmt(e.detail && e.detail.value);
+        });
+        return () => {
+          off();
+          el.innerHTML = orig;
+        };
+      }
+      let strips = [], shown2 = false;
+      const build2 = (text, fromText) => {
+        const n = (text.match(/\d/g) || []).length;
+        const src = (fromText.match(/\d/g) || []).join("").padStart(n, "0").slice(-n || 0);
+        const sr = document.createElement("span");
+        sr.className = "efx-odometer__sr";
+        sr.textContent = text;
+        const vis = document.createElement("span");
+        vis.className = "efx-odometer__v";
+        vis.setAttribute("aria-hidden", "true");
+        strips = [];
+        let k = 0;
+        for (const c of text) {
+          const cell = document.createElement("span");
+          if (/\d/.test(c)) {
+            const strip = document.createElement("span");
+            strip.className = "efx-odometer__s";
+            strip.textContent = DIGITS;
+            strip.dataset.to = c;
+            strip.style.setProperty("--n", src[k++] || 0);
+            strip.style.transitionDelay = strips.length * o.stagger + "ms";
+            cell.className = "efx-odometer__d";
+            cell.append(strip);
+            strips.push(strip);
+          } else {
+            cell.className = "efx-odometer__c";
+            cell.textContent = c;
+          }
+          vis.append(cell);
+        }
+        el.textContent = "";
+        el.append(sr, vis);
+      };
+      const roll = () => {
+        void el.offsetWidth;
+        strips.forEach((s) => s.style.setProperty("--n", s.dataset.to));
+        shown2 = true;
+      };
+      const reset = () => {
+        build2(target, o.from);
+        shown2 = false;
+      };
+      el.style.setProperty("--efx-odo-duration", o.duration + "ms");
+      build2(target, o.from);
+      let stop = () => {
+      };
+      stop = onVisible(el, (v) => {
+        if (v) {
+          if (!shown2) {
+            roll();
+            if (o.once) stop();
+          }
+        } else if (!o.once && shown2) reset();
+      });
+      const offData = on(el, "efx:data", (e) => {
+        const next = fmt(e.detail && e.detail.value).trim();
+        if (!next || next === target) return;
+        const prev = target;
+        target = next;
+        build2(next, shown2 ? prev : o.from);
+        if (shown2) roll();
+      });
+      return () => {
+        stop();
+        offData();
+        el.innerHTML = orig;
+        el.style.removeProperty("--efx-odo-duration");
+      };
+    }
+  };
+
   // src/features/parallax.js
   var parallax_default = {
     name: "parallax",
@@ -1318,17 +2254,17 @@
     out.push(cur);
     return out.map((c) => c.trim()).filter(Boolean);
   };
-  var visSubs = /* @__PURE__ */ new Set();
-  var visOff = null;
-  var onDocVis = () => visSubs.forEach((fn) => fn(document.hidden));
-  var subVis = (fn) => {
-    visSubs.add(fn);
-    if (!visOff) visOff = on(document, "visibilitychange", onDocVis);
+  var visSubs2 = /* @__PURE__ */ new Set();
+  var visOff2 = null;
+  var onDocVis2 = () => visSubs2.forEach((fn) => fn(document.hidden));
+  var subVis2 = (fn) => {
+    visSubs2.add(fn);
+    if (!visOff2) visOff2 = on(document, "visibilitychange", onDocVis2);
     return () => {
-      visSubs.delete(fn);
-      if (!visSubs.size && visOff) {
-        visOff();
-        visOff = null;
+      visSubs2.delete(fn);
+      if (!visSubs2.size && visOff2) {
+        visOff2();
+        visOff2 = null;
       }
     };
   };
@@ -1355,74 +2291,74 @@
         el.style.position = "relative";
         restorePos = true;
       }
-      const cv = document.createElement("canvas");
-      cv.className = "efx-particles__canvas";
-      cv.setAttribute("aria-hidden", "true");
-      el.insertBefore(cv, el.firstChild);
-      const ctx = cv.getContext("2d");
+      const cv2 = document.createElement("canvas");
+      cv2.className = "efx-particles__canvas";
+      cv2.setAttribute("aria-hidden", "true");
+      el.insertBefore(cv2, el.firstChild);
+      const ctx2 = cv2.getContext("2d");
       const motion = motionOK();
       const colors = o.color ? splitColors(o.color) : [];
       if (!colors.length) colors.push(themeColor(el));
       const sp = o.speed / 100;
-      let w = 0, h = 0, dpr = 1, ps = [], raf = 0, vis = true, hidden = document.hidden;
+      let w = 0, h = 0, dpr2 = 1, ps2 = [], raf2 = 0, vis = true, hidden = document.hidden;
       const ptr = { x: -1e4, y: -1e4 };
-      const rnd = (a, b) => a + Math.random() * (b - a);
+      const rnd2 = (a, b) => a + Math.random() * (b - a);
       const seed = () => {
-        dpr = Math.min(devicePixelRatio || 1, 1.5);
+        dpr2 = Math.min(devicePixelRatio || 1, 1.5);
         w = el.clientWidth;
         h = el.clientHeight;
-        cv.width = w * dpr;
-        cv.height = h * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cv2.width = w * dpr2;
+        cv2.height = h * dpr2;
+        ctx2.setTransform(dpr2, 0, 0, dpr2, 0, 0);
         const n = Math.min(o.count, Math.round(w * h / 14e3));
-        ps = Array.from({ length: n }, () => ({
-          x: rnd(0, w),
-          y: rnd(0, h),
-          vx: rnd(-0.5, 0.5) * sp,
-          vy: rnd(-0.5, 0.5) * sp,
-          r: rnd(o.sizeMin, o.sizeMax),
+        ps2 = Array.from({ length: n }, () => ({
+          x: rnd2(0, w),
+          y: rnd2(0, h),
+          vx: rnd2(-0.5, 0.5) * sp,
+          vy: rnd2(-0.5, 0.5) * sp,
+          r: rnd2(o.sizeMin, o.sizeMax),
           c: colors[Math.random() * colors.length | 0]
         }));
-        draw();
+        draw2();
       };
-      const draw = () => {
-        ctx.clearRect(0, 0, w, h);
-        ctx.globalAlpha = o.opacity;
-        for (const p of ps) {
-          ctx.fillStyle = p.c;
-          ctx.beginPath();
-          if (o.shape === "square") ctx.rect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+      const draw2 = () => {
+        ctx2.clearRect(0, 0, w, h);
+        ctx2.globalAlpha = o.opacity;
+        for (const p of ps2) {
+          ctx2.fillStyle = p.c;
+          ctx2.beginPath();
+          if (o.shape === "square") ctx2.rect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
           else if (o.shape === "triangle") {
-            ctx.moveTo(p.x, p.y - p.r * 1.3);
-            ctx.lineTo(p.x + p.r * 1.2, p.y + p.r);
-            ctx.lineTo(p.x - p.r * 1.2, p.y + p.r);
-            ctx.closePath();
-          } else ctx.arc(p.x, p.y, p.r, 0, 6.2832);
-          ctx.fill();
+            ctx2.moveTo(p.x, p.y - p.r * 1.3);
+            ctx2.lineTo(p.x + p.r * 1.2, p.y + p.r);
+            ctx2.lineTo(p.x - p.r * 1.2, p.y + p.r);
+            ctx2.closePath();
+          } else ctx2.arc(p.x, p.y, p.r, 0, 6.2832);
+          ctx2.fill();
         }
         if (o.links || o.interact === "connect") {
-          const L = o.linkDistance, nodes = o.interact === "connect" && ptr.x > -1e3 ? ps.concat({ x: ptr.x, y: ptr.y, c: colors[0] }) : ps;
-          ctx.lineWidth = 1;
+          const L = o.linkDistance, nodes = o.interact === "connect" && ptr.x > -1e3 ? ps2.concat({ x: ptr.x, y: ptr.y, c: colors[0] }) : ps2;
+          ctx2.lineWidth = 1;
           for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
             const a = nodes[i], b = nodes[j], d = Math.hypot(a.x - b.x, a.y - b.y);
-            if (d < L && (o.links || j === ps.length)) {
-              ctx.globalAlpha = (1 - d / L) * 0.6 * o.opacity;
-              ctx.strokeStyle = a.c;
-              ctx.beginPath();
-              ctx.moveTo(a.x, a.y);
-              ctx.lineTo(b.x, b.y);
-              ctx.stroke();
+            if (d < L && (o.links || j === ps2.length)) {
+              ctx2.globalAlpha = (1 - d / L) * 0.6 * o.opacity;
+              ctx2.strokeStyle = a.c;
+              ctx2.beginPath();
+              ctx2.moveTo(a.x, a.y);
+              ctx2.lineTo(b.x, b.y);
+              ctx2.stroke();
             }
           }
         }
-        ctx.globalAlpha = 1;
+        ctx2.globalAlpha = 1;
       };
       const step = () => {
-        raf = 0;
+        raf2 = 0;
         const R = o.interactRadius, push = o.interact === "repel" ? 1 : o.interact === "attract" ? -1 : 0;
-        for (const p of ps) {
-          p.vx = (p.vx + rnd(-0.02, 0.02) * sp) * 0.99;
-          p.vy = (p.vy + rnd(-0.02, 0.02) * sp) * 0.99;
+        for (const p of ps2) {
+          p.vx = (p.vx + rnd2(-0.02, 0.02) * sp) * 0.99;
+          p.vy = (p.vy + rnd2(-0.02, 0.02) * sp) * 0.99;
           if (push) {
             const dx = p.x - ptr.x, dy = p.y - ptr.y, d = Math.hypot(dx, dy);
             if (d < R && d > 1) {
@@ -1438,11 +2374,11 @@
           if (p.y < 0) p.y = h;
           else if (p.y > h) p.y = 0;
         }
-        draw();
+        draw2();
         go();
       };
       const go = () => {
-        if (motion && vis && !hidden && !raf) raf = requestAnimationFrame(step);
+        if (motion && vis && !hidden && !raf2) raf2 = requestAnimationFrame(step);
       };
       const offs = [];
       seed();
@@ -1451,15 +2387,15 @@
           vis = v;
           if (v) go();
           else {
-            cancelAnimationFrame(raf);
-            raf = 0;
+            cancelAnimationFrame(raf2);
+            raf2 = 0;
           }
         }));
-        offs.push(subVis((h2) => {
+        offs.push(subVis2((h2) => {
           hidden = h2;
           if (hidden) {
-            cancelAnimationFrame(raf);
-            raf = 0;
+            cancelAnimationFrame(raf2);
+            raf2 = 0;
           } else go();
         }));
         if (o.interact !== "none" && finePointer()) {
@@ -1490,12 +2426,12 @@
         ro.observe(el);
       }
       return () => {
-        cancelAnimationFrame(raf);
-        raf = 0;
+        cancelAnimationFrame(raf2);
+        raf2 = 0;
         vis = false;
         offs.forEach((f2) => f2());
         ro && ro.disconnect();
-        cv.remove();
+        cv2.remove();
         if (restorePos) el.style.position = "";
       };
     }
@@ -1815,6 +2751,106 @@
     }
   };
 
+  // src/features/scramble.js
+  var scramble_default = {
+    name: "scramble",
+    selector: ".efx-scramble",
+    defaults: { trigger: "view", chars: "!<>-_\\/[]{}\u2014=+*^?#________", speed: 30, duration: 900, once: true, words: [], pause: 2e3 },
+    init(el, o) {
+      const saved = el.innerHTML;
+      const words = o.words.length ? o.words : [el.textContent.trim()];
+      const cycle = o.words.length > 1;
+      if (!motionOK()) {
+        if (o.words.length) el.textContent = words[0];
+        return () => {
+          el.innerHTML = saved;
+        };
+      }
+      const mk = (c) => {
+        const s = document.createElement("span");
+        s.className = c;
+        return s;
+      };
+      const sr = mk("efx-scramble__sr"), vis = mk("efx-scramble__v");
+      vis.setAttribute("aria-hidden", "true");
+      el.textContent = "";
+      el.append(sr, vis);
+      const pool = [...o.chars || "#"];
+      vis.style.minWidth = Math.max(...words.map((w) => w.length)) + "ch";
+      let cur = words[0], tm = 0, running = false, played = false, i = 0;
+      const show2 = (t) => {
+        vis.textContent = t;
+      };
+      const set = (t) => {
+        cur = t;
+        sr.textContent = t;
+        show2(t);
+      };
+      set(cur);
+      const run = (to, done) => {
+        clearTimeout(tm);
+        running = true;
+        const from = cur, len = Math.max(from.length, to.length), t0 = performance.now();
+        const step = () => {
+          const p = Math.min(1, (performance.now() - t0) / Math.max(1, o.duration));
+          let out = "";
+          for (let k = 0; k < len; k++) {
+            const c = to[k] || "", lock = (k + 1) / len * 0.85;
+            out += p >= 1 || p >= lock ? c : c === " " ? " " : pool[Math.random() * pool.length | 0];
+          }
+          show2(out);
+          if (p < 1) tm = setTimeout(step, o.speed);
+          else {
+            running = false;
+            set(to);
+            done && done();
+          }
+        };
+        sr.textContent = to;
+        step();
+      };
+      const play = () => {
+        if (!running) run(words[0]);
+      };
+      const offs = [];
+      let stopVis = () => {
+      }, seen = true;
+      if (cycle) {
+        const next = () => {
+          i = (i + 1) % words.length;
+          run(words[i], () => {
+            tm = setTimeout(next, o.pause);
+          });
+        };
+        stopVis = onVisible(el, (v) => {
+          seen = v;
+          clearTimeout(tm);
+          if (v && !running) tm = setTimeout(next, o.pause);
+        });
+      } else if (o.trigger === "hover") offs.push(on(el, "pointerenter", play), on(el, "focus", play));
+      else if (o.trigger === "click") offs.push(on(el, "click", play));
+      else if (o.trigger === "load") play();
+      else {
+        stopVis = onVisible(el, (v) => {
+          if (!v) {
+            if (!o.once) played = false;
+            return;
+          }
+          if (played) return;
+          played = true;
+          play();
+          if (o.once) stopVis();
+        });
+      }
+      return () => {
+        clearTimeout(tm);
+        stopVis();
+        offs.forEach((f2) => f2());
+        el.innerHTML = saved;
+      };
+    }
+  };
+
   // src/features/scrollspy.js
   var byHash = (h) => {
     let id = h.slice(1);
@@ -1876,6 +2912,186 @@
           l.classList.remove(o.activeClass);
           l.removeAttribute("aria-current");
         });
+      };
+    }
+  };
+
+  // src/features/scrub.js
+  var NEUTRAL = { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, blur: 0 };
+  var parse = (s) => {
+    const o = {};
+    String(s).split(/[\s;,]+/).forEach((t) => {
+      const [k, v] = t.split(":"), n = parseFloat(v);
+      if (k in NEUTRAL && Number.isFinite(n)) o[k] = n;
+    });
+    return o;
+  };
+  var EASE = { linear: (t) => t, in: (t) => t * t, out: (t) => 1 - (1 - t) * (1 - t), inout: (t) => t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t) };
+  var scrub_default = {
+    name: "scrub",
+    selector: ".efx-scrub",
+    defaults: { from: "", to: "", start: 0, end: 1, ease: "linear", x: 0, y: 0, rotate: 0, scale: 1, opacity: -1, blur: 0 },
+    init(el, o) {
+      if (!motionOK()) return;
+      const A = { ...NEUTRAL, ...parse(o.from) };
+      const B = { ...NEUTRAL, x: o.x, y: o.y, rotate: o.rotate, scale: o.scale, blur: o.blur, ...o.opacity >= 0 ? { opacity: o.opacity } : {}, ...parse(o.to) };
+      const ease = EASE[o.ease] || EASE.linear, span = o.end - o.start || 1;
+      const s = el.style, saved = [s.translate, s.rotate, s.scale, s.opacity, s.filter, s.transition, s.willChange, s.getPropertyValue("--efx-p")];
+      const use = (k) => A[k] !== B[k];
+      const moves = use("x") || use("y"), turns = use("rotate"), zooms = use("scale"), fades = use("opacity"), blurs = use("blur");
+      s.transition = "none";
+      s.willChange = "transform, opacity";
+      let ty = 0, sc = A.scale;
+      const stop = onScroll((y, vh) => {
+        const r = el.getBoundingClientRect();
+        const h0 = r.height / (sc || 1), top0 = r.top - ty - h0 * (1 - sc) / 2;
+        const q = ease(Math.min(1, Math.max(0, ((vh - top0) / (vh + h0) - o.start) / span)));
+        const v = (k) => A[k] + (B[k] - A[k]) * q;
+        return () => {
+          ty = v("y");
+          sc = v("scale");
+          s.setProperty("--efx-p", q.toFixed(3));
+          if (moves) s.translate = `${v("x").toFixed(1)}px ${ty.toFixed(1)}px`;
+          if (turns) s.rotate = v("rotate").toFixed(2) + "deg";
+          if (zooms) s.scale = sc.toFixed(3);
+          if (fades) s.opacity = v("opacity").toFixed(3);
+          if (blurs) s.filter = `blur(${Math.max(0, v("blur")).toFixed(1)}px)`;
+        };
+      });
+      return () => {
+        stop();
+        [s.translate, s.rotate, s.scale, s.opacity, s.filter, s.transition, s.willChange] = saved;
+        saved[7] ? s.setProperty("--efx-p", saved[7]) : s.removeProperty("--efx-p");
+      };
+    }
+  };
+
+  // src/features/sequence.js
+  var sequence_default = {
+    name: "sequence",
+    selector: ".efx-sequence",
+    lazy: true,
+    defaults: { src: "", list: [], frames: 0, pad: 0, start: 1, height: 300, fit: "cover" },
+    init(el, o) {
+      const anim = motionOK(), video = el.tagName === "VIDEO";
+      const host = document.createElement("div");
+      host.className = "efx-sequence__track";
+      let canvas, ctx2, ro, parent, saved, pump = () => {
+      }, stop;
+      const prog = (r, vh) => Math.min(1, Math.max(0, -r.top / (r.height - vh || 1)));
+      if (video) {
+        parent = el.parentNode;
+        saved = [el.className, el.style.cssText];
+        parent.insertBefore(host, el);
+        host.appendChild(el);
+        el.style.objectFit = o.fit;
+        el.pause();
+        const seek = (t) => {
+          if (el.duration && Math.abs(el.currentTime - t) > 0.03) el.currentTime = t;
+        };
+        if (!anim) {
+          host.classList.add("efx-sequence-static");
+          el.addEventListener("loadedmetadata", () => seek(0.01), { once: true });
+        } else {
+          host.style.height = o.height + "vh";
+          el.classList.add("efx-sequence-on");
+          let p = 0;
+          const sync = () => seek(p * (el.duration || 0));
+          el.addEventListener("loadedmetadata", sync);
+          stop = onScroll((y, vh) => {
+            p = prog(host.getBoundingClientRect(), vh);
+            return sync;
+          });
+          const un = stop;
+          stop = () => {
+            un();
+            el.removeEventListener("loadedmetadata", sync);
+          };
+        }
+      } else {
+        const urls = o.list.length ? o.list : Array.from({ length: o.frames }, (_, i) => o.src.replace("{i}", String(o.start + i).padStart(o.pad, "0")));
+        const n = urls.length;
+        if (!n) return;
+        const imgs = [], req = /* @__PURE__ */ new Set();
+        let active = 0, want = 0, drawn = -1;
+        const pin = document.createElement("div");
+        pin.className = "efx-sequence__pin";
+        pin.setAttribute("aria-hidden", "true");
+        canvas = document.createElement("canvas");
+        pin.appendChild(canvas);
+        el.appendChild(pin);
+        ctx2 = canvas.getContext("2d");
+        if (anim) {
+          el.style.height = o.height + "vh";
+          el.classList.add("efx-sequence-on");
+        }
+        const draw2 = () => {
+          let k = -1;
+          for (let d = 0; d < n && k < 0; d++) k = imgs[want - d] ? want - d : imgs[want + d] ? want + d : -1;
+          if (k < 0 || k === drawn && canvas.dataset.w === canvas.width + "x" + canvas.height) return;
+          const im = imgs[k], cw = canvas.width, ch = canvas.height;
+          const s = (o.fit === "contain" ? Math.min : Math.max)(cw / im.naturalWidth, ch / im.naturalHeight);
+          ctx2.clearRect(0, 0, cw, ch);
+          ctx2.drawImage(im, (cw - im.naturalWidth * s) / 2, (ch - im.naturalHeight * s) / 2, im.naturalWidth * s, im.naturalHeight * s);
+          drawn = k;
+          canvas.dataset.w = cw + "x" + ch;
+        };
+        pump = () => {
+          while (active < 6) {
+            let k = -1;
+            const free = (i) => i >= 0 && i < n && !imgs[i] && !req.has(i);
+            for (let d = 0; d < n && k < 0; d++) k = free(want + d) ? want + d : free(want - d) ? want - d : -1;
+            if (k < 0) return;
+            req.add(k);
+            active++;
+            const im = new Image();
+            im.onload = () => {
+              imgs[k] = im;
+              active--;
+              draw2();
+              pump();
+            };
+            im.onerror = () => {
+              active--;
+              pump();
+            };
+            im.src = urls[k];
+          }
+        };
+        const size = () => {
+          const d = Math.min(devicePixelRatio || 1, 2), r = pin.getBoundingClientRect();
+          canvas.width = Math.max(1, Math.round(r.width * d));
+          canvas.height = Math.max(1, Math.round(r.height * d));
+          draw2();
+        };
+        if (typeof ResizeObserver !== "undefined") {
+          ro = new ResizeObserver(size);
+          ro.observe(pin);
+        } else size();
+        const goto = (p) => {
+          want = Math.min(n - 1, Math.max(0, Math.round(p * (n - 1))));
+          pump();
+          draw2();
+        };
+        if (anim) stop = onScroll((y, vh) => {
+          const p = prog(el.getBoundingClientRect(), vh);
+          return () => goto(p);
+        });
+        else goto(0);
+      }
+      return () => {
+        stop && stop();
+        ro && ro.disconnect();
+        if (video) {
+          parent.insertBefore(el, host);
+          host.remove();
+          el.className = saved[0];
+          el.style.cssText = saved[1];
+        } else {
+          el.querySelector(":scope > .efx-sequence__pin").remove();
+          el.style.height = "";
+          el.classList.remove("efx-sequence-on");
+        }
       };
     }
   };
@@ -1978,6 +3194,44 @@
     }
   };
 
+  // src/features/stack.js
+  var stack_default = {
+    name: "stack",
+    selector: ".efx-stack",
+    defaults: { offset: 80, gap: 16, shrink: 0.05, blur: 0, dim: 0.15 },
+    init(el, o) {
+      const cards = [...el.children], anim = motionOK();
+      const saved = cards.map((c) => [c.style.position, c.style.top, c.style.transformOrigin, c.style.scale, c.style.filter, c.style.willChange]);
+      cards.forEach((c, i) => {
+        c.style.position = "sticky";
+        c.style.top = o.offset + i * o.gap + "px";
+        if (anim) {
+          c.style.transformOrigin = "50% 0";
+          c.style.willChange = "scale";
+        }
+      });
+      const fx = o.blur || o.dim;
+      const stop = anim && cards.length > 1 && onScroll(() => {
+        const tops = cards.map((c) => c.getBoundingClientRect().top);
+        const q = cards.map((c, j) => j ? 1 - Math.min(1, Math.max(0, (tops[j] - (o.offset + j * o.gap)) / (cards[j - 1].offsetHeight || 1))) : 0);
+        return () => {
+          let sum = 0;
+          for (let i = cards.length - 1; i >= 0; i--) {
+            cards[i].style.scale = (1 - o.shrink * sum).toFixed(4);
+            if (fx) cards[i].style.filter = sum ? `${o.blur ? `blur(${(o.blur * Math.min(sum, 1)).toFixed(1)}px) ` : ""}brightness(${(1 - o.dim * Math.min(sum, 1)).toFixed(3)})` : "";
+            sum += q[i];
+          }
+        };
+      });
+      return () => {
+        stop && stop();
+        cards.forEach((c, i) => {
+          [c.style.position, c.style.top, c.style.transformOrigin, c.style.scale, c.style.filter, c.style.willChange] = saved[i];
+        });
+      };
+    }
+  };
+
   // src/features/sticky.js
   var sticky_default = {
     name: "sticky",
@@ -2014,6 +3268,67 @@
         offF && offF();
         el.classList.remove("is-stuck", "is-hidden", "is-shrunk", "efx-sticky-anim");
         el.style.top = top;
+      };
+    }
+  };
+
+  // src/features/textfill.js
+  var textfill_default = {
+    name: "textfill",
+    selector: ".efx-textfill",
+    defaults: { start: 0.8, end: 0.3, by: "word", dim: 0.2, color: "" },
+    init(el, o) {
+      if (!motionOK()) return;
+      const text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      if (!text) return;
+      const saved = el.innerHTML, st = el.style;
+      const letters = o.by === "letter" && text.length <= 600;
+      const spans = [];
+      const piece = (t) => {
+        const s = document.createElement("span");
+        s.className = "efx-textfill__p";
+        s.textContent = t;
+        spans.push(s);
+        return s;
+      };
+      const frag = document.createDocumentFragment();
+      text.split(" ").forEach((w, k) => {
+        if (k) frag.append(" ");
+        if (!letters) return frag.append(piece(w));
+        const wrap = document.createElement("span");
+        wrap.className = "efx-textfill__w";
+        [...w].forEach((c) => wrap.append(piece(c)));
+        frag.append(wrap);
+      });
+      const sr = document.createElement("span");
+      sr.className = "efx-textfill__sr";
+      sr.textContent = text;
+      const pieces = document.createElement("span");
+      pieces.className = "efx-textfill__pieces";
+      pieces.setAttribute("aria-hidden", "true");
+      pieces.append(frag);
+      el.textContent = "";
+      el.append(sr, pieces);
+      const prev = [st.getPropertyValue("--efx-textfill-dim"), st.getPropertyValue("--efx-textfill-color")];
+      if (el.dataset.efxDim !== void 0) st.setProperty("--efx-textfill-dim", o.dim);
+      if (o.color) st.setProperty("--efx-textfill-color", o.color);
+      const n = spans.length, last = [];
+      const stop = onScroll((y, vh) => {
+        const r = el.getBoundingClientRect();
+        const a = o.start * vh, p = (a - r.top) / (a - o.end * vh + r.height || 1);
+        return () => spans.forEach((s, i) => {
+          const f2 = Math.round(Math.min(1, Math.max(0, p * n - i)) * 20) / 20;
+          if (last[i] !== f2) {
+            last[i] = f2;
+            s.style.setProperty("--f", f2);
+          }
+        });
+      });
+      return () => {
+        stop();
+        el.innerHTML = saved;
+        prev[0] ? st.setProperty("--efx-textfill-dim", prev[0]) : st.removeProperty("--efx-textfill-dim");
+        prev[1] ? st.setProperty("--efx-textfill-color", prev[1]) : st.removeProperty("--efx-textfill-color");
       };
     }
   };
@@ -2126,6 +3441,154 @@
     }
   };
 
+  // src/features/trail.js
+  var subs3 = /* @__PURE__ */ new Set();
+  var docOff4 = null;
+  var subscribe3 = (fn) => {
+    subs3.add(fn);
+    if (!docOff4) docOff4 = on(document, "pointermove", (e) => subs3.forEach((f2) => f2(e)), { passive: true });
+    return () => {
+      subs3.delete(fn);
+      if (!subs3.size && docOff4) {
+        docOff4();
+        docOff4 = null;
+      }
+    };
+  };
+  var posRef = /* @__PURE__ */ new WeakMap();
+  var hold = (el) => {
+    const n = posRef.get(el) || 0;
+    if (!n && getComputedStyle(el).position === "static") {
+      el.style.position = "relative";
+      posRef.set(el, 1);
+    } else if (posRef.has(el)) posRef.set(el, n + 1);
+  };
+  var release = (el) => {
+    const n = posRef.get(el);
+    if (!n) return;
+    if (n === 1) {
+      el.style.position = "";
+      posRef.delete(el);
+    } else posRef.set(el, n - 1);
+  };
+  var trail_default = {
+    name: "trail",
+    selector: ".efx-trail",
+    defaults: { images: [], spacing: 80, life: 900, size: 140, rotate: 12, max: 12, shape: "", mode: "trail" },
+    init(el, o) {
+      if (!finePointer() || !motionOK()) return;
+      hold(el);
+      const layer = document.createElement("div");
+      layer.className = "efx-trail__layer";
+      layer.setAttribute("aria-hidden", "true");
+      el.append(layer);
+      const hover = o.mode === "hover";
+      const rnd2 = (d) => (Math.random() * 2 - 1) * d;
+      const mkItem = () => {
+        const n = document.createElement("div");
+        n.className = "efx-trail__item";
+        n.setAttribute("aria-hidden", "true");
+        layer.append(n);
+        return n;
+      };
+      let unsub = null, stopVis = () => {
+      };
+      let cleanupMode;
+      if (hover) {
+        const pv = mkItem();
+        pv.classList.add("efx-trail__item--preview");
+        pv.style.setProperty("--efx-trail-size", o.size + "px");
+        let on_ = false;
+        const handle = (e) => {
+          const r = el.getBoundingClientRect(), t = e.target.closest && e.target.closest("[data-efx-image]");
+          const src = t && el.contains(t) ? t.dataset.efxImage : "";
+          if (!src) {
+            if (on_) {
+              on_ = false;
+              pv.classList.remove("is-on");
+            }
+            return;
+          }
+          if (pv.dataset.src !== src) {
+            pv.dataset.src = src;
+            pv.style.backgroundImage = 'url("' + src.replace(/["\\]/g, "") + '")';
+          }
+          pv.style.translate = e.clientX - r.left + "px " + (e.clientY - r.top) + "px";
+          if (!on_) {
+            on_ = true;
+            pv.classList.add("is-on");
+          }
+        };
+        const offLeave = on(el, "pointerleave", () => {
+          on_ = false;
+          pv.classList.remove("is-on");
+        });
+        stopVis = onVisible(el, (v) => {
+          if (v && !unsub) unsub = subscribe3(handle);
+          else if (!v && unsub) {
+            unsub();
+            unsub = null;
+            pv.classList.remove("is-on");
+          }
+        });
+        cleanupMode = offLeave;
+      } else {
+        const imgs = o.images, pool = [], shape = imgs.length ? "" : o.shape || "dot";
+        let k = 0, last = null;
+        const spawn = (x, y) => {
+          let n = pool[k];
+          if (!n) {
+            n = pool[k] = mkItem();
+          }
+          k = (k + 1) % Math.max(1, o.max);
+          if (n._a) n._a.cancel();
+          n.className = "efx-trail__item" + (shape ? " efx-trail__item--" + shape.split(":")[0] : "");
+          n.style.width = n.style.height = o.size + "px";
+          n.style.backgroundImage = "";
+          n.textContent = "";
+          if (imgs.length) n.style.backgroundImage = 'url("' + imgs[Math.random() * imgs.length | 0].replace(/["\\]/g, "") + '")';
+          else if (shape.startsWith("emoji:")) {
+            n.textContent = shape.slice(6) || "\u2728";
+            n.style.fontSize = o.size * 0.5 + "px";
+          }
+          const t = "translate(" + x + "px," + y + "px) translate(-50%,-50%) rotate(" + rnd2(o.rotate).toFixed(1) + "deg)";
+          n._a = n.animate([
+            { opacity: 0, transform: t + " scale(.6)" },
+            { opacity: 1, transform: t + " scale(1)", offset: 0.2 },
+            { opacity: 0, transform: t + " scale(.3)" }
+          ], { duration: o.life, easing: "ease-out", fill: "both" });
+        };
+        const handle = (e) => {
+          const r = el.getBoundingClientRect();
+          if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) {
+            last = null;
+            return;
+          }
+          const x = e.clientX - r.left, y = e.clientY - r.top;
+          if (last && Math.hypot(x - last.x, y - last.y) < o.spacing) return;
+          last = { x, y };
+          spawn(x, y);
+        };
+        stopVis = onVisible(el, (v) => {
+          if (v && !unsub) unsub = subscribe3(handle);
+          else if (!v && unsub) {
+            unsub();
+            unsub = null;
+            last = null;
+          }
+        });
+        cleanupMode = () => pool.forEach((n) => n._a && n._a.cancel());
+      }
+      return () => {
+        stopVis();
+        unsub && unsub();
+        cleanupMode && cleanupMode();
+        layer.remove();
+        release(el);
+      };
+    }
+  };
+
   // src/features/typed.js
   var typed_default = {
     name: "typed",
@@ -2217,8 +3680,68 @@
     }
   };
 
+  // src/features/zoom.js
+  var zoom_default = {
+    name: "zoom",
+    selector: ".efx-zoom",
+    defaults: { scale: 2.5, size: 160, shape: "circle" },
+    init(el, o) {
+      const img = el.querySelector("img");
+      if (!img || !finePointer()) return;
+      let restorePos = false;
+      if (getComputedStyle(el).position === "static") {
+        el.style.position = "relative";
+        restorePos = true;
+      }
+      const inner = o.shape === "inner";
+      const lens = document.createElement("div");
+      lens.className = "efx-zoom__lens";
+      lens.setAttribute("aria-hidden", "true");
+      lens.dataset.shape = o.shape;
+      if (!inner) lens.style.width = lens.style.height = o.size + "px";
+      else lens.style.borderRadius = getComputedStyle(img).borderRadius;
+      el.appendChild(lens);
+      el.classList.add("efx-zoom-on");
+      let loaded = false;
+      const move = (e) => {
+        const ir = img.getBoundingClientRect(), er = el.getBoundingClientRect();
+        const x = e.clientX - ir.left, y = e.clientY - ir.top;
+        if (x < 0 || y < 0 || x > ir.width || y > ir.height) return lens.classList.remove("is-on");
+        const lw = inner ? ir.width : o.size, lh = inner ? ir.height : o.size;
+        lens.style.left = ir.left - er.left + (inner ? 0 : x - lw / 2) + "px";
+        lens.style.top = ir.top - er.top + (inner ? 0 : y - lh / 2) + "px";
+        if (inner) {
+          lens.style.width = lw + "px";
+          lens.style.height = lh + "px";
+        }
+        lens.style.backgroundSize = ir.width * o.scale + "px " + ir.height * o.scale + "px";
+        lens.style.backgroundPosition = lw / 2 - x * o.scale + "px " + (lh / 2 - y * o.scale) + "px";
+        lens.classList.add("is-on");
+      };
+      const offs = [
+        on(el, "pointerenter", (e) => {
+          if (e.pointerType === "touch") return;
+          if (!loaded) {
+            loaded = true;
+            const u = img.dataset.efxFull || el.dataset.efxFull || img.currentSrc || img.src;
+            lens.style.backgroundImage = 'url("' + u.replace(/"/g, "%22") + '")';
+          }
+          move(e);
+        }),
+        on(el, "pointermove", (e) => e.pointerType !== "touch" && move(e)),
+        on(el, "pointerleave", () => lens.classList.remove("is-on"))
+      ];
+      return () => {
+        offs.forEach((f2) => f2());
+        lens.remove();
+        el.classList.remove("efx-zoom-on");
+        if (restorePos) el.style.position = "";
+      };
+    }
+  };
+
   // src/effix-entry.js
-  define(border_default, carousel_default, compare_default, copy_default, countdown_default, counter_default, cursor_default, divider_default, lightbox_default, magnetic_default, marquee_default, parallax_default, particles_default, popup_default, progress_default, reveal_default, ripple_default, schedule_default, scrollspy_default, split_default, spotlight_default, sticky_default, tilt_default, totop_default, typed_default);
+  define(ambient_default, border_default, carousel_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, direction_default, divider_default, drag_default, draw_default, hscroll_default, lightbox_default, magnetic_default, marquee_default, mouse_default, odometer_default, parallax_default, particles_default, popup_default, progress_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, totop_default, trail_default, typed_default, zoom_default);
   if (typeof window !== "undefined") window.Effix = core_default;
   autoBoot();
   var effix_entry_default = core_default;

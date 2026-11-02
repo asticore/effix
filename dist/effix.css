@@ -14,6 +14,10 @@
 [data-efx-reduce] [class*="efx-"]::before,
 [data-efx-reduce] [class*="efx-"]::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 
+/* ambient — canvas sits behind content; container becomes its own stacking context */
+.efx-ambient { isolation: isolate; } /* position:relative is added by JS only when the host is static */
+.efx-ambient__canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; display: block; }
+
 /* border — masked ring pseudo-element; only the border area shows */
 @property --efx-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 /* position:relative is added by border.js only when the element is statically positioned */
@@ -130,6 +134,21 @@
 .efx-cursor__dot.efx-cursor--blend { background: #fff; }
 .efx-cursor-hide, .efx-cursor-hide * { cursor: none !important; }
 
+/* direction — fill overlay revealed with clip-path from the entry edge (no overflow:hidden on the host) */
+.efx-direction-fill { isolation: isolate; } /* position:relative is added by JS only when the host is static */
+.efx-direction-fill::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  background: var(--efx-direction-color, color-mix(in srgb, var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))) 15%, transparent));
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--efx-direction-duration, 280ms) var(--efx-ease, cubic-bezier(.22, 1, .36, 1));
+}
+.efx-direction-fill[data-efx-from="right"]::before { clip-path: inset(0 0 0 100%); }
+.efx-direction-fill[data-efx-from="top"]::before { clip-path: inset(0 0 100% 0); }
+.efx-direction-fill[data-efx-from="bottom"]::before { clip-path: inset(100% 0 0 0); }
+.efx-direction-fill.is-hover::before { clip-path: inset(0); }
+.efx-direction-fill.efx-direction-snap::before { transition: none; }
+@media (prefers-reduced-motion: reduce) { .efx-direction-fill::before { transition: none; } }
+
 /* divider — svg inherits the next section's color via --sh-bg */
 .efx-divider { display: block; overflow: hidden; line-height: 0; pointer-events: none;
   color: var(--efx-divider-color, var(--sh-bg, #fff)); }
@@ -141,6 +160,26 @@
 @keyframes efx-div-drift { to { transform: translateX(-50%); } }
 @keyframes efx-div-float { to { transform: translateY(calc(var(--efx-dv-dir, -1) * 6%)); } }
 @media (prefers-reduced-motion: reduce) { .efx-divider__svg { animation: none !important; } }
+
+/* drag — grab cursors; text selection is suppressed only while dragging */
+.efx-drag-on { cursor: grab; }
+.efx-drag-on.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.efx-drag-on.is-dragging * { cursor: grabbing; }
+
+/* draw — keep dashed strokes crisp */
+.efx-draw path, .efx-draw line, .efx-draw polyline, .efx-draw polygon, .efx-draw circle, .efx-draw ellipse, .efx-draw rect { stroke-linecap: round; stroke-linejoin: round; }
+
+/* hscroll — layout only applies while JS has set efx-hscroll-on / efx-hscroll-native */
+.efx-hscroll-on > .efx-hscroll__pin { position: sticky; overflow: hidden; }
+.efx-hscroll-on .efx-hscroll__track { display: flex; width: max-content; height: 100%; }
+.efx-hscroll-on .efx-hscroll__track > :where(*) { flex: none; width: 100vw; }
+.efx-hscroll-native .efx-hscroll__track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+}
+.efx-hscroll-native .efx-hscroll__track > :where(*) { flex: none; width: 85vw; scroll-snap-align: center; }
 
 /* lightbox — layout inside Shine's .modal */
 .efx-lightbox a { cursor: zoom-in; }
@@ -172,6 +211,16 @@
 .efx-marquee.is-paused .efx-marquee__track { animation-play-state: paused; }
 .efx-marquee--static { display: flex; flex-wrap: wrap; gap: var(--efx-gap, 32px); }
 @keyframes efx-marquee { to { transform: translate3d(var(--efx-shift, -50%), 0, 0); } }
+
+/* odometer — digit strips roll via translateY; --n is the digit shown */
+.efx-odometer__v { display: inline-flex; font-variant-numeric: tabular-nums; line-height: 1.1; vertical-align: bottom; }
+.efx-odometer__d { display: inline-block; height: 1.1em; overflow: hidden; text-align: center; }
+.efx-odometer__s {
+  display: block; white-space: pre; line-height: 1.1;
+  transform: translateY(calc(var(--n, 0) * -10%));
+  transition: transform var(--efx-odo-duration, 1800ms) cubic-bezier(.22, 1, .36, 1);
+}
+.efx-odometer__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 
 /* parallax — injected background layer is oversized so movement never shows gaps */
 .efx-parallax__bg { position: absolute; inset: -20% 0; z-index: -1; pointer-events: none; }
@@ -223,9 +272,20 @@
 /* schedule — beat display utilities (.grid, .flex…) so [hidden] always hides */
 .efx-schedule[hidden] { display: none !important; }
 
+/* scramble */
+.efx-scramble__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.efx-scramble__v { display: inline-block; white-space: pre-wrap; }
+
 /* scrollspy — minimal default highlight; Shine nav styles can override */
 .efx-scrollspy a { transition: color .2s, background-color .2s, box-shadow .2s; }
 .efx-scrollspy a.is-active { color: var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); font-weight: 600; }
+
+/* sequence — pinned stage; layout only while efx-sequence-on is present */
+.efx-sequence__pin { width: 100%; height: 60vh; }
+.efx-sequence__pin > canvas { display: block; width: 100%; height: 100%; }
+.efx-sequence-on > .efx-sequence__pin { position: sticky; top: 0; height: 100vh; }
+video.efx-sequence-on { position: sticky; top: 0; display: block; width: 100%; height: 100vh; }
+.efx-sequence-static > video { display: block; width: 100%; max-height: 70vh; }
 
 /* split — pieces hidden only after JS claims the element */
 .efx-split__p { display: inline-block; white-space: pre; }
@@ -280,6 +340,14 @@
   .efx-sticky-anim { transition: none; }
 }
 
+/* textfill — pieces dim until filled (--f 0..1 set per piece by JS) */
+.efx-textfill__w { display: inline-block; white-space: nowrap; }
+.efx-textfill__p {
+  opacity: calc(var(--efx-textfill-dim, .2) + (1 - var(--efx-textfill-dim, .2)) * var(--f, 0));
+  color: var(--efx-textfill-color, inherit);
+}
+.efx-textfill__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
 /* tilt — only active while JS has added .is-tilt-active (pointer inside + short settle); idle elements keep their own transforms/transitions */
 .efx-tilt.is-tilt-active {
   transform: perspective(var(--efx-persp, 900px)) rotateX(var(--efx-rx, 0deg)) rotateY(var(--efx-ry, 0deg)) scale(1);
@@ -302,6 +370,17 @@
 .efx-totop:not([data-efx-fixed="false"]) { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 900; }
 .efx-totop.is-shown { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
 
+/* trail — clip layer + pooled items. Items are animated with the Web Animations API. */
+.efx-trail__layer { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+.efx-trail__item { position: absolute; left: 0; top: 0; opacity: 0; pointer-events: none; border-radius: var(--sh-radius, .5rem);
+  background: center / cover no-repeat; display: flex; align-items: center; justify-content: center; line-height: 1; }
+.efx-trail__item--dot { border-radius: 50%; background: var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); width: 1.5rem !important; height: 1.5rem !important; }
+.efx-trail__item--ring { border-radius: 50%; border: 2px solid var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); width: 2.5rem !important; height: 2.5rem !important; }
+.efx-trail__item--emoji { background: none; width: auto !important; height: auto !important; }
+.efx-trail__item--preview { --efx-trail-size: 220px; width: var(--efx-trail-size); height: calc(var(--efx-trail-size) * .7); margin: calc(var(--efx-trail-size) * -.35) 0 0 calc(var(--efx-trail-size) * -.5);
+  opacity: 0; scale: .85; transition: opacity .25s var(--efx-ease, ease), scale .25s var(--efx-ease, ease); }
+.efx-trail__item--preview.is-on { opacity: 1; scale: 1; }
+
 /* typed */
 .efx-typed__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .efx-typed__t { display: inline-block; white-space: pre; }
@@ -315,4 +394,15 @@
   background: currentColor; animation: efx-typed-blink 1s steps(1) infinite; }
 @keyframes efx-typed-blink { 50% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .efx-typed__cursor { animation: none; } }
+
+/* zoom — lens is an absolutely positioned div with the large image as background */
+.efx-zoom-on { cursor: crosshair; }
+.efx-zoom__lens {
+  position: absolute; z-index: 2; pointer-events: none; opacity: 0; background-repeat: no-repeat;
+  box-shadow: var(--sh-shadow-3, 0 4px 16px rgb(0 0 0 / .35)); border: 2px solid var(--sh-surface, #fff);
+  border-radius: var(--sh-radius, .5rem);
+}
+.efx-zoom__lens[data-shape="circle"] { border-radius: 50%; }
+.efx-zoom__lens[data-shape="inner"] { border: 0; box-shadow: none; }
+.efx-zoom__lens.is-on { opacity: 1; }
 }
