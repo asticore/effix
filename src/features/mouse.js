@@ -15,9 +15,10 @@ const subscribe = fn => {
 export default {
   name: 'mouse',
   selector: '.efx-mouse',
-  defaults: { strength: 20, scope: 'self', invert: false, rotate: 0, ease: 0.12 },
+  defaults: { strength: 20, scope: 'self', invert: false, rotate: 0, ease: 0.12, gyro: false },
   init(el, o) {
-    if (!finePointer() || !motionOK()) return;
+    const fine = finePointer(), gy = o.gyro && !fine && 'DeviceOrientationEvent' in window;
+    if (!(fine || gy) || !motionOK()) return;
     const found = [...el.querySelectorAll('[data-efx-depth]')];
     const layers = (found.length ? found : [el]).map(n => ({
       n, d: found.length ? parseFloat(n.dataset.efxDepth) || 0 : 1, x: 0, y: 0, r: 0,
@@ -45,8 +46,10 @@ export default {
       if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return go(0, 0);
       go((e.clientX - r.left) / (r.width || 1) * 2 - 1, (e.clientY - r.top) / (r.height || 1) * 2 - 1);
     };
+    // gyro (touch): device tilt drives the same -1..1 range. Never prompts; iOS needs page-level permission.
+    const orient = e => { if (e.beta != null) go(Math.max(-1, Math.min(1, e.gamma / 40)), Math.max(-1, Math.min(1, (e.beta - 45) / 40))); };
     const stopVis = onVisible(el, v => {
-      if (v && !unsub) unsub = subscribe(handle);
+      if (v && !unsub) unsub = fine ? subscribe(handle) : on(window, 'deviceorientation', orient, { passive: true });
       else if (!v && unsub) { unsub(); unsub = null; go(0, 0); }
     });
     return () => {

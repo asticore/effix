@@ -1,0 +1,7 @@
+/* proximity — pieces animate only via individual transform properties and only while active */
+.efx-proximity.is-proximity .efx-proximity__c,
+.efx-proximity.is-proximity [data-efx-item] { display: inline-block; will-change: scale, translate; transition: scale .12s ease-out, translate .12s ease-out, font-weight .12s ease-out; }
+.efx-proximity.is-proximity .efx-proximity__w { display: inline-block; white-space: nowrap; }
+.efx-proximity.has-pcolor .efx-proximity__c,
+.efx-proximity.has-pcolor [data-efx-item] { color: color-mix(in srgb, var(--efx-pcolor) calc(var(--efx-p, 0) * 100%), currentColor); }
+.efx-proximity__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

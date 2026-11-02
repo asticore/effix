@@ -12,5 +12,11 @@
 .efx-reveal-pending[data-efx-anim="zoom"] { transform: scale(.92); }
 .efx-reveal-pending[data-efx-anim="blur"] { filter: blur(10px); }
 .efx-reveal-pending[data-efx-anim="flip"] { transform: perspective(800px) rotateX(-25deg); transform-origin: top; }
-.efx-reveal-pending.is-in { opacity: 1; transform: none; filter: none; }
+.efx-reveal-pending[data-efx-anim="wipe-up"] { opacity: 1; clip-path: inset(100% 0 0 0); }
+.efx-reveal-pending[data-efx-anim="wipe-left"] { opacity: 1; clip-path: inset(0 0 0 100%); }
+.efx-reveal-pending[data-efx-anim="wipe-right"] { opacity: 1; clip-path: inset(0 100% 0 0); }
+.efx-reveal-pending[data-efx-anim="rise"] { transform: translateY(calc(var(--efx-distance) * 1.5)) rotate(2deg); transform-origin: left bottom; }
+.efx-reveal-pending[data-efx-anim="scale-down"] { transform: scale(1.12); }
+.efx-reveal-pending[data-efx-anim^="wipe"] { transition-property: clip-path; }
+.efx-reveal-pending.is-in { opacity: 1; transform: none; filter: none; clip-path: inset(0); }
 /* reduced motion: JS never adds .efx-reveal-pending, so content just shows */

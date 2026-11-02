@@ -12,6 +12,7 @@ module.exports = {
     ['data-efx-invert', 'false', 'Move with the pointer instead of against it.'],
     ['data-efx-rotate', '0', 'Max rotateZ in degrees per layer.'],
     ['data-efx-ease', '0.12', 'Smoothing per frame (0.01 slow – 1 instant).'],
+    ['data-efx-gyro', 'false', 'Touch devices: drive the layers from device tilt. Never prompts; on iOS it only works if your page already obtained motion permission.'],
     ['data-efx-depth', '', 'On a child layer: multiplier of strength (e.g. 0.2 far, 1 near, negative = opposite).'],
   ],
   vars: [],

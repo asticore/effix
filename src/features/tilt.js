@@ -5,9 +5,10 @@ import { on, rafThrottle, motionOK, finePointer } from '../core.js';
 export default {
   name: 'tilt',
   selector: '.efx-tilt',
-  defaults: { max: 10, perspective: 900, scale: 1.02, glare: false, reset: true },
+  defaults: { max: 10, perspective: 900, scale: 1.02, glare: false, reset: true, gyro: false },
   init(el, o) {
-    if (!finePointer() || !motionOK()) return;
+    const fine = finePointer(), gy = o.gyro && !fine && 'DeviceOrientationEvent' in window;
+    if (!(fine || gy) || !motionOK()) return;
     let restorePos = false;
     if (getComputedStyle(el).position === 'static') { el.style.position = 'relative'; restorePos = true; }
     el.style.setProperty('--efx-persp', o.perspective + 'px');
@@ -45,7 +46,15 @@ export default {
         settle = setTimeout(() => { el.classList.remove('is-tilt-active'); el.style.willChange = ''; }, 300);
       }
     };
-    const offs = [on(el, 'pointerenter', enter), on(el, 'pointermove', move), on(el, 'pointerleave', reset)];
+    const offs = fine ? [on(el, 'pointerenter', enter), on(el, 'pointermove', move), on(el, 'pointerleave', reset)] : [];
+    // gyro (touch): same vars from device tilt. Never prompts; on iOS events only flow once the page itself got permission.
+    if (gy) offs.push(on(window, 'deviceorientation', e => {
+      if (e.beta == null) return;
+      const k = v => Math.max(-1, Math.min(1, v / 40));
+      el.classList.add('is-tilt-active', 'is-tilting');
+      el.style.setProperty('--efx-ry', (k(e.gamma) * o.max).toFixed(2) + 'deg');
+      el.style.setProperty('--efx-rx', (-k(e.beta - 45) * o.max).toFixed(2) + 'deg');
+    }, { passive: true }));
     return () => {
       offs.forEach(f => f()); move.cancel();
       ['--efx-rx', '--efx-ry', '--efx-persp', '--efx-tscale'].forEach(v => el.style.removeProperty(v));

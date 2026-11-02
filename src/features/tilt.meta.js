@@ -13,6 +13,7 @@ module.exports = {
     ['data-efx-scale', '1.02', 'Scale while hovered.'],
     ['data-efx-glare', 'false', 'Add a light glare following the pointer.'],
     ['data-efx-reset', 'true', 'Ease back to flat when the pointer leaves.'],
+    ['data-efx-gyro', 'false', 'Touch devices: tilt with the phone (deviceorientation). Never prompts; on iOS it only works if your page already obtained motion permission.'],
   ],
   vars: [
     ['--efx-rx / --efx-ry', 'set by JS', 'Current rotation (read-only in practice).'],
