@@ -54,6 +54,7 @@ const entry = (feats, boot = true) => [
   `import api, { define, autoBoot } from './core.js';`,
   ...feats.map(f => `import ${ident(f)} from './${f.dir}/${f.name}.js';`),
   feats.length ? `define(${feats.map(ident).join(', ')});` : '',
+  feats.some(f => f.dir === 'charts') ? `import * as chartKit from './charts/_lib.js'; api.charts = chartKit;` : '',
   `if (typeof window !== 'undefined') window.Effix = api;`,
   boot ? `autoBoot();` : '',
   `export default api;`,
@@ -63,11 +64,13 @@ const entry = (feats, boot = true) => [
    which the plugin below maps to thin wrappers around the page's window.Effix. */
 const addonEntry = feats => [
   ...feats.map(f => `import ${ident(f)} from './${f.dir}/${f.name}.js';`),
+  `import * as chartKit from './charts/_lib.js';`,
   `const defs = [${feats.map(ident).join(', ')}];`,
+  `if (window.Effix) window.Effix.charts = chartKit; else window.EffixChartKit = chartKit;`,
   `if (window.Effix) window.Effix.define(defs);`,
   `else (window.EffixPending = window.EffixPending || []).push(...defs);`,
 ].join('\n');
-const CORE_API = ['define', 'init', 'destroy', 'refresh', 'observe', 'disconnect', 'options', 'isMounted', 'features',
+const CORE_API = ['define', 'init', 'destroy', 'refresh', 'observe', 'disconnect', 'options', 'isMounted', 'features', 'add', 'get', 'list', 'setData',
   'motionOK', 'finePointer', 'cssVar', 'themeColor', 'on', 'rafThrottle', 'onVisible', 'onScroll'];
 const useHostCore = {
   name: 'effix-host-core',

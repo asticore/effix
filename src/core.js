@@ -239,13 +239,38 @@ export function observe(target = doc && doc.body) {
 }
 export function disconnect() { if (mo) { mo.disconnect(); mo = null; } return api; }
 
+/* ------------------------------------------------------------ extensions */
+// Plugin registry: features look up named implementations by kind, so users can add
+// their own particle shapes, divider shapes, ambient modes, easings, chart formats…
+//   Effix.add('particle-shape', 'heart', (ctx, size) => { … })
+//   <div class="efx-particles" data-efx-shape="heart">
+const ext = new Map(); // kind -> Map(name -> impl)
+/** Register `impl` under `kind`/`name` (or an object of many: add(kind, { a, b })). Returns api. */
+export function add(kind, name, impl) {
+  if (!ext.has(kind)) ext.set(kind, new Map());
+  if (name && typeof name === 'object') for (const k in name) ext.get(kind).set(k, name[k]);
+  else ext.get(kind).set(name, impl);
+  return api;
+}
+/** Look up an implementation; undefined when missing. */
+export const get = (kind, name) => ext.get(kind)?.get(name);
+/** Names registered for a kind. */
+export const list = kind => [...(ext.get(kind)?.keys() || [])];
+
+/** Push new data into a chart, odometer or any feature that listens for `efx:data`. */
+export function setData(el, data) {
+  if (typeof el === 'string') el = doc && doc.querySelector(el);
+  if (el) el.dispatchEvent(new CustomEvent('efx:data', { detail: data }));
+  return api;
+}
+
 /** Instance check / feature list helpers. */
 export const isMounted = (el, name) => !!mounted.get(el)?.has(name);
 export const features = () => [...registry.keys()];
 
 export const api = {
   version: '__VERSION__',
-  define, init, destroy, refresh, observe, disconnect, options, isMounted, features,
+  define, init, destroy, refresh, observe, disconnect, options, isMounted, features, add, get, list, setData,
   motionOK, finePointer, cssVar, themeColor, on, rafThrottle, onVisible, onScroll,
 };
 
@@ -257,10 +282,14 @@ export function autoBoot() {
   // Add-on bundles (e.g. effix-charts) loaded before this file park their features here.
   const pending = (typeof window !== 'undefined' && window.EffixPending) || [];
   if (pending.length) define(pending.splice(0));
+  if (typeof window !== 'undefined' && window.EffixChartKit && !api.charts) api.charts = window.EffixChartKit;
+  // window.EffixConfig = { extend(Effix) { Effix.add(…) } } runs before the first scan.
+  if (typeof cfg.extend === 'function') { try { cfg.extend(api); } catch (err) { console.error('[effix] extend', err); } }
   if (cfg.auto === false || html.hasAttribute('data-efx-manual')) return;
   const go = () => {
     init();
     if (cfg.observe || html.hasAttribute('data-efx-observe')) observe();
+    doc.dispatchEvent(new CustomEvent('efx:ready', { detail: api }));
   };
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', go, { once: true });
   else go();

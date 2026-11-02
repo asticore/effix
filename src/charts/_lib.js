@@ -7,7 +7,7 @@
      draw(ctx) -> marks[]   ctx = { svg, w, h, data, colors, o, g(), add(), sx/sy helpers… }
      marks: [{ x, y, label, value, series, html?, node? }] — used for tooltip, keyboard
      focus (←/→) and the efx:select event. */
-import { onVisible, motionOK, on, rafThrottle } from '../core.js';
+import { onVisible, motionOK, on, rafThrottle, get } from '../core.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 
@@ -28,6 +28,7 @@ export const COMMON = {
   suffix: '',
   decimals: -1,      // -1 = auto
   compact: false,    // 12.3k
+  format: '',        // name of a registered formatter: Effix.add('format', 'gbp', v => '£' + v.toFixed(2))
   title: '',         // accessible name (falls back to aria-label / first heading)
 };
 
@@ -154,6 +155,8 @@ export { pt as polar };
 
 /* -------------------------------------------------------------- format */
 export function formatter(o) {
+  const custom = o.format && get('format', o.format);
+  if (typeof custom === 'function') return v => String(custom(v, o));
   const opts = o.compact ? { notation: 'compact', maximumFractionDigits: 1 } : {};
   if (o.decimals >= 0) { opts.minimumFractionDigits = o.decimals; opts.maximumFractionDigits = o.decimals; }
   let nf;

@@ -20,7 +20,7 @@ const B = n => sizes.bundles[n] || 0;
 const effectsKB = B('effix.min.js') + B('effix.min.css');
 const chartsKB = B('effix-charts.min.js') + B('effix-charts.min.css');
 
-const GROUPS = ['Scroll', 'Text', 'Buttons & borders', 'Background', 'Pointer', 'Sections', 'Components', 'Time', 'Charts'];
+const GROUPS = ['Scroll', 'Text', 'Buttons & borders', 'Background', 'Pointer', 'Sections', 'Components', 'Page', 'Time', 'Charts'];
 const found = DIRS.flatMap(dir => fs.readdirSync(dir).filter(f => /^[a-z][\w-]*\.js$/.test(f) && !f.endsWith('.meta.js')).map(f => ({ name: f.slice(0, -3), dir })));
 const names = found.map(f => f.name).sort();
 const dirOf = n => found.find(f => f.name === n).dir;
@@ -38,6 +38,9 @@ const feats = names.map(name => {
     group: m.group || 'Other',
     summary: m.summary || '',
     notes: m.notes || '',
+    dataFormat: m.dataFormat || '',
+    extend: (m.extend || []).map(r => row(r, ['kind', 'signature', 'desc'])),
+    extendExample: m.extendExample || '',
     classes: (m.classes || []).map(r => row(r, ['name', 'desc'])),
     options: (m.options || []).map(r => row(r, ['name', 'default', 'desc'])),
     vars: (m.vars || []).map(r => row(r, ['name', 'default', 'desc'])),
@@ -82,10 +85,13 @@ const featureSection = f => {
   </header>
   ${f.examples.map(ex => example(f, ex)).join('\n')}
   ${f.notes ? `<p class="text-sm m-0">${f.notes}</p>` : ''}
+  ${f.dataFormat ? `<div class="alert tone-info"><span class="alert-title">Data format</span><div class="stack gap-2 text-sm">${f.dataFormat}</div></div>` : ''}
   ${table(['Class', 'What it does'], f.classes)}
   ${table(['Attribute', 'Default', 'Values'], f.options, [0, 1])}
   ${table(['CSS variable', 'Default', 'Controls'], f.vars, [0, 1])}
   ${table(['Event', 'When'], f.events)}
+  ${f.extend.length ? `<h4 class="text-lg font-semibold m-0">Extend it</h4>${table(['Kind', 'Signature', 'What it is'], f.extend, [0, 1])}` : ''}
+  ${f.extendExample ? code(`ext-${f.name}`, f.extendExample) : ''}
 </section>`;
 };
 
@@ -109,6 +115,10 @@ const apiRows = [
   ['Effix.define(feature)', 'Register your own feature ({ name, selector, defaults, init }).'],
   ['Effix.features()', 'Names of the features in this build.'],
   ['Effix.isMounted(el, name)', 'Whether a feature is running on el.'],
+  ['Effix.setData(el | selector, data)', 'Push new data into a chart or odometer (fires efx:data). See Data input.'],
+  ['Effix.add(kind, name, impl)', 'Register a plugin: particle shape, divider shape, ambient mode, easing, chart format… See Extend.'],
+  ['Effix.get(kind, name) · Effix.list(kind)', 'Look up / list registered plugins.'],
+  ['Effix.charts', 'The chart toolkit (chart, COMMON, scales, nice, linePath, arcPath, s, axes…) for building your own chart types.'],
 ];
 const knobRows = [
   ['<html data-efx-manual>', 'Do not auto-start. Call Effix.init() yourself.'],
@@ -118,6 +128,57 @@ const knobRows = [
   ['data-efx-skip', 'On any element: observe() ignores nodes inside it.'],
   ['window.EffixConfig = { auto:false, observe:true }', 'Same switches from JS, set before the script loads.'],
 ];
+
+const DATA_SHAPE = `{
+  "labels": ["Mon", "Tue", "Wed"],          // x categories / slices / stages
+  "series": [
+    { "name": "Web",    "data": [12, 19, 7] },
+    { "name": "Mobile", "data": [9, 14, 11], "color": "#db2777" }   // color optional
+  ]
+}`;
+const DATA_WAYS = [
+  ['Attribute, comma list', 'Quickest. Separate series with <code>|</code>, name them with <code>data-efx-names</code>.', `<div class="efx-chart-bar"
+     data-efx-data="12,19,7|9,14,11"
+     data-efx-labels="Mon|Tue|Wed"
+     data-efx-names="Web|Mobile"></div>`],
+  ['Attribute, JSON', 'Any shape above. Wrap the attribute in single quotes so the JSON can use double quotes.', `<div class="efx-chart-line"
+     data-efx-data='{"labels":["Mon","Tue","Wed"],
+                     "series":[{"name":"Web","data":[12,19,7]}]}'></div>`],
+  ['Inline JSON script', 'Best for bigger data or server-rendered pages: put a JSON script inside the chart element.', `<div class="efx-chart-pie">
+  <script type="application/json">
+    { "labels": ["Organic", "Direct", "Social"],
+      "series": [{ "name": "Visits", "data": [4200, 2800, 900] }] }
+  </script>
+</div>`],
+  ['A Shine table', 'Keep one accessible table and chart it. First column = labels, header row = series names.', `<table class="table" id="sales">
+  <thead><tr><th>Month</th><th>2025</th><th>2026</th></tr></thead>
+  <tbody><tr><td>Jan</td><td>42</td><td>51</td></tr> …</tbody>
+</table>
+<div class="efx-chart-bar" data-efx-source="#sales"></div>`],
+  ['JavaScript', 'Load or update data at any time (API calls, live dashboards). Same shape as above.', `// any time after Effix has loaded
+Effix.setData('#sales-chart', {
+  labels: ['Jan', 'Feb', 'Mar'],
+  series: [{ name: 'Revenue', data: [42, 58, 51] }],
+});
+
+// e.g. from your API
+fetch('/api/sales').then(r => r.json())
+  .then(data => Effix.setData('#sales-chart', data));`],
+];
+const DATA_DEMO = `document.querySelector('#data-demo-btn').onclick = () =>
+  Effix.setData('#data-demo', {
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+    series: [
+      { name: 'Web',    data: Array.from({ length: 5 }, () => 5 + Math.round(Math.random() * 25)) },
+      { name: 'Mobile', data: Array.from({ length: 5 }, () => 5 + Math.round(Math.random() * 25)) },
+    ],
+  });`;
+const EXTEND_DEMO = fs.readFileSync(path.join(ROOT, 'docs', 'extend-demo.js'), 'utf8').trim();
+// Plugin kinds, collected from every feature's meta `extend` field.
+const EXT_KINDS = [];
+for (const f of feats) for (const [kind, sig] of f.extend) if (!EXT_KINDS.some(r => r[0] === kind)) EXT_KINDS.push([kind, f.title, sig]);
+EXT_KINDS.push(['format', 'All charts (data-efx-format)', '(value, options) => string']);
+EXT_KINDS.push(['Effix.define', 'Your own feature or chart type', '{ name, selector, lazy?, defaults, init(el, opts) → cleanup }']);
 
 const toc = groups.map(g => `<li><span class="text-xs font-semibold uppercase text-muted">${esc(g)}</span><ul class="stack gap-1 mt-1">${feats.filter(f => f.group === g).map(f => `<li><a href="#f-${f.name}">${esc(f.title)}</a></li>`).join('')}</ul></li>`).join('\n');
 
@@ -143,6 +204,9 @@ const html = `<!doctype html>
 @media (min-width:1024px){.sticky-lg{position:sticky;top:5rem;align-self:start}.scroll-lg{max-block-size:calc(100vh - 7rem);overflow:auto}}
 .feature{scroll-margin-top:5rem}
 </style>
+<script>
+${EXTEND_DEMO}
+</script>
 <script defer src="../dist/effix.all.min.js"></script>
 <script defer src="portal.js"></script>
 </head>
@@ -158,6 +222,8 @@ const html = `<!doctype html>
       <li><a href="#how">How it works</a></li>
       <li><a href="#build">Custom build</a></li>
       <li><a href="#editors">Editors &amp; API</a></li>
+      <li><a href="#data">Data</a></li>
+      <li><a href="#extend">Extend</a></li>
       <li><a href="#features">Features</a></li>
     </ul>
     <div class="navbar-end flex items-center gap-2">
@@ -264,6 +330,44 @@ Effix.refresh(block);
 // editor canvas: keep things still while editing
 document.documentElement.toggleAttribute('data-efx-reduce', editing);`)}
       ${table(['Method', 'What it does'], apiRows)}
+    </div>
+  </div>
+</section>
+
+<section id="data" class="section pt-0" aria-labelledby="h-data">
+  <div class="container mx-auto max-w-7xl stack gap-6">
+    <header class="stack gap-2 max-w-3xl"><p class="label m-0 text-primary">Data input</p><h2 id="h-data" class="text-3xl md:text-4xl font-bold tracking-tight m-0">Five ways to give a chart its data</h2>
+    <p class="lead m-0">Every chart reads the same data shape. Pick whichever way suits your page; when several are present the order of precedence is: JavaScript update → table → <code>data-efx-data</code> → inline JSON.</p></header>
+    <div class="card"><div class="card-body stack">
+      <h3 class="card-title m-0">The shape</h3>
+      ${code('data-shape', DATA_SHAPE)}
+      <p class="text-sm m-0">Shorthands also work: a flat list <code>[12, 19, 7]</code>, a list of series <code>[[3,5,2],[4,1,6]]</code>, or label/value pairs <code>[{"label":"Mon","value":12}]</code>. Charts with special data (scatter, candlestick, timeline, flow, heatmap calendar) show their own format in a blue <em>Data format</em> box below.</p>
+    </div></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      ${DATA_WAYS.map((w, i) => `<div class="card"><div class="card-body stack"><h3 class="card-title m-0">${i + 1} · ${w[0]}</h3><p class="text-sm m-0">${w[1]}</p>${code('data-way-' + i, w[2])}</div></div>`).join('\n      ')}
+    </div>
+    <div class="card"><div class="card-body stack">
+      <div class="cluster justify-between"><h3 class="card-title m-0">Live: update from JavaScript</h3><button class="btn btn-sm" type="button" id="data-demo-btn">Randomise data</button></div>
+      <div id="data-demo" class="efx-chart-bar" data-efx-data="[[12,19,7,24,15],[9,14,11,18,21]]" data-efx-names="Web|Mobile" data-efx-labels="Mon|Tue|Wed|Thu|Fri"></div>
+      ${code('data-demo-code', DATA_DEMO)}
+    </div></div>
+  </div>
+</section>
+
+<section id="extend" class="section pt-0" aria-labelledby="h-extend">
+  <div class="container mx-auto max-w-7xl stack gap-6">
+    <header class="stack gap-2 max-w-3xl"><p class="label m-0 text-primary">Extend Effix</p><h2 id="h-extend" class="text-3xl md:text-4xl font-bold tracking-tight m-0">Add your own shapes, modes, formats, charts and features</h2>
+    <p class="lead m-0">Built-in variants are registered through the same plugin registry you use, so yours are first-class: register once, then use the name in <code>data-efx-*</code> like any built-in.</p></header>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div class="stack gap-4">
+        <p class="m-0">Register before Effix starts with <code>window.EffixConfig.extend</code> (put it in a normal <code>&lt;script&gt;</code> above the Effix tags), or any time later with <code>Effix.add(…)</code> followed by <code>Effix.refresh(el)</code>. This page runs exactly the code on the right:</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="card efx-particles" data-efx-shape="heart" data-efx-count="30" data-efx-size-min="4" data-efx-size-max="9" data-efx-interact="attract" style="min-height:180px"><div class="card-body"><strong>Custom particle shape</strong><br><code>data-efx-shape="heart"</code></div></div>
+          <div class="card"><div class="card-body stack gap-2"><strong>Custom chart type + format</strong><div class="efx-chart-dots" data-efx-data="420,610,380,720,560" data-efx-labels="A|B|C|D|E" data-efx-format="gbp" data-efx-height="150"></div></div></div>
+        </div>
+        ${table(['Kind', 'Used by', 'Signature'], EXT_KINDS, [0, 2])}
+      </div>
+      ${code('extend-code', EXTEND_DEMO)}
     </div>
   </div>
 </section>

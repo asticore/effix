@@ -56,3 +56,16 @@
   document.getElementById('pick-none').addEventListener('click', function () { boxes.forEach(function (b) { b.checked = false; }); update(); });
   update();
 })();
+
+/* Data input demo: push random data into the bar chart. */
+(function () {
+  var btn = document.getElementById('data-demo-btn');
+  if (!btn) return;
+  var rnd = function () { return Array.from({ length: 5 }, function () { return 5 + Math.round(Math.random() * 25); }); };
+  btn.addEventListener('click', function () {
+    Effix.setData('#data-demo', {
+      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+      series: [{ name: 'Web', data: rnd() }, { name: 'Mobile', data: rnd() }],
+    });
+  });
+})();
