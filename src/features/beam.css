@@ -1,0 +1,7 @@
+/* beam — overlay svg; the moving segment is a dashed copy of the path (pathLength 100) */
+.efx-beam__svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.efx-beam__path { fill: none; stroke-linecap: round; }
+.efx-beam__run { animation: efx-beam-run var(--efx-beam-s, 3s) linear infinite; }
+.efx-beam__rev { animation-direction: reverse; }
+.efx-beam__svg.is-paused .efx-beam__run { animation-play-state: paused; }
+@keyframes efx-beam-run { from { stroke-dashoffset: 25; } to { stroke-dashoffset: -100; } }

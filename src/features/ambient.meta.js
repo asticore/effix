@@ -7,12 +7,12 @@ module.exports = {
     ['efx-ambient', 'Injects a canvas behind the content (content stays clickable and above). Pick the look with data-efx-mode.'],
   ],
   options: [
-    ['data-efx-mode', 'stars', 'stars · warp · orbs · waves · snow · leaves · bubbles, or any registered ambient-mode'],
+    ['data-efx-mode', 'stars', 'stars · warp · orbs · waves · snow · leaves · bubbles · grid (cells light up near the pointer) · flicker (flickering squares) · meteors (diagonal shooting streaks), or any registered ambient-mode'],
     ['data-efx-count', '0', 'Number of particles / orbs / wave layers. 0 = automatic by area and mode.'],
     ['data-efx-color', '(theme)', 'One color or a list separated by | (commas outside parentheses also work). Empty = Shine tone/primary.'],
     ['data-efx-speed', '1', 'Speed multiplier.'],
     ['data-efx-opacity', '1', 'Overall opacity (0–1).'],
-    ['data-efx-interact', 'true', 'Stars, warp and orbs react to the pointer (fine pointers only). false = ignore the pointer.'],
+    ['data-efx-interact', 'true', 'Stars, warp, orbs and grid react to the pointer (fine pointers only). false = ignore the pointer.'],
   ],
   extend: [
     ['ambient-mode', '{ count(area)->n, spawn(p,S,first), step(p,S)->alive, draw(ctx,p,S), blend?, ptr? }', 'S = { w, h, t, sp, op, px, py, ptr:{x,y,on}, rnd(a,b) }. Feature sets p.c (color), p.i (index), fillStyle/strokeStyle/globalAlpha before draw; step returning false respawns p. blend = globalCompositeOperation; ptr:1 enables pointer tracking.'],

@@ -1,0 +1,2 @@
+/* feed — nothing static to style; items animate height/opacity inline. Keep hidden items out of the layout. */
+.efx-feed > [hidden] { display: none; }

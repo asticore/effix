@@ -1,0 +1,3 @@
+/* globe — canvas fills the host; give the host a size (aspect-ratio keeps it square by default) */
+.efx-globe { aspect-ratio: 1; }
+.efx-globe__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }

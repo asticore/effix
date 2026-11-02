@@ -1,6 +1,6 @@
 /* ambient — animated canvas backgrounds behind an element's content.
    <section class="efx-ambient" data-efx-mode="orbs" data-efx-color="#6366f1|#ec4899">…</section>
-   mode: stars | warp | orbs | waves | snow | leaves | bubbles. color: one value or a '|' list (commas outside parentheses ok). */
+   mode: stars | warp | orbs | waves | snow | leaves | bubbles | grid | flicker | meteors. color: one value or a '|' list (commas outside parentheses ok). */
 import { onVisible, motionOK, finePointer, themeColor, on, add, get } from '../core.js';
 
 const split = s => {
@@ -85,6 +85,33 @@ add('ambient-mode', {
     draw: (c, p, S) => {
       c.globalAlpha = S.op * .5; c.lineWidth = 1; dot(c, p.x, p.y, p.r); c.stroke();
       c.globalAlpha = S.op * .6; dot(c, p.x - p.r * .35, p.y - p.r * .35, p.r * .2); c.fill();
+    },
+  },
+});
+
+/* grid / flicker: a field of cells sized to the area; meteors: diagonal streaks */
+const cell = a => Math.max(14, Math.sqrt(a / 1200));
+const cells = a => { const c = cell(a); return Math.ceil(a / (c * c) + 2 * Math.sqrt(a) / c + 2); };
+const place = (p, S) => { const c = cell(S.w * S.h), n = Math.ceil(S.w / c) || 1; p.s = c; p.x = (p.i % n) * c; p.y = ((p.i / n) | 0) * c; p.l = 0; p.k = S.rnd(0, 1); };
+add('ambient-mode', {
+  grid: {
+    count: cells, ptr: 1, spawn: place,
+    step: (p, S) => { const q = S.ptr, d = Math.hypot(q.x - p.x - p.s / 2, q.y - p.y - p.s / 2); p.l = q.on && d < 110 ? Math.max(p.l, 1 - d / 110) : p.l * .93; return 1; },
+    draw: (c, p, S) => { if (p.y > S.h) return; c.globalAlpha = S.op * .12; c.lineWidth = 1; c.strokeRect(p.x + .5, p.y + .5, p.s - 1, p.s - 1); if (p.l > .02) { c.globalAlpha = S.op * p.l * .7; c.fillRect(p.x + 1, p.y + 1, p.s - 2, p.s - 2); } },
+  },
+  flicker: {
+    count: cells, spawn: place,
+    step: (p, S) => { if (Math.random() < .012 * S.sp) p.k = Math.random() < .35 ? S.rnd(.4, 1) : 0; p.l += (p.k - p.l) * .15; return 1; },
+    draw: (c, p, S) => { if (p.y > S.h) return; c.globalAlpha = S.op * (.04 + p.l * .8); c.fillRect(p.x + 1, p.y + 1, p.s - 2, p.s - 2); },
+  },
+  meteors: {
+    count: cnt(2e4, 14), step: (p, S) => { p.x -= p.v * .7 * S.sp; p.y += p.v * .7 * S.sp; return p.y < S.h + 60 && p.x > -60; },
+    spawn: (p, S, first) => { p.v = S.rnd(4, 9); p.l = S.rnd(60, 140); p.x = S.rnd(0, S.w + S.h); p.y = first ? S.rnd(-S.h, S.h) : -S.rnd(20, 400); },
+    draw: (c, p, S) => {
+      const t = p.l * .7, g = c.createLinearGradient(p.x, p.y, p.x + t, p.y - t);
+      g.addColorStop(0, p.c); g.addColorStop(1, 'transparent');
+      c.globalAlpha = S.op; c.strokeStyle = g; c.lineWidth = 1.5; c.lineCap = 'round';
+      c.beginPath(); c.moveTo(p.x, p.y); c.lineTo(p.x + t, p.y - t); c.stroke();
     },
   },
 });
