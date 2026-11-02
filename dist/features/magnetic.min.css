@@ -1,0 +1,2 @@
+/*! Effix magnetic v0.1.0 | MIT | https://github.com/asticore/effix */
+/*! Effix magnetic v0.1.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-magnetic.is-magnetic{translate:var(--efx-mx, 0px) var(--efx-my, 0px);transition:translate .3s cubic-bezier(.22,1,.36,1)}}

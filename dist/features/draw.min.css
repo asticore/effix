@@ -1,0 +1,2 @@
+/*! Effix draw v0.1.0 | MIT | https://github.com/asticore/effix */
+/*! Effix draw v0.1.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-draw path,.efx-draw line,.efx-draw polyline,.efx-draw polygon,.efx-draw circle,.efx-draw ellipse,.efx-draw rect{stroke-linecap:round;stroke-linejoin:round}}
