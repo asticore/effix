@@ -20,7 +20,7 @@ export default {
       const hz = o.horizontal, st = o.style, bars = st === 'bars', pyr = st === 'pyramid', curved = st === 'curved';
       const cmp = S.length > 1, ghost = cmp && o.compare === 'ghost', conv = o.conversion && !deco;
       const sh = deco ? 'none' : o.show, nk = Math.min(0.95, Math.max(0, o.neck));
-      const V = [0, 1].map(j => i => (S[j] && S[j].values[i]) || 0);
+      const V = [0, 1].map(j => i => { const x = S[j] && S[j].values[i]; return Number.isFinite(x) && x > 0 ? x : 0; });
       const max = Math.max(1e-9, ...idx.map(V[0]), ...(cmp ? idx.map(V[1]) : []));
       const pd = deco ? { t: 0, r: 0, b: 0, l: 0 } : hz
         ? { t: conv ? 22 : 6, r: 6, b: sh === 'none' ? 6 : 36, l: 6 }
@@ -93,11 +93,11 @@ export default {
             class: 'efx-chart__mark ' + (pass ? 'efx-chart__fade' : hz ? 'efx-fn-y' : 'efx-fn-x'),
             style: `--i:${k};` + (pass ? '' : `transform-origin:${org}`),
           }, g);
-          const first = V[0](idx[0]), prev = k ? V[0](idx[k - 1]) : v, vv = V[0](i), other = V[1](i);
+          const first = V[gj](idx[0]), prev = k ? V[0](idx[k - 1]) : v, vv = V[0](i), other = V[1](i);
           const dd = prev - vv;
           const html = `<strong>${esc(data.labels[i])}</strong>${half ? `<span>${esc(S[gj].name)}</span>` : ''}<b>${esc(fmt(half ? v : vv))}</b>`
             + (ghost ? `<span>${esc(S[1].name)}: ${esc(fmt(other))}</span>` : '')
-            + `<span>${pc(first ? (v / first) * 100 : 0)} of total${k && prev ? ` · ${pc((v / (half ? V[gj](idx[k - 1]) : prev)) * 100)} of previous` : ''}</span>`
+            + `<span>${pc(first ? (v / first) * 100 : 0)} of total${k && (half ? V[gj](idx[k - 1]) : prev) ? ` · ${pc((v / (half ? V[gj](idx[k - 1]) : prev)) * 100)} of previous` : ''}</span>`
             + (k ? `<span>${dd >= 0 ? '−' : '+'}${esc(fmt(Math.abs(half ? V[gj](idx[k - 1]) - v : dd)))} vs previous</span>` : '');
           const [mx, my] = P(mid, half ? (gj ? e / 2 : -e / 2) : 0);
           rows[k][pass ? 1 : j] = {

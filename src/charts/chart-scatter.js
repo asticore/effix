@@ -1,13 +1,19 @@
 /* chart-scatter — scatter / bubble chart.
    <div class="efx-chart-scatter" data-efx-data='[{"x":1,"y":4},{"x":3,"y":7,"r":5,"label":"A"}]' data-efx-bubble></div>
    Series: [[{x,y}…],[…]] or [{"name":"A","points":[…]}] */
-import { COMMON, chart, nice, linear, axes, s, esc } from './_lib.js';
+import { COMMON, chart, palette, nice, linear, axes, s, esc } from './_lib.js';
 import { on } from '../core.js';
 
-const norm = r => {
+const isObj = d => d && typeof d === 'object';
+const norm = (r, names = []) => {
+  if (!isObj(r)) return [];
   r = Array.isArray(r) ? r : r.series || r.datasets || [r];
-  if (r[0] && r[0].x != null) r = [r];
-  return r.map(q => ({ n: q.name, p: (Array.isArray(q) ? q : q.points || q.data || []).map(d => ({ ...d, x: +d.x, y: +d.y, r: +d.r || 1 })).filter(d => isFinite(d.x) && isFinite(d.y)) }));
+  if (!Array.isArray(r)) return [];
+  if (isObj(r[0]) && !Array.isArray(r[0]) && r[0].x != null) r = [r];
+  return r.filter(isObj).map((q, i) => {
+    const pts = Array.isArray(q) ? q : q.points || q.data || [];
+    return { n: String(!Array.isArray(q) && q.name != null ? q.name : names[i] != null ? names[i] : `Series ${i + 1}`), p: (Array.isArray(pts) ? pts : []).filter(isObj).map(d => ({ ...d, x: +d.x, y: +d.y, r: +d.r || 1 })).filter(d => isFinite(d.x) && isFinite(d.y)) };
+  });
 };
 const nf = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
 
@@ -17,13 +23,21 @@ export default {
   lazy: true,
   defaults: { ...COMMON, xLabel: '', yLabel: '', bubble: false },
   init(el, o) {
-    const read = d => { try { return norm(d); } catch (e) { return []; } };
+    // Scatter owns its points: the lib only gets series names (via o.data) so legend/hidden work.
+    // efx:data > inline <script> > data-efx-data. The inline script is parked so the lib's parseData can't read it.
+    const read = d => { try { return norm(d, o.names); } catch (e) { return []; } };
     const j = el.querySelector(':scope > script[type="application/json"]');
     let sets = [];
     try { sets = read(JSON.parse(j ? j.textContent : o.data)); } catch (e) { console.warn('[effix] chart data', e); }
-    o.data = JSON.stringify({ series: sets.map(q => ({ name: q.n, values: [] })) }); // lib only needs series names
-    const off = on(el, 'efx:data', e => { sets = read(e.detail || {}); });
-    const draw = ({ g, w, h, data, visible, colors, fmt, deco }) => {
+    const jt = j && j.getAttribute('type');
+    if (j) j.setAttribute('type', 'application/x-efx-json');
+    const names = () => JSON.stringify({ series: sets.map(q => ({ name: q.n, values: [] })) });
+    o.source = '';
+    o.data = names();
+    // registered before chart() so it runs before the lib's own efx:data handler
+    const off = on(el, 'efx:data', e => { sets = read(e.detail); });
+    const draw = ({ g, w, h, hidden, fmt, deco }) => {
+      const colors = palette(el, o, sets.length), visible = sets.map((q, index) => ({ index, name: q.n })).filter(v => !hidden.has(v.index));
       const all = visible.flatMap(v => (sets[v.index] ? sets[v.index].p : []));
       if (!all.length) return [];
       const rmax = Math.max(...all.map(p => Math.abs(p.r)));
@@ -43,7 +57,7 @@ export default {
         if (o.xLabel) s('text', { x: (pad.l + w - pad.r) / 2, y: h - 4, 'text-anchor': 'middle' }, ax).textContent = o.xLabel;
         if (o.yLabel) s('text', { x: 12, y: (pad.t + h - pad.b) / 2, 'text-anchor': 'middle', transform: `rotate(-90 12 ${(pad.t + h - pad.b) / 2})` }, ax).textContent = o.yLabel;
       }
-      const multi = data.series.length > 1, items = [];
+      const multi = sets.length > 1, items = [];
       visible.forEach(v => (sets[v.index] ? sets[v.index].p : []).forEach(p => items.push({ p, v, cx: x(p.x), cy: y(p.y), r: R(p) })));
       const step = Math.min(1, 24 / items.length);
       [...items].sort((a, b) => b.r - a.r).forEach((t, k) => {
@@ -58,6 +72,6 @@ export default {
       }));
     };
     const stop = chart(el, o, draw);
-    return () => { off(); stop(); };
+    return () => { off(); stop(); if (j) { if (jt == null) j.removeAttribute('type'); else j.setAttribute('type', jt); } };
   },
 };

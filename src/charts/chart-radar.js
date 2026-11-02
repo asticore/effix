@@ -14,7 +14,7 @@ export default {
       const n = data.labels.length;
       if (n < 3 || !visible.length) return [];
       const all = visible.flatMap(sr => sr.values), top = Math.max(...all, 0);
-      const nt = nice(0, top || 1, o.levels), fixed = parseFloat(o.max) > 0, lv = fixed ? Math.max(1, o.levels) : nt.ticks.length - 1, mx = fixed ? parseFloat(o.max) : nt.max;
+      const nt = nice(0, top || 1, o.levels), fixed = Number.isFinite(parseFloat(o.max)) && parseFloat(o.max) > 0, lv = fixed ? Math.max(1, o.levels) : nt.ticks.length - 1, mx = fixed ? parseFloat(o.max) : nt.max;
       const long = Math.max(...data.labels.map(l => l.length));
       const R = deco ? Math.min(w, h) / 2 - 2 : Math.max(20, Math.min(w / 2 - Math.min(w * 0.3, long * 6.2 + 16), h / 2 - 24));
       const cx = w / 2, cy = h / 2, ang = k => (k * TAU) / n;

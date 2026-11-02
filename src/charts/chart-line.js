@@ -2,6 +2,8 @@
    <div class="efx-chart-line" data-efx-data="3,5,4,8|2,4,6,5" data-efx-labels="Mon|Tue|Wed|Thu" data-efx-area></div> */
 import { COMMON, chart, nice, linear, linePath, axes, s, esc } from './_lib.js';
 
+const safeColor = c => { try { return typeof c === 'string' && CSS.supports('color', c) && !/[;{}"'<>]/.test(c) ? c : '#6366f1'; } catch (e) { return '#6366f1'; } };
+
 let uid = 0;
 export default {
   name: 'chart-line',
@@ -22,7 +24,8 @@ export default {
         return { sr, lo, hi, c: colors[sr.index] };
       });
       const vals = rows.flatMap(r => r.hi).concat(area ? 0 : []);
-      const sc = nice(o.min === '' ? Math.min(...vals) : +o.min, Math.max(...vals), Math.max(2, Math.floor(h / 50)));
+      const lo0 = o.min === '' || o.min == null ? NaN : +o.min;
+      const sc = nice(Number.isFinite(lo0) ? lo0 : Math.min(...vals), Math.max(...vals), Math.max(2, Math.floor(h / 50)));
       const y = linear([sc.min, sc.max], [h - pad.b, pad.t]);
       const x = i => n > 1 ? pad.l + i * (w - pad.l - pad.r) / (n - 1) : (pad.l + w - pad.r) / 2;
       if (!deco) axes(g, { w, h, pad, y, ticks: sc.ticks, labels: data.labels, x, fmt, grid: o.grid });
@@ -50,7 +53,7 @@ export default {
         return {
           x: x(i), y: Math.min(...rows.map(r => y(r.hi[i]))), label, node, index: i, xOnly: true, group: i,
           value: o.stacked ? rows[rows.length - 1].hi[i] : rows[0].sr.values[i] || 0, series: multi ? '' : rows[0].sr.name,
-          html: `<strong>${esc(label)}</strong>` + rows.map(r => `<span>${multi ? `<i style="color:${r.c}">●</i> ${esc(r.sr.name)} ` : ''}<b>${esc(fmt(r.sr.values[i] || 0))}</b></span>`).join(''),
+          html: `<strong>${esc(label)}</strong>` + rows.map(r => `<span>${multi ? `<i style="color:${esc(safeColor(r.c))}">●</i> ${esc(r.sr.name)} ` : ''}<b>${esc(fmt(r.sr.values[i] || 0))}</b></span>`).join(''),
         };
       });
     };

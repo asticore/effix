@@ -6,7 +6,9 @@ import { on } from '../core.js';
 
 const DAY = 864e5;
 const utc = d => { const m = String(d).match(/\d+/g) || []; return Date.UTC(m[0], m[1] - 1, m[2]); };
-const rd = (el, t) => { try { const j = el.querySelector(':scope > script[type="application/json"]'); let r = JSON.parse(j ? j.textContent : t); r = Array.isArray(r) ? r : r.data || []; return r.filter(d => d && d.date).map(d => ({ t: utc(d.date), v: +d.value || 0 })); } catch (e) { return []; } };
+const parseDays = raw => { let r = typeof raw === 'string' ? JSON.parse(raw) : raw; r = Array.isArray(r) ? r : r && r.data || []; if (!Array.isArray(r)) return []; return capDays(r.filter(d => d && d.date).map(d => ({ t: utc(d.date), v: +d.value || 0 })).filter(d => Number.isFinite(d.t))); };
+const capDays = a => { if (!a.length) return a; const max = Math.max(...a.map(d => d.t)), min = max - (53 * 7 - 1) * DAY; return a.filter(d => d.t >= min); };
+const rd = (el, t) => { try { const j = el.querySelector(':scope > script[type="application/json"]'); return parseDays(j ? j.textContent : t); } catch (e) { return []; } };
 
 export default {
   name: 'chart-heatmap',
@@ -22,7 +24,7 @@ export default {
       return { t0, n, d0, wk, cell: Math.min(20, (w - 30) / wk) };
     };
     if (!o.background && !H0) Object.defineProperty(o, 'height', { get: () => cal ? (days.length ? 18 + 7 * geo(Math.max(40, el.clientWidth)).cell : 60) : 22 + 30 * Math.max(1, rows) });
-    const off = on(el, 'efx:data', e => { const d = e.detail; if (cal) days = rd(el, JSON.stringify(d)); else rows = (d && d.series || []).length || rows; });
+    const off = on(el, 'efx:data', e => { const d = e.detail; if (cal) { try { days = parseDays(d); } catch (err) { days = []; } } else rows = (d && d.series || []).length || rows; });
     const fmtDate = t => new Date(t).toLocaleDateString(undefined, { dateStyle: 'medium', timeZone: 'UTC' });
     const draw = ({ g, w, h, data, visible, fmt, deco }) => {
       const pal = palette(el, o, 7), c0 = pal[0], c1 = o.colors.length ? pal[1] : pal[5], gap = o.gap, cells = [];
@@ -50,14 +52,14 @@ export default {
       } else {
         const nc = data.labels.length;
         if (!nc || !visible.length) return [];
-        ox = deco ? 0 : Math.min(120, 12 + 6.5 * Math.max(...visible.map(v => v.name.length)));
+        ox = deco ? 0 : Math.min(120, 12 + 6.5 * Math.max(...visible.map(v => String(v.name).length)));
         oy = deco ? 0 : 22;
         cw = (w - ox) / nc; ch = (h - oy) / visible.length;
         const every = Math.ceil(nc / Math.max(1, Math.floor((w - ox) / 48)));
         if (!deco) data.labels.forEach((l, c) => c % every || text({ x: ox + (c + .5) * cw, y: 14, 'text-anchor': 'middle' }, l));
         visible.forEach((sr, r) => {
-          if (!deco) text({ x: ox - 8, y: oy + (r + .5) * ch, 'text-anchor': 'end', 'dominant-baseline': 'middle' }, sr.name);
-          data.labels.forEach((l, c) => cells.push({ c, r, v: sr.values[c] == null ? null : sr.values[c], label: l, series: sr.name }));
+          if (!deco) text({ x: ox - 8, y: oy + (r + .5) * ch, 'text-anchor': 'end', 'dominant-baseline': 'middle' }, String(sr.name));
+          data.labels.forEach((l, c) => cells.push({ c, r, v: sr.values[c] == null ? null : sr.values[c], label: l, series: String(sr.name) }));
         });
       }
       const vs = cells.filter(k => k.v != null).map(k => k.v), lo = Math.min(...vs), hi = Math.max(...vs), div = o.scheme === 'diverging', m = Math.max(Math.abs(lo), Math.abs(hi)) || 1;

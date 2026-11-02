@@ -3,11 +3,15 @@
 import { COMMON, chart, palette, s, esc } from './_lib.js';
 import { on } from '../core.js';
 
+const safe = v => {
+  const d = v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+  return { nodes: Array.isArray(d.nodes) ? d.nodes : [], links: Array.isArray(d.links) ? d.links.filter(l => l && typeof l === 'object') : [] };
+};
 const read = (el, o) => {
   try {
     const j = el.querySelector(':scope > script[type="application/json"]');
-    return JSON.parse(o.data.trim() || j.textContent);
-  } catch (e) { return {}; }
+    return safe(JSON.parse((o.data || '').trim() || j.textContent));
+  } catch (e) { return safe(null); }
 };
 
 export default {
@@ -18,9 +22,9 @@ export default {
   init(el, o) {
     let d = read(el, o);
     // registered before chart() so it runs before the lib's own efx:data handler
-    const off = on(el, 'efx:data', e => { d = e.detail || d; });
+    const off = on(el, 'efx:data', e => { d = e.detail ? safe(e.detail) : d; });
     const draw = ({ g, w, h, deco, fmt }) => {
-      const names = (d.nodes || []).map(n => String(n.name ?? n));
+      const names = (d.nodes || []).map(n => String(n && n.name != null ? n.name : n == null ? '' : n));
       const id = v => { if (typeof v === 'number' && names[v] != null) return v; const k = String(v), i = names.indexOf(k); return i < 0 ? names.push(k) - 1 : i; };
       const L = (d.links || []).map(l => ({ s: id(l.source), t: id(l.target), v: +l.value || 0 })).filter(l => l.v > 0 && l.s !== l.t);
       const all = names.map((name, i) => ({ i, name, in: 0, out: 0, col: 0, a: [], b: [] }));
