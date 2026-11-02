@@ -1,22 +1,27 @@
 {
   "version": "0.1.0",
   "core": 2586,
-  "chartLib": 5262,
+  "chartLib": 5287,
   "bundles": {
-    "effix.min.js": 30299,
-    "effix.min.css": 5565,
-    "effix-charts.min.js": 23001,
-    "effix-charts.min.css": 2175,
+    "effix.min.js": 33860,
+    "effix.min.css": 5826,
+    "effix-charts.min.js": 27652,
+    "effix-charts.min.css": 2293,
     "effix.core.min.js": 2635,
     "effix.core.min.css": 252,
-    "effix.auto.min.js": 3637,
-    "effix.all.min.js": 52495,
-    "effix.all.min.css": 7069
+    "effix.auto.min.js": 3696,
+    "effix.all.min.js": 60671,
+    "effix.all.min.css": 7446
   },
   "features": {
     "ambient": {
-      "js": 2111,
+      "js": 2556,
       "css": 142,
+      "kind": "effect"
+    },
+    "beam": {
+      "js": 1002,
+      "css": 252,
       "kind": "effect"
     },
     "border": {
@@ -84,6 +89,16 @@
       "css": 104,
       "kind": "effect"
     },
+    "feed": {
+      "js": 733,
+      "css": 53,
+      "kind": "effect"
+    },
+    "globe": {
+      "js": 1135,
+      "css": 116,
+      "kind": "effect"
+    },
     "hscroll": {
       "js": 821,
       "css": 218,
@@ -112,6 +127,11 @@
     "media": {
       "js": 523,
       "css": 299,
+      "kind": "effect"
+    },
+    "morph": {
+      "js": 695,
+      "css": 262,
       "kind": "effect"
     },
     "mouse": {
@@ -184,6 +204,11 @@
       "css": 158,
       "kind": "effect"
     },
+    "sparkles": {
+      "js": 636,
+      "css": 259,
+      "kind": "effect"
+    },
     "split": {
       "js": 548,
       "css": 412,
@@ -240,8 +265,18 @@
       "kind": "effect"
     },
     "chart-bar": {
-      "js": 1701,
+      "js": 1707,
       "css": 0,
+      "kind": "chart"
+    },
+    "chart-box": {
+      "js": 2414,
+      "css": 0,
+      "kind": "chart"
+    },
+    "chart-bullet": {
+      "js": 2321,
+      "css": 80,
       "kind": "chart"
     },
     "chart-candle": {
@@ -250,27 +285,32 @@
       "kind": "chart"
     },
     "chart-combo": {
-      "js": 2273,
+      "js": 2272,
       "css": 203,
       "kind": "chart"
     },
     "chart-flow": {
-      "js": 2309,
+      "js": 2311,
       "css": 210,
       "kind": "chart"
     },
     "chart-funnel": {
-      "js": 3425,
+      "js": 3424,
       "css": 314,
       "kind": "chart"
     },
     "chart-gauge": {
-      "js": 2019,
+      "js": 2022,
       "css": 351,
       "kind": "chart"
     },
     "chart-heatmap": {
-      "js": 2359,
+      "js": 2365,
+      "css": 0,
+      "kind": "chart"
+    },
+    "chart-histogram": {
+      "js": 1723,
       "css": 0,
       "kind": "chart"
     },
@@ -285,37 +325,42 @@
       "kind": "chart"
     },
     "chart-progress": {
-      "js": 1630,
+      "js": 1632,
       "css": 0,
       "kind": "chart"
     },
     "chart-radar": {
-      "js": 1708,
+      "js": 1712,
       "css": 291,
       "kind": "chart"
     },
     "chart-scatter": {
-      "js": 2026,
+      "js": 2022,
       "css": 0,
       "kind": "chart"
     },
     "chart-spark": {
-      "js": 1862,
+      "js": 1866,
       "css": 105,
       "kind": "chart"
     },
+    "chart-sunburst": {
+      "js": 2560,
+      "css": 350,
+      "kind": "chart"
+    },
     "chart-timeline": {
-      "js": 2729,
+      "js": 2728,
       "css": 187,
       "kind": "chart"
     },
     "chart-treemap": {
-      "js": 1763,
+      "js": 1766,
       "css": 245,
       "kind": "chart"
     },
     "chart-waterfall": {
-      "js": 1696,
+      "js": 1698,
       "css": 87,
       "kind": "chart"
     }

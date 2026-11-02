@@ -1,0 +1,10 @@
+/* chart-sunburst — entrance (arcs fade + scale out from the center, ring by ring; also on zoom) and center text. */
+.efx-chart__plot:not(.is-in) :is(.efx-sb, .efx-sbf) { opacity: 0; }
+.efx-chart__plot.is-in .efx-sbf { animation: efx-sbf .6s ease-out backwards calc(var(--i, 0) * 70ms + .15s); }
+@keyframes efx-sbf { from { opacity: 0; } }
+.efx-chart__plot.is-in .efx-sb { animation: efx-sb .55s var(--efx-ease, cubic-bezier(.22,1,.36,1)) backwards calc(var(--i, 0) * 70ms); transform-box: view-box; transform-origin: var(--o, 50% 50%); }
+@keyframes efx-sb { from { opacity: 0; transform: scale(.85); } }
+.efx-sb__t, .efx-sb__s { pointer-events: none; }
+.efx-sb__s { fill: var(--efx-chart-text); font-size: 11px; }
+.efx-chart-sunburst .efx-chart__value { pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .efx-chart__plot :is(.efx-sb, .efx-sbf) { animation: none !important; } }

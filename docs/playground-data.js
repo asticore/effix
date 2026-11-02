@@ -579,6 +579,36 @@ window.EFX_PLAYGROUND = {
    "example": "<div class=\"grid md:grid-cols-2 gap-4 p-6 items-center\" style=\"min-height:300px\">\n  <svg class=\"efx-draw\" data-efx-mode=\"view\" data-efx-stagger=\"300\" data-efx-duration=\"1600\" viewBox=\"0 0 200 100\" width=\"100%\" height=\"140\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\">\n    <path d=\"M10 80 C 40 10, 70 10, 100 50 S 160 90, 190 20\"/>\n    <circle cx=\"100\" cy=\"50\" r=\"22\"/>\n    <rect x=\"20\" y=\"20\" width=\"40\" height=\"30\" rx=\"6\"/>\n  </svg>\n  <svg class=\"efx-draw tone-primary\" data-efx-fill data-efx-mode=\"view\" data-efx-duration=\"2000\" viewBox=\"0 0 100 100\" width=\"100%\" height=\"140\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\">\n    <polygon points=\"50,8 61,38 93,38 67,57 77,90 50,70 23,90 33,57 7,38 39,38\"/>\n  </svg>\n</div>"
   },
   {
+   "name": "morph",
+   "title": "Morphing text",
+   "group": "Text",
+   "kind": "effect",
+   "classes": [
+    "efx-morph"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-words",
+     "def": "(none)",
+     "desc": "Words separated by |, e.g. Design|Build|Ship.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-duration",
+     "def": "1200",
+     "desc": "Morph time in ms.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-pause",
+     "def": "1800",
+     "desc": "Hold time between morphs in ms.",
+     "type": "number"
+    }
+   ],
+   "example": "<div class=\"p-6\" style=\"text-align:center\">\n  <h1 style=\"font-size:3rem;font-weight:800\">We <span class=\"efx-morph\" data-efx-words=\"Design|Build|Ship|Scale\"></span> products</h1>\n</div>"
+  },
+  {
    "name": "proximity",
    "title": "Proximity",
    "group": "Text",
@@ -625,6 +655,54 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"card p-6 stack\" style=\"min-height:260px\">\n  <h2 class=\"efx-proximity\" data-efx-radius=\"110\" data-efx-scale=\"1.5\" data-efx-lift=\"6\" data-efx-color=\"var(--sh-primary,#4f46e5)\">Hover over these letters</h2>\n  <div class=\"efx-proximity cluster gap-4\" data-efx-mode=\"items\" data-efx-scale=\"1.7\" data-efx-lift=\"8\" data-efx-radius=\"100\" style=\"font-size:2rem\">\n    <span data-efx-item>★</span><span data-efx-item>♥</span><span data-efx-item>⚡</span><span data-efx-item>☀</span><span data-efx-item>✿</span>\n  </div>\n</div>"
+  },
+  {
+   "name": "sparkles",
+   "title": "Sparkles",
+   "group": "Text",
+   "kind": "effect",
+   "classes": [
+    "efx-sparkles"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-count",
+     "def": "10",
+     "desc": "Number of stars (max 60).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-color",
+     "def": "(theme + gold)",
+     "desc": "One color or a list separated by |.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-size-min",
+     "def": "8",
+     "desc": "Smallest star in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-size-max",
+     "def": "18",
+     "desc": "Largest star in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-speed",
+     "def": "1",
+     "desc": "Twinkle speed multiplier.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-shape",
+     "def": "star",
+     "desc": "Name of a registered sparkle-shape.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"stack gap-8 p-6\" style=\"align-items:center\">\n  <h2><span class=\"efx-sparkles\" data-efx-count=\"14\">Make it sparkle</span></h2>\n  <button class=\"btn efx-sparkles\" data-efx-color=\"#fde68a|#fff|#f59e0b\" data-efx-count=\"8\">Upgrade now</button>\n</div>"
   },
   {
    "name": "split",
@@ -941,7 +1019,7 @@ window.EFX_PLAYGROUND = {
     {
      "attr": "data-efx-mode",
      "def": "stars",
-     "desc": "stars · warp · orbs · waves · snow · leaves · bubbles, or any registered ambient-mode",
+     "desc": "stars · warp · orbs · waves · snow · leaves · bubbles · grid (cells light up near the pointer) · flicker (flickering squares) · meteors (diagonal shooting streaks), or any registered ambient-mode",
      "type": "text"
     },
     {
@@ -971,11 +1049,59 @@ window.EFX_PLAYGROUND = {
     {
      "attr": "data-efx-interact",
      "def": "true",
-     "desc": "Stars, warp and orbs react to the pointer (fine pointers only). false = ignore the pointer.",
+     "desc": "Stars, warp, orbs and grid react to the pointer (fine pointers only). false = ignore the pointer.",
      "type": "bool"
     }
    ],
    "example": "<section class=\"efx-ambient p-6 rounded-lg\" data-efx-mode=\"orbs\" data-efx-color=\"#6366f1|#ec4899|#06b6d4\" style=\"min-height:280px;background:#0b1020;color:#fff\">\n  <div class=\"stack\"><h3>Mesh gradient orbs</h3><p>Move the pointer: the orbs drift toward it.</p><button class=\"btn\">Still clickable</button></div>\n</section>"
+  },
+  {
+   "name": "globe",
+   "title": "Dot globe",
+   "group": "Background",
+   "kind": "effect",
+   "classes": [
+    "efx-globe"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-dots",
+     "def": "1200",
+     "desc": "Number of dots on the sphere.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-speed",
+     "def": "0.2",
+     "desc": "Auto-rotation in radians per second (0 = still, negative = reverse).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-markers",
+     "def": "(none)",
+     "desc": "lat,lon pairs separated by |, e.g. 51.5,-0.12|40.7,-74. Markers pulse while facing you.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-color",
+     "def": "(theme)",
+     "desc": "Dot and marker color. Empty = Shine tone/primary.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tilt",
+     "def": "0.3",
+     "desc": "Initial axis tilt in radians.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-drag",
+     "def": "true",
+     "desc": "Drag with the pointer to rotate.",
+     "type": "bool"
+    }
+   ],
+   "example": "<div class=\"p-6\" style=\"display:flex;justify-content:center\">\n  <div class=\"efx-globe\" data-efx-markers=\"51.5,-0.12|40.7,-74|35.7,139.7|-33.9,151.2|-23.5,-46.6\" style=\"width:100%;max-width:280px\"></div>\n</div>"
   },
   {
    "name": "particles",
@@ -1386,6 +1512,54 @@ window.EFX_PLAYGROUND = {
    "example": "<div class=\"grid md:grid-cols-2 gap-4\">\n  <div class=\"card efx-tilt p-6\"><h3>Tilt</h3><p>Hover me.</p></div>\n  <div class=\"card efx-tilt p-6\" data-efx-glare data-efx-max=\"16\" data-efx-scale=\"1.05\"><h3>With glare</h3><p>Stronger tilt.</p></div>\n</div>"
   },
   {
+   "name": "beam",
+   "title": "Beam connectors",
+   "group": "Sections",
+   "kind": "effect",
+   "classes": [
+    "efx-beam"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-links",
+     "def": "(none)",
+     "desc": "Links as from>to pairs separated by |, e.g. #a>#hub|#b>#hub. Selectors are scoped to the container.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-curvature",
+     "def": "40",
+     "desc": "Curve height in px (0 = straight line, negative bends downward).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-speed",
+     "def": "3",
+     "desc": "Seconds for a beam to travel its path.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-width",
+     "def": "2",
+     "desc": "Stroke width in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-color",
+     "def": "(Shine primary to accent)",
+     "desc": "Solid CSS color. Empty = gradient from --sh-primary to --sh-accent.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-reverse",
+     "def": "false",
+     "desc": "Travel from the second element to the first.",
+     "type": "bool"
+    }
+   ],
+   "example": "<div class=\"efx-beam\" data-efx-links=\"#bm-a>#bm-hub|#bm-b>#bm-hub|#bm-c>#bm-hub|#bm-hub>#bm-out\" style=\"height:280px;display:flex;align-items:center;justify-content:space-between;padding:0 24px\">\n  <div class=\"stack gap-12\">\n    <div id=\"bm-a\" class=\"card p-3 rounded-lg\">Slack</div>\n    <div id=\"bm-b\" class=\"card p-3 rounded-lg\">GitHub</div>\n    <div id=\"bm-c\" class=\"card p-3 rounded-lg\">Stripe</div>\n  </div>\n  <div id=\"bm-hub\" class=\"card p-6 rounded-lg\"><strong>Hub</strong></div>\n  <div id=\"bm-out\" class=\"card p-3 rounded-lg\">Dashboard</div>\n</div>"
+  },
+  {
    "name": "divider",
    "title": "Shape dividers",
    "group": "Sections",
@@ -1444,6 +1618,42 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<section class=\"p-6 tone-primary\" style=\"position:relative;height:280px;overflow:hidden;background:var(--sh-primary,#4f46e5);color:#fff\">\n  <h3>Wavy section</h3><p>Dividers drift along the bottom edge.</p>\n  <div class=\"efx-divider\" data-efx-shape=\"waves\" data-efx-animate=\"drift\" data-efx-position=\"bottom\" data-efx-height=\"90\" data-efx-color=\"#fff\"></div>\n</section>"
+  },
+  {
+   "name": "feed",
+   "title": "Animated feed",
+   "group": "Components",
+   "kind": "effect",
+   "classes": [
+    "efx-feed"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-interval",
+     "def": "1500",
+     "desc": "Milliseconds between new items.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-max",
+     "def": "4",
+     "desc": "How many items are visible at once (the oldest leaves when exceeded).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-loop",
+     "def": "true",
+     "desc": "Start over after the last item. false = stop once all have appeared.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-order",
+     "def": "newest",
+     "desc": "newest = new items enter at the top · append = enter at the bottom.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"efx-feed stack gap-2\" data-efx-max=\"4\" data-efx-interval=\"1400\" style=\"min-height:300px\">\n  <div class=\"card p-3 rounded-lg\">New signup: <strong>Ada</strong></div>\n  <div class=\"card p-3 rounded-lg\">Payment received: <strong>$49</strong></div>\n  <div class=\"card p-3 rounded-lg\">Deploy finished on <strong>main</strong></div>\n  <div class=\"card p-3 rounded-lg\">Comment from <strong>Linus</strong></div>\n  <div class=\"card p-3 rounded-lg\">Invoice <strong>#1042</strong> sent</div>\n  <div class=\"card p-3 rounded-lg\">New review: 5 stars</div>\n</div>"
   },
   {
    "name": "compare",
@@ -2044,6 +2254,240 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Revenue</h3>\n  <div class=\"efx-chart-bar\" data-efx-data=\"[[42,58,51,77],[30,45,62,70]]\" data-efx-names=\"2025|2026\" data-efx-labels=\"Q1|Q2|Q3|Q4\" data-efx-prefix=\"$\" data-efx-suffix=\"k\"></div>\n</div>"
+  },
+  {
+   "name": "chart-box",
+   "title": "Box plot",
+   "group": "Charts",
+   "kind": "chart",
+   "classes": [
+    "efx-chart-box"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "JSON: {labels, series:[{name, data:[[samples]…]}]} or [{label,min,q1,median,q3,max,outliers}].",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-labels",
+     "def": "",
+     "desc": "Category labels: \"A|B|C\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-names",
+     "def": "",
+     "desc": "Series names for the legend.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-horizontal",
+     "def": "false",
+     "desc": "Horizontal boxes.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-grid",
+     "def": "true",
+     "desc": "Gridlines.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "260",
+     "desc": "Chart height in px (0 = element CSS height).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Colors \"#f43f5e|#8b5cf6\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-decimals",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-format",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content (no axes/tooltip).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name (else aria-label or first heading).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Response time by region (ms)</h3>\n  <div class=\"efx-chart-box\" data-efx-suffix=\" ms\" data-efx-data='{\"labels\":[\"EU\",\"US\",\"APAC\",\"LATAM\"],\"series\":[{\"name\":\"Mon\",\"data\":[[82,90,95,101,104,110,118,160],[70,74,80,83,90,92,99,150],[120,135,140,155,160,171,180,260],[100,108,111,120,133,140,150]]},{\"name\":\"Fri\",\"data\":[[75,81,86,90,99,104,109],[66,70,73,80,85,89,93,140],[110,126,131,140,150,158,170],[95,99,105,115,121,128,132,210]]}]}'></div>\n</div>"
+  },
+  {
+   "name": "chart-bullet",
+   "title": "Bullet chart",
+   "group": "Charts",
+   "kind": "chart",
+   "classes": [
+    "efx-chart-bullet"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "JSON rows [{label, value, target, ranges:[…], max?}] or \"270,45\" with labels/targets/ranges.",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-labels",
+     "def": "",
+     "desc": "Row labels (flat form): \"Revenue|Profit\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-targets",
+     "def": "",
+     "desc": "Targets (flat form): \"300|50\" (one value = all rows).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-ranges",
+     "def": "",
+     "desc": "Band upper bounds for every row: \"150,225,300\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-vertical",
+     "def": "false",
+     "desc": "Columns instead of rows.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-bar-height",
+     "def": "18",
+     "desc": "Thickness of each bullet in px (try 10 for a compact list).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-shared",
+     "def": "false",
+     "desc": "One common scale and axis for all rows.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-values",
+     "def": "true",
+     "desc": "Print the value next to each row.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "220",
+     "desc": "Height in px (vertical only; rows size themselves).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Measure bar color.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-decimals",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-format",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: bands and bars fill the element behind its content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Quarterly KPIs</h3>\n  <div class=\"efx-chart-bullet\" data-efx-data='[{\"label\":\"Revenue\",\"value\":270,\"target\":300,\"ranges\":[150,225,300]},{\"label\":\"Profit\",\"value\":24,\"target\":28,\"ranges\":[15,22,30]},{\"label\":\"Orders\",\"value\":1420,\"target\":1200,\"ranges\":[800,1100,1500]},{\"label\":\"Satisfaction\",\"value\":4.2,\"target\":4.5,\"ranges\":[3,4,5]}]'></div>\n</div>"
   },
   {
    "name": "chart-candle",
@@ -2772,6 +3216,114 @@ window.EFX_PLAYGROUND = {
    "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Activity by hour</h3>\n  <div class=\"efx-chart-heatmap\" data-efx-labels=\"Mon|Tue|Wed|Thu|Fri|Sat|Sun\" data-efx-names=\"Morning|Afternoon|Evening\" data-efx-data=\"[[2,5,4,6,3,0,1],[4,8,7,9,6,2,2],[3,4,5,5,7,9,6]]\" data-efx-suffix=\" events\"></div>\n</div>"
   },
   {
+   "name": "chart-histogram",
+   "title": "Histogram",
+   "group": "Charts",
+   "kind": "chart",
+   "classes": [
+    "efx-chart-histogram"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "\"1.2,3.4,2.2,…\" or JSON [1.2,3.4,…].",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-bins",
+     "def": "0",
+     "desc": "Exact number of bins (0 = Sturges).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-step",
+     "def": "0",
+     "desc": "Fixed bin width (wins over bins).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-curve",
+     "def": "false",
+     "desc": "Overlay a fitted normal curve.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-grid",
+     "def": "true",
+     "desc": "Gridlines.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "260",
+     "desc": "Chart height in px (0 = element CSS height).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Colors \"#f43f5e|#8b5cf6\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-decimals",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-format",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content (no axes/tooltip).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name (else aria-label or first heading).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Page load time (s)</h3>\n  <div class=\"efx-chart-histogram\" data-efx-curve data-efx-suffix=\"s\" data-efx-data=\"1.2,1.4,1.5,1.5,1.7,1.8,1.8,1.9,2.0,2.1,2.1,2.2,2.2,2.3,2.4,2.4,2.5,2.6,2.7,2.8,2.9,3.1,3.2,3.4,3.7,4.1,4.8\"></div>\n</div>"
+  },
+  {
    "name": "chart-line",
    "title": "Line chart",
    "group": "Charts",
@@ -3496,6 +4048,102 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<p class=\"m-0\">Signups <strong>1,284</strong> <span class=\"efx-chart-spark\" data-efx-data=\"4,6,5,9,8,12,11,15\" data-efx-title=\"Signups trend\"></span> and churn <span class=\"efx-chart-spark\" data-efx-type=\"bar\" data-efx-colors=\"#ef4444\" data-efx-data=\"5,4,6,3,4,2,3,2\" data-efx-title=\"Churn\"></span> are both improving.</p>"
+  },
+  {
+   "name": "chart-sunburst",
+   "title": "Sunburst chart",
+   "group": "Charts",
+   "kind": "chart",
+   "classes": [
+    "efx-chart-sunburst"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "JSON tree {name, value?, children:[…]}.",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-depth",
+     "def": "4",
+     "desc": "Rings shown at once (zooming reveals deeper levels).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-captions",
+     "def": "true",
+     "desc": "Print names on arcs that are big enough.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "320",
+     "desc": "Chart height in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "One color per top-level branch.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-decimals",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-format",
+     "def": "false / -1",
+     "desc": "Number formatting (or a registered formatter name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: a quiet sunburst behind the element's content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Budget by team</h3>\n  <div class=\"efx-chart-sunburst\" data-efx-prefix=\"$\" data-efx-suffix=\"k\" data-efx-data='{\"name\":\"Company\",\"children\":[{\"name\":\"Engineering\",\"children\":[{\"name\":\"Platform\",\"children\":[{\"name\":\"Infra\",\"value\":420},{\"name\":\"Data\",\"value\":310}]},{\"name\":\"Product\",\"children\":[{\"name\":\"Web\",\"value\":380},{\"name\":\"Mobile\",\"value\":260}]}]},{\"name\":\"Sales\",\"children\":[{\"name\":\"EMEA\",\"value\":300},{\"name\":\"AMER\",\"value\":420},{\"name\":\"APAC\",\"value\":180}]},{\"name\":\"Ops\",\"children\":[{\"name\":\"People\",\"value\":210},{\"name\":\"Finance\",\"value\":150},{\"name\":\"Legal\",\"value\":90}]}]}'></div>\n</div>"
   },
   {
    "name": "chart-timeline",

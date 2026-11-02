@@ -1,0 +1,2 @@
+/* chart-bullet — row labels use the axis text color. */
+.efx-chart__axis-t { fill: var(--efx-chart-text); pointer-events: none; }

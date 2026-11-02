@@ -245,7 +245,7 @@ export function chart(el, o, draw) {
     const g = s('g', { class: 'efx-chart__plot' + (played ? ' is-in' : '') }, svg);
     marks = draw({ el, svg, g, w, h, o, data, visible, hidden, colors, fmt, deco, again }) || [];
     if (!deco) {
-      sr.innerHTML = marks.slice(0, 200).map(m => `<li>${esc(m.label)}${m.series ? ' (' + esc(m.series) + ')' : ''}: ${esc(fmt(m.value))}</li>`).join('');
+      sr.innerHTML = marks.slice(0, 200).map(m => `<li>${esc(m.label)}${m.series ? ' (' + esc(m.series) + ')' : ''}: ${esc(m.valueText ?? fmt(m.value))}</li>`).join('');
       svg.setAttribute('tabindex', marks.length ? '0' : '-1');
     }
   }
@@ -283,7 +283,7 @@ export function chart(el, o, draw) {
     marks.forEach((k, j) => k.node && k.node.classList.toggle('is-dim', j !== i && !rel.has(j) && (m.group == null || k.group !== m.group)));
     if (m.node) m.node.classList.add('is-active');
     if (draw.onShow) draw.onShow(m);
-    tip.innerHTML = m.html || `<strong>${esc(m.label)}</strong>${m.series ? `<span>${esc(m.series)}</span>` : ''}<b>${esc(fmt(m.value))}</b>`;
+    tip.innerHTML = m.html || `<strong>${esc(m.label)}</strong>${m.series ? `<span>${esc(m.series)}</span>` : ''}<b>${esc(m.valueText ?? fmt(m.value))}</b>`;
     tip.hidden = false;
     const r = el.getBoundingClientRect(), sv = svg.getBoundingClientRect();
     const x = sv.left - r.left + m.x * (sv.width / w), y = sv.top - r.top + m.y * (sv.height / h);

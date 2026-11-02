@@ -180,8 +180,8 @@
       else mount(el, def);
     }
   }
-  function define(...defs) {
-    for (const def of defs.flat()) {
+  function define(...defs2) {
+    for (const def of defs2.flat()) {
       if (!def || !def.name) continue;
       registry.set(def.name, def);
       if (booted && doc) scan(doc, def);
@@ -489,6 +489,82 @@
       }
     }
   });
+  var cell = (a) => Math.max(14, Math.sqrt(a / 1200));
+  var cells = (a) => {
+    const c = cell(a);
+    return Math.ceil(a / (c * c) + 2 * Math.sqrt(a) / c + 2);
+  };
+  var place = (p, S2) => {
+    const c = cell(S2.w * S2.h), n = Math.ceil(S2.w / c) || 1;
+    p.s = c;
+    p.x = p.i % n * c;
+    p.y = (p.i / n | 0) * c;
+    p.l = 0;
+    p.k = S2.rnd(0, 1);
+  };
+  add("ambient-mode", {
+    grid: {
+      count: cells,
+      ptr: 1,
+      spawn: place,
+      step: (p, S2) => {
+        const q = S2.ptr, d = Math.hypot(q.x - p.x - p.s / 2, q.y - p.y - p.s / 2);
+        p.l = q.on && d < 110 ? Math.max(p.l, 1 - d / 110) : p.l * 0.93;
+        return 1;
+      },
+      draw: (c, p, S2) => {
+        if (p.y > S2.h) return;
+        c.globalAlpha = S2.op * 0.12;
+        c.lineWidth = 1;
+        c.strokeRect(p.x + 0.5, p.y + 0.5, p.s - 1, p.s - 1);
+        if (p.l > 0.02) {
+          c.globalAlpha = S2.op * p.l * 0.7;
+          c.fillRect(p.x + 1, p.y + 1, p.s - 2, p.s - 2);
+        }
+      }
+    },
+    flicker: {
+      count: cells,
+      spawn: place,
+      step: (p, S2) => {
+        if (Math.random() < 0.012 * S2.sp) p.k = Math.random() < 0.35 ? S2.rnd(0.4, 1) : 0;
+        p.l += (p.k - p.l) * 0.15;
+        return 1;
+      },
+      draw: (c, p, S2) => {
+        if (p.y > S2.h) return;
+        c.globalAlpha = S2.op * (0.04 + p.l * 0.8);
+        c.fillRect(p.x + 1, p.y + 1, p.s - 2, p.s - 2);
+      }
+    },
+    meteors: {
+      count: cnt(2e4, 14),
+      step: (p, S2) => {
+        p.x -= p.v * 0.7 * S2.sp;
+        p.y += p.v * 0.7 * S2.sp;
+        return p.y < S2.h + 60 && p.x > -60;
+      },
+      spawn: (p, S2, first) => {
+        p.v = S2.rnd(4, 9);
+        p.l = S2.rnd(60, 140);
+        p.x = S2.rnd(0, S2.w + S2.h);
+        p.y = first ? S2.rnd(-S2.h, S2.h) : -S2.rnd(20, 400);
+      },
+      draw: (c, p, S2) => {
+        const t = p.l * 0.7, g = c.createLinearGradient(p.x, p.y, p.x + t, p.y - t);
+        g.addColorStop(0, p.c);
+        g.addColorStop(1, "transparent");
+        c.globalAlpha = S2.op;
+        c.strokeStyle = g;
+        c.lineWidth = 1.5;
+        c.lineCap = "round";
+        c.beginPath();
+        c.moveTo(p.x, p.y);
+        c.lineTo(p.x + t, p.y - t);
+        c.stroke();
+      }
+    }
+  });
   var ambient_default = {
     name: "ambient",
     selector: ".efx-ambient",
@@ -602,6 +678,82 @@
         ro && ro.disconnect();
         cv2.remove();
         if (restorePos) el.style.position = "";
+      };
+    }
+  };
+
+  // src/features/beam.js
+  var NS = "http://www.w3.org/2000/svg";
+  var mk = (t, a, p) => {
+    const n = document.createElementNS(NS, t);
+    for (const k in a) n.setAttribute(k, a[k]);
+    p && p.appendChild(n);
+    return n;
+  };
+  var uid = 0;
+  var beam_default = {
+    name: "beam",
+    selector: ".efx-beam",
+    defaults: { links: "", curvature: 40, speed: 3, width: 2, color: "", reverse: false },
+    init(el, o) {
+      const q = (s) => {
+        try {
+          return el.querySelector(s);
+        } catch (e) {
+          return null;
+        }
+      };
+      const L = o.links.split("|").map((s) => s.split(">").map((x) => x.trim())).filter((l) => l.length === 2 && l[0] && l[1]).map(([a, b]) => [q(a), q(b)]).filter((l) => l[0] && l[1]);
+      if (!L.length) return;
+      let restore = false;
+      if (getComputedStyle(el).position === "static") {
+        el.style.position = "relative";
+        restore = true;
+      }
+      const motion = motionOK(), id = "efx-beam-" + ++uid;
+      const svg = mk("svg", { class: "efx-beam__svg", "aria-hidden": "true" });
+      svg.style.setProperty("--efx-beam-s", o.speed + "s");
+      const parts = L.map((l, i) => {
+        const g = mk("linearGradient", { id: id + i, gradientUnits: "userSpaceOnUse" }, svg);
+        const stops = o.color ? [o.color, o.color] : ["var(--sh-primary,#6366f1)", "var(--sh-accent,#ec4899)"];
+        stops.forEach((c, k) => mk("stop", { offset: k, style: "stop-color:" + c }, g));
+        const at = { class: "efx-beam__path", stroke: `url(#${id + i})`, "stroke-width": o.width, pathLength: 100 };
+        const base = mk("path", { ...at, opacity: motion ? 0.18 : 0.6 }, svg);
+        const run = motion && mk("path", { ...at, class: "efx-beam__path efx-beam__run" + (o.reverse ? " efx-beam__rev" : ""), "stroke-dasharray": "25 200" }, svg);
+        if (run) run.style.animationDelay = -(i * o.speed / 3) + "s";
+        return { g, base, run };
+      });
+      el.appendChild(svg);
+      const layout = () => {
+        const r = el.getBoundingClientRect();
+        svg.setAttribute("viewBox", `0 0 ${r.width} ${r.height}`);
+        L.forEach(([a, b], i) => {
+          const pt = (n) => {
+            const t = n.getBoundingClientRect();
+            return [t.left - r.left + t.width / 2, t.top - r.top + t.height / 2];
+          };
+          const [ax, ay] = pt(a), [bx, by] = pt(b), p = parts[i];
+          const d = `M${ax},${ay} Q${(ax + bx) / 2},${(ay + by) / 2 - o.curvature} ${bx},${by}`;
+          p.base.setAttribute("d", d);
+          p.run && p.run.setAttribute("d", d);
+          [["x1", ax], ["y1", ay], ["x2", bx], ["y2", by]].forEach(([k, v]) => p.g.setAttribute(k, v));
+        });
+      };
+      const lay = rafThrottle(layout);
+      layout();
+      const offs = [on(window, "resize", lay), onVisible(el, (v) => svg.classList.toggle("is-paused", !v))];
+      let ro;
+      if (typeof ResizeObserver !== "undefined") {
+        ro = new ResizeObserver(lay);
+        ro.observe(el);
+        L.forEach((l) => l.forEach((n) => ro.observe(n)));
+      }
+      return () => {
+        lay.cancel();
+        ro && ro.disconnect();
+        offs.forEach((f2) => f2());
+        svg.remove();
+        if (restore) el.style.position = "";
       };
     }
   };
@@ -921,12 +1073,12 @@
     init(el, o) {
       const after = el.querySelectorAll(":scope > img")[1];
       if (!after) return;
-      const mk = (tag, cls) => {
+      const mk2 = (tag, cls) => {
         const n = document.createElement(tag);
         n.className = "efx-compare__" + cls;
         return n;
       };
-      const clip = mk("div", "clip"), handle = mk("div", "handle"), knob = mk("span", "knob"), input = mk("input", "range");
+      const clip = mk2("div", "clip"), handle = mk2("div", "handle"), knob = mk2("span", "knob"), input = mk2("input", "range");
       handle.setAttribute("aria-hidden", "true");
       handle.appendChild(knob);
       Object.assign(input, { type: "range", min: 0, max: 100, step: 1 });
@@ -1222,14 +1374,14 @@
       if (!o.compact) {
         el.textContent = "";
         us.forEach((u) => {
-          const cell = document.createElement("div"), n = document.createElement("span"), l = document.createElement("span");
-          cell.className = "efx-countdown__unit";
+          const cell2 = document.createElement("div"), n = document.createElement("span"), l = document.createElement("span");
+          cell2.className = "efx-countdown__unit";
           n.className = "efx-countdown__num";
           l.className = "efx-countdown__label";
           l.textContent = labels["dhms".indexOf(u)] || "";
           nums[u] = n;
-          cell.append(n, l);
-          el.append(cell);
+          cell2.append(n, l);
+          el.append(cell2);
         });
       }
       const render = () => {
@@ -1386,7 +1538,7 @@
       } catch {
         hoverSel = "a,button,[role=button],input,select,textarea,label,summary,.efx-cursor-hover";
       }
-      const mk = (k) => {
+      const mk2 = (k) => {
         const d = document.createElement("div");
         d.className = "efx-cursor__" + k;
         d.setAttribute("aria-hidden", "true");
@@ -1397,8 +1549,8 @@
         document.body.appendChild(d);
         return d;
       };
-      const ring = o.style !== "dot" ? mk("ring") : null;
-      const dot2 = o.style !== "ring" ? mk("dot") : null;
+      const ring = o.style !== "dot" ? mk2("ring") : null;
+      const dot2 = o.style !== "ring" ? mk2("dot") : null;
       const parts = [ring, dot2].filter(Boolean);
       if (o.hideNative) el.classList.add("efx-cursor-hide");
       let tx = 0, ty = 0, rx = 0, ry = 0, raf2 = 0, seen = false;
@@ -1586,7 +1738,7 @@
       el.setAttribute("aria-hidden", "true");
       el.setAttribute("data-efx-mode", move ? mode : "none");
       st.setProperty("--efx-dv-dir", side === "t" ? 1 : -1);
-      const mk = (k, op) => {
+      const mk2 = (k, op) => {
         let body = "";
         layers.forEach(([y0, s2, tile], li) => {
           let d = `M0,${y0}`;
@@ -1598,7 +1750,7 @@
         return s;
       };
       const copies = mode === "layers" && move ? [0, 1, 2] : [0];
-      el.innerHTML = copies.map((k) => mk(k, copies.length > 1 ? [0.35, 0.6, 1][k] : 1)).join("");
+      el.innerHTML = copies.map((k) => mk2(k, copies.length > 1 ? [0.35, 0.6, 1][k] : 1)).join("");
       el.classList.add("is-ready");
       const kind = drift ? "drift" : move ? "float" : "";
       if (kind) el.classList.add("efx-divider--" + kind);
@@ -1761,10 +1913,10 @@
           });
         });
       } else {
-        const span = o.end - o.start || 1, tail = Math.max(0.05, 1 - (n - 1) * st);
+        const span2 = o.end - o.start || 1, tail = Math.max(0.05, 1 - (n - 1) * st);
         stop = onScroll((y, vh) => {
           const r = el.getBoundingClientRect();
-          const q = clamp(((vh - r.top) / (vh + r.height) - o.start) / span);
+          const q = clamp(((vh - r.top) / (vh + r.height) - o.start) / span2);
           return () => parts.forEach((p, i) => set(p, clamp((q - i * st) / tail)));
         });
       }
@@ -1775,6 +1927,249 @@
           const s = p.n.style;
           [s.strokeDasharray, s.strokeDashoffset, s.fill, s.fillOpacity] = p.saved;
         });
+      };
+    }
+  };
+
+  // src/features/feed.js
+  var TR = ["height", "opacity", "margin", "padding", "border-width"].map((p) => p + " .45s ease").join(",");
+  var feed_default = {
+    name: "feed",
+    selector: ".efx-feed",
+    defaults: { interval: 1500, max: 4, loop: true, order: "newest" },
+    init(el, o) {
+      const items = [...el.children], n = items.length;
+      const css2 = items.map((i) => i.getAttribute("style"));
+      const reset = (it, k = items.indexOf(it)) => {
+        it.hidden = false;
+        css2[k] == null ? it.removeAttribute("style") : it.setAttribute("style", css2[k]);
+      };
+      const restore = () => {
+        items.forEach((it) => reset(it));
+        el.append(...items);
+      };
+      if (!n) return;
+      const max = Math.max(1, o.max | 0);
+      if (!motionOK() || n < 2) {
+        items.forEach((it, k) => {
+          it.hidden = k >= max;
+        });
+        return restore;
+      }
+      const newest = o.order !== "append", lim = Math.min(max, n - 1);
+      const shown2 = [], timers = /* @__PURE__ */ new Set();
+      const later = (fn, ms) => {
+        const t = setTimeout(() => {
+          timers.delete(t);
+          fn();
+        }, ms);
+        timers.add(t);
+      };
+      const collapse = (s) => {
+        s.overflow = "hidden";
+        s.height = "0";
+        s.opacity = "0";
+        s.marginBlock = s.paddingBlock = s.borderBlockWidth = "0";
+      };
+      const enter = (it) => {
+        it.remove();
+        reset(it);
+        newest ? el.prepend(it) : el.append(it);
+        const h = it.offsetHeight, s = it.style;
+        s.transition = "none";
+        collapse(s);
+        it.offsetHeight;
+        s.transition = TR;
+        s.height = h + "px";
+        s.opacity = s.marginBlock = s.paddingBlock = s.borderBlockWidth = "";
+        later(() => shown2.includes(it) && reset(it), 500);
+      };
+      const leave = (it) => {
+        const s = it.style;
+        s.overflow = "hidden";
+        s.height = it.offsetHeight + "px";
+        s.transition = "none";
+        it.offsetHeight;
+        s.transition = TR;
+        collapse(s);
+        later(() => {
+          if (!shown2.includes(it)) {
+            it.remove();
+            reset(it);
+          }
+        }, 500);
+      };
+      items.forEach((it) => it.remove());
+      el.append(items[0]);
+      shown2.push(items[0]);
+      let idx = 1, timer = 0, vis = true, hid = document.hidden;
+      const tick = () => {
+        timer = 0;
+        if (idx >= n) {
+          if (!o.loop) return;
+          idx = 0;
+        }
+        const it = items[idx++];
+        newest ? shown2.unshift(it) : shown2.push(it);
+        enter(it);
+        while (shown2.length > lim) leave(newest ? shown2.pop() : shown2.shift());
+        run();
+      };
+      const run = () => {
+        if (vis && !hid && !timer) timer = setTimeout(tick, o.interval);
+      };
+      const halt = () => {
+        clearTimeout(timer);
+        timer = 0;
+      };
+      const offs = [
+        onVisible(el, (v) => {
+          vis = v;
+          v ? run() : halt();
+        }),
+        on(document, "visibilitychange", () => {
+          hid = document.hidden;
+          hid ? halt() : run();
+        })
+      ];
+      run();
+      return () => {
+        halt();
+        timers.forEach(clearTimeout);
+        offs.forEach((f2) => f2());
+        restore();
+      };
+    }
+  };
+
+  // src/features/globe.js
+  var globe_default = {
+    name: "globe",
+    selector: ".efx-globe",
+    lazy: true,
+    defaults: { dots: 1200, speed: 0.2, markers: [], color: "", tilt: 0.3, drag: true },
+    init(el, o) {
+      let restore = 0;
+      if (getComputedStyle(el).position === "static") {
+        el.style.position = "relative";
+        restore = 1;
+      }
+      const cv2 = document.createElement("canvas"), c = cv2.getContext("2d"), col = o.color || themeColor(el);
+      cv2.className = "efx-globe__canvas";
+      cv2.setAttribute("aria-hidden", "true");
+      el.appendChild(cv2);
+      const N = Math.min(6e3, o.dots), P = [];
+      for (let i = 0, y, r, a; i < N; i++) {
+        y = 1 - 2 * (i + 0.5) / N;
+        r = Math.sqrt(1 - y * y);
+        a = i * 2.39996;
+        P.push([Math.cos(a) * r, y, Math.sin(a) * r]);
+      }
+      const M = (el.dataset.efxMarkers || "").split("|").map((s) => s.split(",").map(parseFloat)).filter((m) => m.length > 1 && m.every(isFinite)).map(([la, lo]) => {
+        la *= Math.PI / 180;
+        lo *= Math.PI / 180;
+        return [Math.cos(la) * Math.cos(lo), Math.sin(la), Math.cos(la) * Math.sin(lo)];
+      });
+      let w = 0, h = 0, R = 0, rot = 0, tilt = o.tilt, raf2 = 0, last = 0, vis = true, dx = null, dy = 0;
+      const draw2 = (t) => {
+        c.clearRect(0, 0, w, h);
+        const cr = Math.cos(rot), sr = Math.sin(rot), ct = Math.cos(tilt), st = Math.sin(tilt);
+        const pr = ([x, y, z]) => {
+          const X = x * cr + z * sr, Z = z * cr - x * sr;
+          return [w / 2 + X * R, h / 2 - (y * ct - Z * st) * R, y * st + Z * ct];
+        };
+        c.fillStyle = c.strokeStyle = col;
+        for (const p of P) {
+          const [x, y, z] = pr(p);
+          c.globalAlpha = z > 0 ? 0.3 + 0.7 * z : 0.07;
+          c.fillRect(x - 0.8, y - 0.8, 1.6, 1.6);
+        }
+        const ph = t / 1500 % 1;
+        for (const m of M) {
+          const [x, y, z] = pr(m);
+          if (z <= 0) continue;
+          c.globalAlpha = 1;
+          c.beginPath();
+          c.arc(x, y, 3, 0, 6.3);
+          c.fill();
+          c.globalAlpha = 1 - ph;
+          c.beginPath();
+          c.arc(x, y, 3 + 10 * ph, 0, 6.3);
+          c.stroke();
+        }
+      };
+      const step = (t) => {
+        raf2 = 0;
+        rot += o.speed * Math.min(50, t - last) / 1e3;
+        last = t;
+        draw2(t);
+        go();
+      };
+      const go = () => {
+        if (motion && vis && !raf2) {
+          last = performance.now();
+          raf2 = requestAnimationFrame(step);
+        }
+      };
+      const motion = motionOK();
+      const size = () => {
+        const d = Math.min(devicePixelRatio || 1, 2);
+        w = el.clientWidth;
+        h = el.clientHeight;
+        R = Math.min(w, h) * 0.45;
+        cv2.width = w * d;
+        cv2.height = h * d;
+        c.setTransform(d, 0, 0, d, 0, 0);
+        draw2(performance.now());
+      };
+      size();
+      const offs = [];
+      if (motion) offs.push(onVisible(el, (v) => {
+        vis = v;
+        if (v) go();
+        else {
+          cancelAnimationFrame(raf2);
+          raf2 = 0;
+        }
+      }));
+      if (o.drag) {
+        cv2.style.cursor = "grab";
+        cv2.style.touchAction = "pan-y";
+        cv2.style.pointerEvents = "auto";
+        offs.push(on(cv2, "pointerdown", (e) => {
+          dx = e.clientX;
+          dy = e.clientY;
+          cv2.setPointerCapture(e.pointerId);
+        }));
+        offs.push(on(cv2, "pointermove", (e) => {
+          if (dx == null) return;
+          rot += (e.clientX - dx) * 8e-3;
+          tilt = Math.max(-1.2, Math.min(1.2, tilt + (e.clientY - dy) * 5e-3));
+          dx = e.clientX;
+          dy = e.clientY;
+          if (!raf2) draw2(performance.now());
+        }));
+        const up = () => {
+          dx = null;
+        };
+        offs.push(on(cv2, "pointerup", up), on(cv2, "pointercancel", up));
+      }
+      let ro;
+      if (typeof ResizeObserver !== "undefined") {
+        ro = new ResizeObserver(() => {
+          if (el.clientWidth !== w || el.clientHeight !== h) size();
+        });
+        ro.observe(el);
+      }
+      go();
+      return () => {
+        cancelAnimationFrame(raf2);
+        raf2 = 0;
+        vis = false;
+        offs.forEach((f2) => f2());
+        ro && ro.disconnect();
+        cv2.remove();
+        if (restore) el.style.position = "";
       };
     }
   };
@@ -2251,6 +2646,100 @@
     }
   };
 
+  // src/features/morph.js
+  var defs = null;
+  var refs2 = 0;
+  var needFilter = () => {
+    if (!refs2++) {
+      defs = document.createElement("div");
+      defs.className = "efx-morph__defs";
+      defs.setAttribute("aria-hidden", "true");
+      defs.innerHTML = '<svg width="0" height="0"><filter id="efx-morph-f"><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 255 -140"/></filter></svg>';
+      document.body.appendChild(defs);
+    }
+    return () => {
+      if (!--refs2) defs.remove();
+    };
+  };
+  var span = (c, t) => {
+    const s = document.createElement("span");
+    s.className = "efx-morph__" + c;
+    if (t != null) s.textContent = t;
+    return s;
+  };
+  var morph_default = {
+    name: "morph",
+    selector: ".efx-morph",
+    defaults: { words: [], duration: 1200, pause: 1800 },
+    init(el, o) {
+      const W = o.words.length ? o.words : [el.textContent.trim()];
+      if (!W[0]) return;
+      const saved = el.innerHTML;
+      if (!motionOK() || W.length < 2) {
+        el.textContent = W[0];
+        return () => {
+          el.innerHTML = saved;
+        };
+      }
+      const free = needFilter();
+      const sr = span("sr", W[0]), vis = span("vis"), a = span("a", W[0]), b = span("b");
+      vis.setAttribute("aria-hidden", "true");
+      W.forEach((w) => vis.appendChild(span("g", w)));
+      vis.append(a, b);
+      el.textContent = "";
+      el.append(sr, vis);
+      let i = 0, timer = 0, raf2 = 0;
+      const set = (s, blur, op) => {
+        s.style.filter = blur > 0.1 ? `blur(${blur}px)` : "";
+        s.style.opacity = op;
+      };
+      const settle = () => {
+        vis.classList.remove("is-morphing");
+        a.textContent = W[i];
+        b.textContent = "";
+        set(a, 0, 1);
+        set(b, 0, 0);
+      };
+      const next = () => {
+        timer = 0;
+        const j = (i + 1) % W.length, t0 = performance.now();
+        b.textContent = W[j];
+        vis.classList.add("is-morphing");
+        const tick = (now) => {
+          const f2 = Math.min(1, (now - t0) / o.duration);
+          set(b, Math.min(8 / f2 - 8, 100), f2 ** 0.4);
+          set(a, Math.min(8 / (1 - f2) - 8, 100), (1 - f2) ** 0.4);
+          if (f2 < 1) raf2 = requestAnimationFrame(tick);
+          else {
+            raf2 = 0;
+            i = j;
+            sr.textContent = W[i];
+            settle();
+            timer = setTimeout(next, o.pause);
+          }
+        };
+        raf2 = requestAnimationFrame(tick);
+      };
+      const stop = onVisible(el, (v) => {
+        if (v) {
+          if (!timer && !raf2) timer = setTimeout(next, o.pause);
+        } else {
+          clearTimeout(timer);
+          cancelAnimationFrame(raf2);
+          timer = raf2 = 0;
+          settle();
+        }
+      });
+      return () => {
+        stop();
+        clearTimeout(timer);
+        cancelAnimationFrame(raf2);
+        free();
+        el.innerHTML = saved;
+      };
+    }
+  };
+
   // src/features/mouse.js
   var subs2 = /* @__PURE__ */ new Set();
   var docOff3 = null;
@@ -2374,7 +2863,7 @@
         strips = [];
         let k = 0;
         for (const c of text) {
-          const cell = document.createElement("span");
+          const cell2 = document.createElement("span");
           if (/\d/.test(c)) {
             const strip = document.createElement("span");
             strip.className = "efx-odometer__s";
@@ -2382,14 +2871,14 @@
             strip.dataset.to = c;
             strip.style.setProperty("--n", src[k++] || 0);
             strip.style.transitionDelay = strips.length * o.stagger + "ms";
-            cell.className = "efx-odometer__d";
-            cell.append(strip);
+            cell2.className = "efx-odometer__d";
+            cell2.append(strip);
             strips.push(strip);
           } else {
-            cell.className = "efx-odometer__c";
-            cell.textContent = c;
+            cell2.className = "efx-odometer__c";
+            cell2.textContent = c;
           }
-          vis.append(cell);
+          vis.append(cell2);
         }
         el.textContent = "";
         el.append(sr, vis);
@@ -3141,12 +3630,12 @@
           el.innerHTML = saved;
         };
       }
-      const mk = (c) => {
+      const mk2 = (c) => {
         const s = document.createElement("span");
         s.className = c;
         return s;
       };
-      const sr = mk("efx-scramble__sr"), vis = mk("efx-scramble__v");
+      const sr = mk2("efx-scramble__sr"), vis = mk2("efx-scramble__v");
       vis.setAttribute("aria-hidden", "true");
       el.textContent = "";
       el.append(sr, vis);
@@ -3314,7 +3803,7 @@
       if (!motionOK()) return;
       const A = { ...NEUTRAL, ...parse(o.from) };
       const B = { ...NEUTRAL, x: o.x, y: o.y, rotate: o.rotate, scale: o.scale, blur: o.blur, ...o.opacity >= 0 ? { opacity: o.opacity } : {}, ...parse(o.to) };
-      const ease2 = ease(o.ease), span = o.end - o.start || 1;
+      const ease2 = ease(o.ease), span2 = o.end - o.start || 1;
       const s = el.style, saved = [s.translate, s.rotate, s.scale, s.opacity, s.filter, s.transition, s.willChange, s.getPropertyValue("--efx-p")];
       const use = (k) => A[k] !== B[k];
       const moves = use("x") || use("y"), turns = use("rotate"), zooms = use("scale"), fades = use("opacity"), blurs = use("blur");
@@ -3324,7 +3813,7 @@
       const stop = onScroll((y, vh) => {
         const r = el.getBoundingClientRect();
         const h0 = r.height / (sc || 1), top0 = r.top - ty - h0 * (1 - sc) / 2;
-        const q = ease2(Math.min(1, Math.max(0, ((vh - top0) / (vh + h0) - o.start) / span)));
+        const q = ease2(Math.min(1, Math.max(0, ((vh - top0) / (vh + h0) - o.start) / span2)));
         const v = (k) => A[k] + (B[k] - A[k]) * q;
         return () => {
           ty = v("y");
@@ -3501,6 +3990,49 @@
           el.style.height = saveH;
           el.classList.remove("efx-sequence-on");
         }
+      };
+    }
+  };
+
+  // src/features/sparkles.js
+  add("sparkle-shape", "star", (s) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="currentColor"><path d="M12 0c.6 7 4.9 11.4 12 12-7.1.6-11.4 5-12 12-.6-7-4.9-11.4-12-12 7.1-.6 11.4-5 12-12z"/></svg>`);
+  var sparkles_default = {
+    name: "sparkles",
+    selector: ".efx-sparkles",
+    defaults: { count: 10, color: "", sizeMin: 8, sizeMax: 18, speed: 1, shape: "star" },
+    init(el, o) {
+      if (!motionOK()) return;
+      let restore = false;
+      if (getComputedStyle(el).position === "static") {
+        el.style.position = "relative";
+        restore = true;
+      }
+      const layer = document.createElement("span");
+      layer.className = "efx-sparkles__layer";
+      layer.setAttribute("aria-hidden", "true");
+      const cols = o.color ? o.color.split("|").map((s) => s.trim()).filter(Boolean) : [themeColor(el), "#fbbf24"];
+      const shape = get("sparkle-shape", o.shape) || get("sparkle-shape", "star");
+      const r = (a, b) => a + Math.random() * (b - a);
+      const place2 = (s) => {
+        s.style.left = r(-8, 108) + "%";
+        s.style.top = r(-25, 125) + "%";
+      };
+      for (let i = 0; i < Math.min(60, o.count); i++) {
+        const s = document.createElement("span"), m = shape(r(o.sizeMin, o.sizeMax) | 0);
+        s.className = "efx-sparkles__s";
+        typeof m === "string" ? s.innerHTML = m : s.appendChild(m);
+        s.style.color = cols[i % cols.length];
+        s.style.animationDuration = r(0.8, 1.6) / o.speed + "s";
+        s.style.animationDelay = -r(0, 1.6) + "s";
+        place2(s);
+        layer.appendChild(s);
+      }
+      el.appendChild(layer);
+      const offs = [on(layer, "animationiteration", (e) => place2(e.target)), onVisible(el, (v) => layer.classList.toggle("is-paused", !v))];
+      return () => {
+        offs.forEach((f2) => f2());
+        layer.remove();
+        if (restore) el.style.position = "";
       };
     }
   };
@@ -4148,16 +4680,16 @@
           el.innerHTML = saved;
         };
       }
-      const mk = (c, t) => {
+      const mk2 = (c, t) => {
         const s = document.createElement("span");
         s.className = c;
         if (t) s.textContent = t;
         return s;
       };
-      const sr = mk("efx-typed__sr", words[0]), vis = mk("efx-typed__v"), txt = mk("efx-typed__t"), type = o.mode === "type";
+      const sr = mk2("efx-typed__sr", words[0]), vis = mk2("efx-typed__v"), txt = mk2("efx-typed__t"), type = o.mode === "type";
       vis.setAttribute("aria-hidden", "true");
       vis.append(txt);
-      if (o.cursor) vis.append(mk("efx-typed__cursor"));
+      if (o.cursor) vis.append(mk2("efx-typed__cursor"));
       el.textContent = "";
       el.append(sr, vis);
       el.setAttribute("data-efx-mode", o.mode);
@@ -4286,7 +4818,7 @@
   };
 
   // src/effix-entry.js
-  define(ambient_default, border_default, carousel_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, direction_default, divider_default, drag_default, draw_default, hscroll_default, lazyimg_default, lightbox_default, magnetic_default, marquee_default, media_default, mouse_default, odometer_default, parallax_default, particles_default, popup_default, progress_default, proximity_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
+  define(ambient_default, beam_default, border_default, carousel_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, direction_default, divider_default, drag_default, draw_default, feed_default, globe_default, hscroll_default, lazyimg_default, lightbox_default, magnetic_default, marquee_default, media_default, morph_default, mouse_default, odometer_default, parallax_default, particles_default, popup_default, progress_default, proximity_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, sparkles_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
   if (typeof window !== "undefined") window.Effix = core_default;
   autoBoot();
   var effix_entry_default = core_default;

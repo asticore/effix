@@ -18,6 +18,14 @@
 .efx-ambient { isolation: isolate; } /* position:relative is added by JS only when the host is static */
 .efx-ambient__canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; display: block; }
 
+/* beam — overlay svg; the moving segment is a dashed copy of the path (pathLength 100) */
+.efx-beam__svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.efx-beam__path { fill: none; stroke-linecap: round; }
+.efx-beam__run { animation: efx-beam-run var(--efx-beam-s, 3s) linear infinite; }
+.efx-beam__rev { animation-direction: reverse; }
+.efx-beam__svg.is-paused .efx-beam__run { animation-play-state: paused; }
+@keyframes efx-beam-run { from { stroke-dashoffset: 25; } to { stroke-dashoffset: -100; } }
+
 /* border — masked ring pseudo-element; only the border area shows */
 @property --efx-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 /* position:relative is added by border.js only when the element is statically positioned */
@@ -169,6 +177,13 @@
 /* draw — keep dashed strokes crisp */
 .efx-draw path, .efx-draw line, .efx-draw polyline, .efx-draw polygon, .efx-draw circle, .efx-draw ellipse, .efx-draw rect { stroke-linecap: round; stroke-linejoin: round; }
 
+/* feed — nothing static to style; items animate height/opacity inline. Keep hidden items out of the layout. */
+.efx-feed > [hidden] { display: none; }
+
+/* globe — canvas fills the host; give the host a size (aspect-ratio keeps it square by default) */
+.efx-globe { aspect-ratio: 1; }
+.efx-globe__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
 /* hscroll — layout only applies while JS has set efx-hscroll-on / efx-hscroll-native */
 .efx-hscroll-on > .efx-hscroll__pin { position: sticky; overflow: hidden; }
 .efx-hscroll-on .efx-hscroll__track { display: flex; width: max-content; height: 100%; }
@@ -224,6 +239,15 @@
 }
 .efx-media__play::before { content: ""; position: absolute; left: 53%; top: 50%; transform: translate(-50%, -50%); border-style: solid; border-width: .6rem 0 .6rem 1rem; border-color: transparent transparent transparent currentColor; }
 .efx-media__play:focus-visible { outline: 3px solid var(--sh-primary, #6366f1); outline-offset: 2px; }
+
+/* morph — ghosts (hidden) size the box; the threshold filter only runs while morphing so settled text stays crisp */
+.efx-morph__vis { display: inline-grid; justify-items: var(--efx-morph-justify, center); }
+.efx-morph__vis > * { grid-area: 1 / 1; }
+.efx-morph__g { visibility: hidden; }
+.efx-morph__b { opacity: 0; }
+.efx-morph__vis.is-morphing { filter: url(#efx-morph-f); }
+.efx-morph__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.efx-morph__defs { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
 
 /* odometer — digit strips roll via translateY; --n is the digit shown */
 .efx-odometer__v { display: inline-flex; font-variant-numeric: tabular-nums; line-height: 1.1; vertical-align: bottom; }
@@ -313,6 +337,12 @@
 .efx-sequence-on > .efx-sequence__pin { position: sticky; top: 0; height: 100vh; }
 video.efx-sequence-on { position: sticky; top: 0; display: block; width: 100%; height: 100vh; }
 .efx-sequence-static > video { display: block; width: 100%; max-height: 70vh; }
+
+/* sparkles — layer sits over the host; stars scale/rotate in and out */
+.efx-sparkles__layer { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.efx-sparkles__s { position: absolute; display: block; line-height: 0; translate: -50% -50%; transform: scale(0); animation: efx-sparkle 1.2s ease-in-out infinite; }
+.efx-sparkles__layer.is-paused .efx-sparkles__s { animation-play-state: paused; }
+@keyframes efx-sparkle { 0%, 100% { transform: scale(0) rotate(0); opacity: 0; } 50% { transform: scale(1) rotate(90deg); opacity: 1; } }
 
 /* split — pieces hidden only after JS claims the element */
 .efx-split__p { display: inline-block; white-space: pre; }
