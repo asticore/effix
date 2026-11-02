@@ -1,7 +1,7 @@
 {
   "name": "effix",
   "version": "0.1.0",
-  "description": "Class-driven JavaScript effects (particles, parallax, reveal, tilt, carousels, popups…) that pair with Shine CSS. Only features found on the page start.",
+  "description": "Class-driven JavaScript effects (particles, parallax, reveal, tilt, carousels, popups\u2026) plus interactive SVG charts and funnels, built to pair with Shine CSS. Only features found on the page start.",
   "main": "dist/effix.min.js",
   "module": "dist/effix.esm.js",
   "style": "dist/effix.min.css",
@@ -12,9 +12,17 @@
       "import": "./dist/effix.esm.js",
       "default": "./dist/effix.min.js"
     },
+    "./all": {
+      "import": "./dist/effix.all.esm.js",
+      "default": "./dist/effix.all.min.js"
+    },
+    "./charts": "./dist/effix-charts.min.js",
     "./css": "./dist/effix.min.css",
+    "./charts.css": "./dist/effix-charts.min.css",
+    "./all.css": "./dist/effix.all.min.css",
     "./core": "./src/core.js",
     "./features/*": "./src/features/*.js",
+    "./charts/*": "./src/charts/*.js",
     "./src/*": "./src/*",
     "./dist/*": "./dist/*",
     "./package.json": "./package.json"
@@ -44,7 +52,10 @@
     "parallax",
     "scroll-reveal",
     "shine-css",
-    "vanilla-js"
+    "vanilla-js",
+    "charts",
+    "funnel",
+    "svg"
   ],
   "author": "Matt Peterman",
   "license": "MIT",

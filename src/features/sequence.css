@@ -1,0 +1,6 @@
+/* sequence — pinned stage; layout only while efx-sequence-on is present */
+.efx-sequence__pin { width: 100%; height: 60vh; }
+.efx-sequence__pin > canvas { display: block; width: 100%; height: 100%; }
+.efx-sequence-on > .efx-sequence__pin { position: sticky; top: 0; height: 100vh; }
+video.efx-sequence-on { position: sticky; top: 0; display: block; width: 100%; height: 100vh; }
+.efx-sequence-static > video { display: block; width: 100%; max-height: 70vh; }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* Effix docs generator — zero dependencies.
-   Reads src/features/*.meta.js + dist/sizes.json and writes docs/index.html:
+   Reads src/features/*.meta.js, src/charts/*.meta.js + dist/sizes.json and writes docs/index.html:
    a static, crawlable portal styled with Shine, where every demo is live and editable.
    Feature names, options and sizes come from the source, so the docs cannot drift.
    Usage: node docs.js */
@@ -8,22 +8,27 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = __dirname;
-const FEAT = path.join(ROOT, 'src', 'features');
+const DIRS = ['features', 'charts'].map(d => path.join(ROOT, 'src', d));
 const pkg = require('./package.json');
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const kb = n => (n / 1024).toFixed(1) + ' KB';
 const warnings = [];
 
 const sizesFile = path.join(ROOT, 'dist', 'sizes.json');
-const sizes = fs.existsSync(sizesFile) ? JSON.parse(fs.readFileSync(sizesFile, 'utf8')) : { core: 0, total: { js: 0, css: 0 }, features: {} };
+const sizes = fs.existsSync(sizesFile) ? JSON.parse(fs.readFileSync(sizesFile, 'utf8')) : { core: 0, chartLib: 0, bundles: {}, features: {} };
+const B = n => sizes.bundles[n] || 0;
+const effectsKB = B('effix.min.js') + B('effix.min.css');
+const chartsKB = B('effix-charts.min.js') + B('effix-charts.min.css');
 
-const GROUPS = ['Scroll', 'Text', 'Buttons & borders', 'Background', 'Pointer', 'Sections', 'Components', 'Time'];
-const names = fs.readdirSync(FEAT).filter(f => /^[\w-]+\.js$/.test(f) && !f.endsWith('.meta.js')).map(f => f.slice(0, -3)).sort();
+const GROUPS = ['Scroll', 'Text', 'Buttons & borders', 'Background', 'Pointer', 'Sections', 'Components', 'Time', 'Charts'];
+const found = DIRS.flatMap(dir => fs.readdirSync(dir).filter(f => /^[a-z][\w-]*\.js$/.test(f) && !f.endsWith('.meta.js')).map(f => ({ name: f.slice(0, -3), dir })));
+const names = found.map(f => f.name).sort();
+const dirOf = n => found.find(f => f.name === n).dir;
 
 // Normalise rows: accept [a,b,c] arrays or {name/attr/class, default, desc} objects.
 const row = (r, keys) => (Array.isArray(r) ? r : keys.map(k => r[k] ?? r[k === 'name' ? 'attr' : k] ?? r[k === 'name' ? 'class' : k] ?? ''));
 const feats = names.map(name => {
-  const file = path.join(FEAT, name + '.meta.js');
+  const file = path.join(dirOf(name), name + '.meta.js');
   if (!fs.existsSync(file)) { warnings.push(`${name}: missing ${name}.meta.js`); return { name, title: name, group: 'Other', summary: '', classes: [], options: [], vars: [], examples: [] }; }
   delete require.cache[file];
   const m = require(file);
@@ -89,7 +94,11 @@ const code = (id, s) => `<div class="flex items-stretch gap-2"><pre class="flex-
 const CDN = 'https://cdn.jsdelivr.net/gh/asticore';
 const install = `<link rel="stylesheet" href="${CDN}/shine@main/dist/shine.min.css">
 <link rel="stylesheet" href="${CDN}/effix@main/dist/effix.min.css">
-<script src="${CDN}/effix@main/dist/effix.min.js" defer></script>`;
+<script src="${CDN}/effix@main/dist/effix.min.js" defer></script>
+
+<!-- optional: charts & funnels add-on -->
+<link rel="stylesheet" href="${CDN}/effix@main/dist/effix-charts.min.css">
+<script src="${CDN}/effix@main/dist/effix-charts.min.js" defer></script>`;
 
 const apiRows = [
   ['Effix.init(root?)', 'Scan root (default document) and start every feature found. Safe to call again — already-running elements are skipped.'],
@@ -112,7 +121,7 @@ const knobRows = [
 
 const toc = groups.map(g => `<li><span class="text-xs font-semibold uppercase text-muted">${esc(g)}</span><ul class="stack gap-1 mt-1">${feats.filter(f => f.group === g).map(f => `<li><a href="#f-${f.name}">${esc(f.title)}</a></li>`).join('')}</ul></li>`).join('\n');
 
-const picker = feats.map(f => `<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="${f.name}" data-size="${sizeOf(f.name)}" checked> ${esc(f.title)} <span class="text-muted ml-auto">${kb(sizeOf(f.name))}</span></label>`).join('\n');
+const picker = feats.map(f => `<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="${f.name}" data-kind="${(sizes.features[f.name] || {}).kind || 'effect'}" data-size="${sizeOf(f.name)}" checked> ${esc(f.title)} <span class="text-muted ml-auto">${kb(sizeOf(f.name))}</span></label>`).join('\n');
 
 const html = `<!doctype html>
 <html lang="en" data-theme="auto">
@@ -120,11 +129,11 @@ const html = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Effix — JavaScript effects for Shine CSS</title>
-<meta name="description" content="Effix adds particles, parallax, scroll reveals, tilt, magnetic buttons, rotating borders, shape dividers, carousels, popups and more with plain classes. Pairs with Shine CSS. ${kb(sizes.total.js)} gzipped, only features on the page start.">
+<meta name="description" content="Effix adds particles, parallax, scroll reveals, tilt, magnetic buttons, rotating borders, shape dividers, carousels, popups and more with plain classes. Pairs with Shine CSS. ${kb(effectsKB)} gzipped, only features on the page start. Interactive SVG charts and funnels as a ${kb(chartsKB)} add-on.">
 <link rel="canonical" href="https://asticore.github.io/effix/docs/">
 <link rel="icon" href="logo.svg">
 <link rel="stylesheet" href="vendor/shine.min.css">
-<link rel="stylesheet" href="../dist/effix.min.css">
+<link rel="stylesheet" href="../dist/effix.all.min.css">
 <style>
 .text-gradient{background-image:linear-gradient(100deg,var(--sh-primary),var(--sh-accent));-webkit-background-clip:text;background-clip:text;color:transparent}
 .code-edit{display:block;inline-size:100%;border:0;border-block-start:1px solid var(--sh-border);background:var(--sh-surface);color:var(--sh-text);font:13px/1.55 var(--sh-font-mono);padding:.75rem 1rem;resize:vertical;tab-size:2;white-space:pre}
@@ -134,7 +143,7 @@ const html = `<!doctype html>
 @media (min-width:1024px){.sticky-lg{position:sticky;top:5rem;align-self:start}.scroll-lg{max-block-size:calc(100vh - 7rem);overflow:auto}}
 .feature{scroll-margin-top:5rem}
 </style>
-<script defer src="../dist/effix.min.js"></script>
+<script defer src="../dist/effix.all.min.js"></script>
 <script defer src="portal.js"></script>
 </head>
 <body>
@@ -164,7 +173,8 @@ const html = `<!doctype html>
   <div class="container mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
     <div class="lg:col-span-7 stack gap-6">
       <p class="cluster gap-2">
-        <span class="badge badge-solid">${kb(sizes.total.js + sizes.total.css)} gzipped, all ${feats.length} features</span>
+        <span class="badge badge-solid">effects ${kb(effectsKB)} gzip</span>
+        <span class="badge tone-accent">charts add-on ${kb(chartsKB)}</span>
         <span class="badge tone-success">core ${kb(sizes.core)}</span>
         <span class="badge tone-neutral">MIT · 0 dependencies</span>
       </p>
@@ -232,7 +242,7 @@ const html = `<!doctype html>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2" id="picker">${picker}</div>
       </div></fieldset>
       <div class="card"><div class="card-body stack">
-        <p class="m-0">Estimated: <strong id="pick-size" data-core="${sizes.core}">${kb(sizes.total.js + sizes.total.css)}</strong> gzip</p>
+        <p class="m-0">Estimated: <strong id="pick-size" data-core="${sizes.core}" data-chartlib="${sizes.chartLib}">${kb(effectsKB + chartsKB)}</strong> gzip</p>
         ${code('pick-cmd', 'node build.js')}
         ${code('pick-esm', `import { define, init } from 'effix/core';`)}
       </div></div>

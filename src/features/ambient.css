@@ -1,0 +1,3 @@
+/* ambient — canvas sits behind content; container becomes its own stacking context */
+.efx-ambient { isolation: isolate; } /* position:relative is added by JS only when the host is static */
+.efx-ambient__canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; display: block; }

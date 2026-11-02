@@ -1,0 +1,11 @@
+/* hscroll — layout only applies while JS has set efx-hscroll-on / efx-hscroll-native */
+.efx-hscroll-on > .efx-hscroll__pin { position: sticky; overflow: hidden; }
+.efx-hscroll-on .efx-hscroll__track { display: flex; width: max-content; height: 100%; }
+.efx-hscroll-on .efx-hscroll__track > :where(*) { flex: none; width: 100vw; }
+.efx-hscroll-native .efx-hscroll__track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+}
+.efx-hscroll-native .efx-hscroll__track > :where(*) { flex: none; width: 85vw; scroll-snap-align: center; }

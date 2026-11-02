@@ -1,4 +1,4 @@
-// Cross-browser smoke test for dist/effix.min.js + dist/effix.min.css.
+// Cross-browser smoke test for dist/effix.all.min.js + .css (effects + charts).
 // Builds one page from every feature's docs examples, then checks that each feature
 // starts (data-efx-ready), lazy features start after scrolling, there are no page
 // errors, and Effix.destroy() tears everything down.
@@ -8,23 +8,24 @@ const path = require('path');
 const playwright = require('playwright');
 
 const root = path.join(__dirname, '..');
-const FEAT = path.join(root, 'src', 'features');
+const DIRS = ['features', 'charts'].map(d => path.join(root, 'src', d));
 const page = path.join(root, 'dist', '_smoke.html');
-const names = fs.readdirSync(FEAT).filter(f => /^[\w-]+\.js$/.test(f) && !f.endsWith('.meta.js')).map(f => f.slice(0, -3));
+const found = DIRS.flatMap(dir => fs.readdirSync(dir).filter(f => /^[a-z][\w-]*\.js$/.test(f) && !f.endsWith('.meta.js')).map(f => ({ n: f.slice(0, -3), dir })));
+const names = found.map(f => f.n);
 
-const feats = names.map(n => {
-  const src = fs.readFileSync(path.join(FEAT, n + '.js'), 'utf8');
+const feats = found.map(({ n, dir }) => {
+  const src = fs.readFileSync(path.join(dir, n + '.js'), 'utf8');
   const selector = (src.match(/selector:\s*(['"`])([\s\S]*?)\1/) || [])[2];
-  const meta = fs.existsSync(path.join(FEAT, n + '.meta.js')) ? require(path.join(FEAT, n + '.meta.js')) : {};
+  const meta = fs.existsSync(path.join(dir, n + '.meta.js')) ? require(path.join(dir, n + '.meta.js')) : {};
   const ex = (meta.examples || [])[0];
   return { n, selector, html: ex ? (typeof ex === 'string' ? ex : ex.html) : '' };
 });
 
 const html = `<!doctype html><html><head><meta charset="utf-8">
-<link rel="stylesheet" href="../docs/vendor/shine.min.css"><link rel="stylesheet" href="effix.min.css">
+<link rel="stylesheet" href="../docs/vendor/shine.min.css"><link rel="stylesheet" href="effix.all.min.css">
 <style>.box{min-height:320px;position:relative}</style></head><body>
 ${feats.map(f => `<section class="box" id="s-${f.n}">${f.html}</section><div style="height:200px"></div>`).join('\n')}
-<script src="effix.min.js"></script></body></html>`;
+<script src="effix.all.min.js"></script></body></html>`;
 fs.writeFileSync(page, html);
 
 async function run(name, reducedMotion = 'no-preference') {

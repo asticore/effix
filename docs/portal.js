@@ -37,16 +37,18 @@
   var cmd = document.querySelector('#pick-cmd code');
   var esm = document.querySelector('#pick-esm code');
   var core = +sizeEl.getAttribute('data-core');
+  var chartLib = +sizeEl.getAttribute('data-chartlib') || 0;
   var kb = function (n) { return (n / 1024).toFixed(1) + ' KB'; };
   var ident = function (n) { return n.replace(/-(\w)/g, function (_, c) { return c.toUpperCase(); }); };
   function update() {
     var on = boxes.filter(function (b) { return b.checked; });
     var total = on.reduce(function (s, b) { return s + +b.getAttribute('data-size'); }, core);
+    if (on.some(function (b) { return b.getAttribute('data-kind') === 'chart'; })) total += chartLib; // shared chart toolkit, counted once
     var names = on.map(function (b) { return b.value; });
     sizeEl.textContent = kb(total);
     cmd.textContent = on.length === boxes.length ? 'node build.js' : 'node build.js --only=' + names.join(',');
     esm.textContent = "import { define, init } from 'effix/core';\n" +
-      names.map(function (n) { return 'import ' + ident(n) + " from 'effix/features/" + n + "';"; }).join('\n') +
+      on.map(function (b) { var n = b.value; return 'import ' + ident(n) + " from 'effix/" + (b.getAttribute('data-kind') === 'chart' ? 'charts/' : 'features/') + n + "';"; }).join('\n') +
       '\n\ndefine(' + names.map(ident).join(', ') + ');\ninit();';
   }
   picker.addEventListener('change', update);

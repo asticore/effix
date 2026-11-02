@@ -254,6 +254,9 @@ export function autoBoot() {
   if (!doc) return;
   const html = doc.documentElement;
   const cfg = (typeof window !== 'undefined' && window.EffixConfig) || {};
+  // Add-on bundles (e.g. effix-charts) loaded before this file park their features here.
+  const pending = (typeof window !== 'undefined' && window.EffixPending) || [];
+  if (pending.length) define(pending.splice(0));
   if (cfg.auto === false || html.hasAttribute('data-efx-manual')) return;
   const go = () => {
     init();

@@ -1,0 +1,14 @@
+/* direction — fill overlay revealed with clip-path from the entry edge (no overflow:hidden on the host) */
+.efx-direction-fill { isolation: isolate; } /* position:relative is added by JS only when the host is static */
+.efx-direction-fill::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  background: var(--efx-direction-color, color-mix(in srgb, var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))) 15%, transparent));
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--efx-direction-duration, 280ms) var(--efx-ease, cubic-bezier(.22, 1, .36, 1));
+}
+.efx-direction-fill[data-efx-from="right"]::before { clip-path: inset(0 0 0 100%); }
+.efx-direction-fill[data-efx-from="top"]::before { clip-path: inset(0 0 100% 0); }
+.efx-direction-fill[data-efx-from="bottom"]::before { clip-path: inset(100% 0 0 0); }
+.efx-direction-fill.is-hover::before { clip-path: inset(0); }
+.efx-direction-fill.efx-direction-snap::before { transition: none; }
+@media (prefers-reduced-motion: reduce) { .efx-direction-fill::before { transition: none; } }

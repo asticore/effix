@@ -1,0 +1,2 @@
+/* draw — keep dashed strokes crisp */
+.efx-draw path, .efx-draw line, .efx-draw polyline, .efx-draw polygon, .efx-draw circle, .efx-draw ellipse, .efx-draw rect { stroke-linecap: round; stroke-linejoin: round; }
