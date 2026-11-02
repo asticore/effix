@@ -2,6 +2,85 @@
 window.EFX_PLAYGROUND = {
  "features": [
   {
+   "name": "animate",
+   "title": "Animations",
+   "group": "Animations",
+   "kind": "effect",
+   "classes": [
+    "efx-fade-in",
+    "efx-fade-out",
+    "efx-bounce",
+    "efx-slide-up",
+    "efx-slide-down",
+    "efx-slide-left",
+    "efx-slide-right",
+    "efx-pop",
+    "efx-rotate",
+    "efx-spin",
+    "efx-scale-up",
+    "efx-scale-down",
+    "efx-zoom-in",
+    "efx-zoom-out",
+    "efx-flip-x",
+    "efx-flip-y",
+    "efx-flip-3d",
+    "efx-shake",
+    "efx-wobble",
+    "efx-pulse",
+    "efx-heartbeat",
+    "efx-jello",
+    "efx-tada",
+    "efx-swing",
+    "efx-rubber",
+    "efx-anim",
+    "efx-hover",
+    "efx-focus",
+    "efx-active",
+    "efx-load",
+    "efx-click",
+    "efx-scroll",
+    "efx-loop",
+    "efx-underline-grow",
+    "efx-underline-left",
+    "efx-underline-right",
+    "efx-underline-center",
+    "efx-stagger"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-delay",
+     "def": "0",
+     "desc": "Extra delay in ms (click/load/scroll triggers).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-once",
+     "def": "true",
+     "desc": "efx-scroll: false = replay each time it re-enters.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-threshold",
+     "def": "0.15",
+     "desc": "efx-scroll: how far into the viewport (0-1) before it plays.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-repeat",
+     "def": "",
+     "desc": "Iteration count (number or \"infinite\"); CSS handles 2-5 and infinite without JS.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-stagger",
+     "def": "80",
+     "desc": "On .efx-stagger: ms between children.",
+     "type": "number"
+    }
+   ],
+   "example": "<div class=\"efx-stagger grid md:grid-cols-4 gap-4 p-6\" data-efx-stagger=\"100\">\n  <div class=\"card p-4 efx-fade-in-up efx-scroll\">Fade in up</div>\n  <div class=\"card p-4 efx-bounce-in efx-scroll\">Bounce in</div>\n  <div class=\"card p-4 efx-pop-elastic efx-scroll\">Pop elastic</div>\n  <div class=\"card p-4 efx-flip-x efx-scroll\">Flip X</div>\n</div>\n<div class=\"cluster gap-3 p-6\">\n  <button class=\"btn efx-shake efx-hover\">Hover: shake</button>\n  <button class=\"btn efx-tada efx-click\">Click: tada</button>\n  <button class=\"btn efx-pulse efx-loop\">Pulse loop</button>\n  <a href=\"#\" class=\"efx-underline-center\">Center underline</a>\n  <a href=\"#\" class=\"efx-underline-grow\">Grow underline</a>\n</div>"
+  },
+  {
    "name": "totop",
    "title": "Back to top",
    "group": "Scroll",
@@ -150,6 +229,78 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"efx-marquee\" data-efx-speed=\"80\"><span class=\"btn\">Alpha</span><span class=\"btn tone-primary\">Beta</span><span class=\"btn\">Gamma</span><span class=\"btn tone-secondary\">Delta</span><span class=\"btn\">Epsilon</span></div>"
+  },
+  {
+   "name": "path",
+   "title": "Motion path",
+   "group": "Scroll",
+   "kind": "effect",
+   "classes": [
+    "efx-path"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-mode",
+     "def": "scroll",
+     "desc": "scroll = progress of the container through the viewport · loop = repeat every duration · view = play once when seen.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-d",
+     "def": "",
+     "desc": "Path data to draw inside an svg the feature creates, scaled to the container.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-viewbox",
+     "def": "0 0 1000 300",
+     "desc": "viewBox for data-efx-d; the container gets this aspect ratio if it has no height.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-svg",
+     "def": "",
+     "desc": "Selector of an existing  or  to follow instead of data-efx-d.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-duration",
+     "def": "4000",
+     "desc": "ms per trip (loop and view).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-rotate",
+     "def": "true",
+     "desc": "Rotate the item to the path tangent.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-show-path",
+     "def": "true",
+     "desc": "Draw the path with a trail that grows behind the leading item.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-start",
+     "def": "0",
+     "desc": "Where on the path (0–1) the trip begins.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-end",
+     "def": "1",
+     "desc": "Where on the path (0–1) the trip ends.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-gap",
+     "def": "0.08",
+     "desc": "Spacing between multiple items, as a fraction of the path.",
+     "type": "number"
+    }
+   ],
+   "example": "<div class=\"efx-path\" data-efx-d=\"M20,250 C250,-40 450,330 700,120 S900,60 980,150\" data-efx-viewbox=\"0 0 1000 300\" data-efx-mode=\"loop\" data-efx-duration=\"5000\" data-efx-gap=\"0.1\" style=\"max-width:640px;margin:auto\">\n  <span class=\"efx-path__item\" style=\"font-size:1.6rem\">➤</span>\n  <span class=\"efx-path__item\" style=\"font-size:1.2rem;opacity:.6\">➤</span>\n</div>"
   },
   {
    "name": "odometer",
@@ -579,6 +730,30 @@ window.EFX_PLAYGROUND = {
    "example": "<div class=\"grid md:grid-cols-2 gap-4 p-6 items-center\" style=\"min-height:300px\">\n  <svg class=\"efx-draw\" data-efx-mode=\"view\" data-efx-stagger=\"300\" data-efx-duration=\"1600\" viewBox=\"0 0 200 100\" width=\"100%\" height=\"140\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\">\n    <path d=\"M10 80 C 40 10, 70 10, 100 50 S 160 90, 190 20\"/>\n    <circle cx=\"100\" cy=\"50\" r=\"22\"/>\n    <rect x=\"20\" y=\"20\" width=\"40\" height=\"30\" rx=\"6\"/>\n  </svg>\n  <svg class=\"efx-draw tone-primary\" data-efx-fill data-efx-mode=\"view\" data-efx-duration=\"2000\" viewBox=\"0 0 100 100\" width=\"100%\" height=\"140\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\">\n    <polygon points=\"50,8 61,38 93,38 67,57 77,90 50,70 23,90 33,57 7,38 39,38\"/>\n  </svg>\n</div>"
   },
   {
+   "name": "glitch",
+   "title": "Glitch text",
+   "group": "Text",
+   "kind": "effect",
+   "classes": [
+    "efx-glitch"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-trigger",
+     "def": "always",
+     "desc": "always · hover (also on keyboard focus).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-text",
+     "def": "",
+     "desc": "Override the glitch layer text (default: the element text).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"stack gap-4 p-6\">\n  <h2 class=\"efx-glitch text-4xl font-bold\">System failure</h2>\n  <h3 class=\"efx-glitch text-2xl font-bold\" data-efx-trigger=\"hover\">Hover me</h3>\n</div>"
+  },
+  {
    "name": "morph",
    "title": "Morphing text",
    "group": "Text",
@@ -911,7 +1086,9 @@ window.EFX_PLAYGROUND = {
     "efx-border-spin",
     "efx-border-trace",
     "efx-border-glow",
-    "efx-border-gradient"
+    "efx-border-gradient",
+    "efx-border-wipe",
+    "efx-border-pulse"
    ],
    "options": [
     {
@@ -945,7 +1122,7 @@ window.EFX_PLAYGROUND = {
      "type": "number"
     }
    ],
-   "example": "<div class=\"grid md:grid-cols-2 gap-4 p-6\">\n  <div class=\"card p-6 efx-border-spin\">Spinning border</div>\n  <div class=\"card p-6 efx-border-glow\">Glow pulse</div>\n  <div class=\"card p-6 efx-border-gradient\">Shifting gradient</div>\n  <div class=\"stack gap-3 p-6\"><button class=\"btn efx-border-trace\" data-efx-loading=\"click\" data-efx-timeout=\"3000\">Click to load</button>\n  <button class=\"btn efx-border-spin\" data-efx-speed=\"1.5\">Fast spin</button></div>\n</div>"
+   "example": "<div class=\"grid md:grid-cols-2 gap-4 p-6\">\n  <div class=\"card p-6 efx-border-spin\">Spinning border</div>\n  <div class=\"card p-6 efx-border-glow\">Glow pulse</div>\n  <div class=\"card p-6 efx-border-gradient\">Shifting gradient</div>\n  <div class=\"stack gap-3 p-6\"><button class=\"btn efx-border-trace\" data-efx-loading=\"click\" data-efx-timeout=\"3000\">Click to load</button>\n  <button class=\"btn efx-border-spin\" data-efx-speed=\"1.5\">Fast spin</button>\n  <button class=\"btn efx-border-wipe\">Hover: wipe</button>\n  <button class=\"btn efx-border-pulse\">Pulse ring</button></div>\n</div>"
   },
   {
    "name": "confetti",
@@ -1571,7 +1748,7 @@ window.EFX_PLAYGROUND = {
     {
      "attr": "data-efx-shape",
      "def": "wave",
-     "desc": "wave · waves · tilt · curve · triangle · arrow · zigzag · clouds · mountains · drips · steps · spikes, or any registered divider-shape",
+     "desc": "wave · waves · tilt · curve · triangle · arrow · zigzag · clouds · mountains · drips · steps · spikes · sawtooth · chevron · swoosh · leaves · hills, or any registered divider-shape",
      "type": "text"
     },
     {
@@ -1609,6 +1786,12 @@ window.EFX_PLAYGROUND = {
      "def": "12",
      "desc": "Seconds per drift loop.",
      "type": "number"
+    },
+    {
+     "attr": "data-efx-path",
+     "def": "",
+     "desc": "Custom SVG path data in a 1200x120 viewBox (e.g. \"M0,60 C300,0 700,120 1200,40 L1200,120 L0,120 Z\"); overrides shape, not periodic (drift falls back to float).",
+     "type": "text"
     },
     {
      "attr": "data-efx-position",

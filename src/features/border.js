@@ -1,12 +1,13 @@
 /* border — animated borders for any element (Shine .btn, .card, …).
    <button class="btn efx-border-spin" data-efx-colors="#f0f|#0ff|#f0f">Save</button>
    <button class="btn efx-border-trace" data-efx-loading="click" data-efx-timeout="3000">Send</button>
+   Also: efx-border-wipe (draws on hover/focus), efx-border-pulse (expanding ring).
    loading: click -> animates while .is-loading; stop with el.dispatchEvent(new Event('efx:done')). */
 import { onVisible, motionOK, on } from '../core.js';
 
 export default {
   name: 'border',
-  selector: '.efx-border-spin,.efx-border-trace,.efx-border-glow,.efx-border-gradient',
+  selector: '.efx-border-spin,.efx-border-trace,.efx-border-glow,.efx-border-gradient,.efx-border-wipe,.efx-border-pulse',
   defaults: { colors: [], speed: 0, width: 0, loading: '', timeout: 0 },
   init(el, o) {
     const st = el.style, cl = el.classList, offs = [];

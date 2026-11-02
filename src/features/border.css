@@ -38,3 +38,31 @@
   .efx-border-spin, .efx-border-trace, .efx-border-glow, .efx-border-gradient,
   .efx-border-spin::before, .efx-border-trace::before, .efx-border-glow::before, .efx-border-gradient::before { animation: none !important; }
 }
+/* wipe: four edge lines drawn in sequence on hover/focus (animatable via @property); pulse: expanding ring */
+@property --efx-bw-a { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+@property --efx-bw-b { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+@property --efx-bw-c { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+@property --efx-bw-d { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+.efx-border-wipe::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  --c: linear-gradient(var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))), var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))));
+  --w: var(--efx-border-width, 2px);
+  background: var(--c) top left / var(--efx-bw-a) var(--w) no-repeat, var(--c) top right / var(--w) var(--efx-bw-b) no-repeat,
+    var(--c) bottom right / var(--efx-bw-c) var(--w) no-repeat, var(--c) bottom left / var(--w) var(--efx-bw-d) no-repeat;
+  transition: --efx-bw-a calc(var(--efx-duration) / 4) linear, --efx-bw-b calc(var(--efx-duration) / 4) linear,
+    --efx-bw-c calc(var(--efx-duration) / 4) linear, --efx-bw-d calc(var(--efx-duration) / 4) linear;
+}
+.efx-border-wipe:is(:hover, :focus-visible)::before { --efx-bw-a: 100%; --efx-bw-b: 100%; --efx-bw-c: 100%; --efx-bw-d: 100%;
+  transition: --efx-bw-a calc(var(--efx-duration) / 4) linear, --efx-bw-b calc(var(--efx-duration) / 4) linear calc(var(--efx-duration) / 4),
+    --efx-bw-c calc(var(--efx-duration) / 4) linear calc(var(--efx-duration) / 2), --efx-bw-d calc(var(--efx-duration) / 4) linear calc(var(--efx-duration) * .75); }
+.efx-border-pulse::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  animation: efx-border-ring var(--efx-border-speed, 1.8s) ease-out infinite;
+}
+@keyframes efx-border-ring {
+  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 55%, transparent); }
+  to { box-shadow: 0 0 0 var(--efx-border-reach, 14px) transparent; }
+}
+.efx-border-pulse.is-paused::after { animation-play-state: paused; }
+.efx-border-pulse.is-static::after { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .efx-border-pulse::after { animation: none !important; } .efx-border-wipe::before { transition: none; } }

@@ -3,20 +3,25 @@
   "core": 2586,
   "chartLib": 5287,
   "bundles": {
-    "effix.min.js": 33860,
-    "effix.min.css": 5826,
+    "effix.min.js": 35762,
+    "effix.min.css": 7877,
     "effix-charts.min.js": 27652,
     "effix-charts.min.css": 2293,
     "effix.core.min.js": 2635,
     "effix.core.min.css": 252,
-    "effix.auto.min.js": 3696,
-    "effix.all.min.js": 60671,
-    "effix.all.min.css": 7446
+    "effix.auto.min.js": 4111,
+    "effix.all.min.js": 62570,
+    "effix.all.min.css": 9608
   },
   "features": {
     "ambient": {
       "js": 2556,
       "css": 142,
+      "kind": "effect"
+    },
+    "animate": {
+      "js": 587,
+      "css": 1689,
       "kind": "effect"
     },
     "beam": {
@@ -25,8 +30,8 @@
       "kind": "effect"
     },
     "border": {
-      "js": 503,
-      "css": 738,
+      "js": 513,
+      "css": 1051,
       "kind": "effect"
     },
     "carousel": {
@@ -75,7 +80,7 @@
       "kind": "effect"
     },
     "divider": {
-      "js": 1626,
+      "js": 1871,
       "css": 368,
       "kind": "effect"
     },
@@ -92,6 +97,11 @@
     "feed": {
       "js": 733,
       "css": 53,
+      "kind": "effect"
+    },
+    "glitch": {
+      "js": 183,
+      "css": 499,
       "kind": "effect"
     },
     "globe": {
@@ -152,6 +162,11 @@
     "particles": {
       "js": 1690,
       "css": 144,
+      "kind": "effect"
+    },
+    "path": {
+      "js": 1280,
+      "css": 298,
       "kind": "effect"
     },
     "popup": {

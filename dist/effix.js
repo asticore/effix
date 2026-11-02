@@ -682,6 +682,71 @@
     }
   };
 
+  // src/features/animate.js
+  var ENTER = /\befx-(fade-in|bounce-(in|up|down)|slide-|pop-in|rotate-in|scale-|zoom-in|flip-)/;
+  var groupItems = /* @__PURE__ */ new WeakMap();
+  var animate_default = {
+    name: "animate",
+    selector: ".efx-click,.efx-load,.efx-scroll",
+    defaults: { delay: 0, once: true, threshold: 0.15, repeat: "" },
+    init(el, o) {
+      if (!motionOK()) return;
+      const cl = el.classList, st = el.style, offs = [];
+      const prevDelay = st.getPropertyValue("--efx-delay"), prevIter = st.getPropertyValue("--efx-iter");
+      let delay = o.delay;
+      const group = el.parentElement && el.parentElement.closest(".efx-stagger");
+      if (group && !cl.contains("efx-click")) {
+        let items = groupItems.get(group);
+        if (!items || !items.includes(el)) {
+          items = [...group.querySelectorAll(".efx-load,.efx-scroll")];
+          groupItems.set(group, items);
+        }
+        delay += items.indexOf(el) * (parseFloat(group.dataset.efxStagger) || 80);
+      }
+      if (delay) st.setProperty("--efx-delay", delay + "ms");
+      if (o.repeat) st.setProperty("--efx-iter", o.repeat === "infinite" || o.repeat === "loop" ? "infinite" : parseFloat(o.repeat) || 1);
+      const play = () => {
+        cl.remove("efx-anim-pending");
+        cl.remove("is-playing");
+        void el.offsetWidth;
+        cl.add("is-playing");
+      };
+      let stop = () => {
+      };
+      if (cl.contains("efx-click")) {
+        offs.push(on(el, "click", play), on(el, "animationend", (e) => {
+          if (e.target === el) cl.remove("is-playing");
+        }));
+      } else if (cl.contains("efx-scroll")) {
+        const enter = ENTER.test(el.className);
+        if (enter) cl.add("efx-anim-pending");
+        stop = onVisible(el, (vis, e) => {
+          if (vis && (e.intersectionRatio >= o.threshold || e.intersectionRect.height >= innerHeight * 0.25)) {
+            cl.remove("efx-anim-pending");
+            cl.add("is-playing");
+            if (o.once) stop();
+          } else if (!o.once && !vis) {
+            cl.remove("is-playing");
+            if (enter) cl.add("efx-anim-pending");
+          }
+        }, "0px", [0, o.threshold, 0.5, 1]);
+      } else if (delay) {
+        st.animation = "none";
+        void el.offsetWidth;
+        st.animation = "";
+      }
+      return () => {
+        stop();
+        offs.forEach((f2) => f2());
+        cl.remove("efx-anim-pending", "is-playing");
+        if (prevDelay) st.setProperty("--efx-delay", prevDelay);
+        else st.removeProperty("--efx-delay");
+        if (prevIter) st.setProperty("--efx-iter", prevIter);
+        else st.removeProperty("--efx-iter");
+      };
+    }
+  };
+
   // src/features/beam.js
   var NS = "http://www.w3.org/2000/svg";
   var mk = (t, a, p) => {
@@ -761,7 +826,7 @@
   // src/features/border.js
   var border_default = {
     name: "border",
-    selector: ".efx-border-spin,.efx-border-trace,.efx-border-glow,.efx-border-gradient",
+    selector: ".efx-border-spin,.efx-border-trace,.efx-border-glow,.efx-border-gradient,.efx-border-wipe,.efx-border-pulse",
     defaults: { colors: [], speed: 0, width: 0, loading: "", timeout: 0 },
     init(el, o) {
       const st = el.style, cl = el.classList, offs = [];
@@ -1705,15 +1770,21 @@
     mountains: [1, [[110, "b", poly([[100, 50], [180, 85], [300, 20], [420, 80], [520, 45], [640, 95], [760, 35], [880, 85], [1e3, 30], [1100, 70], [1200, 110]])]]],
     drips: [1, [[25, "t", rep(6, (x, w, i) => `L${x + 60},25L${x + 60},${[50, 85, 40][i % 3]}A10,10 0 0 0 ${x + 80},${[50, 85, 40][i % 3]}L${x + 80},25L${x + w},25`)]]],
     steps: [0, [[120, "b", poly([[0, 100], [150, 100], [150, 85], [300, 85], [300, 65], [450, 65], [450, 50], [600, 50], [600, 35], [750, 35], [750, 20], [1200, 20], [1200, 120]])]]],
+    sawtooth: [1, [[100, "b", rep(12, (x, w) => `L${x + w},35L${x + w},100`)]]],
+    chevron: [1, [[30, "b", rep(4, (x, w) => `L${x + w / 2},95L${x + w},30`)], [60, "b", rep(4, (x, w) => `L${x + w / 2},112L${x + w},60`)]], [0.4, 1]],
+    swoosh: [0, [[85, "b", (ox) => `C${ox + 300},-10 ${ox + 700},150 ${ox + 1200},25`], [100, "b", (ox) => `C${ox + 400},20 ${ox + 800},140 ${ox + 1200},60`]], [0.35, 1]],
+    leaves: [1, [[100, "b", rep(6, (x, w) => `Q${x + w * 0.1},0 ${x + w / 2},50Q${x + w * 0.9},0 ${x + w},100`)]]],
+    hills: [1, [[100, "b", rep(4, (x, w) => `Q${x + w / 2},50 ${x + w},100`)], [100, "b", rep(3, (x, w) => `Q${x + w / 2},10 ${x + w},100`)]], [0.4, 1]],
     spikes: [1, [[100, "b", rep(24, (x, w) => `L${x + w / 2},20L${x + w},100`)]]]
   };
   add("divider-shape", Object.fromEntries(Object.entries(SHAPES).map(([k, [periodic, layers, ops]]) => [k, { periodic, layers, ops }])));
   var divider_default = {
     name: "divider",
     selector: ".efx-divider",
-    defaults: { shape: "wave", color: "", height: 80, flip: false, invert: false, animate: "none", speed: 12, position: "" },
+    defaults: { shape: "wave", color: "", height: 80, flip: false, invert: false, animate: "none", speed: 12, position: "", path: "" },
     init(el, o) {
-      const { periodic: per, layers, ops = [] } = get("divider-shape", o.shape) || get("divider-shape", "wave");
+      const custom = o.path.replace(/[^\d\sMmLlHhVvCcSsQqTtAaZz.,eE+-]/g, "").trim();
+      const { periodic: per, layers, ops = [] } = custom ? { periodic: 0, layers: [[0, "b"]] } : get("divider-shape", o.shape) || get("divider-shape", "wave");
       const st = el.style, parent = el.parentElement;
       const move = motionOK() && o.animate !== "none";
       const mode = o.animate === "layers" ? "layers" : !per && o.animate === "drift" ? "float" : o.animate;
@@ -1741,6 +1812,10 @@
       const mk2 = (k, op) => {
         let body = "";
         layers.forEach(([y0, s2, tile], li) => {
+          if (custom) {
+            body = `<path d="${custom}"/>`;
+            return;
+          }
           let d = `M0,${y0}`;
           for (let ox = 0; ox < W; ox += 1200) d += tile(ox);
           d += s2 === "t" ? `L${W},0L0,0Z` : `L${W},120L0,120Z`;
@@ -2038,6 +2113,29 @@
         timers.forEach(clearTimeout);
         offs.forEach((f2) => f2());
         restore();
+      };
+    }
+  };
+
+  // src/features/glitch.js
+  var glitch_default = {
+    name: "glitch",
+    selector: ".efx-glitch",
+    defaults: { trigger: "always", text: "" },
+    init(el, o) {
+      const hadText = el.hasAttribute("data-efx-text"), prev = el.getAttribute("data-efx-text");
+      el.setAttribute("data-efx-text", o.text || (el.textContent || "").replace(/\s+/g, " ").trim());
+      let restorePos = false;
+      if (getComputedStyle(el).position === "static") {
+        el.style.position = "relative";
+        restorePos = true;
+      }
+      if (motionOK()) el.classList.add("efx-glitch-on");
+      return () => {
+        el.classList.remove("efx-glitch-on");
+        if (restorePos) el.style.position = "";
+        if (hadText) el.setAttribute("data-efx-text", prev);
+        else el.removeAttribute("data-efx-text");
       };
     }
   };
@@ -2462,7 +2560,7 @@
     init(el, o) {
       if (!finePointer() || !motionOK()) return;
       let unsub = null, pulled = false, settle = 0;
-      const clamp2 = (v) => Math.max(-o.max, Math.min(o.max, v));
+      const clamp3 = (v) => Math.max(-o.max, Math.min(o.max, v));
       const set = (x, y) => {
         el.style.setProperty("--efx-mx", x + "px");
         el.style.setProperty("--efx-my", y + "px");
@@ -2485,7 +2583,7 @@
         clearTimeout(settle);
         pulled = true;
         el.classList.add("is-magnetic", "is-pulled");
-        set(clamp2((e.clientX - cx) * o.strength).toFixed(1), clamp2((e.clientY - cy) * o.strength).toFixed(1));
+        set(clamp3((e.clientX - cx) * o.strength).toFixed(1), clamp3((e.clientY - cy) * o.strength).toFixed(1));
       };
       const stopVis = onVisible(el, (v) => {
         if (v && !unsub) unsub = subscribe(handle);
@@ -2771,16 +2869,16 @@
         pt: n.style.translate,
         pr: n.style.rotate
       }));
-      const sign = o.invert ? 1 : -1, page = o.scope === "page", ease2 = Math.min(1, Math.max(0.01, o.ease));
+      const sign = o.invert ? 1 : -1, page = o.scope === "page", ease3 = Math.min(1, Math.max(0.01, o.ease));
       let tx = 0, ty = 0, raf2 = 0, unsub = null, rect = null;
       const frame = () => {
         raf2 = 0;
         let moving = false;
         for (const l of layers) {
           const gx = tx * l.d * o.strength * sign, gy2 = ty * l.d * o.strength * sign, gr = tx * l.d * o.rotate * sign;
-          l.x += (gx - l.x) * ease2;
-          l.y += (gy2 - l.y) * ease2;
-          l.r += (gr - l.r) * ease2;
+          l.x += (gx - l.x) * ease3;
+          l.y += (gy2 - l.y) * ease3;
+          l.r += (gr - l.r) * ease3;
           const settled = Math.abs(gx - l.x) < 0.05 && Math.abs(gy2 - l.y) < 0.05 && Math.abs(gr - l.r) < 0.05;
           if (settled) {
             l.x = gx;
@@ -3192,6 +3290,143 @@
     }
   };
 
+  // src/features/path.js
+  var NS2 = "http://www.w3.org/2000/svg";
+  var clamp2 = (v) => Math.min(1, Math.max(0, v));
+  var ease2 = (t) => 1 - Math.pow(1 - t, 3);
+  var path_default = {
+    name: "path",
+    selector: ".efx-path",
+    defaults: { mode: "scroll", duration: 4e3, rotate: true, showPath: true, start: 0, end: 1, svg: "", d: "", viewbox: "0 0 1000 300", gap: 0.08 },
+    init(el, o) {
+      const items = [...el.querySelectorAll(".efx-path__item")];
+      const made = [];
+      let path, ref = null, vbox = null;
+      if (o.d) {
+        const vb = o.viewbox.split(/[\s,]+/).map(Number);
+        const svg = document.createElementNS(NS2, "svg");
+        svg.setAttribute("viewBox", o.viewbox);
+        svg.setAttribute("class", "efx-path__svg");
+        svg.setAttribute("aria-hidden", "true");
+        svg.setAttribute("focusable", "false");
+        path = document.createElementNS(NS2, "path");
+        path.setAttribute("d", o.d);
+        path.setAttribute("class", "efx-path__line");
+        if (!o.showPath) path.style.visibility = "hidden";
+        svg.appendChild(path);
+        el.insertBefore(svg, el.firstChild);
+        made.push(svg);
+        ref = path;
+        vbox = vb;
+      } else if (o.svg) {
+        const t = document.querySelector(o.svg);
+        path = t && (t.matches("path") ? t : t.querySelector("path"));
+        ref = path;
+      }
+      if (!path || !items.length || !path.getTotalLength) return;
+      const len = path.getTotalLength();
+      let trail = null;
+      if (o.showPath) {
+        trail = path.cloneNode(false);
+        trail.removeAttribute("id");
+        trail.setAttribute("class", "efx-path__trail");
+        trail.style.fill = "none";
+        trail.style.strokeDasharray = len;
+        trail.style.strokeDashoffset = len;
+        path.after(trail);
+        made.push(trail);
+      }
+      const saved = items.map((i) => i.style.cssText), savedEl = el.style.cssText;
+      if (getComputedStyle(el).position === "static") el.style.position = "relative";
+      el.classList.add("is-pathing");
+      if (vbox && vbox[2] > 0 && vbox[3] > 0 && el.offsetHeight < 20) el.style.aspectRatio = vbox[2] + " / " + vbox[3];
+      const toScreen = (t, m) => {
+        const p = path.getPointAtLength(len * clamp2(t));
+        return new DOMPoint(p.x, p.y).matrixTransform(m);
+      };
+      const n = items.length;
+      const spread = (p, i) => clamp2(p * (1 + (n - 1) * o.gap) - i * o.gap);
+      let last = 0;
+      const measure = (p) => {
+        last = p;
+        const r = el.getBoundingClientRect(), m = path.getScreenCTM();
+        if (!m) return;
+        const ox = r.left + el.clientLeft, oy = r.top + el.clientTop, e = 0.5 / len;
+        const pos = items.map((_, i) => {
+          const tt = o.start + (o.end - o.start) * spread(p, i);
+          const a = toScreen(tt, m);
+          let ang = 0;
+          if (o.rotate) {
+            const b = toScreen(tt - e, m), c = toScreen(tt + e, m);
+            ang = Math.atan2(c.y - b.y, c.x - b.x) * 180 / Math.PI;
+          }
+          return [a.x - ox, a.y - oy, ang];
+        });
+        const lead = o.start + (o.end - o.start) * spread(p, 0);
+        return () => {
+          items.forEach((it, i) => {
+            it.style.translate = `calc(${pos[i][0].toFixed(1)}px - 50%) calc(${pos[i][1].toFixed(1)}px - 50%)`;
+            if (o.rotate) it.style.rotate = pos[i][2].toFixed(1) + "deg";
+          });
+          if (trail) trail.style.strokeDashoffset = len * (1 - clamp2(lead));
+        };
+      };
+      const render = (p) => {
+        const w = measure(p);
+        if (w) w();
+      };
+      const offs = [];
+      if (!motionOK()) {
+        render(1);
+        offs.push(on(window, "resize", () => render(1)));
+      } else if (o.mode === "scroll") {
+        let stop = null;
+        offs.push(onVisible(el, (v) => {
+          if (v && !stop) stop = onScroll((y, h) => measure(clamp2((h - el.getBoundingClientRect().top) / (h + el.offsetHeight))));
+          else if (!v && stop) {
+            stop();
+            stop = null;
+          }
+        }, "100px"));
+        offs.push(() => stop && stop());
+      } else {
+        let raf2 = 0, acc = 0, t0 = 0, done = false;
+        const frame = (now) => {
+          acc += now - t0;
+          t0 = now;
+          const x = acc / o.duration;
+          if (o.mode === "view") {
+            render(ease2(clamp2(x)));
+            if (x >= 1) {
+              done = true;
+              return;
+            }
+          } else render(x % 1);
+          raf2 = requestAnimationFrame(frame);
+        };
+        offs.push(onVisible(el, (v) => {
+          cancelAnimationFrame(raf2);
+          if (v && !done) {
+            t0 = performance.now();
+            raf2 = requestAnimationFrame(frame);
+          }
+        }));
+        offs.push(() => cancelAnimationFrame(raf2));
+        offs.push(on(window, "resize", () => render(last)));
+        render(0);
+      }
+      return () => {
+        offs.forEach((f2) => f2());
+        made.forEach((n2) => n2.remove());
+        items.forEach((it, i) => {
+          it.style.cssText = saved[i];
+        });
+        el.style.cssText = savedEl;
+        el.classList.remove("is-pathing");
+      };
+    }
+  };
+
   // src/features/popup.js
   var shown = false;
   var bot = /bot|crawl|spider|lighthouse/i;
@@ -3444,7 +3679,7 @@
   };
 
   // src/features/reveal.js
-  var groupItems = /* @__PURE__ */ new WeakMap();
+  var groupItems2 = /* @__PURE__ */ new WeakMap();
   var reveal_default = {
     name: "reveal",
     selector: ".efx-reveal",
@@ -3454,10 +3689,10 @@
       const group = el.parentElement && el.parentElement.closest(".efx-stagger");
       let delay = o.delay;
       if (group) {
-        let items = groupItems.get(group);
+        let items = groupItems2.get(group);
         if (!items || !items.includes(el)) {
           items = [...group.querySelectorAll(".efx-reveal")];
-          groupItems.set(group, items);
+          groupItems2.set(group, items);
         }
         delay += items.indexOf(el) * (parseFloat(group.dataset.efxStagger) || 80);
       }
@@ -3803,7 +4038,7 @@
       if (!motionOK()) return;
       const A = { ...NEUTRAL, ...parse(o.from) };
       const B = { ...NEUTRAL, x: o.x, y: o.y, rotate: o.rotate, scale: o.scale, blur: o.blur, ...o.opacity >= 0 ? { opacity: o.opacity } : {}, ...parse(o.to) };
-      const ease2 = ease(o.ease), span2 = o.end - o.start || 1;
+      const ease3 = ease(o.ease), span2 = o.end - o.start || 1;
       const s = el.style, saved = [s.translate, s.rotate, s.scale, s.opacity, s.filter, s.transition, s.willChange, s.getPropertyValue("--efx-p")];
       const use = (k) => A[k] !== B[k];
       const moves = use("x") || use("y"), turns = use("rotate"), zooms = use("scale"), fades = use("opacity"), blurs = use("blur");
@@ -3813,7 +4048,7 @@
       const stop = onScroll((y, vh) => {
         const r = el.getBoundingClientRect();
         const h0 = r.height / (sc || 1), top0 = r.top - ty - h0 * (1 - sc) / 2;
-        const q = ease2(Math.min(1, Math.max(0, ((vh - top0) / (vh + h0) - o.start) / span2)));
+        const q = ease3(Math.min(1, Math.max(0, ((vh - top0) / (vh + h0) - o.start) / span2)));
         const v = (k) => A[k] + (B[k] - A[k]) * q;
         return () => {
           ty = v("y");
@@ -4818,7 +5053,7 @@
   };
 
   // src/effix-entry.js
-  define(ambient_default, beam_default, border_default, carousel_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, direction_default, divider_default, drag_default, draw_default, feed_default, globe_default, hscroll_default, lazyimg_default, lightbox_default, magnetic_default, marquee_default, media_default, morph_default, mouse_default, odometer_default, parallax_default, particles_default, popup_default, progress_default, proximity_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, sparkles_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
+  define(ambient_default, animate_default, beam_default, border_default, carousel_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, direction_default, divider_default, drag_default, draw_default, feed_default, glitch_default, globe_default, hscroll_default, lazyimg_default, lightbox_default, magnetic_default, marquee_default, media_default, morph_default, mouse_default, odometer_default, parallax_default, particles_default, path_default, popup_default, progress_default, proximity_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, sparkles_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
   if (typeof window !== "undefined") window.Effix = core_default;
   autoBoot();
   var effix_entry_default = core_default;

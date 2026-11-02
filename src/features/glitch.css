@@ -1,0 +1,32 @@
+/* glitch — layers only appear once JS adds .efx-glitch-on (never under reduced motion) */
+.efx-glitch-on::before, .efx-glitch-on::after {
+  content: attr(data-efx-text); content: attr(data-efx-text) / "";
+  position: absolute; inset: 0; opacity: 0; pointer-events: none; white-space: inherit;
+  background: var(--efx-glitch-bg, transparent);
+}
+.efx-glitch-on::before { color: var(--efx-glitch-a, var(--sh-accent, #ec4899)); }
+.efx-glitch-on::after { color: var(--efx-glitch-b, var(--sh-secondary, #06b6d4)); }
+.efx-glitch-on:not([data-efx-trigger="hover"])::before, .efx-glitch-on[data-efx-trigger="hover"]:is(:hover, :focus-visible)::before {
+  opacity: 1; animation: efx-glitch-a var(--efx-glitch-speed, 2.4s) steps(1, end) infinite;
+}
+.efx-glitch-on:not([data-efx-trigger="hover"])::after, .efx-glitch-on[data-efx-trigger="hover"]:is(:hover, :focus-visible)::after {
+  opacity: 1; animation: efx-glitch-b var(--efx-glitch-speed, 2.4s) steps(1, end) infinite;
+}
+@keyframes efx-glitch-a {
+  0%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  8% { clip-path: inset(10% 0 60% 0); transform: translate(-.06em, 0); }
+  16% { clip-path: inset(70% 0 5% 0); transform: translate(.05em, 0); }
+  24% { clip-path: inset(30% 0 40% 0); transform: translate(-.04em, 0); }
+  32% { clip-path: inset(0 0 100% 0); }
+  60% { clip-path: inset(50% 0 20% 0); transform: translate(.07em, 0); }
+  68% { clip-path: inset(0 0 100% 0); }
+}
+@keyframes efx-glitch-b {
+  0%, 100% { clip-path: inset(0 0 100% 0); transform: none; }
+  12% { clip-path: inset(55% 0 20% 0); transform: translate(.06em, 0); }
+  20% { clip-path: inset(5% 0 75% 0); transform: translate(-.05em, 0); }
+  28% { clip-path: inset(0 0 100% 0); }
+  56% { clip-path: inset(20% 0 55% 0); transform: translate(-.07em, 0); }
+  64% { clip-path: inset(80% 0 0 0); transform: translate(.04em, 0); }
+  72% { clip-path: inset(0 0 100% 0); }
+}

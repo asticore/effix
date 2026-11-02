@@ -136,7 +136,14 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
     const manifest = {
       effects: Object.fromEntries(EFFECTS.map(f => {
         const sel = (fs.readFileSync(path.join(SRC, f.dir, f.name + '.js'), 'utf8').match(/selector:\s*(['"`])([\s\S]*?)\1/) || [])[2] || `.efx-${f.name}`;
-        return [f.name, [sel, !!cssOf(path.join(SRC, f.dir, f.name + '.css'))]];
+        // Also match every documented class (CSS-only ones like efx-bounce efx-hover), so their CSS loads too.
+        const metaFile = path.join(SRC, f.dir, f.name + '.meta.js');
+        const extra = fs.existsSync(metaFile) ? (require(metaFile).classes || [])
+          .map(c => String(Array.isArray(c) ? c[0] : c.name || '').trim()).filter(c => /^efx-[\w-]+$/.test(c)).map(c => '.' + c) : [];
+        // plus every top-level efx-* class the feature's CSS styles (not injected __parts or -pending states)
+        for (const m of cssOf(path.join(SRC, f.dir, f.name + '.css')).matchAll(/\.(efx-[a-z0-9-]+)(?![\w-])/g))
+          if (!m[1].includes('__') && !/-(pending|on|active)$/.test(m[1])) extra.push('.' + m[1]);
+        return [f.name, [[...new Set([...sel.split(',').map(x => x.trim()), ...extra])].join(','), !!cssOf(path.join(SRC, f.dir, f.name + '.css'))]];
       })),
       charts: CHARTS.map(f => `.efx-${f.name}`).join(','),
     };
