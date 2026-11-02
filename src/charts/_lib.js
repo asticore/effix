@@ -222,7 +222,7 @@ export function chart(el, o, draw) {
 
   function render(again) {
     w = Math.max(40, el.clientWidth);
-    h = deco ? Math.max(20, el.clientHeight) : (o.height || el.clientHeight || 260);
+    h = deco ? Math.max(20, el.clientHeight) : (draw.height && draw.height(w, data)) || o.height || el.clientHeight || 260;
     svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
     svg.setAttribute('width', w);
     svg.setAttribute('height', h);
@@ -276,7 +276,9 @@ export function chart(el, o, draw) {
     const r = el.getBoundingClientRect(), sv = svg.getBoundingClientRect();
     const x = sv.left - r.left + m.x * (sv.width / w), y = sv.top - r.top + m.y * (sv.height / h);
     tip.style.left = Math.max(0, Math.min(r.width - tip.offsetWidth, x - tip.offsetWidth / 2)) + 'px';
-    tip.style.top = Math.max(0, y - tip.offsetHeight - 10) + 'px';
+    // Above the point when the viewport has room (may overflow the element, e.g. inline sparks), else below.
+    const above = r.top + y - tip.offsetHeight - 10 > 0;
+    tip.style.top = (above ? y - tip.offsetHeight - 10 : y + 14) + 'px';
   }
   function hide() {
     active = -1;

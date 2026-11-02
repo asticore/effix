@@ -1,0 +1,4 @@
+/* chart-spark — hover dot only shows under the cursor */
+.efx-chart__plot .efx-chart-spark__pt { opacity: 0; }
+.efx-chart__plot .efx-chart-spark__pt.is-active { opacity: 1; }
+.efx-chart-spark .efx-chart__svg { overflow: visible; }
