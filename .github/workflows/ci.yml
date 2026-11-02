@@ -18,6 +18,6 @@ jobs:
       - name: Build (fails if over the gzip budget)
         run: npm run build
       - name: dist, docs and README tables are committed and up to date
-        run: git diff --exit-code -- dist docs/index.html README.md
+        run: git diff --exit-code -- dist docs/index.html docs/playground.html docs/playground-data.js README.md
       - name: Cross-browser smoke test
         run: npm test

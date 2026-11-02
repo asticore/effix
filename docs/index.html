@@ -95,6 +95,7 @@ document.addEventListener('efx:ready', ({ detail: E }) => {
     <div class="navbar-end flex items-center gap-2">
       <label class="sr-only" for="page-theme">Page theme</label>
       <select class="select input-sm" id="page-theme"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
+      <a class="btn btn-sm" href="playground.html">Playground</a>
       <a class="btn btn-sm btn-outline" href="https://github.com/asticore/effix">GitHub</a>
     </div>
   </nav>
@@ -123,12 +124,7 @@ document.addEventListener('efx:ready', ({ detail: E }) => {
         <div class="card-body stack">
           <p class="label m-0">Drop it in your &lt;head&gt;</p>
           <div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="install-code" tabindex="0"><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/shine@main/dist/shine.min.css&quot;&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.min.css&quot;&gt;
-&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.min.js&quot; defer&gt;&lt;/script&gt;
-
-&lt;!-- optional: charts &amp; funnels add-on --&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-charts.min.css&quot;&gt;
-&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-charts.min.js&quot; defer&gt;&lt;/script&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#install-code">Copy</button></div>
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.auto.min.js&quot; defer&gt;&lt;/script&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#install-code">Copy</button></div>
           <p class="text-sm text-muted m-0">Then add classes: <code>efx-reveal</code>, <code>efx-particles</code>, <code>efx-tilt</code>…</p>
         </div>
       </div>
@@ -138,25 +134,34 @@ document.addEventListener('efx:ready', ({ detail: E }) => {
 
 <section id="start" class="section" aria-labelledby="h-start">
   <div class="container mx-auto max-w-7xl stack gap-6">
-    <header class="stack gap-2 max-w-3xl"><p class="label m-0 text-primary">Quick start</p><h2 id="h-start" class="text-3xl md:text-4xl font-bold tracking-tight m-0">Three ways in</h2></header>
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">1 · CDN</h3><p class="text-sm m-0">Shine for styling, Effix for behaviour. The script is <code>defer</code>red and starts itself.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-cdn" tabindex="0"><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/shine@main/dist/shine.min.css&quot;&gt;
+    <header class="stack gap-2 max-w-3xl"><p class="label m-0 text-primary">Quick start</p><h2 id="h-start" class="text-3xl md:text-4xl font-bold tracking-tight m-0">Four ways in</h2></header>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">1 · Auto-loader <span class="badge tone-success">easiest</span></h3><p class="text-sm m-0">One tag. It looks for <code>efx-*</code> classes and fetches only those features' files (and the charts add-on only if a chart is on the page). Add <code>class="efx-confetti"</code> to a button and the confetti file loads by itself. With <code>&lt;html data-efx-observe&gt;</code> it also loads files for elements added later.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-cdn" tabindex="0"><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/shine@main/dist/shine.min.css&quot;&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.auto.min.js&quot; defer&gt;&lt;/script&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-cdn">Copy</button></div></div></div>
+      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">2 · Pick files yourself</h3><p class="text-sm m-0">The core plus one tag per feature, from <code>dist/features/</code>. Tag order doesn't matter.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-pick" tabindex="0"><code>&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.core.min.js&quot; defer&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.core.min.css&quot;&gt;
+&lt;!-- then one tag per feature you use --&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/features/confetti.min.js&quot; defer&gt;&lt;/script&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/features/particles.min.js&quot; defer&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/features/particles.min.css&quot;&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-pick">Copy</button></div></div></div>
+      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">3 · Everything bundled</h3><p class="text-sm m-0">All effects in one file, plus the optional charts add-on. Best when a site uses many features on every page.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-bundle" tabindex="0"><code>&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/shine@main/dist/shine.min.css&quot;&gt;
 &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.min.css&quot;&gt;
 &lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.min.js&quot; defer&gt;&lt;/script&gt;
 
 &lt;!-- optional: charts &amp; funnels add-on --&gt;
 &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-charts.min.css&quot;&gt;
-&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-charts.min.js&quot; defer&gt;&lt;/script&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-cdn">Copy</button></div></div></div>
-      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">2 · npm</h3><p class="text-sm m-0">Full bundle; auto-starts on import.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-npm" tabindex="0"><code>npm i effix shine-css
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-charts.min.js&quot; defer&gt;&lt;/script&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-bundle">Copy</button></div></div></div>
+      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">4 · npm / bundlers</h3><p class="text-sm m-0">Import the bundle, or only the features you use from the ES sources.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-esm" tabindex="0"><code>npm i effix shine-css
 
 import 'shine-css';
 import 'effix/css';
-import Effix from 'effix';</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-npm">Copy</button></div></div></div>
-      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">3 · Pick features</h3><p class="text-sm m-0">Import only what you use from the ES sources — bundlers drop the rest.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-esm" tabindex="0"><code>import { define, init } from 'effix/core';
-import reveal from 'effix/features/reveal';
-import tilt from 'effix/features/tilt';
+import Effix from 'effix';            // all effects
 
-define(reveal, tilt);
+// or pick features:
+import { define, init } from 'effix/core';
+import reveal from 'effix/features/reveal';
+import funnel from 'effix/charts/chart-funnel';
+define(reveal, funnel);
 init();</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-esm">Copy</button></div></div></div>
     </div>
   </div>
