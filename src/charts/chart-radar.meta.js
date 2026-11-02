@@ -1,6 +1,10 @@
 module.exports = {
   title: 'Radar chart',
   group: 'Charts',
+  dataFormat: `Labels = the axes (3 or more), each series = one polygon, one number per axis, scaled to <code>data-efx-max</code> (default: nice max of the data).
+<code>data-efx-data="[[8,6,7,5,9],[5,8,4,7,6]]" data-efx-names="A|B" data-efx-labels="Speed|Power|Range|Cost|Style"</code>
+JSON: <code>[{"name":"A","data":[8,6,7,5,9]},{"name":"B","data":[5,8,4,7,6]}]</code>.
+A single series can be <code>"8,6,7,5,9"</code>; a table via <code>data-efx-source</code> also works.`,
   summary: 'Radar / spider chart: one polygon per series, one axis per label. Hover vertices for values, click a legend key to hide a series.',
   classes: [['efx-chart-radar', 'Renders a radar chart (needs 3+ labels).']],
   options: [

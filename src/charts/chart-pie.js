@@ -9,14 +9,14 @@ export default {
   name: 'chart-pie',
   selector: '.efx-chart-pie',
   lazy: true,
-  defaults: { ...COMMON, height: 300, donut: 0.6, pad: 0.01, sort: false, center: '', show: 'auto', half: false },
+  defaults: { ...COMMON, height: 300, donut: 0.6, pad: 0.01, sort: false, center: '', show: 'auto', half: false, rose: false },
   init(el, o) {
     let center = () => {};
     const draw = ({ g, w, h, data, hidden, fmt, deco }) => {
       const vals = data.series[0] ? data.series[0].values : [];
       let idx = data.labels.map((_, i) => i).filter(i => !hidden.has(i) && vals[i] > 0);
       if (o.sort) idx.sort((a, b) => vals[b] - vals[a]);
-      const total = idx.reduce((a, i) => a + vals[i], 0);
+      const total = idx.reduce((a, i) => a + vals[i], 0), vmax = Math.max(...idx.map(i => vals[i]));
       if (!total) return [];
       const pal = palette(el, o, data.labels.length), half = o.half;
       const auto = !deco && o.show === 'auto', inner = !deco && o.show === 'percent';
@@ -30,19 +30,20 @@ export default {
       let acc = start;
       const marks = [], arcs = [], labs = [];
       idx.forEach((i, k) => {
-        const a0 = acc, a1 = acc + (vals[i] / total) * span, m = (a0 + a1) / 2;
+        const a0 = acc, a1 = acc + (o.rose ? 1 / idx.length : vals[i] / total) * span, m = (a0 + a1) / 2;
+        const Ro = o.rose ? r0 + (R - r0) * Math.sqrt(vals[i] / vmax) : R; // rose: radius ∝ √value
         acc = a1;
         const d = idx.length > 1 ? gap / 2 : 0;
         const [dx, dy] = polar(0, 0, 7, m);
-        const node = s('path', { d: arcPath(cx, cy, r0, R, a0 + d, a1 - d), fill: pal[i], class: 'efx-chart__mark efx-pie-arc', style: `--i:${k};--dx:${dx}px;--dy:${dy}px;transform-origin:${cx}px ${cy}px` }, g);
+        const node = s('path', { d: arcPath(cx, cy, r0, Ro, a0 + d, a1 - d), fill: pal[i], class: 'efx-chart__mark efx-pie-arc', style: `--i:${k};--dx:${dx}px;--dy:${dy}px;transform-origin:${cx}px ${cy}px` }, g);
         arcs.push({ node, i });
-        const [mx, my] = polar(cx, cy, (r0 + R) / 2, m), pct = (vals[i] / total) * 100;
+        const [mx, my] = polar(cx, cy, (r0 + Ro) / 2, m), pct = (vals[i] / total) * 100;
         marks.push({
           x: mx, y: my, label: data.labels[i], value: vals[i], node, index: i, group: k,
           html: `<strong>${esc(data.labels[i])}</strong><b>${esc(fmt(vals[i]))}</b><span>${pc(pct)}</span>`,
           hit: (px, py) => {
             const r = Math.hypot(px - cx, py - cy);
-            if (r < r0 - 2 || r > R + 8) return false;
+            if (r < r0 - 2 || r > Ro + 8) return false;
             const an = (((Math.atan2(px - cx, cy - py) - start) % TAU) + TAU) % TAU + start;
             return an >= a0 && an <= a1;
           },
@@ -51,7 +52,7 @@ export default {
           const t = s('text', { x: mx, y: my, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'efx-pie-t efx-chart__fade', style: `--i:${k}` }, g);
           t.textContent = pc(pct);
         }
-        if (lab) labs.push({ m, sd: Math.sin(m) >= 0 ? 1 : -1, t: `${data.labels[i]}  ${pc(pct)}`, k });
+        if (lab) labs.push({ m, Ro, sd: Math.sin(m) >= 0 ? 1 : -1, t: `${data.labels[i]}  ${pc(pct)}`, k });
       });
       // outside labels with leader lines, nudged apart per side
       [-1, 1].forEach(sd => {
@@ -59,7 +60,7 @@ export default {
         L.forEach((l, j) => { if (j) l.y = Math.max(l.y, L[j - 1].y + 15); });
         for (let j = L.length - 1; j >= 0; j--) { if (j < L.length - 1 && L[j].y > L[j + 1].y - 15) L[j].y = L[j + 1].y - 15; }
         L.forEach(l => {
-          const [x1, y1] = polar(cx, cy, R + 2, l.m), [x2, y2] = polar(cx, cy, R + 12, l.m), xl = cx + sd * (R + 22);
+          const [x1, y1] = polar(cx, cy, l.Ro + 2, l.m), [x2, y2] = polar(cx, cy, R + 12, l.m), xl = cx + sd * (R + 22);
           s('path', { d: `M${x1},${y1}L${x2},${y2}L${xl},${l.y}`, class: 'efx-pie-l efx-chart__fade', style: `--i:${l.k}` }, g);
           const mc = Math.floor((w / 2 - R - 30) / 6.2), t = s('text', { x: xl + sd * 4, y: l.y, 'text-anchor': sd > 0 ? 'start' : 'end', 'dominant-baseline': 'central', class: 'efx-chart__value efx-pie-lt efx-chart__fade', style: `--i:${l.k}` }, g);
           t.textContent = l.t.length > mc ? l.t.slice(0, Math.max(3, mc - 1)) + '…' : l.t;

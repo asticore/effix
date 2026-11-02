@@ -1,6 +1,11 @@
 module.exports = {
   title: 'Funnel chart',
   group: 'Charts',
+  dataFormat: `Stages top to bottom = <code>data-efx-labels</code>, one number per stage (usually decreasing).
+<code>data-efx-data="1200,780,420,180" data-efx-labels="Visits|Signups|Trials|Paid"</code>.
+JSON: <code>[{"label":"Visits","value":1200},{"label":"Signups","value":780}]</code>.
+Two series compare two funnels (<code>data-efx-compare="mirror|ghost"</code>):
+<code>"1200,780,420|1000,600,300"</code> or <code>[{"name":"2025","data":[…]},{"name":"2026","data":[…]}]</code>.`,
   summary: 'Conversion funnel with smooth curved, straight, centered-bar or pyramid stages, per-stage and step-to-step conversion, drop-off rates, and a compare mode for two series. Hover for value, % of total, % of previous step and drop count; click a legend key to hide a stage.',
   classes: [['efx-chart-funnel', 'Renders a funnel from data-efx-data (first series) and data-efx-labels (stage names).']],
   options: [

@@ -1,6 +1,11 @@
 module.exports = {
   title: 'Bar chart',
   group: 'Charts',
+  dataFormat: `Categories = <code>data-efx-labels</code>, one number per category per series.
+<code>data-efx-data="12,19,7"</code> (one series) or <code>"3,5|4,1"</code> (several, split by <code>|</code>).
+JSON: <code>[[3,5],[4,1]]</code> · <code>[{"name":"2025","data":[3,5]},{"name":"2026","data":[4,1]}]</code> · <code>[{"label":"Q1","value":3}]</code>.
+Also <code>{"labels":[…],"series":[{"name","values"}]}</code>, an inline <code>&lt;script type="application/json"&gt;</code>, or a table via <code>data-efx-source</code> (first column = labels, other columns = series).
+Per-series color: <code>{"name":"A","data":[…],"color":"#f43f5e"}</code>.`,
   summary: 'Vertical or horizontal bars, grouped or stacked. Hover or arrow-key through bars for tooltips, click a legend key to hide a series, click a bar to fire <code>efx:select</code>.',
   classes: [['efx-chart-bar', 'Renders a bar chart from data-efx-data, inline JSON or a table.']],
   options: [

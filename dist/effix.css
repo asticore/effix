@@ -181,6 +181,11 @@
 }
 .efx-hscroll-native .efx-hscroll__track > :where(*) { flex: none; width: 85vw; scroll-snap-align: center; }
 
+/* lazyimg — blur only while JS holds the placeholder (.is-lazy); reduced motion never gets it */
+.efx-lazyimg.is-lazy { filter: blur(var(--efx-blur, 12px)); }
+.efx-lazyimg.is-loaded { filter: none; transition: filter var(--efx-duration) var(--efx-ease); }
+.efx-lazyimg[data-efx-bg] { background-size: cover; background-position: center; }
+
 /* lightbox — layout inside Shine's .modal */
 .efx-lightbox a { cursor: zoom-in; }
 .efx-lightbox__dialog { position: fixed; inset: 0; margin: auto; max-width: min(64rem, 100% - 2rem); width: fit-content; height: fit-content; max-height: calc(100% - 2rem); overflow: visible; background: var(--efx-lb-bg, var(--sh-surface, #fff)); touch-action: pan-y; }
@@ -211,6 +216,14 @@
 .efx-marquee.is-paused .efx-marquee__track { animation-play-state: paused; }
 .efx-marquee--static { display: flex; flex-wrap: wrap; gap: var(--efx-gap, 32px); }
 @keyframes efx-marquee { to { transform: translate3d(var(--efx-shift, -50%), 0, 0); } }
+
+/* media — reduced-motion play button (container hosts only) */
+.efx-media__play {
+  position: absolute; left: 50%; top: 50%; width: 3.5rem; height: 3.5rem; margin: -1.75rem 0 0 -1.75rem; padding: 0;
+  border: 0; border-radius: 50%; cursor: pointer; color: #fff; background: rgba(0,0,0,.6);
+}
+.efx-media__play::before { content: ""; position: absolute; left: 53%; top: 50%; transform: translate(-50%, -50%); border-style: solid; border-width: .6rem 0 .6rem 1rem; border-color: transparent transparent transparent currentColor; }
+.efx-media__play:focus-visible { outline: 3px solid var(--sh-primary, #6366f1); outline-offset: 2px; }
 
 /* odometer — digit strips roll via translateY; --n is the digit shown */
 .efx-odometer__v { display: inline-flex; font-variant-numeric: tabular-nums; line-height: 1.1; vertical-align: bottom; }
@@ -243,6 +256,14 @@
 .efx-progress--top { top: 0; }
 .efx-progress--bottom { bottom: 0; }
 
+/* proximity — pieces animate only via individual transform properties and only while active */
+.efx-proximity.is-proximity .efx-proximity__c,
+.efx-proximity.is-proximity [data-efx-item] { display: inline-block; will-change: scale, translate; transition: scale .12s ease-out, translate .12s ease-out, font-weight .12s ease-out; }
+.efx-proximity.is-proximity .efx-proximity__w { display: inline-block; white-space: nowrap; }
+.efx-proximity.has-pcolor .efx-proximity__c,
+.efx-proximity.has-pcolor [data-efx-item] { color: color-mix(in srgb, var(--efx-pcolor) calc(var(--efx-p, 0) * 100%), currentColor); }
+.efx-proximity__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
 /* reveal — hidden only once JS has claimed the element, so no-JS pages still show content */
 .efx-reveal-pending {
   opacity: 0;
@@ -257,7 +278,13 @@
 .efx-reveal-pending[data-efx-anim="zoom"] { transform: scale(.92); }
 .efx-reveal-pending[data-efx-anim="blur"] { filter: blur(10px); }
 .efx-reveal-pending[data-efx-anim="flip"] { transform: perspective(800px) rotateX(-25deg); transform-origin: top; }
-.efx-reveal-pending.is-in { opacity: 1; transform: none; filter: none; }
+.efx-reveal-pending[data-efx-anim="wipe-up"] { opacity: 1; clip-path: inset(100% 0 0 0); }
+.efx-reveal-pending[data-efx-anim="wipe-left"] { opacity: 1; clip-path: inset(0 0 0 100%); }
+.efx-reveal-pending[data-efx-anim="wipe-right"] { opacity: 1; clip-path: inset(0 100% 0 0); }
+.efx-reveal-pending[data-efx-anim="rise"] { transform: translateY(calc(var(--efx-distance) * 1.5)) rotate(2deg); transform-origin: left bottom; }
+.efx-reveal-pending[data-efx-anim="scale-down"] { transform: scale(1.12); }
+.efx-reveal-pending[data-efx-anim^="wipe"] { transition-property: clip-path; }
+.efx-reveal-pending.is-in { opacity: 1; transform: none; filter: none; clip-path: inset(0); }
 /* reduced motion: JS never adds .efx-reveal-pending, so content just shows */
 
 /* ripple */
@@ -380,6 +407,25 @@ video.efx-sequence-on { position: sticky; top: 0; display: block; width: 100%; h
 .efx-trail__item--preview { --efx-trail-size: 220px; width: var(--efx-trail-size); height: calc(var(--efx-trail-size) * .7); margin: calc(var(--efx-trail-size) * -.35) 0 0 calc(var(--efx-trail-size) * -.5);
   opacity: 0; scale: .85; transition: opacity .25s var(--efx-ease, ease), scale .25s var(--efx-ease, ease); }
 .efx-trail__item--preview.is-on { opacity: 1; scale: 1; }
+
+/* transition — JS-fallback curtain (browsers with cross-document View Transitions don't create it) */
+.efx-transition__curtain {
+  position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; opacity: 0;
+  background: var(--efx-color, var(--sh-primary, #6366f1));
+  transition: opacity var(--efx-tr-dur, 400ms) var(--efx-ease), transform var(--efx-tr-dur, 400ms) var(--efx-ease), clip-path var(--efx-tr-dur, 400ms) var(--efx-ease);
+}
+.efx-transition__curtain.is-cover { opacity: 1; pointer-events: auto; }
+.efx-transition__curtain.is-instant { transition: none; }
+.efx-transition__curtain[data-efx-style="fade"] { background: var(--sh-bg, #fff); }
+.efx-transition__curtain[data-efx-style="zoom"] { background: var(--sh-bg, #fff); transform: scale(1.08); }
+.efx-transition__curtain[data-efx-style="zoom"].is-cover { transform: none; }
+.efx-transition__curtain[data-efx-style="slide-up"],
+.efx-transition__curtain[data-efx-style="curtain"] { opacity: 1; clip-path: inset(100% 0 0 0); }
+.efx-transition__curtain[data-efx-style="slide-up"] { background: var(--sh-bg, #fff); }
+.efx-transition__curtain[data-efx-style="slide-up"].is-cover,
+.efx-transition__curtain[data-efx-style="curtain"].is-cover { clip-path: inset(0); }
+.efx-transition__curtain[data-efx-style="slide-up"].is-leave,
+.efx-transition__curtain[data-efx-style="curtain"].is-leave { clip-path: inset(0 0 100% 0); }
 
 /* typed */
 .efx-typed__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

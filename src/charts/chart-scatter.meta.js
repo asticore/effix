@@ -1,6 +1,10 @@
 module.exports = {
   title: 'Scatter chart',
   group: 'Charts',
+  dataFormat: `Points are <code>{x, y}</code> objects; add <code>r</code> (size, with <code>data-efx-bubble</code>) and <code>label</code> if wanted.
+<code>data-efx-data='[{"x":1,"y":4},{"x":3,"y":7,"r":5,"label":"A"}]'</code>
+Several series: <code>[[{"x":1,"y":4}],[{"x":2,"y":5}]]</code> or <code>[{"name":"Plan A","points":[{"x":1,"y":4}]}]</code>.
+Also <code>{"series":[…]}</code> or an inline <code>&lt;script type="application/json"&gt;</code>. Axis titles: <code>data-efx-x-label</code> / <code>data-efx-y-label</code>.`,
   summary: 'Scatter and bubble plots on two linear axes. Hover (or arrow through, left to right) for a tooltip with x, y and size; click a legend key to hide a series.',
   classes: [['efx-chart-scatter', 'Renders a scatter / bubble chart from data-efx-data or inline JSON points.']],
   options: [

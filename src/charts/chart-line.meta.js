@@ -1,6 +1,11 @@
 module.exports = {
   title: 'Line chart',
   group: 'Charts',
+  dataFormat: `Same shapes as the bar chart: one value per label per series.
+<code>data-efx-data="3,5,4,8"</code> · <code>"3,5,4|2,4,6"</code> (two series) · JSON <code>[[3,5],[4,1]]</code>.
+Named series: <code>[{"name":"Visits","data":[3,5,4]},{"name":"Signups","data":[1,2,2]}]</code>.
+Labels: <code>data-efx-labels="Mon|Tue|Wed"</code> or <code>{"labels":[…],"series":[…]}</code>; a table via <code>data-efx-source</code> also works.
+<code>data-efx-stacked</code> stacks series (areas); values are plain numbers (no dates).`,
   summary: 'Multi-series lines with optional gradient area or stacked area. A crosshair snaps to the nearest point and the tooltip lists every visible series at that x. Arrow keys step through x positions, legend keys toggle series.',
   classes: [['efx-chart-line', 'Renders a line / area chart from data-efx-data, inline JSON or a table.']],
   options: [

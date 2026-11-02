@@ -1,6 +1,11 @@
 module.exports = {
   title: 'Flow chart',
   group: 'Charts',
+  dataFormat: `A graph of nodes and weighted links (Sankey). Link <code>source</code>/<code>target</code> are node indexes or names.
+<code>data-efx-data='{"nodes":[{"name":"Visit"},{"name":"Signup"},{"name":"Paid"}],</code>
+<code>"links":[{"source":0,"target":1,"value":120},{"source":1,"target":2,"value":45}]}'</code>
+Names used only in links (<code>"source":"Visit"</code>) create nodes automatically. Links need value &gt; 0.
+Can also live in an inline <code>&lt;script type="application/json"&gt;</code>; update with <code>efx:data</code> and the same object.`,
   summary: 'Lightweight Sankey-style flow for funnels and user journeys. Hover a ribbon to see <em>A → B: value (x% of A)</em> and light up the two nodes it joins; hover a node to light up its links.',
   classes: [['efx-chart-flow', 'Renders a flow diagram from { nodes, links } JSON.']],
   options: [

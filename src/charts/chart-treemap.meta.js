@@ -1,6 +1,10 @@
 module.exports = {
   title: 'Treemap chart',
   group: 'Charts',
+  dataFormat: `One rectangle per label; area = value. First series only; zero and negative values are skipped.
+<code>data-efx-data="40,25,15,10" data-efx-labels="A|B|C|D"</code>
+JSON: <code>[{"label":"Cloud","value":40},{"label":"Ads","value":25}]</code> or <code>{"labels":[…],"series":[{"values":[…]}]}</code>.
+A table via <code>data-efx-source</code> also works. One <code>data-efx-colors</code> value makes a shaded ramp of it; several = one color per tile.`,
   summary: 'Squarified treemap: tile area is proportional to value. Hover or arrow-key through tiles for a tooltip with share, click one to fire <code>efx:select</code>. Give it a single color in <code>data-efx-colors</code> for a one-hue ramp by rank.',
   classes: [['efx-chart-treemap', 'Renders a treemap from labels and the first data series.']],
   options: [

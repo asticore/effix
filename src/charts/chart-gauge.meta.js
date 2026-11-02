@@ -1,6 +1,11 @@
 module.exports = {
   title: 'Gauge & ring',
   group: 'Charts',
+  dataFormat: `A single value, within <code>data-efx-min</code> / <code>data-efx-max</code> (default 0–100).
+<code>data-efx-value="72"</code> (gauge or ring) · or <code>data-efx-data="72"</code>; optional <code>data-efx-label="Uptime"</code>, <code>data-efx-target="90"</code>.
+Radial type (<code>data-efx-type="radial"</code>): one ring per value, names from labels:
+<code>data-efx-data="80,60,35" data-efx-labels="Move|Exercise|Stand"</code> or JSON <code>[{"label":"Move","value":80}]</code>.
+Live update: dispatch <code>efx:data</code> with <code>detail: { value: 64 }</code>.`,
   summary: 'A 240° gauge (optional needle and target marker), a full progress ring, or concentric radial bars. Sweeps in on entry. Scales down into a badge, button or stat card.',
   classes: [['efx-chart-gauge', 'Renders a gauge from data-efx-value (or the first data value).']],
   options: [

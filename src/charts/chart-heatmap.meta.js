@@ -2,6 +2,11 @@ const cal = JSON.stringify(Array.from({ length: 119 }, (_, i) => ({ date: new Da
 module.exports = {
   title: 'Heatmap',
   group: 'Charts',
+  dataFormat: `Grid: labels = columns, each series = a row of numbers (<code>null</code> = empty cell).
+<code>data-efx-data="[[1,4,2],[3,0,5]]" data-efx-labels="A|B|C" data-efx-names="Row 1|Row 2"</code>
+or <code>[{"name":"Mon","data":[1,4,2]}]</code>, or a table via <code>data-efx-source</code>.
+Calendar (<code>data-efx-calendar</code>): day values for up to the last 53 weeks:
+<code>[{"date":"2026-01-03","value":4},{"date":"2026-01-04","value":1}]</code> (ISO <code>YYYY-MM-DD</code>).`,
   summary: 'A grid heatmap (labels = columns, series = rows) or a GitHub-style calendar of weeks × 7 days. Color intensity is an opacity ramp of the first palette color, or a two-color diverging scale. Hover or arrow through the cells.',
   classes: [['efx-chart-heatmap', 'Renders a heatmap from data-efx-data, inline JSON or a table.']],
   options: [

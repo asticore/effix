@@ -1,6 +1,10 @@
 module.exports = {
   title: 'Sparkline',
   group: 'Charts',
+  dataFormat: `A short list of numbers (first series), drawn as <code>data-efx-type="line|bar|win-loss"</code>.
+<code>data-efx-data="3,5,4,8,6,9"</code> or JSON <code>[3,5,4,8,6,9]</code> · <code>[{"label":"Mon","value":3}]</code>.
+Labels (optional, used by the tooltip): <code>data-efx-labels="Mon|Tue|Wed"</code>.
+Works on any inline element (<code>&lt;span&gt;</code>, badge, button, stat card) or as <code>data-efx-background</code>.`,
   summary: 'A tiny chart for use inside text, badges, buttons and stat cards, or as a card background. Inline elements become about 6em wide and 1.2em tall and sit on the text baseline. Hover for the nearest value.',
   classes: [['efx-chart-spark', 'Renders a sparkline (line, bar or win-loss) from data-efx-data.']],
   options: [

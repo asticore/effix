@@ -176,7 +176,10 @@ const DATA_DEMO = `document.querySelector('#data-demo-btn').onclick = () =>
 const EXTEND_DEMO = fs.readFileSync(path.join(ROOT, 'docs', 'extend-demo.js'), 'utf8').trim();
 // Plugin kinds, collected from every feature's meta `extend` field.
 const EXT_KINDS = [];
-for (const f of feats) for (const [kind, sig] of f.extend) if (!EXT_KINDS.some(r => r[0] === kind)) EXT_KINDS.push([kind, f.title, sig]);
+for (const f of feats) for (const [kind, sig] of f.extend) {
+  const r = EXT_KINDS.find(x => x[0] === kind);
+  if (r) { if (!r[1].includes(f.title)) r[1] += ', ' + f.title; } else EXT_KINDS.push([kind, f.title, sig]);
+}
 EXT_KINDS.push(['format', 'All charts (data-efx-format)', '(value, options) => string']);
 EXT_KINDS.push(['Effix.define', 'Your own feature or chart type', '{ name, selector, lazy?, defaults, init(el, opts) → cleanup }']);
 
@@ -362,7 +365,7 @@ document.documentElement.toggleAttribute('data-efx-reduce', editing);`)}
       <div class="stack gap-4">
         <p class="m-0">Register before Effix starts with <code>window.EffixConfig.extend</code> (put it in a normal <code>&lt;script&gt;</code> above the Effix tags), or any time later with <code>Effix.add(…)</code> followed by <code>Effix.refresh(el)</code>. This page runs exactly the code on the right:</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="card efx-particles" data-efx-shape="heart" data-efx-count="30" data-efx-size-min="4" data-efx-size-max="9" data-efx-interact="attract" style="min-height:180px"><div class="card-body"><strong>Custom particle shape</strong><br><code>data-efx-shape="heart"</code></div></div>
+          <div class="card efx-particles" data-efx-shape="heart" data-efx-count="30" data-efx-size-min="9" data-efx-size-max="16" data-efx-interact="attract" style="min-height:180px"><div class="card-body"><strong>Custom particle shape</strong><br><code>data-efx-shape="heart"</code></div></div>
           <div class="card"><div class="card-body stack gap-2"><strong>Custom chart type + format</strong><div class="efx-chart-dots" data-efx-data="420,610,380,720,560" data-efx-labels="A|B|C|D|E" data-efx-format="gbp" data-efx-height="150"></div></div></div>
         </div>
         ${table(['Kind', 'Used by', 'Signature'], EXT_KINDS, [0, 2])}

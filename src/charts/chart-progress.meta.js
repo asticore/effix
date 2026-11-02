@@ -1,6 +1,10 @@
 module.exports = {
   title: 'Progress bars',
   group: 'Charts',
+  dataFormat: `Rows = labels; the first series = current values, an optional second series = targets (100% when absent).
+<code>data-efx-labels="Signups|Revenue" data-efx-data="820,64|1000,80"</code> (values | targets).
+JSON: <code>[{"name":"Value","data":[820,64]},{"name":"Target","data":[1000,80]}]</code> or <code>[{"label":"Signups","value":820}]</code>.
+<code>data-efx-max</code> sets a common scale when there are no targets; a table via <code>data-efx-source</code> also works.`,
   summary: 'Compact goal bars for KPI lists: label on the left, value on the right, a rounded track with an animated fill and an optional target tick. Hover or arrow-key through rows for a tooltip.',
   classes: [['efx-chart-progress', 'Renders one progress bar per label.']],
   options: [

@@ -72,11 +72,11 @@
     let v = visIOs.get(key);
     if (!v) {
       const cbs = /* @__PURE__ */ new WeakMap();
-      const io = new IntersectionObserver((es) => es.forEach((e) => {
+      const io2 = new IntersectionObserver((es) => es.forEach((e) => {
         const s = cbs.get(e.target);
         if (s) [...s].forEach((f2) => f2(e.isIntersecting, e));
       }), { rootMargin, threshold });
-      v = { io, cbs };
+      v = { io: io2, cbs };
       visIOs.set(key, v);
     }
     let set = v.cbs.get(el);
@@ -99,10 +99,10 @@
   }
   var scrollSubs = /* @__PURE__ */ new Set();
   var scrollBound = false;
-  var runScroll = (subs4) => {
+  var runScroll = (subs5) => {
     const y = scrollY, h = innerHeight;
     const writes = [];
-    subs4.forEach((f2) => {
+    subs5.forEach((f2) => {
       const w = f2(y, h);
       if (typeof w === "function") writes.push(w);
     });
@@ -257,6 +257,26 @@
     }
     return api;
   }
+  var ext = /* @__PURE__ */ new Map();
+  function add(kind, name, impl) {
+    if (!ext.has(kind)) ext.set(kind, /* @__PURE__ */ new Map());
+    if (name && typeof name === "object") for (const k in name) ext.get(kind).set(k, name[k]);
+    else ext.get(kind).set(name, impl);
+    return api;
+  }
+  var get = (kind, name) => {
+    var _a;
+    return (_a = ext.get(kind)) == null ? void 0 : _a.get(name);
+  };
+  var list = (kind) => {
+    var _a;
+    return [...((_a = ext.get(kind)) == null ? void 0 : _a.keys()) || []];
+  };
+  function setData(el, data) {
+    if (typeof el === "string") el = doc && doc.querySelector(el);
+    if (el) el.dispatchEvent(new CustomEvent("efx:data", { detail: data }));
+    return api;
+  }
   var isMounted = (el, name) => {
     var _a;
     return !!((_a = mounted.get(el)) == null ? void 0 : _a.has(name));
@@ -273,6 +293,10 @@
     options,
     isMounted,
     features,
+    add,
+    get,
+    list,
+    setData,
     motionOK,
     finePointer,
     cssVar,
@@ -288,10 +312,19 @@
     const cfg = typeof window !== "undefined" && window.EffixConfig || {};
     const pending = typeof window !== "undefined" && window.EffixPending || [];
     if (pending.length) define(pending.splice(0));
+    if (typeof window !== "undefined" && window.EffixChartKit && !api.charts) api.charts = window.EffixChartKit;
+    if (typeof cfg.extend === "function") {
+      try {
+        cfg.extend(api);
+      } catch (err) {
+        console.error("[effix] extend", err);
+      }
+    }
     if (cfg.auto === false || html.hasAttribute("data-efx-manual")) return;
     const go = () => {
       init();
       if (cfg.observe || html.hasAttribute("data-efx-observe")) observe();
+      doc.dispatchEvent(new CustomEvent("efx:ready", { detail: api }));
     };
     if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", go, { once: true });
     else go();
@@ -327,7 +360,135 @@
       }
     };
   };
-  var AUTO = { stars: [5e3, 200], warp: [8e3, 160], orbs: [1e5, 6], waves: [1e9, 3], snow: [9e3, 120], leaves: [3e4, 25], bubbles: [16e3, 40] };
+  var cnt = (div, max) => (a) => Math.max(3, Math.min(max, a / div | 0));
+  var fx = (r0, r1, bot2, rf) => (p, S2, first) => {
+    p.a = S2.rnd(0, 6.28);
+    p.x = S2.rnd(0, S2.w);
+    p.y = first ? S2.rnd(0, S2.h) : bot2 ? S2.h + 20 : -20;
+    p.r = rf ? S2.rnd(r0, r1) * Math.max(S2.w, S2.h) : S2.rnd(r0, r1);
+    p.v = S2.rnd(0.4, 1.2);
+  };
+  var dot = (c, x, y, r) => {
+    c.beginPath();
+    c.arc(x, y, r, 0, 6.2832);
+  };
+  var fall = (up, leaf) => (p, S2) => {
+    p.y += (up ? -p.v * 1.2 : p.v * (leaf ? 1 : p.r * 0.4 + 0.3)) * S2.sp;
+    p.x += Math.sin(S2.t * p.v + p.a) * (leaf ? 1 : 0.4) * S2.sp;
+    if (leaf) p.a += 0.02 * p.v * S2.sp;
+    return up ? p.y > -p.r * 2 : p.y < S2.h + 20;
+  };
+  add("ambient-mode", {
+    stars: {
+      count: cnt(5e3, 200),
+      ptr: 1,
+      spawn: fx(0.6, 2.4),
+      step: () => 1,
+      draw: (c, p, S2) => {
+        c.globalAlpha = S2.op * (0.55 + 0.45 * Math.sin(S2.t * 2 * p.v + p.a));
+        dot(c, p.x - S2.px * p.r * 12, p.y - S2.py * p.r * 12, p.r);
+        c.fill();
+      }
+    },
+    warp: {
+      count: cnt(8e3, 160),
+      ptr: 1,
+      spawn: (p, S2, first) => {
+        fx(0.6, 2.4)(p, S2, first);
+        p.x = S2.rnd(-1, 1);
+        p.y = S2.rnd(-1, 1);
+        p.z = first ? S2.rnd(0.05, 1) : 1;
+      },
+      step: (p, S2) => (p.z -= 6e-3 * S2.sp * p.v) >= 0.03,
+      draw: (c, p, S2) => {
+        const f2 = S2.w * 0.3, cx = S2.w / 2 + S2.px * S2.w * 0.3, cy = S2.h / 2 + S2.py * S2.h * 0.3, z2 = Math.min(1, p.z + 0.04 * S2.sp);
+        c.globalAlpha = S2.op * (1 - p.z);
+        c.lineWidth = Math.max(0.5, 1.6 * (1 - p.z));
+        c.lineCap = "round";
+        c.beginPath();
+        c.moveTo(cx + p.x / z2 * f2, cy + p.y / z2 * f2);
+        c.lineTo(cx + p.x / p.z * f2, cy + p.y / p.z * f2);
+        c.stroke();
+      }
+    },
+    orbs: {
+      count: cnt(1e5, 6),
+      ptr: 1,
+      blend: "lighter",
+      spawn: (p, S2, first) => {
+        fx(0.25, 0.45, 0, 1)(p, S2, first);
+        p.y = S2.rnd(0, S2.h);
+        p.vx = S2.rnd(-0.3, 0.3);
+        p.vy = S2.rnd(-0.3, 0.3);
+      },
+      step: (p, S2) => {
+        if (S2.ptr.on) {
+          p.vx += (S2.ptr.x - p.x) * 2e-6;
+          p.vy += (S2.ptr.y - p.y) * 2e-6;
+        }
+        p.vx *= 0.998;
+        p.vy *= 0.998;
+        p.x += p.vx * S2.sp;
+        p.y += p.vy * S2.sp;
+        if (p.x < -p.r * 0.3 || p.x > S2.w + p.r * 0.3) p.vx *= -1;
+        if (p.y < -p.r * 0.3 || p.y > S2.h + p.r * 0.3) p.vy *= -1;
+        return 1;
+      },
+      draw: (c, p, S2) => {
+        const g = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        g.addColorStop(0, p.c);
+        g.addColorStop(1, "transparent");
+        c.globalAlpha = S2.op * 0.55;
+        c.fillStyle = g;
+        dot(c, p.x, p.y, p.r);
+        c.fill();
+      }
+    },
+    waves: {
+      count: () => 3,
+      step: () => 1,
+      spawn: fx(0, 1),
+      draw: (c, p, S2) => {
+        const { w, h } = S2, i = p.i, base = h * (0.55 + i * 0.12), amp = h * 0.06 * (1 + p.v * 0.5);
+        c.globalAlpha = S2.op * (0.22 + i * 0.08);
+        c.beginPath();
+        c.moveTo(0, h);
+        for (let x = 0; x <= w + 8; x += 8) c.lineTo(x, base + Math.sin(x / w * (3 + i) * 2 + S2.t * p.v + p.a) * amp + Math.sin(x / w * 7 - S2.t * 0.7 * p.v) * amp * 0.3);
+        c.lineTo(w, h);
+        c.fill();
+      }
+    },
+    snow: { count: cnt(9e3, 120), spawn: fx(0.6, 2.4), step: fall(), draw: (c, p, S2) => {
+      c.globalAlpha = S2.op;
+      dot(c, p.x, p.y, p.r);
+      c.fill();
+    } },
+    leaves: {
+      count: cnt(3e4, 25),
+      spawn: fx(5, 11),
+      step: fall(0, 1),
+      draw: (c, p, S2) => {
+        c.globalAlpha = S2.op * 0.85;
+        c.beginPath();
+        c.ellipse(p.x, p.y, p.r, p.r * 0.45, p.a, 0, 6.2832);
+        c.fill();
+      }
+    },
+    bubbles: {
+      count: cnt(16e3, 40),
+      spawn: fx(3, 14, 1),
+      step: fall(1),
+      draw: (c, p, S2) => {
+        c.globalAlpha = S2.op * 0.5;
+        c.lineWidth = 1;
+        dot(c, p.x, p.y, p.r);
+        c.stroke();
+        c.globalAlpha = S2.op * 0.6;
+        dot(c, p.x - p.r * 0.35, p.y - p.r * 0.35, p.r * 0.2);
+        c.fill();
+      }
+    }
+  });
   var ambient_default = {
     name: "ambient",
     selector: ".efx-ambient",
@@ -344,129 +505,46 @@
       cv2.setAttribute("aria-hidden", "true");
       el.insertBefore(cv2, el.firstChild);
       const ctx2 = cv2.getContext("2d");
-      const mode = AUTO[o.mode] ? o.mode : "stars";
+      const M = get("ambient-mode", o.mode) || get("ambient-mode", "stars");
       const motion = motionOK();
       const colors = o.color ? split(o.color) : [];
       if (!colors.length) colors.push(themeColor(el));
-      const sp = o.speed;
-      let w = 0, h = 0, ps2 = [], raf2 = 0, vis = true, hidden = document.hidden, t = 0;
-      const ptr = { x: 0, y: 0, on: 0 };
-      const rnd2 = (a, b) => a + Math.random() * (b - a);
+      let w = 0, h = 0, ps2 = [], raf2 = 0, vis = true, hidden = document.hidden;
+      const S2 = { w: 0, h: 0, t: 0, sp: o.speed, op: o.opacity, px: 0, py: 0, ptr: { x: 0, y: 0, on: 0 }, rnd: (a, b) => a + Math.random() * (b - a) };
+      const ptr = S2.ptr;
       const spawn = (p, first) => {
         p.c = colors[Math.random() * colors.length | 0];
-        p.a = rnd2(0, 6.28);
-        p.x = rnd2(0, w);
-        p.y = first ? rnd2(0, h) : mode === "bubbles" ? h + 20 : -20;
-        p.r = mode === "orbs" ? rnd2(0.25, 0.45) * Math.max(w, h) : mode === "leaves" ? rnd2(5, 11) : mode === "bubbles" ? rnd2(3, 14) : rnd2(0.6, 2.4);
-        p.v = rnd2(0.4, 1.2);
-        if (mode === "warp") {
-          p.x = rnd2(-1, 1);
-          p.y = rnd2(-1, 1);
-          p.z = first ? rnd2(0.05, 1) : 1;
-        }
-        if (mode === "orbs") {
-          p.y = rnd2(0, h);
-          p.vx = rnd2(-0.3, 0.3);
-          p.vy = rnd2(-0.3, 0.3);
-        }
+        M.spawn(p, S2, first);
         return p;
       };
       const seed = () => {
         const dpr2 = Math.min(devicePixelRatio || 1, 1.5);
-        w = el.clientWidth;
-        h = el.clientHeight;
+        w = S2.w = el.clientWidth;
+        h = S2.h = el.clientHeight;
         cv2.width = w * dpr2;
         cv2.height = h * dpr2;
         ctx2.setTransform(dpr2, 0, 0, dpr2, 0, 0);
-        const [div, max] = AUTO[mode];
-        const n = o.count ? Math.min(600, Math.max(0, o.count | 0)) : Math.max(3, Math.min(max, w * h / div | 0));
+        const n = o.count ? Math.min(600, Math.max(0, o.count | 0)) : M.count(w * h);
         ps2 = Array.from({ length: n }, (_, i) => spawn({ i }, 1));
         draw2();
       };
       const draw2 = () => {
         ctx2.clearRect(0, 0, w, h);
-        ctx2.globalCompositeOperation = mode === "orbs" ? "lighter" : "source-over";
-        ctx2.globalAlpha = o.opacity;
-        const px = ptr.on ? (ptr.x - w / 2) / w : 0, py = ptr.on ? (ptr.y - h / 2) / h : 0;
-        if (mode === "waves") {
-          ps2.forEach((p, i) => {
-            ctx2.globalAlpha = o.opacity * (0.22 + i * 0.08);
-            ctx2.fillStyle = p.c;
-            ctx2.beginPath();
-            ctx2.moveTo(0, h);
-            const base = h * (0.55 + i * 0.12), amp = h * 0.06 * (1 + p.v * 0.5);
-            for (let x = 0; x <= w + 8; x += 8) ctx2.lineTo(x, base + Math.sin(x / w * (3 + i) * 2 + t * p.v + p.a) * amp + Math.sin(x / w * 7 - t * 0.7 * p.v) * amp * 0.3);
-            ctx2.lineTo(w, h);
-            ctx2.fill();
-          });
-        } else for (const p of ps2) {
+        ctx2.globalCompositeOperation = M.blend || "source-over";
+        S2.px = ptr.on ? (ptr.x - w / 2) / w : 0;
+        S2.py = ptr.on ? (ptr.y - h / 2) / h : 0;
+        for (const p of ps2) {
+          ctx2.globalAlpha = o.opacity;
           ctx2.fillStyle = ctx2.strokeStyle = p.c;
-          ctx2.beginPath();
-          if (mode === "orbs") {
-            const g = ctx2.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
-            g.addColorStop(0, p.c);
-            g.addColorStop(1, "transparent");
-            ctx2.globalAlpha = o.opacity * 0.55;
-            ctx2.fillStyle = g;
-            ctx2.arc(p.x, p.y, p.r, 0, 6.2832);
-          } else if (mode === "warp") {
-            const f2 = w * 0.3, cx = w / 2 + px * w * 0.3, cy = h / 2 + py * h * 0.3, z2 = Math.min(1, p.z + 0.04 * sp);
-            ctx2.globalAlpha = o.opacity * (1 - p.z);
-            ctx2.lineWidth = Math.max(0.5, 1.6 * (1 - p.z));
-            ctx2.lineCap = "round";
-            ctx2.moveTo(cx + p.x / z2 * f2, cy + p.y / z2 * f2);
-            ctx2.lineTo(cx + p.x / p.z * f2, cy + p.y / p.z * f2);
-            ctx2.stroke();
-            continue;
-          } else if (mode === "stars") {
-            ctx2.globalAlpha = o.opacity * (0.55 + 0.45 * Math.sin(t * 2 * p.v + p.a));
-            ctx2.arc(p.x - px * p.r * 12, p.y - py * p.r * 12, p.r, 0, 6.2832);
-          } else if (mode === "bubbles") {
-            ctx2.globalAlpha = o.opacity * 0.5;
-            ctx2.lineWidth = 1;
-            ctx2.arc(p.x, p.y, p.r, 0, 6.2832);
-            ctx2.stroke();
-            ctx2.globalAlpha = o.opacity * 0.6;
-            ctx2.beginPath();
-            ctx2.arc(p.x - p.r * 0.35, p.y - p.r * 0.35, p.r * 0.2, 0, 6.2832);
-          } else if (mode === "leaves") {
-            ctx2.globalAlpha = o.opacity * 0.85;
-            ctx2.ellipse(p.x, p.y, p.r, p.r * 0.45, p.a, 0, 6.2832);
-          } else ctx2.arc(p.x, p.y, p.r, 0, 6.2832);
-          ctx2.fill();
+          M.draw(ctx2, p, S2);
         }
         ctx2.globalAlpha = 1;
         ctx2.globalCompositeOperation = "source-over";
       };
       const step = () => {
         raf2 = 0;
-        t += 0.016 * sp;
-        for (const p of ps2) {
-          if (mode === "warp") {
-            p.z -= 6e-3 * sp * p.v;
-            if (p.z < 0.03) spawn(p);
-            continue;
-          }
-          if (mode === "orbs") {
-            if (ptr.on) {
-              p.vx += (ptr.x - p.x) * 2e-6;
-              p.vy += (ptr.y - p.y) * 2e-6;
-            }
-            p.vx *= 0.998;
-            p.vy *= 0.998;
-            p.x += p.vx * sp;
-            p.y += p.vy * sp;
-            if (p.x < -p.r * 0.3 || p.x > w + p.r * 0.3) p.vx *= -1;
-            if (p.y < -p.r * 0.3 || p.y > h + p.r * 0.3) p.vy *= -1;
-            continue;
-          }
-          if (mode === "stars") continue;
-          const up = mode === "bubbles";
-          p.y += (up ? -p.v * 1.2 : p.v * (mode === "leaves" ? 1 : p.r * 0.4 + 0.3)) * sp;
-          p.x += Math.sin(t * p.v + p.a) * (mode === "leaves" ? 1 : 0.4) * sp;
-          if (mode === "leaves") p.a += 0.02 * p.v * sp;
-          if (up ? p.y < -p.r * 2 : p.y > h + 20) spawn(p);
-        }
+        S2.t += 0.016 * S2.sp;
+        for (const p of ps2) if (!M.step(p, S2)) spawn(p);
         draw2();
         go();
       };
@@ -491,7 +569,7 @@
             raf2 = 0;
           } else go();
         }));
-        if (o.interact && finePointer() && (mode === "orbs" || mode === "stars" || mode === "warp")) {
+        if (o.interact && finePointer() && M.ptr) {
           let rect = null;
           const stale = () => {
             rect = null;
@@ -723,12 +801,12 @@
           sched();
         }));
       }
-      let io;
+      let io2;
       if (o.fade) {
         act.add(0);
         mark();
       } else if (typeof IntersectionObserver !== "undefined") {
-        io = new IntersectionObserver((es) => {
+        io2 = new IntersectionObserver((es) => {
           es.forEach((e) => {
             const i = slides.indexOf(e.target);
             if (e.isIntersecting) act.add(i);
@@ -737,13 +815,13 @@
           if (act.size) cur = Math.min(...act);
           mark();
         }, { root: el, threshold: 0.6 });
-        slides.forEach((s) => io.observe(s));
+        slides.forEach((s) => io2.observe(s));
       }
       sched();
       return () => {
         clearTimeout(timer);
         offs.forEach((f2) => f2());
-        io && io.disconnect();
+        io2 && io2.disconnect();
         nav.remove();
         if (tab === null) el.removeAttribute("tabindex");
         el.classList.remove("efx-carousel-fade");
@@ -763,7 +841,7 @@
     selector: ".efx-collapse",
     defaults: { duration: 300, easing: "ease" },
     init(el, o) {
-      const list = el.matches("details") ? [el] : [...el.querySelectorAll("details")];
+      const list2 = el.matches("details") ? [el] : [...el.querySelectorAll("details")];
       const anim = /* @__PURE__ */ new Map();
       const closedH = (d) => {
         const cs = getComputedStyle(d), s = d.querySelector(":scope > summary");
@@ -817,7 +895,7 @@
           anim.delete(e.target);
         }
       };
-      const offs = list.map((d) => {
+      const offs = list2.map((d) => {
         const s = d.querySelector(":scope > summary");
         return [s && on(s, "click", click), on(d, "toggle", toggled)];
       }).flat().filter(Boolean);
@@ -908,6 +986,15 @@
   };
 
   // src/features/confetti.js
+  add("confetti-shape", {
+    square: (c, s) => c.fillRect(-s / 2, -s / 2, s, s),
+    circle: (c, s) => {
+      c.beginPath();
+      c.arc(0, 0, s / 2, 0, 7);
+      c.fill();
+    },
+    strip: (c, s) => c.fillRect(-s / 2, -s / 6, s, s / 3)
+  });
   var cv = null;
   var ctx = null;
   var ps = [];
@@ -932,12 +1019,7 @@
       ctx.rotate(p.rot);
       ctx.fillStyle = p.c;
       const s = p.s * dpr;
-      if (p.shape === "circle") {
-        ctx.beginPath();
-        ctx.arc(0, 0, s / 2, 0, 7);
-        ctx.fill();
-      } else if (p.shape === "strip") ctx.fillRect(-s / 2, -s / 6, s, s / 3);
-      else ctx.fillRect(-s / 2, -s / 2, s, s);
+      (get("confetti-shape", p.shape) || get("confetti-shape", "square"))(ctx, s, p);
       ctx.restore();
       return true;
     });
@@ -1205,11 +1287,28 @@
     }
   };
 
+  // src/features/_easing.js
+  var io = (t) => t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t);
+  var oc = (t) => 1 - Math.pow(1 - t, 3);
+  add("easing", {
+    linear: (t) => t,
+    "ease-in": (t) => t * t,
+    "ease-out": (t) => 1 - (1 - t) * (1 - t),
+    "ease-in-out": io,
+    "ease-out-cubic": oc,
+    "back-out": (t) => 1 + 2.70158 * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2),
+    "elastic-out": (t) => t <= 0 || t >= 1 ? t : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * 2.0944) + 1,
+    in: (t) => t * t,
+    out: (t) => 1 - (1 - t) * (1 - t),
+    inout: io
+  });
+  var ease = (name) => get("easing", name) || get("easing", "linear");
+
   // src/features/counter.js
   var counter_default = {
     name: "counter",
     selector: ".efx-counter",
-    defaults: { from: 0, to: NaN, duration: 1600, decimals: -1, separator: ",", prefix: "", suffix: "", once: true },
+    defaults: { from: 0, to: NaN, duration: 1600, decimals: -1, separator: ",", ease: "ease-out-cubic", prefix: "", suffix: "", once: true },
     init(el, o) {
       const orig = el.textContent, hadHidden = el.getAttribute("aria-hidden");
       const to = Number.isFinite(o.to) ? o.to : parseFloat(orig.replace(/[^0-9.\-]/g, ""));
@@ -1223,12 +1322,13 @@
         el.textContent = fmt(to);
       };
       let raf2 = 0;
+      const e = ease(o.ease);
       const run = () => {
         cancelAnimationFrame(raf2);
         const t0 = performance.now();
         const step = (t) => {
           const p = Math.min(1, (t - t0) / o.duration);
-          el.textContent = fmt(o.from + (to - o.from) * (1 - Math.pow(1 - p, 3)));
+          el.textContent = fmt(o.from + (to - o.from) * e(p));
           if (p < 1) raf2 = requestAnimationFrame(step);
         };
         raf2 = requestAnimationFrame(step);
@@ -1298,8 +1398,8 @@
         return d;
       };
       const ring = o.style !== "dot" ? mk("ring") : null;
-      const dot = o.style !== "ring" ? mk("dot") : null;
-      const parts = [ring, dot].filter(Boolean);
+      const dot2 = o.style !== "ring" ? mk("dot") : null;
+      const parts = [ring, dot2].filter(Boolean);
       if (o.hideNative) el.classList.add("efx-cursor-hide");
       let tx = 0, ty = 0, rx = 0, ry = 0, raf2 = 0, seen = false;
       const put = (n, x, y) => {
@@ -1323,7 +1423,7 @@
           if (e.pointerType === "touch") return;
           tx = e.clientX;
           ty = e.clientY;
-          if (dot) put(dot, tx, ty);
+          if (dot2) put(dot2, tx, ty);
           if (ring) {
             if (!seen) {
               rx = tx;
@@ -1455,12 +1555,13 @@
     steps: [0, [[120, "b", poly([[0, 100], [150, 100], [150, 85], [300, 85], [300, 65], [450, 65], [450, 50], [600, 50], [600, 35], [750, 35], [750, 20], [1200, 20], [1200, 120]])]]],
     spikes: [1, [[100, "b", rep(24, (x, w) => `L${x + w / 2},20L${x + w},100`)]]]
   };
+  add("divider-shape", Object.fromEntries(Object.entries(SHAPES).map(([k, [periodic, layers, ops]]) => [k, { periodic, layers, ops }])));
   var divider_default = {
     name: "divider",
     selector: ".efx-divider",
     defaults: { shape: "wave", color: "", height: 80, flip: false, invert: false, animate: "none", speed: 12, position: "" },
     init(el, o) {
-      const [per, layers, ops = []] = SHAPES[o.shape] || SHAPES.wave;
+      const { periodic: per, layers, ops = [] } = get("divider-shape", o.shape) || get("divider-shape", "wave");
       const st = el.style, parent = el.parentElement;
       const move = motionOK() && o.animate !== "none";
       const mode = o.animate === "layers" ? "layers" : !per && o.animate === "drift" ? "float" : o.animate;
@@ -1787,6 +1888,52 @@
     }
   };
 
+  // src/features/lazyimg.js
+  var lazyimg_default = {
+    name: "lazyimg",
+    selector: ".efx-lazyimg",
+    defaults: { margin: "300px", blur: 12 },
+    init(el, o) {
+      const bg = el.dataset.efxBg, isImg = el.tagName === "IMG";
+      if (!isImg && !bg) return;
+      const blur = motionOK();
+      const prev = isImg ? [el.getAttribute("src"), el.getAttribute("srcset")] : el.style.backgroundImage;
+      if (blur) {
+        el.style.setProperty("--efx-blur", o.blur + "px");
+        el.classList.add("is-lazy");
+      }
+      let img = null;
+      const stop = onVisible(el, (v) => {
+        if (!v) return;
+        stop();
+        img = new Image();
+        img.onload = () => {
+          if (isImg) {
+            el.srcset = el.dataset.efxSrcset || "";
+            if (el.dataset.efxSrc) el.src = el.dataset.efxSrc;
+            if (!el.dataset.efxSrcset) el.removeAttribute("srcset");
+          } else el.style.backgroundImage = `url("${bg}")`;
+          el.classList.add("is-loaded");
+          el.classList.remove("is-lazy");
+        };
+        img.onerror = () => el.classList.add("is-error");
+        if (isImg && el.dataset.efxSizes) img.sizes = el.dataset.efxSizes;
+        if (isImg && el.dataset.efxSrcset) img.srcset = el.dataset.efxSrcset;
+        img.src = isImg ? el.dataset.efxSrc || (el.dataset.efxSrcset || "").split(/[ ,]/)[0] : bg;
+      }, o.margin);
+      return () => {
+        stop();
+        if (img) img.onload = img.onerror = null;
+        el.classList.remove("is-lazy", "is-loaded", "is-error");
+        el.style.removeProperty("--efx-blur");
+        if (isImg) {
+          prev[0] == null ? el.removeAttribute("src") : el.setAttribute("src", prev[0]);
+          prev[1] == null ? el.removeAttribute("srcset") : el.setAttribute("srcset", prev[1]);
+        } else el.style.backgroundImage = prev;
+      };
+    }
+  };
+
   // src/features/lightbox.js
   var SEL = "a[href],[data-efx-src]";
   var S = null;
@@ -2028,6 +2175,82 @@
     }
   };
 
+  // src/features/media.js
+  var media_default = {
+    name: "media",
+    selector: ".efx-media",
+    defaults: { play: "view", threshold: 0.4, reset: false },
+    init(el, o) {
+      const vids = el.matches("video") ? [el] : [...el.querySelectorAll("video")];
+      if (!vids.length) return;
+      const hover = o.play === "hover" || el.hasAttribute("data-efx-hover");
+      const reduce = !motionOK();
+      const offs = [], undo = [];
+      const play = () => vids.forEach((v) => {
+        const p = v.play();
+        p && p.catch(() => {
+        });
+      });
+      const stop = () => vids.forEach((v) => {
+        v.pause();
+        if (o.reset) v.currentTime = 0;
+      });
+      const lazy = [el, ...el.querySelectorAll("[data-efx-src]")].filter((n) => n.dataset.efxSrc);
+      if (lazy.length) {
+        const s = onVisible(el, (v) => {
+          if (!v) return;
+          s();
+          lazy.forEach((n) => {
+            n.src = n.dataset.efxSrc;
+          });
+          vids.forEach((x) => x.load());
+        }, "300px");
+        offs.push(s);
+      }
+      if (reduce) {
+        vids.forEach((v) => {
+          const was = [v.autoplay, v.controls];
+          v.autoplay = false;
+          v.pause();
+          if (el === v) v.controls = true;
+          undo.push(() => {
+            v.autoplay = was[0];
+            v.controls = was[1];
+          });
+        });
+        if (el !== vids[0]) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "efx-media__play";
+          b.setAttribute("aria-label", "Play video");
+          b.addEventListener("click", () => {
+            play();
+            b.hidden = true;
+          });
+          let restore = false;
+          if (getComputedStyle(el).position === "static") {
+            el.style.position = "relative";
+            restore = true;
+          }
+          el.appendChild(b);
+          undo.push(() => {
+            b.remove();
+            if (restore) el.style.position = "";
+          });
+        }
+      } else if (hover) {
+        vids.forEach((v) => v.pause());
+        offs.push(on(el, "pointerenter", play), on(el, "pointerleave", stop), on(el, "focusin", play), on(el, "focusout", stop));
+      } else if (o.play === "view") {
+        offs.push(onVisible(el, (v) => v ? play() : stop(), "0px", o.threshold));
+      }
+      return () => {
+        offs.forEach((f2) => f2());
+        undo.forEach((f2) => f2());
+      };
+    }
+  };
+
   // src/features/mouse.js
   var subs2 = /* @__PURE__ */ new Set();
   var docOff3 = null;
@@ -2045,9 +2268,10 @@
   var mouse_default = {
     name: "mouse",
     selector: ".efx-mouse",
-    defaults: { strength: 20, scope: "self", invert: false, rotate: 0, ease: 0.12 },
+    defaults: { strength: 20, scope: "self", invert: false, rotate: 0, ease: 0.12, gyro: false },
     init(el, o) {
-      if (!finePointer() || !motionOK()) return;
+      const fine = finePointer(), gy = o.gyro && !fine && "DeviceOrientationEvent" in window;
+      if (!(fine || gy) || !motionOK()) return;
       const found = [...el.querySelectorAll("[data-efx-depth]")];
       const layers = (found.length ? found : [el]).map((n) => ({
         n,
@@ -2058,20 +2282,20 @@
         pt: n.style.translate,
         pr: n.style.rotate
       }));
-      const sign = o.invert ? 1 : -1, page = o.scope === "page", ease = Math.min(1, Math.max(0.01, o.ease));
+      const sign = o.invert ? 1 : -1, page = o.scope === "page", ease2 = Math.min(1, Math.max(0.01, o.ease));
       let tx = 0, ty = 0, raf2 = 0, unsub = null, rect = null;
       const frame = () => {
         raf2 = 0;
         let moving = false;
         for (const l of layers) {
-          const gx = tx * l.d * o.strength * sign, gy = ty * l.d * o.strength * sign, gr = tx * l.d * o.rotate * sign;
-          l.x += (gx - l.x) * ease;
-          l.y += (gy - l.y) * ease;
-          l.r += (gr - l.r) * ease;
-          const settled = Math.abs(gx - l.x) < 0.05 && Math.abs(gy - l.y) < 0.05 && Math.abs(gr - l.r) < 0.05;
+          const gx = tx * l.d * o.strength * sign, gy2 = ty * l.d * o.strength * sign, gr = tx * l.d * o.rotate * sign;
+          l.x += (gx - l.x) * ease2;
+          l.y += (gy2 - l.y) * ease2;
+          l.r += (gr - l.r) * ease2;
+          const settled = Math.abs(gx - l.x) < 0.05 && Math.abs(gy2 - l.y) < 0.05 && Math.abs(gr - l.r) < 0.05;
           if (settled) {
             l.x = gx;
-            l.y = gy;
+            l.y = gy2;
             l.r = gr;
           } else moving = true;
           l.n.style.translate = l.x.toFixed(2) + "px " + l.y.toFixed(2) + "px";
@@ -2091,8 +2315,11 @@
         if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return go(0, 0);
         go((e.clientX - r.left) / (r.width || 1) * 2 - 1, (e.clientY - r.top) / (r.height || 1) * 2 - 1);
       };
+      const orient = (e) => {
+        if (e.beta != null) go(Math.max(-1, Math.min(1, e.gamma / 40)), Math.max(-1, Math.min(1, (e.beta - 45) / 40)));
+      };
       const stopVis = onVisible(el, (v) => {
-        if (v && !unsub) unsub = subscribe2(handle);
+        if (v && !unsub) unsub = fine ? subscribe2(handle) : on(window, "deviceorientation", orient, { passive: true });
         else if (!v && unsub) {
           unsub();
           unsub = null;
@@ -2258,6 +2485,28 @@
   };
 
   // src/features/particles.js
+  add("particle-shape", {
+    circle: (c, r) => c.arc(0, 0, r, 0, 6.2832),
+    square: (c, r) => c.rect(-r, -r, r * 2, r * 2),
+    triangle: (c, r) => {
+      c.moveTo(0, -r * 1.3);
+      c.lineTo(r * 1.2, r);
+      c.lineTo(-r * 1.2, r);
+      c.closePath();
+    },
+    star: (c, r) => {
+      for (let i = 0; i < 10; i++) {
+        const a = i * 0.6283 - 1.5708, d = i % 2 ? r * 0.6 : r * 1.5;
+        c[i ? "lineTo" : "moveTo"](Math.cos(a) * d, Math.sin(a) * d);
+      }
+      c.closePath();
+    },
+    heart: (c, r) => {
+      c.moveTo(0, r);
+      c.bezierCurveTo(-r * 2, -r * 0.2, -r * 0.8, -r * 1.6, 0, -r * 0.5);
+      c.bezierCurveTo(r * 0.8, -r * 1.6, r * 2, -r * 0.2, 0, r);
+    }
+  });
   var splitColors = (s) => {
     const out = [];
     let depth = 0, cur = "";
@@ -2318,6 +2567,8 @@
       const colors = o.color ? splitColors(o.color) : [];
       if (!colors.length) colors.push(themeColor(el));
       const sp = o.speed / 100;
+      const shapes = splitColors(o.shape).map((n) => get("particle-shape", n) || get("particle-shape", "circle"));
+      if (!shapes.length) shapes.push(get("particle-shape", "circle"));
       let w = 0, h = 0, dpr2 = 1, ps2 = [], raf2 = 0, vis = true, hidden = document.hidden;
       const ptr = { x: -1e4, y: -1e4 };
       const rnd2 = (a, b) => a + Math.random() * (b - a);
@@ -2335,7 +2586,8 @@
           vx: rnd2(-0.5, 0.5) * sp,
           vy: rnd2(-0.5, 0.5) * sp,
           r: rnd2(o.sizeMin, o.sizeMax),
-          c: colors[Math.random() * colors.length | 0]
+          c: colors[Math.random() * colors.length | 0],
+          s: shapes[Math.random() * shapes.length | 0]
         }));
         draw2();
       };
@@ -2344,16 +2596,12 @@
         ctx2.globalAlpha = o.opacity;
         for (const p of ps2) {
           ctx2.fillStyle = p.c;
+          ctx2.setTransform(dpr2, 0, 0, dpr2, p.x * dpr2, p.y * dpr2);
           ctx2.beginPath();
-          if (o.shape === "square") ctx2.rect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
-          else if (o.shape === "triangle") {
-            ctx2.moveTo(p.x, p.y - p.r * 1.3);
-            ctx2.lineTo(p.x + p.r * 1.2, p.y + p.r);
-            ctx2.lineTo(p.x - p.r * 1.2, p.y + p.r);
-            ctx2.closePath();
-          } else ctx2.arc(p.x, p.y, p.r, 0, 6.2832);
+          p.s(ctx2, p.r, p);
           ctx2.fill();
         }
+        ctx2.setTransform(dpr2, 0, 0, dpr2, 0, 0);
         if (o.links || o.interact === "connect") {
           const L = o.linkDistance, nodes = o.interact === "connect" && ptr.x > -1e3 ? ps2.concat({ x: ptr.x, y: ptr.y, c: colors[0] }) : ps2;
           ctx2.lineWidth = 1;
@@ -2593,6 +2841,115 @@
           el.removeAttribute("aria-label");
           delete el.dataset.efxAl;
         }
+      };
+    }
+  };
+
+  // src/features/proximity.js
+  var subs3 = /* @__PURE__ */ new Set();
+  var docOff4 = null;
+  var subscribe3 = (fn) => {
+    subs3.add(fn);
+    if (!docOff4) docOff4 = on(document, "pointermove", (e) => subs3.forEach((f2) => f2(e)), { passive: true });
+    return () => {
+      subs3.delete(fn);
+      if (!subs3.size && docOff4) {
+        docOff4();
+        docOff4 = null;
+      }
+    };
+  };
+  var proximity_default = {
+    name: "proximity",
+    selector: ".efx-proximity",
+    defaults: { radius: 120, scale: 1.4, weight: 0, lift: 0, color: "", mode: "letters" },
+    init(el, o) {
+      if (!finePointer() || !motionOK()) return;
+      let saved = null, pieces;
+      if (o.mode === "items") pieces = [...el.querySelectorAll("[data-efx-item]")];
+      else {
+        const text = (el.textContent || "").replace(/\s+/g, " ").trim();
+        if (!text || text.length > 300) return;
+        saved = el.innerHTML;
+        const sr = document.createElement("span");
+        sr.className = "efx-proximity__sr";
+        sr.textContent = text;
+        const vis = document.createElement("span");
+        vis.className = "efx-proximity__pieces";
+        vis.setAttribute("aria-hidden", "true");
+        text.split(" ").forEach((w, k) => {
+          if (k) vis.append(" ");
+          const wrap = document.createElement("span");
+          wrap.className = "efx-proximity__w";
+          [...w].forEach((c) => {
+            const s = document.createElement("span");
+            s.className = "efx-proximity__c";
+            s.textContent = c;
+            wrap.append(s);
+          });
+          vis.append(wrap);
+        });
+        el.textContent = "";
+        el.append(sr, vis);
+        pieces = [...vis.querySelectorAll(".efx-proximity__c")];
+      }
+      if (!pieces.length) return;
+      const base = parseFloat(getComputedStyle(el).fontWeight) || 400;
+      const keep = pieces.map((p) => ({ t: p.style.translate, s: p.style.scale, w: p.style.fontWeight }));
+      if (o.color) {
+        el.style.setProperty("--efx-pcolor", o.color);
+        el.classList.add("has-pcolor");
+      }
+      el.classList.add("is-proximity");
+      let px = 0, py = 0, raf2 = 0, dirty = false, unsub = null;
+      const paint = (p, t) => {
+        p.style.scale = t ? (1 + (o.scale - 1) * t).toFixed(3) : "";
+        p.style.translate = t && o.lift ? "0 " + (-o.lift * t).toFixed(2) + "px" : "";
+        if (o.weight) p.style.fontWeight = t ? Math.round(base + (o.weight - base) * t) : "";
+        if (o.color) p.style.setProperty("--efx-p", t.toFixed(3));
+      };
+      const frame = () => {
+        raf2 = 0;
+        const r = el.getBoundingClientRect();
+        const near = px > r.left - o.radius && px < r.right + o.radius && py > r.top - o.radius && py < r.bottom + o.radius;
+        if (!near && !dirty) return;
+        dirty = near;
+        const rects = pieces.map((p) => p.getBoundingClientRect());
+        pieces.forEach((p, i) => {
+          const b = rects[i];
+          const d = near ? Math.hypot(px - (b.left + b.width / 2), py - (b.top + b.height / 2)) : o.radius;
+          const t = Math.max(0, 1 - d / o.radius);
+          paint(p, t * t * (3 - 2 * t));
+        });
+      };
+      const move = (e) => {
+        px = e.clientX;
+        py = e.clientY;
+        if (!raf2) raf2 = requestAnimationFrame(frame);
+      };
+      const stopVis = onVisible(el, (v) => {
+        if (v && !unsub) unsub = subscribe3(move);
+        else if (!v && unsub) {
+          unsub();
+          unsub = null;
+          px = py = -1e5;
+          dirty = true;
+          frame();
+        }
+      });
+      return () => {
+        stopVis();
+        unsub && unsub();
+        cancelAnimationFrame(raf2);
+        if (saved !== null) el.innerHTML = saved;
+        else pieces.forEach((p, i) => {
+          p.style.translate = keep[i].t;
+          p.style.scale = keep[i].s;
+          p.style.fontWeight = keep[i].w;
+          p.style.removeProperty("--efx-p");
+        });
+        el.style.removeProperty("--efx-pcolor");
+        el.classList.remove("has-pcolor", "is-proximity");
       };
     }
   };
@@ -2949,7 +3306,6 @@
     });
     return o;
   };
-  var EASE = { linear: (t) => t, in: (t) => t * t, out: (t) => 1 - (1 - t) * (1 - t), inout: (t) => t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t) };
   var scrub_default = {
     name: "scrub",
     selector: ".efx-scrub",
@@ -2958,7 +3314,7 @@
       if (!motionOK()) return;
       const A = { ...NEUTRAL, ...parse(o.from) };
       const B = { ...NEUTRAL, x: o.x, y: o.y, rotate: o.rotate, scale: o.scale, blur: o.blur, ...o.opacity >= 0 ? { opacity: o.opacity } : {}, ...parse(o.to) };
-      const ease = EASE[o.ease] || EASE.linear, span = o.end - o.start || 1;
+      const ease2 = ease(o.ease), span = o.end - o.start || 1;
       const s = el.style, saved = [s.translate, s.rotate, s.scale, s.opacity, s.filter, s.transition, s.willChange, s.getPropertyValue("--efx-p")];
       const use = (k) => A[k] !== B[k];
       const moves = use("x") || use("y"), turns = use("rotate"), zooms = use("scale"), fades = use("opacity"), blurs = use("blur");
@@ -2968,7 +3324,7 @@
       const stop = onScroll((y, vh) => {
         const r = el.getBoundingClientRect();
         const h0 = r.height / (sc || 1), top0 = r.top - ty - h0 * (1 - sc) / 2;
-        const q = ease(Math.min(1, Math.max(0, ((vh - top0) / (vh + h0) - o.start) / span)));
+        const q = ease2(Math.min(1, Math.max(0, ((vh - top0) / (vh + h0) - o.start) / span)));
         const v = (k) => A[k] + (B[k] - A[k]) * q;
         return () => {
           ty = v("y");
@@ -3263,7 +3619,7 @@
           c.style.willChange = "scale";
         }
       });
-      const fx = o.blur || o.dim;
+      const fx2 = o.blur || o.dim;
       const stop = anim && cards.length > 1 && onScroll(() => {
         const tops = cards.map((c) => c.getBoundingClientRect().top);
         const q = cards.map((c, j) => j ? 1 - Math.min(1, Math.max(0, (tops[j] - (o.offset + j * o.gap)) / (cards[j - 1].offsetHeight || 1))) : 0);
@@ -3271,7 +3627,7 @@
           let sum = 0;
           for (let i = cards.length - 1; i >= 0; i--) {
             cards[i].style.scale = (1 - o.shrink * sum).toFixed(4);
-            if (fx) cards[i].style.filter = sum ? `${o.blur ? `blur(${(o.blur * Math.min(sum, 1)).toFixed(1)}px) ` : ""}brightness(${(1 - o.dim * Math.min(sum, 1)).toFixed(3)})` : "";
+            if (fx2) cards[i].style.filter = sum ? `${o.blur ? `blur(${(o.blur * Math.min(sum, 1)).toFixed(1)}px) ` : ""}brightness(${(1 - o.dim * Math.min(sum, 1)).toFixed(3)})` : "";
             sum += q[i];
           }
         };
@@ -3410,9 +3766,10 @@
   var tilt_default = {
     name: "tilt",
     selector: ".efx-tilt",
-    defaults: { max: 10, perspective: 900, scale: 1.02, glare: false, reset: true },
+    defaults: { max: 10, perspective: 900, scale: 1.02, glare: false, reset: true, gyro: false },
     init(el, o) {
-      if (!finePointer() || !motionOK()) return;
+      const fine = finePointer(), gy = o.gyro && !fine && "DeviceOrientationEvent" in window;
+      if (!(fine || gy) || !motionOK()) return;
       let restorePos = false;
       if (getComputedStyle(el).position === "static") {
         el.style.position = "relative";
@@ -3460,7 +3817,14 @@
           }, 300);
         }
       };
-      const offs = [on(el, "pointerenter", enter), on(el, "pointermove", move), on(el, "pointerleave", reset)];
+      const offs = fine ? [on(el, "pointerenter", enter), on(el, "pointermove", move), on(el, "pointerleave", reset)] : [];
+      if (gy) offs.push(on(window, "deviceorientation", (e) => {
+        if (e.beta == null) return;
+        const k = (v) => Math.max(-1, Math.min(1, v / 40));
+        el.classList.add("is-tilt-active", "is-tilting");
+        el.style.setProperty("--efx-ry", (k(e.gamma) * o.max).toFixed(2) + "deg");
+        el.style.setProperty("--efx-rx", (-k(e.beta - 45) * o.max).toFixed(2) + "deg");
+      }, { passive: true }));
       return () => {
         offs.forEach((f2) => f2());
         move.cancel();
@@ -3515,16 +3879,22 @@
   };
 
   // src/features/trail.js
-  var subs3 = /* @__PURE__ */ new Set();
-  var docOff4 = null;
-  var subscribe3 = (fn) => {
-    subs3.add(fn);
-    if (!docOff4) docOff4 = on(document, "pointermove", (e) => subs3.forEach((f2) => f2(e)), { passive: true });
+  add("trail-shape", "emoji", (s, a) => {
+    const e = document.createElement("span");
+    e.textContent = a || "\u2728";
+    e.style.fontSize = s * 0.5 + "px";
+    return e;
+  });
+  var subs4 = /* @__PURE__ */ new Set();
+  var docOff5 = null;
+  var subscribe4 = (fn) => {
+    subs4.add(fn);
+    if (!docOff5) docOff5 = on(document, "pointermove", (e) => subs4.forEach((f2) => f2(e)), { passive: true });
     return () => {
-      subs3.delete(fn);
-      if (!subs3.size && docOff4) {
-        docOff4();
-        docOff4 = null;
+      subs4.delete(fn);
+      if (!subs4.size && docOff5) {
+        docOff5();
+        docOff5 = null;
       }
     };
   };
@@ -3597,7 +3967,7 @@
           pv.classList.remove("is-on");
         });
         stopVis = onVisible(el, (v) => {
-          if (v && !unsub) unsub = subscribe3(handle);
+          if (v && !unsub) unsub = subscribe4(handle);
           else if (!v && unsub) {
             unsub();
             unsub = null;
@@ -3621,9 +3991,9 @@
           n.style.backgroundImage = "";
           n.textContent = "";
           if (imgs.length) n.style.backgroundImage = 'url("' + imgs[Math.random() * imgs.length | 0].replace(/["\\]/g, "") + '")';
-          else if (shape.startsWith("emoji:")) {
-            n.textContent = shape.slice(6) || "\u2728";
-            n.style.fontSize = o.size * 0.5 + "px";
+          else if (shape) {
+            const [k2, ...a] = shape.split(":"), fn = get("trail-shape", k2);
+            if (fn) n.append(fn(o.size, a.join(":")));
           }
           const t = "translate(" + x + "px," + y + "px) translate(-50%,-50%) rotate(" + rnd2(o.rotate).toFixed(1) + "deg)";
           n._a = n.animate([
@@ -3644,7 +4014,7 @@
           spawn(x, y);
         };
         stopVis = onVisible(el, (v) => {
-          if (v && !unsub) unsub = subscribe3(handle);
+          if (v && !unsub) unsub = subscribe4(handle);
           else if (!v && unsub) {
             unsub();
             unsub = null;
@@ -3659,6 +4029,107 @@
         cleanupMode && cleanupMode();
         layer.remove();
         release(el);
+      };
+    }
+  };
+
+  // src/features/transition.js
+  var KEY = "efx-tr";
+  var css = (s, d) => `@view-transition{navigation:auto}::view-transition-group(root){animation-duration:${d}ms}` + ({
+    "slide-up": `::view-transition-new(root){animation:efx-tr-up ${d}ms cubic-bezier(.22,1,.36,1)}@keyframes efx-tr-up{from{transform:translateY(8%);opacity:0}}`,
+    zoom: `::view-transition-new(root){animation:efx-tr-zoom ${d}ms cubic-bezier(.22,1,.36,1)}@keyframes efx-tr-zoom{from{transform:scale(.94);opacity:0}}`
+  }[s] || "");
+  var transition_default = {
+    name: "transition",
+    selector: ".efx-transition",
+    defaults: { style: "fade", duration: 400, prefetch: true },
+    init(el, o) {
+      if (!motionOK()) return;
+      const native = typeof CSSViewTransitionRule !== "undefined";
+      const offs = [];
+      let curtain = null, style = null;
+      const ss = {
+        get: () => {
+          try {
+            return sessionStorage.getItem(KEY);
+          } catch (e) {
+            return null;
+          }
+        },
+        set: (v) => {
+          try {
+            v ? sessionStorage.setItem(KEY, 1) : sessionStorage.removeItem(KEY);
+          } catch (e) {
+          }
+        }
+      };
+      if (native) {
+        style = document.createElement("style");
+        style.setAttribute("data-efx-transition", "");
+        style.textContent = css(o.style, o.duration);
+        document.head.appendChild(style);
+      } else {
+        curtain = document.createElement("div");
+        curtain.className = "efx-transition__curtain";
+        curtain.setAttribute("aria-hidden", "true");
+        curtain.setAttribute("data-efx-style", o.style);
+        curtain.style.setProperty("--efx-tr-dur", o.duration + "ms");
+        document.body.appendChild(curtain);
+        if (ss.get()) {
+          ss.set(0);
+          curtain.classList.add("is-cover", "is-instant");
+          curtain.offsetWidth;
+          curtain.classList.remove("is-cover", "is-instant");
+          curtain.classList.add("is-leave");
+        }
+        offs.push(on(window, "pageshow", (e) => {
+          if (e.persisted) curtain.classList.remove("is-cover");
+        }));
+      }
+      const link = (e) => {
+        const a = e.target.closest && e.target.closest("a[href]");
+        if (!a || a.closest("[data-efx-no-transition]") || a.target && a.target !== "_self" || a.hasAttribute("download")) return null;
+        let u;
+        try {
+          u = new URL(a.href, location.href);
+        } catch (err) {
+          return null;
+        }
+        if (!/^https?:$/.test(u.protocol) || u.origin !== location.origin) return null;
+        if (u.pathname === location.pathname && u.search === location.search) return null;
+        return u;
+      };
+      if (curtain) offs.push(on(document, "click", (e) => {
+        if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        const u = link(e);
+        if (!u) return;
+        e.preventDefault();
+        ss.set(1);
+        curtain.classList.remove("is-leave");
+        curtain.classList.add("is-cover");
+        setTimeout(() => {
+          location.href = u.href;
+        }, o.duration);
+      }));
+      if (o.prefetch) {
+        const done = /* @__PURE__ */ new Set(), links = [];
+        const pre = (e) => {
+          const u = link(e);
+          if (!u || done.has(u.href)) return;
+          done.add(u.href);
+          const l = document.createElement("link");
+          l.rel = "prefetch";
+          l.href = u.href;
+          l.setAttribute("data-efx-prefetch-link", "");
+          document.head.appendChild(l);
+          links.push(l);
+        };
+        offs.push(on(document, "pointerover", pre, { passive: true }), on(document, "focusin", pre), () => links.forEach((l) => l.remove()));
+      }
+      return () => {
+        offs.forEach((f2) => f2());
+        curtain && curtain.remove();
+        style && style.remove();
       };
     }
   };
@@ -3815,7 +4286,7 @@
   };
 
   // src/effix-entry.js
-  define(ambient_default, border_default, carousel_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, direction_default, divider_default, drag_default, draw_default, hscroll_default, lightbox_default, magnetic_default, marquee_default, mouse_default, odometer_default, parallax_default, particles_default, popup_default, progress_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, totop_default, trail_default, typed_default, zoom_default);
+  define(ambient_default, border_default, carousel_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, direction_default, divider_default, drag_default, draw_default, hscroll_default, lazyimg_default, lightbox_default, magnetic_default, marquee_default, media_default, mouse_default, odometer_default, parallax_default, particles_default, popup_default, progress_default, proximity_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
   if (typeof window !== "undefined") window.Effix = core_default;
   autoBoot();
   var effix_entry_default = core_default;

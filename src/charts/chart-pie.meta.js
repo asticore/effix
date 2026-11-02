@@ -1,6 +1,11 @@
 module.exports = {
   title: 'Pie & donut chart',
   group: 'Charts',
+  dataFormat: `One slice per label, from the <em>first</em> series only; zero and negative values are skipped.
+<code>data-efx-data="40,30,20,10" data-efx-labels="A|B|C|D"</code>.
+JSON: <code>[{"label":"Organic","value":4200},{"label":"Direct","value":2800}]</code> or <code>{"labels":["A","B"],"series":[{"values":[40,30]}]}</code>.
+A table via <code>data-efx-source</code> (first column = slice names, second = values) also works.
+Slice colors: <code>data-efx-colors="#f43f5e|#8b5cf6"</code> (one per slice).`,
   summary: 'Pie, donut or semicircle with outside labels and leader lines. Slices pull out on hover and the donut hole shows the hovered slice. Click a legend key to hide a slice.',
   classes: [['efx-chart-pie', 'Renders a pie/donut from data-efx-data (first series) and data-efx-labels.']],
   options: [
@@ -12,6 +17,7 @@ module.exports = {
     ['data-efx-center', '', 'Text in the donut hole. <code>{total}</code> = formatted total. Empty shows the total with caption "Total".'],
     ['data-efx-show', 'auto', 'Labels: <code>auto</code> outside with leader lines when there is room · <code>percent</code> inside slices · <code>none</code>.'],
     ['data-efx-half', 'false', 'Semicircle.'],
+    ['data-efx-rose', 'false', 'Polar-area (Nightingale) rose: equal angles, radius proportional to √value.'],
     ['data-efx-legend', 'true', 'Legend keys toggle slices.'],
     ['data-efx-height', '320', 'Chart height in px (0 = element CSS height).'],
     ['data-efx-colors', 'Shine tones', 'Colors "#f43f5e|#8b5cf6" (per stage / slice / series).'],
@@ -32,6 +38,7 @@ module.exports = {
   <h3 class="m-0 mb-3">Traffic sources</h3>
   <div class="efx-chart-pie" data-efx-data="4200,2800,1900,900" data-efx-labels="Organic|Direct|Referral|Social" data-efx-center="{total} visits"></div>
 </div>` },
+    { html: `<div class="card p-6"><div class="efx-chart-pie" data-efx-rose data-efx-donut="0.15" data-efx-height="300" data-efx-data="90,64,48,35,22,12" data-efx-labels="Jan|Feb|Mar|Apr|May|Jun" data-efx-title="Monthly orders"></div></div>`, label: 'Rose (polar-area) variant' },
     { html: `<div class="grid md:grid-cols-2 gap-4">
   <div class="card p-6"><div class="efx-chart-pie" data-efx-donut="0" data-efx-show="percent" data-efx-sort data-efx-height="240" data-efx-data="45,25,18,12" data-efx-labels="Pro|Team|Free|Edu"></div></div>
   <div class="card p-6"><div class="efx-chart-pie" data-efx-half data-efx-donut="0.7" data-efx-show="none" data-efx-height="170" data-efx-data="62,23,15" data-efx-labels="Done|Doing|Todo" data-efx-center="62%"></div></div>

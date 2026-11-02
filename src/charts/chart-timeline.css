@@ -1,0 +1,4 @@
+/* chart-timeline */
+.efx-tl__grp { fill: var(--sh-text, currentColor); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.efx-tl__today { stroke-width: 1.5; stroke-dasharray: 4 3; pointer-events: none; }
+.efx-tl__tt { font-size: 10px; font-weight: 600; pointer-events: none; }

@@ -34,6 +34,22 @@
 .efx-chart__plot.is-in .efx-chart__fade { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .efx-chart__plot * { transition: none !important; } .efx-chart__tip { transition: none; } }
 
+/* chart-candle */
+.efx-cd__pt { cursor: crosshair; }
+.efx-cd__pt.is-active { filter: none; }
+.efx-cd__band { fill: var(--efx-chart-text); opacity: 0; transition: opacity .15s; }
+.efx-cd__pt.is-active .efx-cd__band { opacity: .08; }
+
+/* chart-combo — hover band + hover dots */
+.efx-combo__pt { cursor: crosshair; }
+.efx-combo__pt.is-active { filter: none; }
+.efx-combo__band { fill: var(--efx-chart-text); opacity: 0; transition: opacity .15s; }
+.efx-combo__pt.is-active .efx-combo__band { opacity: .08; }
+.efx-combo__dot { stroke: var(--sh-surface, #fff); stroke-width: 2; }
+.efx-combo__hid { opacity: 0; transition: opacity .15s; }
+.efx-combo__pt.is-active .efx-combo__hid { opacity: 1; }
+.efx-chart__tip i { font-style: normal; }
+
 /* chart-flow — label halo, related-highlight. */
 .efx-flow__label { paint-order: stroke; stroke: var(--sh-surface, #fff); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; font-weight: 500; }
 .efx-chart-flow path.efx-chart__mark:not(.is-dim) { stroke-opacity: .65; }
@@ -100,9 +116,17 @@
 .efx-chart__plot .efx-chart-spark__pt.is-active { opacity: 1; }
 .efx-chart-spark .efx-chart__svg { overflow: visible; }
 
+/* chart-timeline */
+.efx-tl__grp { fill: var(--sh-text, currentColor); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.efx-tl__today { stroke-width: 1.5; stroke-dasharray: 4 3; pointer-events: none; }
+.efx-tl__tt { font-size: 10px; font-weight: 600; pointer-events: none; }
+
 /* chart-treemap — entrance: tiles fade + scale in, staggered (only on first reveal). */
 .efx-chart__plot:not(.is-in) .efx-tm { opacity: 0; }
 .efx-chart__plot.is-in .efx-tm { animation: efx-tm .6s var(--efx-ease, cubic-bezier(.22,1,.36,1)) backwards calc(var(--i, 0) * 35ms); transform-box: fill-box; transform-origin: center; }
 @keyframes efx-tm { from { opacity: 0; transform: scale(.88); } }
 @media (prefers-reduced-motion: reduce) { .efx-chart__plot .efx-tm { animation: none !important; } }
+
+/* chart-waterfall */
+.efx-wf__c { stroke: var(--efx-chart-text); stroke-dasharray: 2 3; stroke-opacity: .7; }
 }
