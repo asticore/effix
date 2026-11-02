@@ -1,14 +1,14 @@
 {
   "version": "0.1.0",
   "core": 2339,
-  "chartLib": 4958,
+  "chartLib": 5022,
   "bundles": {
     "effix.min.js": 26508,
     "effix.min.css": 5051,
-    "effix-charts.min.js": 4935,
-    "effix-charts.min.css": 1235,
-    "effix.all.min.js": 30743,
-    "effix.all.min.css": 5695
+    "effix-charts.min.js": 17523,
+    "effix-charts.min.css": 2021,
+    "effix.all.min.js": 43259,
+    "effix.all.min.css": 6427
   },
   "features": {
     "ambient": {
@@ -217,8 +217,63 @@
       "kind": "effect"
     },
     "chart-bar": {
-      "js": 1083,
+      "js": 1087,
       "css": 0,
+      "kind": "chart"
+    },
+    "chart-flow": {
+      "js": 1083,
+      "css": 210,
+      "kind": "chart"
+    },
+    "chart-funnel": {
+      "js": 2269,
+      "css": 314,
+      "kind": "chart"
+    },
+    "chart-gauge": {
+      "js": 876,
+      "css": 351,
+      "kind": "chart"
+    },
+    "chart-heatmap": {
+      "js": 1180,
+      "css": 0,
+      "kind": "chart"
+    },
+    "chart-line": {
+      "js": 1403,
+      "css": 207,
+      "kind": "chart"
+    },
+    "chart-pie": {
+      "js": 1255,
+      "css": 385,
+      "kind": "chart"
+    },
+    "chart-progress": {
+      "js": 466,
+      "css": 0,
+      "kind": "chart"
+    },
+    "chart-radar": {
+      "js": 765,
+      "css": 291,
+      "kind": "chart"
+    },
+    "chart-scatter": {
+      "js": 1191,
+      "css": 0,
+      "kind": "chart"
+    },
+    "chart-spark": {
+      "js": 977,
+      "css": 105,
+      "kind": "chart"
+    },
+    "chart-treemap": {
+      "js": 592,
+      "css": 245,
       "kind": "chart"
     }
   }

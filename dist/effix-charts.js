@@ -119,19 +119,49 @@
     const bw = step * (1 - padding);
     return { x: (i) => r0 + i * step + (step - bw) / 2, bw, step };
   }
+  function linePath(pts, smooth = true) {
+    if (!pts.length) return "";
+    if (!smooth || pts.length < 3) return "M" + pts.map((p) => `${p[0]},${p[1]}`).join("L");
+    const n = pts.length, dx = [], m = [], t = [];
+    for (let i = 0; i < n - 1; i++) {
+      dx[i] = pts[i + 1][0] - pts[i][0];
+      m[i] = (pts[i + 1][1] - pts[i][1]) / (dx[i] || 1);
+    }
+    t[0] = m[0];
+    t[n - 1] = m[n - 2];
+    for (let i = 1; i < n - 1; i++) t[i] = m[i - 1] * m[i] <= 0 ? 0 : 3 * (dx[i - 1] + dx[i]) / ((2 * dx[i] + dx[i - 1]) / m[i - 1] + (dx[i] + 2 * dx[i - 1]) / m[i]);
+    let d = `M${pts[0][0]},${pts[0][1]}`;
+    for (let i = 0; i < n - 1; i++) {
+      const h = dx[i] / 3;
+      d += `C${pts[i][0] + h},${pts[i][1] + h * t[i]} ${pts[i + 1][0] - h},${pts[i + 1][1] - h * t[i + 1]} ${pts[i + 1][0]},${pts[i + 1][1]}`;
+    }
+    return d;
+  }
+  var pt = (cx, cy, r, a) => [cx + r * Math.sin(a), cy - r * Math.cos(a)];
+  function arcPath(cx, cy, r0, r1, a0, a1) {
+    if (a1 - a0 >= Math.PI * 2 - 1e-6) a1 = a0 + Math.PI * 2 - 1e-4;
+    const large = a1 - a0 > Math.PI ? 1 : 0;
+    const [x0, y0] = pt(cx, cy, r1, a0), [x1, y1] = pt(cx, cy, r1, a1);
+    let d = `M${x0},${y0}A${r1},${r1} 0 ${large} 1 ${x1},${y1}`;
+    if (r0 > 0) {
+      const [x2, y2] = pt(cx, cy, r0, a1), [x3, y3] = pt(cx, cy, r0, a0);
+      d += `L${x2},${y2}A${r0},${r0} 0 ${large} 0 ${x3},${y3}Z`;
+    } else d += `L${cx},${cy}Z`;
+    return d;
+  }
   function formatter(o) {
     const opts = o.compact ? { notation: "compact", maximumFractionDigits: 1 } : {};
     if (o.decimals >= 0) {
       opts.minimumFractionDigits = o.decimals;
       opts.maximumFractionDigits = o.decimals;
     }
-    let nf;
+    let nf2;
     try {
-      nf = new Intl.NumberFormat(void 0, opts);
+      nf2 = new Intl.NumberFormat(void 0, opts);
     } catch (e) {
-      nf = { format: (v) => String(v) };
+      nf2 = { format: (v) => String(v) };
     }
-    return (v) => o.prefix + nf.format(v) + o.suffix;
+    return (v) => o.prefix + nf2.format(v) + o.suffix;
   }
   function s(tag, attrs, parent) {
     const n = document.createElementNS(NS, tag);
@@ -187,8 +217,8 @@
     const fmt = formatter(o);
     const name = () => o.title || el.getAttribute("aria-label") || (el.querySelector("h1,h2,h3,h4,h5,h6,figcaption") || {}).textContent || "Chart";
     function render(again) {
-      w = Math.max(40, el.clientWidth);
-      h = deco ? Math.max(20, el.clientHeight) : o.height || el.clientHeight || 260;
+      w = Math.max(16, el.clientWidth);
+      h = deco ? Math.max(20, el.clientHeight) : draw.height && draw.height(w, data) || o.height || el.clientHeight || 260;
       svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
       svg.setAttribute("width", w);
       svg.setAttribute("height", h);
@@ -229,19 +259,23 @@
       active = i;
       const m = marks[i];
       if (!m) return hide();
-      marks.forEach((k, j) => k.node && k.node.classList.toggle("is-dim", j !== i && (!m.group || k.group !== m.group)));
+      const rel = new Set(m.rel || []);
+      marks.forEach((k, j) => k.node && k.node.classList.toggle("is-dim", j !== i && !rel.has(j) && (m.group == null || k.group !== m.group)));
       if (m.node) m.node.classList.add("is-active");
+      if (draw.onShow) draw.onShow(m);
       tip.innerHTML = m.html || `<strong>${esc(m.label)}</strong>${m.series ? `<span>${esc(m.series)}</span>` : ""}<b>${esc(fmt(m.value))}</b>`;
       tip.hidden = false;
       const r = el.getBoundingClientRect(), sv = svg.getBoundingClientRect();
       const x = sv.left - r.left + m.x * (sv.width / w), y = sv.top - r.top + m.y * (sv.height / h);
       tip.style.left = Math.max(0, Math.min(r.width - tip.offsetWidth, x - tip.offsetWidth / 2)) + "px";
-      tip.style.top = Math.max(0, y - tip.offsetHeight - 10) + "px";
+      const above = r.top + y - tip.offsetHeight - 10 > 0;
+      tip.style.top = (above ? y - tip.offsetHeight - 10 : y + 14) + "px";
     }
     function hide() {
       active = -1;
       tip.hidden = true;
       marks.forEach((k) => k.node && k.node.classList.remove("is-dim", "is-active"));
+      if (draw.onShow) draw.onShow(null);
     }
     const nearest = (px, py) => {
       let best = -1, bd = Infinity;
@@ -401,8 +435,970 @@
     }
   };
 
+  // src/charts/chart-flow.js
+  var read = (el, o) => {
+    try {
+      const j = el.querySelector(':scope > script[type="application/json"]');
+      return JSON.parse(o.data.trim() || j.textContent);
+    } catch (e) {
+      return {};
+    }
+  };
+  var chart_flow_default = {
+    name: "chart-flow",
+    selector: ".efx-chart-flow",
+    lazy: true,
+    defaults: { ...COMMON, nodeWidth: 12, nodePad: 12, align: "justify", legend: false },
+    init(el, o) {
+      let d = read(el, o);
+      const off = on(el, "efx:data", (e) => {
+        d = e.detail || d;
+      });
+      const draw = ({ g, w, h, deco, fmt }) => {
+        const names = (d.nodes || []).map((n) => {
+          var _a;
+          return String((_a = n.name) != null ? _a : n);
+        });
+        const id = (v) => {
+          if (typeof v === "number" && names[v] != null) return v;
+          const k = String(v), i = names.indexOf(k);
+          return i < 0 ? names.push(k) - 1 : i;
+        };
+        const L = (d.links || []).map((l) => ({ s: id(l.source), t: id(l.target), v: +l.value || 0 })).filter((l) => l.v > 0 && l.s !== l.t);
+        const all = names.map((name, i) => ({ i, name, in: 0, out: 0, col: 0, a: [], b: [] }));
+        L.forEach((l) => {
+          all[l.s].out += l.v;
+          all[l.s].a.push(l);
+          all[l.t].in += l.v;
+          all[l.t].b.push(l);
+        });
+        const N = all.filter((n) => n.in + n.out);
+        if (!N.length) return [];
+        N.forEach((n, k) => {
+          n.v = Math.max(n.in, n.out);
+          n.mi = L.length + k;
+        });
+        for (let k = 0, c = 1; c && k < N.length; k++) {
+          c = 0;
+          L.forEach((l) => {
+            const t = all[l.t];
+            if (t.col < Math.min(N.length - 1, all[l.s].col + 1)) {
+              t.col = all[l.s].col + 1;
+              c = 1;
+            }
+          });
+        }
+        const C = Math.max(...N.map((n) => n.col)) + 1;
+        if (o.align === "justify") N.forEach((n) => {
+          if (!n.a.length) n.col = C - 1;
+        });
+        const pad = deco ? 0 : 6, H = h - 2 * pad, nw = o.nodeWidth, gap = o.nodePad;
+        const cols = Array.from({ length: C }, (_, c) => N.filter((n) => n.col === c));
+        const ky = Math.max(0.01, Math.min(...cols.filter((c) => c.length).map((c) => (H - (c.length - 1) * gap) / c.reduce((a, n) => a + n.v, 0))));
+        cols.forEach((c, ci) => {
+          const bar = (n) => {
+            const q = n.b.filter((l) => all[l.s].col < ci);
+            return q.length ? q.reduce((a, l) => a + l.v * (all[l.s].y + all[l.s].h / 2), 0) / q.reduce((a, l) => a + l.v, 0) : 0;
+          };
+          if (ci) c.sort((a, b) => bar(a) - bar(b));
+          let y = pad + (H - c.reduce((a, n) => a + n.v * ky + gap, -gap)) / 2;
+          c.forEach((n) => {
+            n.x = pad / 2 + (C > 1 ? ci * (w - pad - nw) / (C - 1) : 0);
+            n.y = y;
+            n.h = Math.max(1, n.v * ky);
+            y += n.h + gap;
+          });
+        });
+        N.forEach((n) => {
+          let y = n.y;
+          n.a.sort((p, q) => all[p.t].y - all[q.t].y).forEach((l) => {
+            l.sy = y + l.v * ky / 2;
+            y += l.v * ky;
+          });
+          y = n.y;
+          n.b.sort((p, q) => all[p.s].y - all[q.s].y).forEach((l) => {
+            l.ty = y + l.v * ky / 2;
+            y += l.v * ky;
+          });
+        });
+        const pal = palette(el, o, names.length), marks = [];
+        L.forEach((l, i) => {
+          const A = all[l.s], B = all[l.t], x0 = A.x + nw, x1 = B.x, xm = (x0 + x1) / 2, lw = l.v * ky;
+          const node = s("path", { d: `M${x0},${l.sy}C${xm},${l.sy} ${xm},${l.ty} ${x1},${l.ty}`, fill: "none", stroke: pal[A.i], "stroke-opacity": 0.35, "stroke-width": lw, pathLength: 1, class: "efx-chart__mark efx-chart__draw", style: `--i:${i}` }, g);
+          marks.push({
+            x: xm,
+            y: (l.sy + l.ty) / 2,
+            label: `${A.name} \u2192 ${B.name}`,
+            value: l.v,
+            node,
+            index: i,
+            rel: [A.mi, B.mi],
+            html: `<strong>${esc(A.name)} \u2192 ${esc(B.name)}</strong><b>${esc(fmt(l.v))} (${Math.round(l.v / A.v * 100)}% of ${esc(A.name)})</b>`,
+            hit(px, py) {
+              if (px < x0 || px > x1) return false;
+              let a = 0, b = 1, t = 0.5;
+              for (let k = 0; k < 14; k++) {
+                t = (a + b) / 2;
+                x0 + (x1 - x0) * (1.5 * t - 1.5 * t * t + t * t * t) < px ? a = t : b = t;
+              }
+              return Math.abs(py - (l.sy + (l.ty - l.sy) * t * t * (3 - 2 * t))) <= lw / 2 + 2;
+            }
+          });
+        });
+        N.forEach((n, i) => {
+          const node = s("rect", { x: n.x, y: n.y, width: nw, height: n.h, rx: 2, fill: pal[n.i], class: "efx-chart__mark efx-chart__fade", style: `--i:${i}` }, g);
+          marks.push({
+            x: n.x + nw / 2,
+            y: n.y + n.h / 2,
+            label: n.name,
+            value: n.v,
+            node,
+            index: L.length + i,
+            rel: n.a.concat(n.b).map((l) => L.indexOf(l)),
+            hit: (px, py) => px >= n.x - 2 && px <= n.x + nw + 2 && py >= n.y && py <= n.y + n.h
+          });
+        });
+        if (!deco) N.forEach((n, i) => {
+          const right = n.x < w / 2;
+          s("text", { x: right ? n.x + nw + 6 : n.x - 6, y: n.y + n.h / 2, "text-anchor": right ? "start" : "end", "dominant-baseline": "middle", class: "efx-chart__value efx-flow__label efx-chart__fade", style: `--i:${i}` }, g).textContent = n.name;
+        });
+        return marks;
+      };
+      draw.radius = 1;
+      const stop = chart(el, o, draw);
+      return () => {
+        off();
+        stop();
+      };
+    }
+  };
+
+  // src/charts/chart-funnel.js
+  var pc = (x) => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10) + "%";
+  var cut = (t, n) => t.length > n ? t.slice(0, Math.max(1, n - 1)) + "\u2026" : t;
+  var chart_funnel_default = {
+    name: "chart-funnel",
+    selector: ".efx-chart-funnel",
+    lazy: true,
+    defaults: { ...COMMON, height: 320, style: "curved", horizontal: false, neck: 0.25, gap: 4, conversion: true, show: "inside", dynamic: true, compare: "mirror" },
+    init(el, o) {
+      const draw = ({ g, w, h, data, hidden, fmt, deco }) => {
+        const S = data.series, idx = data.labels.map((_, i) => i).filter((i) => !hidden.has(i)), n = idx.length;
+        if (!n || !S.length) return [];
+        const pal = palette(el, o, data.labels.length);
+        const hz = o.horizontal, st = o.style, bars = st === "bars", pyr = st === "pyramid", curved = st === "curved";
+        const cmp = S.length > 1, ghost = cmp && o.compare === "ghost", conv = o.conversion && !deco;
+        const sh = deco ? "none" : o.show, nk = Math.min(0.95, Math.max(0, o.neck));
+        const V = [0, 1].map((j) => (i) => S[j] && S[j].values[i] || 0);
+        const max = Math.max(1e-9, ...idx.map(V[0]), ...cmp ? idx.map(V[1]) : []);
+        const pd = deco ? { t: 0, r: 0, b: 0, l: 0 } : hz ? { t: conv ? 22 : 6, r: 6, b: sh === "none" ? 6 : 36, l: 6 } : { t: 6, r: conv ? 54 : 6, b: 6, l: sh === "side" ? Math.min(150, w * 0.3) : conv ? 54 : 6 };
+        const L = hz ? w - pd.l - pd.r : h - pd.t - pd.b, W = hz ? h - pd.t - pd.b : w - pd.l - pd.r;
+        const cx = pd.l + (w - pd.l - pd.r) / 2, cy = pd.t + (h - pd.t - pd.b) / 2, flip = pyr && !hz;
+        const P = (u, v) => {
+          if (flip) u = L - u;
+          return hz ? [pd.l + u, cy + v] : [cx + v, pd.t + u];
+        };
+        const q = (u, v) => P(u, v).join(",");
+        const inv = (px, py) => {
+          let u = hz ? px - pd.l : py - pd.t;
+          if (flip) u = L - u;
+          return [u, hz ? py - cy : px - cx];
+        };
+        const gp = bars ? o.gap + (conv ? hz ? 40 : 18 : 6) : o.gap;
+        const mean = idx.reduce((a, i) => a + V[0](i), 0) / n;
+        const wt = idx.map((i) => o.dynamic ? V[0](i) + mean * 0.3 + 1e-9 : 1), tw = wt.reduce((a, b) => a + b);
+        const av = Math.max(n, L - gp * (n - 1));
+        const H = wt.map((x) => x / tw * av), U = H.map((_, k) => H.slice(0, k).reduce((a, b) => a + b, 0) + k * gp);
+        const prop = bars || cmp || !pyr && nk <= 0;
+        const prof = (t) => pyr ? 1 - t : curved ? nk + (1 - nk) * (1 - t * t * (3 - 2 * t)) : 1 - (1 - nk) * t;
+        const mk = (Vf) => {
+          const gs = idx.map((i, k) => {
+            const u0 = U[k], u1 = u0 + H[k];
+            const a = prop ? Vf(i) / max : prof(u0 / L), b = prop ? bars ? a : k < n - 1 ? Vf(idx[k + 1]) / max : a * 0.7 : prof(u1 / L);
+            return { u0, u1, ea: a * W / 2, eb: b * W / 2 };
+          });
+          const m = (x) => (x.eb - x.ea) / (x.u1 - x.u0 || 1);
+          gs.forEach((x, k) => {
+            const c = m(x), p = k ? m(gs[k - 1]) : c, nx = k < n - 1 ? m(gs[k + 1]) : c;
+            x.ta = k ? p * c > 0 ? (p + c) / 2 : 0 : c;
+            x.tb = k < n - 1 ? nx * c > 0 ? (nx + c) / 2 : 0 : c;
+          });
+          return gs;
+        };
+        const G = [mk(V[0])];
+        if (cmp) G.push(mk(V[1]));
+        const ext = (k, u) => Math.max(...G.map((gs) => {
+          const a = gs[k];
+          return a.ea + (a.eb - a.ea) * Math.min(1, Math.max(0, (u - a.u0) / (a.u1 - a.u0 || 1)));
+        }));
+        const shape = (x, lo, hi, ins = 0) => {
+          const u0 = x.u0 + ins, u1 = x.u1 - ins, ea = Math.max(0, x.ea - ins), eb = Math.max(0, x.eb - ins), d = (u1 - u0) / 3;
+          const edge = (sg, rev) => !curved || !sg ? `L${rev ? q(u0, sg * ea) : q(u1, sg * eb)}` : rev ? `C${q(u1 - d, sg * (eb - d * x.tb))} ${q(u0 + d, sg * (ea + d * x.ta))} ${q(u0, sg * ea)}` : `C${q(u0 + d, sg * (ea + d * x.ta))} ${q(u1 - d, sg * (eb - d * x.tb))} ${q(u1, sg * eb)}`;
+          return `M${q(u0, lo * ea)}${edge(lo)}L${q(u1, hi * eb)}${edge(hi, 1)}Z`;
+        };
+        const marks = [], rows = idx.map(() => []);
+        if (bars) idx.forEach((i, k) => {
+          if (k === n - 1) return;
+          (cmp && !ghost ? [[0, -1, 0], [1, 0, 1]] : [[0, -1, 1]]).forEach(([j, lo, hi]) => {
+            const a = G[j][k], b = G[j][k + 1];
+            s("path", { d: `M${q(a.u1, lo * a.eb)}L${q(b.u0, lo * b.ea)}L${q(b.u0, hi * b.ea)}L${q(a.u1, hi * a.eb)}Z`, fill: pal[i], "fill-opacity": 0.16, class: "efx-chart__fade", style: `--i:${k}` }, g);
+          });
+        });
+        [1, 0].forEach((pass) => (pass && !ghost ? [] : cmp && !ghost ? [0, 1] : [0]).forEach((j) => {
+          const gj = pass ? 1 : j;
+          idx.forEach((i, k) => {
+            const x = G[gj][k], lo = cmp && !ghost && gj ? 0 : -1, hi = cmp && !ghost && !gj ? 0 : 1, v = V[gj](i);
+            const half = cmp && !ghost, mid = (x.u0 + x.u1) / 2, e = (x.ea + x.eb) / 2;
+            const ins = bars && !pass ? 4 : 0;
+            const org = !half ? "50% 50%" : hz ? gj ? "50% 0%" : "50% 100%" : gj ? "0% 50%" : "100% 50%";
+            const node = s("path", {
+              d: shape(x, lo, hi, ins),
+              fill: pal[i],
+              "fill-opacity": pass ? 0.14 : half && gj ? 0.55 : null,
+              stroke: pass || ins ? pal[i] : null,
+              "stroke-width": pass ? 1.5 : ins ? 8 : null,
+              "stroke-dasharray": pass ? "5 4" : null,
+              "stroke-linejoin": ins ? "round" : null,
+              class: "efx-chart__mark " + (pass ? "efx-chart__fade" : hz ? "efx-fn-y" : "efx-fn-x"),
+              style: `--i:${k};` + (pass ? "" : `transform-origin:${org}`)
+            }, g);
+            const first = V[0](idx[0]), prev = k ? V[0](idx[k - 1]) : v, vv = V[0](i), other = V[1](i);
+            const dd = prev - vv;
+            const html = `<strong>${esc(data.labels[i])}</strong>${half ? `<span>${esc(S[gj].name)}</span>` : ""}<b>${esc(fmt(half ? v : vv))}</b>` + (ghost ? `<span>${esc(S[1].name)}: ${esc(fmt(other))}</span>` : "") + `<span>${pc(first ? v / first * 100 : 0)} of total${k && prev ? ` \xB7 ${pc(v / (half ? V[gj](idx[k - 1]) : prev) * 100)} of previous` : ""}</span>` + (k ? `<span>${dd >= 0 ? "\u2212" : "+"}${esc(fmt(Math.abs(half ? V[gj](idx[k - 1]) - v : dd)))} vs previous</span>` : "");
+            const [mx, my] = P(mid, half ? gj ? e / 2 : -e / 2 : 0);
+            rows[k][pass ? 1 : j] = {
+              x: mx,
+              y: my,
+              label: data.labels[i],
+              value: pass ? other : v,
+              series: cmp ? S[gj].name : "",
+              node,
+              index: i,
+              group: k,
+              html,
+              hit: pass ? () => false : (px, py) => {
+                const [u, vv2] = inv(px, py), z = ext(k, u) + 2;
+                return u >= G[0][k].u0 - gp / 2 && u <= G[0][k].u1 + gp / 2 && vv2 >= lo * z && vv2 <= hi * z;
+              }
+            };
+          });
+        }));
+        rows.forEach((r) => r.forEach((m) => m && marks.push(m)));
+        const txt = (x, y, cls, str, k, anchor = "middle") => {
+          s("text", { x, y, "text-anchor": anchor, "dominant-baseline": "central", class: cls + " efx-chart__fade", style: `--i:${k}` }, g).textContent = str;
+        };
+        if (sh !== "none") idx.forEach((i, k) => {
+          const a = G[0][k], len = a.u1 - a.u0, u = (a.u0 + a.u1) / 2, name = data.labels[i], v = V[0](i), first = V[0](idx[0]);
+          const l2 = fmt(v) + (cmp ? " / " + fmt(V[1](i)) : "") + (conv ? " \xB7 " + pc(first ? v / first * 100 : 0) : "");
+          const cw = 2 * Math.min(...G.map((gs) => (gs[k].ea + gs[k].eb) / 2)) * 0.9 - 8;
+          const t1 = name.length * 6.8, t2 = l2.length * 6.2;
+          const fit = (tw2, th) => sh === "inside" && (hz ? len >= tw2 + 10 && cw >= th + 2 : cw >= tw2 && len >= th + 2);
+          const lines = fit(Math.max(t1, t2), 30) ? 2 : fit(t1, 14) ? 1 : 0;
+          const [x, y] = P(u, 0), e = ext(k, u);
+          if (lines) {
+            txt(x, y - (lines > 1 ? 7 : 0), "efx-fn-t", name, k);
+            if (lines > 1) txt(x, y + 8, "efx-fn-t efx-fn-2", l2, k);
+          } else if (hz) {
+            const m = Math.max(4, Math.floor((len + gp) / 6.4)), by = cy + W / 2;
+            s("line", { x1: x, x2: x, y1: cy + e + 3, y2: by + 3, class: "efx-fn-l efx-chart__fade", style: `--i:${k}` }, g);
+            txt(x, by + 12, "efx-chart__value", cut(name, m), k);
+            txt(x, by + 25, "efx-fn-s", cut(l2, m), k);
+          } else {
+            const ex = sh === "side" ? pd.l - 10 : cx - e - 10;
+            if (sh === "side") s("line", { x1: ex + 5, x2: cx - e - 3, y1: y, y2: y, class: "efx-fn-l efx-chart__fade", style: `--i:${k}` }, g);
+            txt(ex, y - 7, "efx-chart__value", name, k, "end");
+            txt(ex, y + 8, "efx-fn-s", l2, k, "end");
+          }
+        });
+        if (conv) idx.forEach((i, k) => {
+          const a = V[0](i), b = V[0](idx[k + 1]);
+          if (k === n - 1 || !a) return;
+          const dr = (1 - b / a) * 100, str = (dr >= 0 ? "\u2212" : "+") + pc(Math.abs(dr)), uB = (G[0][k].u1 + G[0][k + 1].u0) / 2;
+          const e = Math.max(...G.map((gs) => Math.max(gs[k].eb, gs[k + 1].ea)));
+          if (bars) {
+            const [x, y] = P(uB, 0);
+            txt(x, y, "efx-fn-d", str, k);
+          } else if (hz) {
+            const [x, y] = P(uB, -e - 9);
+            txt(x, y, "efx-fn-d", str, k);
+          } else {
+            const [x, y] = P(uB, e + 8);
+            txt(x, y, "efx-fn-d", str, k, "start");
+          }
+        });
+        return marks;
+      };
+      draw.legendByLabel = true;
+      draw.radius = 1;
+      return chart(el, o, draw);
+    }
+  };
+
+  // src/charts/chart-gauge.js
+  var TAU = Math.PI * 2;
+  var chart_gauge_default = {
+    name: "chart-gauge",
+    selector: ".efx-chart-gauge",
+    lazy: true,
+    defaults: { ...COMMON, legend: false, type: "gauge", value: NaN, min: 0, max: 100, thick: 0.18, needle: false, target: NaN, label: "" },
+    init(el, o) {
+      return chart(el, o, ({ g, w, h, data, fmt, deco }) => {
+        const ty = o.type, rad = ty === "radial", gauge = ty === "gauge", S = data.series[0] || { values: [] };
+        const pal = palette(el, o, Math.max(1, data.labels.length));
+        if (rad && !S.values.length) return [];
+        const vals = rad ? S.values : [Number.isFinite(o.value) ? o.value : S.values[0] || 0];
+        const span = o.max - o.min || 1, p = (v2) => Math.min(1, Math.max(0, (v2 - o.min) / span));
+        const a0 = gauge ? -2 * Math.PI / 3 : 0, sw = rad ? 1.5 * Math.PI : gauge ? 4 * Math.PI / 3 : TAU;
+        const m = deco ? 2 : 6;
+        const R = gauge ? Math.min((w - 2 * m) / 2, (h - 2 * m) / 1.5) : Math.min(w, h) / 2 - m;
+        const cx = w / 2, cy = gauge ? (h - 1.5 * R) / 2 + R : h / 2;
+        const n = vals.length, ring = Math.max(2, rad ? Math.min(o.thick * R, R * 0.78 / n - 3) : o.thick * R);
+        const arc = (r, a, b) => {
+          b = Math.min(b, a + TAU - 1e-3);
+          const [x0, y0] = pt(cx, cy, r, a), [x1, y1] = pt(cx, cy, r, b);
+          return `M${x0},${y0}A${r},${r} 0 ${b - a > Math.PI ? 1 : 0} 1 ${x1},${y1}`;
+        };
+        const marks = [];
+        const text = !deco && Math.min(w, h) >= 90;
+        vals.forEach((v2, i) => {
+          const r = rad ? R - ring / 2 - i * (R * 0.78 / n) : R - ring / 2, a1 = a0 + sw * p(v2), name = rad ? data.labels[i] : o.label || (data.labels[0] !== "1" ? data.labels[0] : "Value");
+          s("path", { d: arc(r, a0, a0 + sw), class: "efx-gauge-track", "stroke-width": ring, "stroke-linecap": "round", fill: "none" }, g);
+          const node = s("path", { d: arc(r, a0, a1 || a0 + 1e-3), pathLength: 1, class: "efx-chart__mark efx-gauge-sweep", style: `--i:${i * 3}`, stroke: pal[rad ? i : 0], "stroke-width": ring, "stroke-linecap": "round", fill: "none", visibility: p(v2) > 0 ? null : "hidden" }, g);
+          const [x, y] = pt(cx, cy, r, a1);
+          marks.push({
+            x,
+            y,
+            label: name,
+            value: v2,
+            node,
+            index: i,
+            series: "",
+            html: `<strong>${esc(name)}</strong><b>${esc(fmt(v2))}</b><span>${Math.round(p(v2) * 100)}% of ${esc(fmt(o.max))}</span>`,
+            hit: (px, py) => {
+              const d = Math.hypot(px - cx, py - cy), an = ((Math.atan2(px - cx, cy - py) - a0) % TAU + TAU) % TAU;
+              return Math.abs(d - r) <= ring / 2 + 4 && an <= sw + 0.05;
+            }
+          });
+          if (rad && text) {
+            const t = s("text", { x: cx - 10, y: cy - r, "text-anchor": "end", "dominant-baseline": "central", class: "efx-gauge-lab efx-chart__fade", style: `--i:${i}` }, g);
+            t.textContent = name;
+          }
+        });
+        const v = vals[0], ri = R - ring;
+        if (Number.isFinite(o.target) && !rad) {
+          const at = a0 + sw * p(o.target), [x1, y1] = pt(cx, cy, R - ring - 3, at), [x2, y2] = pt(cx, cy, R + 3, at);
+          s("line", { x1, y1, x2, y2, class: "efx-gauge-target" }, g);
+        }
+        if (deco || rad) return marks;
+        if (gauge && o.needle) {
+          const len = R - ring - 4;
+          s("path", { d: `M${cx - 3.5},${cy}L${cx},${cy - len}L${cx + 3.5},${cy}Z`, class: "efx-gauge-needle", style: `transform-origin:${cx}px ${cy}px;--a:${a0 + sw * p(v)}rad` }, g);
+          s("circle", { cx, cy, r: 6, class: "efx-gauge-hub" }, g);
+        }
+        if (text) {
+          const str = fmt(v), cap = o.label || (data.labels[0] !== "1" ? data.labels[0] : "");
+          const f = Math.min(ri * (gauge ? o.needle ? 0.36 : 0.5 : 0.5), ri * 1.6 / (str.length * 0.58)), ty0 = gauge ? o.needle ? cy + ri * 0.4 : cy + ri * 0.02 : cy - (cap ? f * 0.3 : 0);
+          const big = s("text", { x: cx, y: ty0, "text-anchor": "middle", "dominant-baseline": "central", class: "efx-chart__value efx-chart__fade", style: `font-size:${f}px` }, g);
+          big.textContent = str;
+          if (cap) s("text", { x: cx, y: ty0 + f * 0.8, "text-anchor": "middle", "dominant-baseline": "central", class: "efx-gauge-lab efx-chart__fade" }, g).textContent = cap;
+        }
+        return marks;
+      });
+    }
+  };
+
+  // src/charts/chart-heatmap.js
+  var DAY = 864e5;
+  var utc = (d) => {
+    const m = String(d).match(/\d+/g) || [];
+    return Date.UTC(m[0], m[1] - 1, m[2]);
+  };
+  var rd = (el, t) => {
+    try {
+      const j = el.querySelector(':scope > script[type="application/json"]');
+      let r = JSON.parse(j ? j.textContent : t);
+      r = Array.isArray(r) ? r : r.data || [];
+      return r.filter((d) => d && d.date).map((d) => ({ t: utc(d.date), v: +d.value || 0 }));
+    } catch (e) {
+      return [];
+    }
+  };
+  var chart_heatmap_default = {
+    name: "chart-heatmap",
+    selector: ".efx-chart-heatmap",
+    lazy: true,
+    defaults: { ...COMMON, height: 0, legend: false, calendar: false, scheme: "", gap: 2, radius: 2 },
+    init(el, o) {
+      const H0 = o.height, cal = o.calendar;
+      let days = cal ? rd(el, o.data) : [], rows = cal ? 0 : parseData(el, o).series.length;
+      if (cal) o.data = '{"series":[]}';
+      const geo = (w) => {
+        const t0 = Math.min(...days.map((d) => d.t)), n = Math.round((Math.max(...days.map((d) => d.t)) - t0) / DAY) + 1, d0 = new Date(t0).getUTCDay(), wk = Math.ceil((n + d0) / 7);
+        return { t0, n, d0, wk, cell: Math.min(20, (w - 30) / wk) };
+      };
+      if (!o.background && !H0) Object.defineProperty(o, "height", { get: () => cal ? days.length ? 18 + 7 * geo(Math.max(40, el.clientWidth)).cell : 60 : 22 + 30 * Math.max(1, rows) });
+      const off = on(el, "efx:data", (e) => {
+        const d = e.detail;
+        if (cal) days = rd(el, JSON.stringify(d));
+        else rows = (d && d.series || []).length || rows;
+      });
+      const fmtDate = (t) => new Date(t).toLocaleDateString(void 0, { dateStyle: "medium", timeZone: "UTC" });
+      const draw = ({ g, w, h, data, visible, fmt, deco }) => {
+        const pal = palette(el, o, 7), c0 = pal[0], c1 = o.colors.length ? pal[1] : pal[5], gap = o.gap, cells = [];
+        const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+        const text = (a, t) => s("text", a, ax).textContent = t;
+        let cw, ch, ox = 0, oy = 0;
+        if (cal) {
+          if (!days.length) return [];
+          const q = geo(w), by = new Map(days.map((d) => [d.t, d.v]));
+          ox = deco ? 0 : 30;
+          oy = deco ? 0 : 18;
+          cw = deco ? w / q.wk : q.cell;
+          ch = deco ? h / 7 : q.cell;
+          let last = -9;
+          for (let c = 0; c < q.wk; c++) {
+            for (let r = 0; r < 7; r++) {
+              const i = c * 7 + r - q.d0;
+              if (i < 0 || i >= q.n) continue;
+              const t = q.t0 + i * DAY;
+              cells.push({ c, r, v: by.has(t) ? by.get(t) : null, label: fmtDate(t), series: "" });
+              if (!deco && r === 0 && (c === 0 || new Date(t).getUTCDate() <= 7 && new Date(t - 7 * DAY).getUTCMonth() !== new Date(t).getUTCMonth()) && c - last >= 3) {
+                last = c;
+                text({ x: ox + c * cw, y: 11 }, new Date(t).toLocaleDateString(void 0, { month: "short", timeZone: "UTC" }));
+              }
+            }
+          }
+          if (!deco && ch >= 11) [1, 3, 5].forEach((r) => text({ x: ox - 6, y: oy + (r + 0.5) * ch, "text-anchor": "end", "dominant-baseline": "middle" }, new Date(Date.UTC(2023, 0, 1 + r)).toLocaleDateString(void 0, { weekday: "short", timeZone: "UTC" })));
+        } else {
+          const nc = data.labels.length;
+          if (!nc || !visible.length) return [];
+          ox = deco ? 0 : Math.min(120, 12 + 6.5 * Math.max(...visible.map((v) => v.name.length)));
+          oy = deco ? 0 : 22;
+          cw = (w - ox) / nc;
+          ch = (h - oy) / visible.length;
+          const every = Math.ceil(nc / Math.max(1, Math.floor((w - ox) / 48)));
+          if (!deco) data.labels.forEach((l, c) => c % every || text({ x: ox + (c + 0.5) * cw, y: 14, "text-anchor": "middle" }, l));
+          visible.forEach((sr, r) => {
+            if (!deco) text({ x: ox - 8, y: oy + (r + 0.5) * ch, "text-anchor": "end", "dominant-baseline": "middle" }, sr.name);
+            data.labels.forEach((l, c) => cells.push({ c, r, v: sr.values[c] == null ? null : sr.values[c], label: l, series: sr.name }));
+          });
+        }
+        const vs = cells.filter((k) => k.v != null).map((k) => k.v), lo = Math.min(...vs), hi = Math.max(...vs), div = o.scheme === "diverging", m = Math.max(Math.abs(lo), Math.abs(hi)) || 1;
+        const step = Math.min(1, 16 / Math.max(1, cal ? cells.length / 7 : cells.length / (visible.length || 1)));
+        const marks = [];
+        cells.forEach((k) => {
+          const t = div ? Math.abs(k.v) / m : (k.v - lo) / (hi - lo || 1), x = ox + k.c * cw, y = oy + k.r * ch, rw = Math.max(1, cw - gap), rh = Math.max(1, ch - gap);
+          const fill = k.v == null ? "var(--efx-chart-text) 10%" : `${div && k.v < 0 ? c1 : c0} ${Math.round(8 + 92 * t)}%`;
+          const node = s("rect", { x, y, width: rw, height: rh, rx: o.radius, style: `fill:color-mix(in oklab, ${fill}, transparent);--i:${k.c * step}`, class: (k.v == null ? "" : "efx-chart__mark ") + "efx-chart__fade" }, g);
+          if (k.v != null) marks.push({ x: x + rw / 2, y: y + rh / 2, label: k.label, value: k.v, series: k.series, node, index: marks.length, hit: (px, py) => px >= x - gap / 2 && px <= x + rw + gap / 2 && py >= y - gap / 2 && py <= y + rh + gap / 2 });
+        });
+        return marks;
+      };
+      draw.radius = 1;
+      const stop = chart(el, o, draw);
+      return () => {
+        off();
+        stop();
+      };
+    }
+  };
+
+  // src/charts/chart-line.js
+  var uid2 = 0;
+  var chart_line_default = {
+    name: "chart-line",
+    selector: ".efx-chart-line",
+    lazy: true,
+    defaults: { ...COMMON, area: false, smooth: true, dots: true, stacked: false, grid: true, min: "" },
+    init(el, o) {
+      const draw = ({ g, w, h, data, visible, colors, fmt, deco }) => {
+        const n = data.labels.length;
+        if (!n || !visible.length) return [];
+        const pad = deco ? { t: 6, r: 0, b: 6, l: 0 } : { t: 12, r: 16, b: 28, l: 44 };
+        const area = o.area || o.stacked;
+        let acc = Array(n).fill(0);
+        const rows = visible.map((sr) => {
+          const lo = acc, hi = sr.values.map((_, i) => 0);
+          for (let i = 0; i < n; i++) hi[i] = (o.stacked ? lo[i] : 0) + (sr.values[i] || 0);
+          if (o.stacked) acc = hi;
+          return { sr, lo, hi, c: colors[sr.index] };
+        });
+        const vals = rows.flatMap((r) => r.hi).concat(area ? 0 : []);
+        const sc = nice(o.min === "" ? Math.min(...vals) : +o.min, Math.max(...vals), Math.max(2, Math.floor(h / 50)));
+        const y = linear([sc.min, sc.max], [h - pad.b, pad.t]);
+        const x = (i) => n > 1 ? pad.l + i * (w - pad.l - pad.r) / (n - 1) : (pad.l + w - pad.r) / 2;
+        if (!deco) axes(g, { w, h, pad, y, ticks: sc.ticks, labels: data.labels, x, fmt, grid: o.grid });
+        const P = (a) => a.map((v, i) => [x(i), y(v)]);
+        const base = y(Math.max(sc.min, 0));
+        if (area) {
+          const defs2 = s("defs", {}, g);
+          rows.forEach((r, k) => {
+            const id = "efx-lg" + ++uid2;
+            const lg = s("linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 }, defs2);
+            s("stop", { offset: 0, "stop-color": r.c, "stop-opacity": 0.35 }, lg);
+            s("stop", { offset: 1, "stop-color": r.c, "stop-opacity": 0 }, lg);
+            const tail = o.stacked ? "L" + linePath(P(r.lo).reverse(), o.smooth).slice(1) : `L${x(n - 1)},${base}L${x(0)},${base}`;
+            s("path", { d: linePath(P(r.hi), o.smooth) + tail + "Z", fill: `url(#${id})`, class: "efx-chart__fade", style: `--i:${k}` }, g);
+          });
+        }
+        rows.forEach((r) => s("path", { d: linePath(P(r.hi), o.smooth), pathLength: 1, fill: "none", stroke: r.c, "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", class: "efx-chart__draw" }, g));
+        if (deco) return [];
+        const step = Math.min(1, 16 / n);
+        return data.labels.map((label, i) => {
+          const node = s("g", { class: "efx-chart__mark efx-chart-line__pt" }, g);
+          s("line", { x1: x(i), x2: x(i), y1: pad.t, y2: h - pad.b, class: "efx-chart-line__x" }, node);
+          rows.forEach((r) => s("circle", { cx: x(i), cy: y(r.hi[i]), r: 4, fill: r.c, class: "efx-chart-line__dot " + (o.dots ? "efx-chart__fade" : "efx-chart-line__hid"), style: `--i:${i * step}` }, node));
+          const multi = rows.length > 1;
+          return {
+            x: x(i),
+            y: Math.min(...rows.map((r) => y(r.hi[i]))),
+            label,
+            node,
+            index: i,
+            xOnly: true,
+            group: i,
+            value: o.stacked ? rows[rows.length - 1].hi[i] : rows[0].sr.values[i] || 0,
+            series: multi ? "" : rows[0].sr.name,
+            html: `<strong>${esc(label)}</strong>` + rows.map((r) => `<span>${multi ? `<i style="color:${r.c}">\u25CF</i> ${esc(r.sr.name)} ` : ""}<b>${esc(fmt(r.sr.values[i] || 0))}</b></span>`).join("")
+          };
+        });
+      };
+      draw.radius = Infinity;
+      return chart(el, o, draw);
+    }
+  };
+
+  // src/charts/chart-pie.js
+  var TAU2 = Math.PI * 2;
+  var pc2 = (x) => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10) + "%";
+  var chart_pie_default = {
+    name: "chart-pie",
+    selector: ".efx-chart-pie",
+    lazy: true,
+    defaults: { ...COMMON, height: 300, donut: 0.6, pad: 0.01, sort: false, center: "", show: "auto", half: false },
+    init(el, o) {
+      let center = () => {
+      };
+      const draw = ({ g, w, h, data, hidden, fmt, deco }) => {
+        const vals = data.series[0] ? data.series[0].values : [];
+        let idx = data.labels.map((_, i) => i).filter((i) => !hidden.has(i) && vals[i] > 0);
+        if (o.sort) idx.sort((a, b) => vals[b] - vals[a]);
+        const total = idx.reduce((a, i) => a + vals[i], 0);
+        if (!total) return [];
+        const pal = palette(el, o, data.labels.length), half = o.half;
+        const auto = !deco && o.show === "auto", inner = !deco && o.show === "percent";
+        const rv = half ? h - 22 : h / 2 - 20;
+        let R = Math.min(rv, w / 2 - (auto ? 78 : 8)), lab = auto;
+        if (R < 40) {
+          R = Math.max(10, Math.min(rv, w / 2 - 8));
+          lab = false;
+        }
+        if (deco) R = Math.min(half ? h : h / 2, w / 2);
+        const r0 = R * Math.min(0.95, Math.max(0, o.donut)), cx = w / 2, cy = half ? deco ? h : h - 6 : h / 2;
+        const span = half ? Math.PI : TAU2, start = half ? -Math.PI / 2 : 0;
+        const gap = Math.min(o.pad, span / idx.length / 2);
+        let acc = start;
+        const marks = [], arcs = [], labs = [];
+        idx.forEach((i, k) => {
+          const a0 = acc, a1 = acc + vals[i] / total * span, m = (a0 + a1) / 2;
+          acc = a1;
+          const d = idx.length > 1 ? gap / 2 : 0;
+          const [dx, dy] = pt(0, 0, 7, m);
+          const node = s("path", { d: arcPath(cx, cy, r0, R, a0 + d, a1 - d), fill: pal[i], class: "efx-chart__mark efx-pie-arc", style: `--i:${k};--dx:${dx}px;--dy:${dy}px;transform-origin:${cx}px ${cy}px` }, g);
+          arcs.push({ node, i });
+          const [mx, my] = pt(cx, cy, (r0 + R) / 2, m), pct = vals[i] / total * 100;
+          marks.push({
+            x: mx,
+            y: my,
+            label: data.labels[i],
+            value: vals[i],
+            node,
+            index: i,
+            group: k,
+            html: `<strong>${esc(data.labels[i])}</strong><b>${esc(fmt(vals[i]))}</b><span>${pc2(pct)}</span>`,
+            hit: (px, py) => {
+              const r = Math.hypot(px - cx, py - cy);
+              if (r < r0 - 2 || r > R + 8) return false;
+              const an = ((Math.atan2(px - cx, cy - py) - start) % TAU2 + TAU2) % TAU2 + start;
+              return an >= a0 && an <= a1;
+            }
+          });
+          if (inner && (a1 - a0) * (r0 + R) / 2 >= 28 && R - r0 > 14) {
+            const t = s("text", { x: mx, y: my, "text-anchor": "middle", "dominant-baseline": "central", class: "efx-pie-t efx-chart__fade", style: `--i:${k}` }, g);
+            t.textContent = pc2(pct);
+          }
+          if (lab) labs.push({ m, sd: Math.sin(m) >= 0 ? 1 : -1, t: `${data.labels[i]}  ${pc2(pct)}`, k });
+        });
+        [-1, 1].forEach((sd) => {
+          const L = labs.filter((l) => l.sd === sd).map((l) => ({ ...l, y: pt(cx, cy, R + 14, l.m)[1] })).sort((a, b) => a.y - b.y);
+          L.forEach((l, j) => {
+            if (j) l.y = Math.max(l.y, L[j - 1].y + 15);
+          });
+          for (let j = L.length - 1; j >= 0; j--) {
+            if (j < L.length - 1 && L[j].y > L[j + 1].y - 15) L[j].y = L[j + 1].y - 15;
+          }
+          L.forEach((l) => {
+            const [x1, y1] = pt(cx, cy, R + 2, l.m), [x2, y2] = pt(cx, cy, R + 12, l.m), xl = cx + sd * (R + 22);
+            s("path", { d: `M${x1},${y1}L${x2},${y2}L${xl},${l.y}`, class: "efx-pie-l efx-chart__fade", style: `--i:${l.k}` }, g);
+            const mc = Math.floor((w / 2 - R - 30) / 6.2), t = s("text", { x: xl + sd * 4, y: l.y, "text-anchor": sd > 0 ? "start" : "end", "dominant-baseline": "central", class: "efx-chart__value efx-pie-lt efx-chart__fade", style: `--i:${l.k}` }, g);
+            t.textContent = l.t.length > mc ? l.t.slice(0, Math.max(3, mc - 1)) + "\u2026" : l.t;
+          });
+        });
+        if (!deco && r0 >= 28) {
+          const tot = fmt(total), custom = o.center.replace("{total}", tot);
+          const fs = Math.max(12, Math.min(28, r0 * 0.42)), cyy = half ? cy - r0 * 0.3 : cy;
+          const big = s("text", { x: cx, y: cyy - (custom ? 0 : 6), "text-anchor": "middle", "dominant-baseline": "central", class: "efx-chart__value efx-pie-c" }, g);
+          const cap = s("text", { x: cx, y: cyy + fs * 0.7, "text-anchor": "middle", "dominant-baseline": "central", class: "efx-pie-s" }, g);
+          const set = (a) => {
+            const v = a ? fmt(vals[a.i]) : custom || tot, c = a ? data.labels[a.i] : custom ? "" : "Total";
+            const f = Math.min(fs, r0 * 1.7 / (Math.max(v.length, c.length * 0.6) * 0.58));
+            big.style.fontSize = f + "px";
+            big.textContent = v;
+            cap.textContent = c;
+            big.setAttribute("y", cyy - (c ? f * 0.35 : 0));
+            cap.setAttribute("y", cyy + f * 0.6);
+          };
+          set();
+          center = (m) => set(m ? arcs.find((a) => a.node === m.node) : void 0);
+        }
+        return marks;
+      };
+      draw.legendByLabel = true;
+      draw.onShow = (m) => center(m);
+      draw.radius = 1;
+      const off = chart(el, o, draw);
+      return off;
+    }
+  };
+
+  // src/charts/chart-progress.js
+  var GAP = 12;
+  var chart_progress_default = {
+    name: "chart-progress",
+    selector: ".efx-chart-progress",
+    lazy: true,
+    defaults: { ...COMMON, max: NaN, values: true, percent: true, thick: 10, radius: 999, legend: false },
+    init(el, o) {
+      const auto = el.dataset.efxHeight === void 0;
+      const fit = (n) => {
+        if (auto) o.height = Math.max(1, n) * (o.thick + 30) - GAP;
+      };
+      const rows = (d) => fit(d.labels.length);
+      rows(parseData(el, o));
+      const off = on(el, "efx:data", (e) => {
+        const x = e.detail || {};
+        rows(parseData(el, { ...o, source: "", data: JSON.stringify(x), labels: x.labels || [] }));
+      });
+      const draw = ({ g, w, h, data, fmt, deco }) => {
+        const n = data.labels.length, [V, T] = data.series;
+        if (!n || !V) return [];
+        const pal = palette(el, o, n), pitch = (h + GAP) / n, th = deco ? pitch * 0.6 : o.thick, r = Math.min(o.radius, th / 2);
+        const all = Math.max(...V.values, ...T ? T.values : [], 1);
+        return data.labels.map((label, i) => {
+          const v = V.values[i] || 0, t = T ? T.values[i] || 0 : 0;
+          const sc = o.max > 0 ? o.max : t ? Math.max(t, v) : all;
+          const y = i * pitch + (deco ? (pitch - th) / 2 : 16), f = Math.max(0, Math.min(1, v / sc)) * w;
+          const pc3 = Math.round(v / (t || sc) * 100);
+          const txt = [o.values && fmt(v) + (t ? " / " + fmt(t) : ""), o.percent && pc3 + "%"].filter(Boolean).join(" \xB7 ");
+          s("rect", { x: 0, y, width: w, height: th, rx: r, style: "fill:var(--sh-surface-2,rgb(128 128 128/.18))" }, g);
+          if (!deco) {
+            const lab = s("text", { x: 0, y: i * pitch + 11, style: "fill:var(--sh-text,#0f172a);font-size:13px" }, g);
+            const room = Math.max(4, Math.floor((w - txt.length * 7.5 - 12) / 7));
+            lab.textContent = label.length > room ? label.slice(0, room - 1) + "\u2026" : label;
+            s("text", { x: w, y: i * pitch + 11, "text-anchor": "end", class: "efx-chart__value", style: "font-size:13px" }, g).textContent = txt;
+          }
+          const node = s("rect", { x: 0, y, width: Math.max(f, f ? th : 0), height: th, rx: r, fill: pal[i], class: "efx-chart__mark efx-chart__grow-x", style: `--i:${i}` }, g);
+          if (t) {
+            const tx = Math.min(1, t / sc) * w;
+            s("line", { x1: tx, x2: tx, y1: y - 3, y2: y + th + 3, stroke: "var(--sh-text,#0f172a)", "stroke-width": 2, "stroke-linecap": "round", class: "efx-chart__fade", style: `--i:${i}` }, g);
+          }
+          return {
+            x: f,
+            y: y + th / 2,
+            label,
+            value: v,
+            node,
+            index: i,
+            html: `<strong>${esc(label)}</strong><b>${esc(fmt(v) + (t ? " / " + fmt(t) : ""))}</b><span>${pc3}%</span>`,
+            hit: (px, py) => py >= i * pitch && py <= i * pitch + pitch - GAP + 4
+          };
+        });
+      };
+      draw.radius = 1;
+      const stop = chart(el, o, draw);
+      return () => {
+        off();
+        stop();
+      };
+    }
+  };
+
+  // src/charts/chart-radar.js
+  var TAU3 = Math.PI * 2;
+  var chart_radar_default = {
+    name: "chart-radar",
+    selector: ".efx-chart-radar",
+    lazy: true,
+    defaults: { ...COMMON, height: 320, levels: 4, area: true, dots: true, max: "" },
+    init(el, o) {
+      return chart(el, o, ({ g, w, h, data, visible, colors, fmt, deco }) => {
+        const n = data.labels.length;
+        if (n < 3 || !visible.length) return [];
+        const all = visible.flatMap((sr) => sr.values), top = Math.max(...all, 0);
+        const nt = nice(0, top || 1, o.levels), fixed = parseFloat(o.max) > 0, lv = fixed ? Math.max(1, o.levels) : nt.ticks.length - 1, mx = fixed ? parseFloat(o.max) : nt.max;
+        const long = Math.max(...data.labels.map((l) => l.length));
+        const R = deco ? Math.min(w, h) / 2 - 2 : Math.max(20, Math.min(w / 2 - Math.min(w * 0.3, long * 6.2 + 16), h / 2 - 24));
+        const cx = w / 2, cy = h / 2, ang = (k) => k * TAU3 / n;
+        const pt2 = (k, r) => [cx + r * Math.sin(ang(k)), cy - r * Math.cos(ang(k))];
+        const poly = (r) => "M" + data.labels.map((_, k) => pt2(k, r).join(",")).join("L") + "Z";
+        const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+        for (let j = 1; j <= lv; j++) {
+          s("path", { d: poly(R * j / lv), class: "efx-chart__grid", fill: "none" }, ax);
+          if (!deco && j < lv) s("text", { x: cx + 4, y: cy - R * j / lv, class: "efx-rd-tick", "dominant-baseline": "central" }, ax).textContent = fmt(mx * j / lv);
+        }
+        data.labels.forEach((l, k) => {
+          const [x, y] = pt2(k, R);
+          s("line", { x1: cx, y1: cy, x2: x, y2: y, class: "efx-chart__grid" }, ax);
+          if (deco) return;
+          const sn = Math.sin(ang(k)), cs = Math.cos(ang(k)), [lx, ly] = pt2(k, R + 12);
+          const room = Math.max(4, Math.floor((w / 2 - R * Math.abs(sn) - 12) / 6.2));
+          const t = s("text", { x: lx, y: ly + cs * -3 + (cs < -0.3 ? 4 : 0), "text-anchor": Math.abs(sn) < 0.25 ? "middle" : sn > 0 ? "start" : "end", "dominant-baseline": "central" }, ax);
+          t.textContent = Math.abs(sn) < 0.25 ? l : l.length > room ? l.slice(0, Math.max(2, room - 1)) + "\u2026" : l;
+        });
+        const marks = [];
+        visible.forEach((sr, si) => {
+          const col = colors[sr.index], pts = data.labels.map((_, k) => pt2(k, R * Math.min(1, Math.max(0, sr.values[k] || 0) / mx)));
+          const d = "M" + pts.map((p) => p.join(",")).join("L") + "Z";
+          s("path", { d, fill: o.area ? col : "none", "fill-opacity": o.area ? 0.18 : null, stroke: col, "stroke-width": 2, "stroke-linejoin": "round", class: "efx-rd-poly", style: `--i:${si};transform-origin:${cx}px ${cy}px` }, g);
+          data.labels.forEach((l, k) => {
+            const node = s("circle", { cx: pts[k][0], cy: pts[k][1], r: 4, fill: col, stroke: "var(--sh-surface, #fff)", "stroke-width": 1.5, class: "efx-chart__mark efx-rd-dot" + (o.dots || deco ? "" : " efx-rd-h"), style: `--i:${k + si}` }, g);
+            marks.push({ x: pts[k][0], y: pts[k][1], label: l, value: sr.values[k] || 0, series: data.series.length > 1 ? sr.name : "", node, index: k, group: sr.index + 1 });
+          });
+        });
+        return marks;
+      });
+    }
+  };
+
+  // src/charts/chart-scatter.js
+  var norm = (r) => {
+    r = Array.isArray(r) ? r : r.series || r.datasets || [r];
+    if (r[0] && r[0].x != null) r = [r];
+    return r.map((q) => ({ n: q.name, p: (Array.isArray(q) ? q : q.points || q.data || []).map((d) => ({ ...d, x: +d.x, y: +d.y, r: +d.r || 1 })).filter((d) => isFinite(d.x) && isFinite(d.y)) }));
+  };
+  var nf = new Intl.NumberFormat(void 0, { maximumFractionDigits: 2 });
+  var chart_scatter_default = {
+    name: "chart-scatter",
+    selector: ".efx-chart-scatter",
+    lazy: true,
+    defaults: { ...COMMON, xLabel: "", yLabel: "", bubble: false },
+    init(el, o) {
+      const read2 = (d) => {
+        try {
+          return norm(d);
+        } catch (e) {
+          return [];
+        }
+      };
+      const j = el.querySelector(':scope > script[type="application/json"]');
+      let sets = [];
+      try {
+        sets = read2(JSON.parse(j ? j.textContent : o.data));
+      } catch (e) {
+        console.warn("[effix] chart data", e);
+      }
+      o.data = JSON.stringify({ series: sets.map((q) => ({ name: q.n, values: [] })) });
+      const off = on(el, "efx:data", (e) => {
+        sets = read2(e.detail || {});
+      });
+      const draw = ({ g, w, h, data, visible, colors, fmt, deco }) => {
+        const all = visible.flatMap((v) => sets[v.index] ? sets[v.index].p : []);
+        if (!all.length) return [];
+        const rmax = Math.max(...all.map((p) => Math.abs(p.r)));
+        const R = (p) => o.bubble ? Math.max(3, 24 * Math.sqrt(Math.abs(p.r) / rmax)) : 5;
+        const m = deco ? o.bubble ? 24 : 8 : 0;
+        const pad = deco ? { t: m, r: m, b: m, l: m } : { t: 12, r: 24, b: o.xLabel ? 46 : 30, l: o.yLabel ? 60 : 46 };
+        const X = nice(Math.min(...all.map((p) => p.x)), Math.max(...all.map((p) => p.x)), Math.max(2, Math.floor(w / 80)));
+        const Y = nice(Math.min(...all.map((p) => p.y)), Math.max(...all.map((p) => p.y)), Math.max(2, Math.floor(h / 50)));
+        const x = linear([X.min, X.max], [pad.l, w - pad.r]), y = linear([Y.min, Y.max], [h - pad.b, pad.t]);
+        if (!deco) {
+          axes(g, { w, h, pad, y, ticks: Y.ticks, fmt });
+          const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+          X.ticks.forEach((t) => {
+            s("line", { x1: x(t), x2: x(t), y1: pad.t, y2: h - pad.b, class: "efx-chart__grid" }, ax);
+            s("text", { x: x(t), y: h - pad.b + 18, "text-anchor": "middle" }, ax).textContent = nf.format(t);
+          });
+          if (o.xLabel) s("text", { x: (pad.l + w - pad.r) / 2, y: h - 4, "text-anchor": "middle" }, ax).textContent = o.xLabel;
+          if (o.yLabel) s("text", { x: 12, y: (pad.t + h - pad.b) / 2, "text-anchor": "middle", transform: `rotate(-90 12 ${(pad.t + h - pad.b) / 2})` }, ax).textContent = o.yLabel;
+        }
+        const multi = data.series.length > 1, items = [];
+        visible.forEach((v) => (sets[v.index] ? sets[v.index].p : []).forEach((p) => items.push({ p, v, cx: x(p.x), cy: y(p.y), r: R(p) })));
+        const step = Math.min(1, 24 / items.length);
+        [...items].sort((a, b) => b.r - a.r).forEach((t, k) => {
+          t.node = s("circle", { cx: t.cx, cy: t.cy, r: t.r, fill: colors[t.v.index], "fill-opacity": o.bubble ? 0.55 : 0.85, stroke: o.bubble ? colors[t.v.index] : null, "stroke-width": 1.5, class: "efx-chart__mark efx-chart__fade", style: `--i:${k * step}` }, g);
+        });
+        return items.sort((a, b) => a.cx - b.cx).map((t, i) => ({
+          x: t.cx,
+          y: t.cy,
+          value: t.p.y,
+          series: multi ? t.v.name : "",
+          node: t.node,
+          index: i,
+          label: t.p.label || `${nf.format(t.p.x)}, ${nf.format(t.p.y)}`,
+          hit: (px, py) => Math.hypot(px - t.cx, py - t.cy) <= t.r + 3,
+          html: (t.p.label ? `<strong>${esc(t.p.label)}</strong>` : "") + (multi ? `<span>${esc(t.v.name)}</span>` : "") + `<span>${esc(o.xLabel || "x")} <b>${nf.format(t.p.x)}</b></span><span>${esc(o.yLabel || "y")} <b>${esc(fmt(t.p.y))}</b></span>` + (o.bubble ? `<span>size <b>${nf.format(t.p.r)}</b></span>` : "")
+        }));
+      };
+      const stop = chart(el, o, draw);
+      return () => {
+        off();
+        stop();
+      };
+    }
+  };
+
+  // src/charts/chart-spark.js
+  var uid3 = 0;
+  var chart_spark_default = {
+    name: "chart-spark",
+    selector: ".efx-chart-spark",
+    lazy: true,
+    defaults: { ...COMMON, height: 0, legend: false, area: true, type: "line", last: true, smooth: true },
+    init(el, o) {
+      const cs = getComputedStyle(el), keep = [el.style.display, el.style.width, el.style.verticalAlign];
+      const inl = (cs.display.startsWith("inline") || /^inline/.test(getComputedStyle(el.parentElement || el).display)) && !o.background;
+      if (inl) {
+        if (cs.display === "inline") el.style.display = "inline-block";
+        if (!el.style.width && el.clientWidth < 8) el.style.width = "6em";
+        el.style.verticalAlign = "-.25em";
+        if (!o.height) o.height = Math.round(parseFloat(cs.fontSize) * 12) / 10;
+      } else if (!o.height && !el.clientHeight) o.height = 40;
+      const draw = ({ g, w, h, data, visible, colors, fmt, deco }) => {
+        const sr = visible[0], v = sr ? sr.values : [], n = v.length;
+        if (!n) return [];
+        const c = colors[sr.index], T = o.type, lo = Math.min(...v), hi = Math.max(...v), pal = palette(el, o, 7);
+        const px = deco ? 0 : 3, py = deco ? 4 : 3, slot = (w - 2 * px) / n, step = Math.min(1, 12 / n);
+        const x = (i) => n > 1 ? px + i * (w - 2 * px) / (n - 1) : w / 2;
+        const mk = (i, node, mx, my) => ({ x: mx, y: my, label: data.labels[i], value: v[i], series: "", node, index: i, xOnly: true });
+        if (T === "line") {
+          const y2 = linear(lo === hi ? [lo - 1, hi + 1] : [lo, hi], [h - py, py]);
+          const pts = v.map((a, i) => [x(i), y2(a)]), d = linePath(pts, o.smooth);
+          if (o.area) {
+            const id = "efx-sg" + ++uid3, lg = s("linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 }, s("defs", {}, g));
+            s("stop", { offset: 0, "stop-color": c, "stop-opacity": 0.35 }, lg);
+            s("stop", { offset: 1, "stop-color": c, "stop-opacity": 0 }, lg);
+            s("path", { d: `${d}L${x(n - 1)},${h}L${x(0)},${h}Z`, fill: `url(#${id})`, class: "efx-chart__fade" }, g);
+          }
+          s("path", { d, pathLength: 1, fill: "none", stroke: c, "stroke-width": 1.75, "stroke-linecap": "round", "stroke-linejoin": "round", class: "efx-chart__draw" }, g);
+          if (o.last) s("circle", { cx: x(n - 1), cy: y2(v[n - 1]), r: 2.5, fill: c, class: "efx-chart__fade", style: "--i:12" }, g);
+          if (deco) return [];
+          return pts.map((p, i) => mk(i, s("circle", { cx: p[0], cy: p[1], r: 3.5, fill: c, class: "efx-chart__mark efx-chart-spark__pt" }, g), p[0], p[1]));
+        }
+        const wl = T === "win-loss", y = linear([Math.min(0, lo), Math.max(0, hi) || 1], [h - py, py]), base = wl ? h / 2 : y(0);
+        return v.map((a, i) => {
+          const top = wl ? a > 0 ? py : base + 1 : Math.min(y(a), base), ht = wl ? a ? (h - 2 * py) / 2 - 1 : 1 : Math.max(1, Math.abs(y(a) - base));
+          const node = s("rect", { x: px + i * slot + slot * 0.15, y: wl && !a ? base - 0.5 : top, width: Math.max(1, slot * 0.7), height: ht, rx: Math.min(2, slot * 0.35), fill: wl ? a >= 0 ? o.colors.length ? pal[0] : pal[2] : o.colors.length > 1 ? pal[1] : pal[5] : c, class: "efx-chart__mark efx-chart__grow", style: `--i:${i * step}` }, g);
+          return mk(i, node, px + (i + 0.5) * slot, top);
+        });
+      };
+      draw.radius = Infinity;
+      const stop = chart(el, o, draw);
+      return () => {
+        stop();
+        if (inl) [el.style.display, el.style.width, el.style.verticalAlign] = keep;
+      };
+    }
+  };
+
+  // src/charts/chart-treemap.js
+  var PHI = (1 + Math.sqrt(5)) / 2;
+  var chart_treemap_default = {
+    name: "chart-treemap",
+    selector: ".efx-chart-treemap",
+    lazy: true,
+    defaults: { ...COMMON, gap: 2, radius: 4, captions: true, sort: true },
+    init(el, o) {
+      const draw = ({ g, w, h, data, fmt, deco }) => {
+        const sr = data.series[0];
+        const items = sr ? data.labels.map((l, i) => ({ l, i, v: sr.values[i] || 0 })).filter((d) => d.v > 0) : [];
+        if (!items.length) return [];
+        if (o.sort) items.sort((a, b) => b.v - a.v);
+        const n = items.length, tot = items.reduce((a, d) => a + d.v, 0);
+        const pal = palette(el, o, data.labels.length), ramp = o.colors.length === 1;
+        const fresh = !g.classList.contains("is-in");
+        let x0 = 0, y0 = 0, val = tot, i0 = 0;
+        const rects = [];
+        while (i0 < n) {
+          const dx = w - x0, dy = h - y0;
+          let i1 = i0, sum = items[i1++].v, min = sum, max = sum;
+          const k = Math.max(dy / dx, dx / dy) / (val * PHI);
+          let beta = sum * sum * k, best = Math.max(max / beta, beta / min);
+          for (; i1 < n; i1++) {
+            const v = items[i1].v;
+            sum += v;
+            min = Math.min(min, v);
+            max = Math.max(max, v);
+            beta = sum * sum * k;
+            const r = Math.max(max / beta, beta / min);
+            if (r > best) {
+              sum -= v;
+              break;
+            }
+            best = r;
+          }
+          if (dx < dy) {
+            const yy = y0 + dy * sum / val;
+            let x = x0;
+            for (let j = i0; j < i1; j++) {
+              rects[j] = [x, y0, x += items[j].v * dx / sum, yy];
+            }
+            y0 = yy;
+          } else {
+            const xx = x0 + dx * sum / val;
+            let y = y0;
+            for (let j = i0; j < i1; j++) {
+              rects[j] = [x0, y, xx, y += items[j].v * dy / sum];
+            }
+            x0 = xx;
+          }
+          val -= sum;
+          i0 = i1;
+        }
+        return items.map((d, j) => {
+          const q = o.gap / 2, [a, b, c, e] = rects[j];
+          const x = a + q, y = b + q, tw = Math.max(0, c - a - o.gap), th = Math.max(0, e - b - o.gap);
+          const pct = ramp ? 100 - 55 * items.filter((z) => z.v > d.v).length / Math.max(1, n - 1) : 100;
+          const fill = ramp ? `color-mix(in oklab, ${pal[0]} ${pct}%, var(--sh-surface, #fff))` : pal[d.i];
+          const node = s("rect", { x, y, width: tw, height: th, rx: Math.min(o.radius, tw / 2, th / 2), fill, class: "efx-chart__mark" + (fresh ? " efx-tm" : ""), style: `--i:${j}` }, g);
+          if (o.captions && !deco && tw >= 44 && th >= 26) {
+            const st = `pointer-events:none;fill:${pct < 70 ? "var(--sh-text,#0f172a)" : "#fff"}`;
+            const t = s("text", { x: x + 7, y: y + 17, class: "efx-chart__value" + (fresh ? " efx-tm" : ""), style: `${st};--i:${j}` }, g);
+            t.textContent = d.l.length * 6.6 > tw - 12 ? d.l.slice(0, Math.max(1, Math.floor((tw - 12) / 6.6) - 1)) + "\u2026" : d.l;
+            if (th >= 44) {
+              const u = s("text", { x: x + 7, y: y + 33, class: fresh ? "efx-tm" : "", style: `${st};opacity:.85;--i:${j}` }, g);
+              u.textContent = fmt(d.v);
+            }
+          }
+          return {
+            x: x + tw / 2,
+            y: y + th / 2,
+            label: d.l,
+            value: d.v,
+            series: "",
+            node,
+            index: d.i,
+            html: `<strong>${esc(d.l)}</strong><b>${esc(fmt(d.v))}</b><span>${(d.v / tot * 100).toFixed(1)}%</span>`,
+            hit: (px, py) => px >= x && px <= x + tw && py >= y && py <= y + th
+          };
+        });
+      };
+      draw.radius = 1;
+      return chart(el, o, draw);
+    }
+  };
+
   // src/effix-entry.js
-  var defs = [chart_bar_default];
+  var defs = [chart_bar_default, chart_flow_default, chart_funnel_default, chart_gauge_default, chart_heatmap_default, chart_line_default, chart_pie_default, chart_progress_default, chart_radar_default, chart_scatter_default, chart_spark_default, chart_treemap_default];
   if (window.Effix) window.Effix.define(defs);
   else (window.EffixPending = window.EffixPending || []).push(...defs);
 })();

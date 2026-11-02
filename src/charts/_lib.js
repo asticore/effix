@@ -221,7 +221,7 @@ export function chart(el, o, draw) {
   const name = () => o.title || el.getAttribute('aria-label') || (el.querySelector('h1,h2,h3,h4,h5,h6,figcaption') || {}).textContent || 'Chart';
 
   function render(again) {
-    w = Math.max(40, el.clientWidth);
+    w = Math.max(16, el.clientWidth);
     h = deco ? Math.max(20, el.clientHeight) : (draw.height && draw.height(w, data)) || o.height || el.clientHeight || 260;
     svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
     svg.setAttribute('width', w);
@@ -271,6 +271,7 @@ export function chart(el, o, draw) {
     const rel = new Set(m.rel || []);
     marks.forEach((k, j) => k.node && k.node.classList.toggle('is-dim', j !== i && !rel.has(j) && (m.group == null || k.group !== m.group)));
     if (m.node) m.node.classList.add('is-active');
+    if (draw.onShow) draw.onShow(m);
     tip.innerHTML = m.html || `<strong>${esc(m.label)}</strong>${m.series ? `<span>${esc(m.series)}</span>` : ''}<b>${esc(fmt(m.value))}</b>`;
     tip.hidden = false;
     const r = el.getBoundingClientRect(), sv = svg.getBoundingClientRect();
@@ -284,6 +285,7 @@ export function chart(el, o, draw) {
     active = -1;
     tip.hidden = true;
     marks.forEach(k => k.node && k.node.classList.remove('is-dim', 'is-active'));
+    if (draw.onShow) draw.onShow(null);
   }
   const nearest = (px, py) => {
     let best = -1, bd = Infinity;

@@ -33,4 +33,76 @@
 .efx-chart__plot.is-in .efx-chart__draw { stroke-dashoffset: 0; }
 .efx-chart__plot.is-in .efx-chart__fade { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .efx-chart__plot * { transition: none !important; } .efx-chart__tip { transition: none; } }
+
+/* chart-flow — label halo, related-highlight. */
+.efx-flow__label { paint-order: stroke; stroke: var(--sh-surface, #fff); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; font-weight: 500; }
+.efx-chart-flow path.efx-chart__mark:not(.is-dim) { stroke-opacity: .65; }
+.efx-chart-flow:not(:has(.is-active)) path.efx-chart__mark { stroke-opacity: .35; }
+.efx-chart-flow path.is-active { filter: none; }
+
+/* chart-funnel */
+.efx-fn-t, .efx-fn-s, .efx-fn-d { pointer-events: none; font-size: 12px; font-weight: 600; }
+.efx-fn-t { fill: #fff; }
+.efx-fn-2 { font-size: 11px; font-weight: 500; opacity: .88; }
+.efx-fn-s, .efx-fn-d { fill: var(--efx-chart-text); font-size: 11px; font-weight: 500; }
+.efx-fn-d { font-weight: 600; font-variant-numeric: tabular-nums; }
+.efx-fn-l { stroke: var(--efx-chart-grid); }
+.efx-chart__plot .efx-fn-x, .efx-chart__plot .efx-fn-y { transform-box: fill-box; transition: transform .8s var(--efx-ease, cubic-bezier(.22,1,.36,1)) calc(var(--i, 0) * 70ms), opacity .2s, filter .2s; }
+.efx-chart__plot .efx-fn-x { transform: scaleX(0); }
+.efx-chart__plot .efx-fn-y { transform: scaleY(0); }
+.efx-chart__plot.is-in .efx-fn-x, .efx-chart__plot.is-in .efx-fn-y { transform: none; }
+
+/* chart-gauge */
+.efx-gauge-track { stroke: color-mix(in oklab, var(--efx-chart-text) 20%, transparent); }
+.efx-gauge-lab { fill: var(--efx-chart-text); font-size: 12px; pointer-events: none; }
+.efx-gauge-target { stroke: var(--sh-text, #0f172a); stroke-width: 2; stroke-linecap: round; }
+.efx-gauge-needle, .efx-gauge-hub { fill: var(--sh-text, #0f172a); pointer-events: none; }
+.efx-chart__plot .efx-gauge-sweep { stroke-dasharray: 1 2; stroke-dashoffset: 1.05; transition: stroke-dashoffset 1.1s var(--efx-ease, cubic-bezier(.22,1,.36,1)) calc(var(--i, 0) * 60ms), opacity .2s, filter .2s; }
+.efx-chart__plot.is-in .efx-gauge-sweep { stroke-dashoffset: 0; }
+.efx-chart__plot .efx-gauge-needle { transform: rotate(-120deg); transition: transform 1.1s var(--efx-ease, cubic-bezier(.22,1,.36,1)); }
+.efx-chart__plot.is-in .efx-gauge-needle { transform: rotate(var(--a)); }
+
+/* chart-line — crosshair + hover dots */
+.efx-chart-line__pt { cursor: crosshair; }
+.efx-chart-line__pt.is-active { filter: none; }
+.efx-chart-line__x { stroke: var(--efx-chart-text); stroke-dasharray: 3 3; opacity: 0; transition: opacity .15s; }
+.efx-chart-line__pt.is-active .efx-chart-line__x { opacity: .7; }
+.efx-chart-line__dot { stroke: var(--sh-surface, #fff); stroke-width: 2; }
+.efx-chart-line__hid { opacity: 0; transition: opacity .15s; }
+.efx-chart-line__pt.is-active .efx-chart-line__hid { opacity: 1; }
+.efx-chart__tip i { font-style: normal; }
+
+/* chart-pie */
+.efx-pie-t { fill: #fff; font-weight: 600; font-size: 11px; pointer-events: none; }
+.efx-pie-s { fill: var(--efx-chart-text); font-size: 12px; pointer-events: none; }
+.efx-pie-c { pointer-events: none; }
+.efx-pie-lt { font-size: 12px; font-weight: 500; pointer-events: none; }
+.efx-pie-l { fill: none; stroke: var(--efx-chart-text); stroke-opacity: .45; }
+.efx-chart__plot .efx-pie-arc { transition: transform .2s var(--efx-ease, ease-out), opacity .2s, filter .2s; }
+.efx-chart__plot:not(.is-in) .efx-pie-arc { opacity: 0; transform: scale(.6); }
+.efx-chart__plot.is-in .efx-pie-arc { animation: efx-pie-in .8s var(--efx-ease, cubic-bezier(.22,1,.36,1)) calc(var(--i, 0) * 70ms) backwards; }
+.efx-chart__plot.is-in .efx-pie-arc.is-active { transform: translate(var(--dx), var(--dy)); }
+@keyframes efx-pie-in { from { opacity: 0; transform: scale(.6) rotate(-25deg); } }
+@media (prefers-reduced-motion: reduce) { .efx-pie-arc { animation: none !important; } }
+
+/* chart-radar */
+.efx-rd-tick { font-size: 10px; opacity: .7; }
+.efx-chart__plot .efx-rd-poly { transform: scale(.15); opacity: 0; transition: transform .9s var(--efx-ease, cubic-bezier(.22,1,.36,1)) calc(var(--i, 0) * 120ms), opacity .5s calc(var(--i, 0) * 120ms); }
+.efx-chart__plot.is-in .efx-rd-poly { transform: none; opacity: 1; }
+.efx-chart__plot .efx-rd-dot { transform: scale(0); transform-box: fill-box; transform-origin: center; transition: transform .5s var(--efx-ease, ease-out) calc(.6s + var(--i, 0) * 50ms), opacity .2s, filter .2s; }
+.efx-chart__plot.is-in .efx-rd-dot { transform: none; }
+.efx-chart__plot .efx-rd-dot.is-active { transform: scale(1.35); }
+.efx-rd-h:not(.is-active) { opacity: 0; }
+.efx-chart__plot.is-in .efx-rd-dot.is-active { transform: scale(1.35); }
+
+/* chart-spark — hover dot only shows under the cursor */
+.efx-chart__plot .efx-chart-spark__pt { opacity: 0; }
+.efx-chart__plot .efx-chart-spark__pt.is-active { opacity: 1; }
+.efx-chart-spark .efx-chart__svg { overflow: visible; }
+
+/* chart-treemap — entrance: tiles fade + scale in, staggered (only on first reveal). */
+.efx-chart__plot:not(.is-in) .efx-tm { opacity: 0; }
+.efx-chart__plot.is-in .efx-tm { animation: efx-tm .6s var(--efx-ease, cubic-bezier(.22,1,.36,1)) backwards calc(var(--i, 0) * 35ms); transform-box: fill-box; transform-origin: center; }
+@keyframes efx-tm { from { opacity: 0; transform: scale(.88); } }
+@media (prefers-reduced-motion: reduce) { .efx-chart__plot .efx-tm { animation: none !important; } }
 }

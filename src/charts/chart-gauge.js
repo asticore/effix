@@ -11,14 +11,14 @@ export default {
   lazy: true,
   defaults: { ...COMMON, legend: false, type: 'gauge', value: NaN, min: 0, max: 100, thick: 0.18, needle: false, target: NaN, label: '' },
   init(el, o) {
-    return chart(el, o, ({ g, w, h, data, fmt, deco, colors }) => {
-      const ty = o.type, rad = ty === 'radial', gauge = ty === 'gauge', S = data.series[0];
-      if (!S) return [];
+    return chart(el, o, ({ g, w, h, data, fmt, deco }) => {
+      const ty = o.type, rad = ty === 'radial', gauge = ty === 'gauge', S = data.series[0] || { values: [] };
       const pal = palette(el, o, Math.max(1, data.labels.length));
+      if (rad && !S.values.length) return [];
       const vals = rad ? S.values : [Number.isFinite(o.value) ? o.value : S.values[0] || 0];
       const span = o.max - o.min || 1, p = v => Math.min(1, Math.max(0, (v - o.min) / span));
       const a0 = gauge ? (-2 * Math.PI) / 3 : 0, sw = rad ? 1.5 * Math.PI : gauge ? (4 * Math.PI) / 3 : TAU;
-      const m = deco ? 2 : 6, pad = o.thick * 0; // keep stroke inside the box
+      const m = deco ? 2 : 6;
       const R = gauge ? Math.min((w - 2 * m) / 2, (h - 2 * m) / 1.5) : Math.min(w, h) / 2 - m;
       const cx = w / 2, cy = gauge ? (h - 1.5 * R) / 2 + R : h / 2;
       const n = vals.length, ring = Math.max(2, rad ? Math.min(o.thick * R, ((R * 0.78) / n) - 3) : o.thick * R);
@@ -43,7 +43,7 @@ export default {
           },
         });
         if (rad && text) {
-          const t = s('text', { x: cx - 7, y: cy - r, 'text-anchor': 'end', 'dominant-baseline': 'central', class: 'efx-gauge-lab efx-chart__fade', style: `--i:${i}` }, g);
+          const t = s('text', { x: cx - 10, y: cy - r, 'text-anchor': 'end', 'dominant-baseline': 'central', class: 'efx-gauge-lab efx-chart__fade', style: `--i:${i}` }, g);
           t.textContent = name;
         }
       });
@@ -60,7 +60,7 @@ export default {
       }
       if (text) {
         const str = fmt(v), cap = o.label || (data.labels[0] !== '1' ? data.labels[0] : '');
-        const f = Math.min(ri * (gauge ? 0.55 : 0.5), (ri * 1.6) / (str.length * 0.58)), ty0 = gauge ? (o.needle ? cy + ri * 0.45 : cy + ri * 0.08) : cy - (cap ? f * 0.3 : 0);
+        const f = Math.min(ri * (gauge ? (o.needle ? 0.36 : 0.5) : 0.5), (ri * 1.6) / (str.length * 0.58)), ty0 = gauge ? (o.needle ? cy + ri * 0.4 : cy + ri * 0.02) : cy - (cap ? f * 0.3 : 0);
         const big = s('text', { x: cx, y: ty0, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'efx-chart__value efx-chart__fade', style: `font-size:${f}px` }, g);
         big.textContent = str;
         if (cap) s('text', { x: cx, y: ty0 + f * 0.8, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'efx-gauge-lab efx-chart__fade' }, g).textContent = cap;

@@ -291,5 +291,20 @@ document.documentElement.toggleAttribute('data-efx-reduce', editing);`)}
 `;
 
 fs.writeFileSync(path.join(ROOT, 'docs', 'index.html'), html);
+
+/* README: regenerate the feature table and size badges between markers. */
+const readmeFile = path.join(ROOT, 'README.md');
+let readme = fs.readFileSync(readmeFile, 'utf8');
+const cls = f => f.classes.map(c => '`' + String(c[0]).replace(/`/g, '') + '`').join(' ');
+const rows = feats.map(f => `| ${f.group} | ${f.title} | ${cls(f)} | ${kb(sizeOf(f.name))} |`);
+readme = readme.replace(/<!-- features:start[^>]*-->[\s\S]*?<!-- features:end -->/, m =>
+  m.slice(0, m.indexOf('-->') + 3) + `\n| Group | Feature | Classes | gzip |\n|---|---|---|---|\n${rows.join('\n')}\n<!-- features:end -->`);
+const sh = t => encodeURIComponent(t).replace(/-/g, '--'); // shields.io: '-' separates fields
+const badge = (label, value, color, alt) => `<img src="https://img.shields.io/badge/${sh(label)}-${sh(value)}-${color}" alt="${alt}">`;
+readme = readme.replace(/<!-- badges:start[^>]*-->[\s\S]*?<!-- badges:end -->/, m => m.slice(0, m.indexOf('-->') + 3) +
+  badge('effects', `${kb(effectsKB)} gzip`, '4f46e5', `Effects: ${kb(effectsKB)} gzip`) + '\n  ' +
+  badge('charts add-on', `${kb(chartsKB)} gzip`, 'db2777', `Charts add-on: ${kb(chartsKB)} gzip`) + '\n  ' +
+  badge('core', kb(sizes.core), '16a34a', `Core ${kb(sizes.core)}`) + '\n  <!-- badges:end -->');
+fs.writeFileSync(readmeFile, readme);
 warnings.forEach(w => console.warn('warn:', w));
 console.log(`docs/index.html  ${feats.length} features, ${(html.length / 1024).toFixed(1)} KB`);

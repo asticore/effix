@@ -11,9 +11,8 @@ export default {
   lazy: true,
   defaults: { ...COMMON, height: 300, donut: 0.6, pad: 0.01, sort: false, center: '', show: 'auto', half: false },
   init(el, o) {
-    let mo;
+    let center = () => {};
     const draw = ({ g, w, h, data, hidden, fmt, deco }) => {
-      if (mo) mo.disconnect();
       const vals = data.series[0] ? data.series[0].values : [];
       let idx = data.labels.map((_, i) => i).filter(i => !hidden.has(i) && vals[i] > 0);
       if (o.sort) idx.sort((a, b) => vals[b] - vals[a]);
@@ -79,14 +78,14 @@ export default {
           big.setAttribute('y', cyy - (c ? f * 0.35 : 0)); cap.setAttribute('y', cyy + f * 0.6);
         };
         set();
-        mo = new MutationObserver(() => set(arcs.find(a => a.node.classList.contains('is-active'))));
-        mo.observe(g, { attributes: true, attributeFilter: ['class'], subtree: true });
+        center = m => set(m ? arcs.find(a => a.node === m.node) : undefined);
       }
       return marks;
     };
     draw.legendByLabel = true;
+    draw.onShow = m => center(m); // donut centre shows the hovered slice
     draw.radius = 1;
     const off = chart(el, o, draw);
-    return () => { if (mo) mo.disconnect(); off(); };
+    return off;
   },
 };
