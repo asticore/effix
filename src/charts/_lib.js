@@ -267,7 +267,9 @@ export function chart(el, o, draw) {
     active = i;
     const m = marks[i];
     if (!m) return hide();
-    marks.forEach((k, j) => k.node && k.node.classList.toggle('is-dim', j !== i && (!m.group || k.group !== m.group)));
+    // Keep undimmed: the mark itself, marks in the same group, and marks it lists in `rel` (indexes).
+    const rel = new Set(m.rel || []);
+    marks.forEach((k, j) => k.node && k.node.classList.toggle('is-dim', j !== i && !rel.has(j) && (m.group == null || k.group !== m.group)));
     if (m.node) m.node.classList.add('is-active');
     tip.innerHTML = m.html || `<strong>${esc(m.label)}</strong>${m.series ? `<span>${esc(m.series)}</span>` : ''}<b>${esc(fmt(m.value))}</b>`;
     tip.hidden = false;
