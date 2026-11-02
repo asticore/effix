@@ -331,6 +331,16 @@ Effix.define({ name, selector, defaults, init });   // add your own feature
 
 Each feature maps onto a block setting. The class picks the effect and each `data-efx-*` attribute is one field in the settings panel. A builder can store the settings as attributes and call `Effix.refresh(el)` when one changes.
 
+### React, Vue and Svelte
+
+Each framework has a small helper that starts effects when a component mounts, refreshes them on update, and cleans up on unmount. Details are in [docs/integrations.md](docs/integrations.md).
+
+```js
+import { useEffix } from 'effix/react';   // useEffix(ref, [deps])
+import { vEffix } from 'effix/vue';       // <div v-effix class="efx-tilt">
+import { effix } from 'effix/svelte';     // <div use:effix class="efx-tilt">
+```
+
 ## Build
 
 ```bash

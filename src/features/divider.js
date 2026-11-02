@@ -1,7 +1,8 @@
 /* divider — animated SVG shape dividers between sections.
    <section style="position:relative"><div class="efx-divider" data-efx-shape="waves" data-efx-position="bottom"
      data-efx-animate="drift" data-efx-color="#fff"></div></section>
-   Shapes: wave waves tilt curve triangle arrow zigzag clouds mountains drips steps spikes. */
+   Shapes: wave waves tilt curve triangle arrow zigzag clouds mountains drips steps spikes sawtooth chevron swoosh leaves hills.
+   One-off shape without JS: data-efx-path="M0,60 C300,0 700,120 1200,40 L1200,120 L0,120 Z" (1200x120 viewBox, filled as given). */
 import { onVisible, motionOK, add, get } from '../core.js';
 
 /* parent -> { count, prev }: several dividers may share one parent; the first forces position:relative,
@@ -40,6 +41,11 @@ const SHAPES = {
   mountains: [1, [[110, 'b', poly([[100, 50], [180, 85], [300, 20], [420, 80], [520, 45], [640, 95], [760, 35], [880, 85], [1000, 30], [1100, 70], [1200, 110]])]]],
   drips: [1, [[25, 't', rep(6, (x, w, i) => `L${x + 60},25L${x + 60},${[50, 85, 40][i % 3]}A10,10 0 0 0 ${x + 80},${[50, 85, 40][i % 3]}L${x + 80},25L${x + w},25`)]]],
   steps: [0, [[120, 'b', poly([[0, 100], [150, 100], [150, 85], [300, 85], [300, 65], [450, 65], [450, 50], [600, 50], [600, 35], [750, 35], [750, 20], [1200, 20], [1200, 120]])]]],
+  sawtooth: [1, [[100, 'b', rep(12, (x, w) => `L${x + w},35L${x + w},100`)]]],
+  chevron: [1, [[30, 'b', rep(4, (x, w) => `L${x + w / 2},95L${x + w},30`)], [60, 'b', rep(4, (x, w) => `L${x + w / 2},112L${x + w},60`)]], [.4, 1]],
+  swoosh: [0, [[85, 'b', ox => `C${ox + 300},-10 ${ox + 700},150 ${ox + 1200},25`], [100, 'b', ox => `C${ox + 400},20 ${ox + 800},140 ${ox + 1200},60`]], [.35, 1]],
+  leaves: [1, [[100, 'b', rep(6, (x, w) => `Q${x + w * .1},0 ${x + w / 2},50Q${x + w * .9},0 ${x + w},100`)]]],
+  hills: [1, [[100, 'b', rep(4, (x, w) => `Q${x + w / 2},50 ${x + w},100`)], [100, 'b', rep(3, (x, w) => `Q${x + w / 2},10 ${x + w},100`)]], [.4, 1]],
   spikes: [1, [[100, 'b', rep(24, (x, w) => `L${x + w / 2},20L${x + w},100`)]]],
 };
 add('divider-shape', Object.fromEntries(Object.entries(SHAPES).map(([k, [periodic, layers, ops]]) => [k, { periodic, layers, ops }])));
@@ -47,9 +53,11 @@ add('divider-shape', Object.fromEntries(Object.entries(SHAPES).map(([k, [periodi
 export default {
   name: 'divider',
   selector: '.efx-divider',
-  defaults: { shape: 'wave', color: '', height: 80, flip: false, invert: false, animate: 'none', speed: 12, position: '' },
+  defaults: { shape: 'wave', color: '', height: 80, flip: false, invert: false, animate: 'none', speed: 12, position: '', path: '' },
   init(el, o) {
-    const { periodic: per, layers, ops = [] } = get('divider-shape', o.shape) || get('divider-shape', 'wave');
+    // custom path: sanitised to path-data characters only, so it can never inject markup
+    const custom = o.path.replace(/[^\d\sMmLlHhVvCcSsQqTtAaZz.,eE+-]/g, '').trim();
+    const { periodic: per, layers, ops = [] } = custom ? { periodic: 0, layers: [[0, 'b']] } : get('divider-shape', o.shape) || get('divider-shape', 'wave');
     const st = el.style, parent = el.parentElement;
     const move = motionOK() && o.animate !== 'none';
     const mode = o.animate === 'layers' ? 'layers' : !per && o.animate === 'drift' ? 'float' : o.animate;
@@ -72,6 +80,7 @@ export default {
     const mk = (k, op) => {
       let body = '';
       layers.forEach(([y0, s, tile], li) => {
+        if (custom) { body = `<path d="${custom}"/>`; return; }
         let d = `M0,${y0}`;
         for (let ox = 0; ox < W; ox += 1200) d += tile(ox);
         d += s === 't' ? `L${W},0L0,0Z` : `L${W},120L0,120Z`;
