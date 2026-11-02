@@ -62,11 +62,11 @@ const entry = (feats, boot = true) => [
 
 /* Entry for an add-on bundle: core is NOT included. Features import '../core.js',
    which the plugin below maps to thin wrappers around the page's window.Effix. */
-const addonEntry = feats => [
+const addonEntry = (feats, kit = true) => [
   ...feats.map(f => `import ${ident(f)} from './${f.dir}/${f.name}.js';`),
-  `import * as chartKit from './charts/_lib.js';`,
+  kit ? `import * as chartKit from './charts/_lib.js';` : '',
   `const defs = [${feats.map(ident).join(', ')}];`,
-  `if (window.Effix) window.Effix.charts = chartKit; else window.EffixChartKit = chartKit;`,
+  kit ? `if (window.Effix) window.Effix.charts = chartKit; else window.EffixChartKit = chartKit;` : '',
   `if (window.Effix) window.Effix.define(defs);`,
   `else (window.EffixPending = window.EffixPending || []).push(...defs);`,
 ].join('\n');
@@ -101,7 +101,7 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const written = {};
-  const write = (f, s) => { fs.writeFileSync(path.join(OUT, f), s); written[f] = s; };
+  const write = (f, s) => { fs.mkdirSync(path.dirname(path.join(OUT, f)), { recursive: true }); fs.writeFileSync(path.join(OUT, f), s); written[f] = s; };
 
   if (custom) {
     const feats = pick(ALL);
@@ -129,6 +129,26 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
     const cssC = wrapCss(bC, [CHART_CSS, ...cssFor(CHARTS)]);
     write('effix-charts.css', cssC);
     write('effix-charts.min.css', bC + minCss(cssC));
+    // core only + auto-loader (plain pages: load just the feature files the page uses)
+    const bK = banner(' core', []);
+    write('effix.core.min.js', bK + await bundle(entry([])));
+    write('effix.core.min.css', bK + minCss(wrapCss(bK, [BASE_CSS])));
+    const manifest = {
+      effects: Object.fromEntries(EFFECTS.map(f => {
+        const sel = (fs.readFileSync(path.join(SRC, f.dir, f.name + '.js'), 'utf8').match(/selector:\s*(['"`])([\s\S]*?)\1/) || [])[2] || `.efx-${f.name}`;
+        return [f.name, [sel, !!cssOf(path.join(SRC, f.dir, f.name + '.css'))]];
+      })),
+      charts: CHARTS.map(f => `.efx-${f.name}`).join(','),
+    };
+    const autoEntry = `import api, { autoBoot } from './core.js';\nimport { autoload } from './loader.js';\nwindow.Effix = api;\nautoload(api, ${JSON.stringify(manifest)});\nautoBoot();\nexport default api;`;
+    write('effix.auto.min.js', banner(' auto-loader', []) + await bundle(autoEntry));
+    // one file per effect, for <script> tags or the auto-loader (registers into window.Effix)
+    for (const f of EFFECTS) {
+      const b = banner(` ${f.name}`, []);
+      write(`features/${f.name}.min.js`, b + await bundle(addonEntry([f], false), { plugins: [useHostCore] }));
+      const c = cssOf(path.join(SRC, f.dir, f.name + '.css'));
+      if (c) write(`features/${f.name}.min.css`, b + minCss(wrapCss(b, [c])));
+    }
     // everything
     const bA = banner(' (all)', ALL);
     write('effix.all.min.js', bA + await bundle(entry(ALL)));
@@ -140,7 +160,7 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
     const chartLib = gz(await bundle(`import { chart } from './charts/_lib.js'; window.x = chart;`)) + gz(minCss(CHART_CSS));
     const sizes = {
       version: pkg.version, core, chartLib,
-      bundles: Object.fromEntries(Object.entries(written).filter(([f]) => f.includes('.min.')).map(([f, s]) => [f, gz(s)])),
+      bundles: Object.fromEntries(Object.entries(written).filter(([f]) => f.includes('.min.') && !f.startsWith('features/')).map(([f, s]) => [f, gz(s)])),
       features: {},
     };
     for (const f of ALL) {
@@ -157,7 +177,7 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
   console.log(`Effix v${pkg.version}  ${feats.length} feature(s)  -> ${path.relative(ROOT, OUT) || '.'}`);
   let over = false;
   for (const [f, s] of Object.entries(written)) {
-    if (!f.includes('.min.')) continue;
+    if (!f.includes('.min.') || f.startsWith('features/')) continue;
     const z = gz(s);
     const limit = !custom && BUDGET[f];
     console.log(`  ${f.padEnd(22)} ${kb(s.length).padStart(8)}  ${kb(z).padStart(8)} gzip${limit ? `  (budget ${kb(limit)})` : ''}`);

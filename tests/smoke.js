@@ -94,6 +94,25 @@ async function run(name, reducedMotion = 'no-preference') {
   return fails;
 }
 
+// Auto-loader: a plain page with effix.auto.min.js must fetch only the files it uses.
+async function autoCheck(name) {
+  const file = path.join(root, 'dist', '_auto.html');
+  fs.writeFileSync(file, `<!doctype html><html><head><meta charset="utf-8"><script src="effix.auto.min.js" defer></script></head><body>
+<div class="efx-particles" style="height:120px"></div><button class="efx-confetti">x</button><div class="efx-chart-bar" data-efx-data="3,5,2"></div></body></html>`);
+  const browser = await playwright[name].launch(process.env.PW_EXECUTABLE ? { executablePath: process.env.PW_EXECUTABLE } : {});
+  const p = await browser.newPage();
+  const fails = [], reqs = [];
+  p.on('pageerror', e => fails.push('auto page error: ' + e));
+  p.on('request', r => reqs.push(r.url()));
+  await p.goto('file://' + file);
+  await p.waitForFunction(() => document.querySelectorAll('[data-efx-ready]').length >= 3, null, { timeout: 5000 }).catch(() => fails.push('auto-loader: features did not start'));
+  const extra = reqs.filter(u => /features\//.test(u) && !/(particles|confetti)\.min\./.test(u));
+  if (extra.length) fails.push('auto-loader fetched unused files: ' + extra.join(', '));
+  await browser.close();
+  fs.rmSync(file, { force: true });
+  return fails;
+}
+
 (async () => {
   const browsers = process.argv.slice(2).length ? process.argv.slice(2) : ['chromium'];
   let failed = 0;
@@ -103,6 +122,9 @@ async function run(name, reducedMotion = 'no-preference') {
       if (fails.length) { failed++; console.error(`✗ ${b} (motion: ${rm})\n  ` + fails.join('\n  ')); }
       else console.log(`✓ ${b} (motion: ${rm}): ${feats.length} features start, refresh, destroy + re-init clean`);
     }
+    const af = await autoCheck(b);
+    if (af.length) { failed++; console.error(`✗ ${b} auto-loader\n  ` + af.join('\n  ')); }
+    else console.log(`✓ ${b}: auto-loader fetches only the features on the page`);
   }
   fs.rmSync(page, { force: true });
   process.exit(failed ? 1 : 0);

@@ -25,7 +25,9 @@
     "./charts/*": "./src/charts/*.js",
     "./src/*": "./src/*",
     "./dist/*": "./dist/*",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./auto": "./dist/effix.auto.min.js",
+    "./core.min": "./dist/effix.core.min.js"
   },
   "files": [
     "dist",

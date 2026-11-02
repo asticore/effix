@@ -49,6 +49,33 @@ Without Shine, Effix uses its own indigo default.
 
 ## Quick start
 
+### Easiest: the auto-loader (one tag, loads only what the page uses)
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/asticore/shine@main/dist/shine.min.css">
+<script src="https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.auto.min.js" defer></script>
+
+<button class="btn efx-confetti">Party</button>          <!-- fetches features/confetti.min.js -->
+<section class="efx-particles">…</section>               <!-- fetches features/particles.min.js + .css -->
+<div class="efx-chart-funnel" data-efx-data="…"></div>   <!-- fetches the charts add-on once -->
+```
+
+The loader is 3.6 KB. It looks for `efx-*` classes and fetches only the matching files from the same folder it was loaded from, including each file's CSS. With `<html data-efx-observe>` it also loads files for elements added later. You can load a file by hand with `Effix.load('confetti')`, and `data-efx-base="…/dist/"` on the script tag points it at another folder.
+
+### Pick files yourself (no loader)
+
+```html
+<script src="…/dist/effix.core.min.js" defer></script>
+<link rel="stylesheet" href="…/dist/effix.core.min.css">
+<script src="…/dist/features/confetti.min.js" defer></script>
+<script src="…/dist/features/particles.min.js" defer></script>
+<link rel="stylesheet" href="…/dist/features/particles.min.css">
+```
+
+Every effect has its own `dist/features/<name>.min.js`, plus a `.min.css` where it needs one. The order of the tags doesn't matter.
+
+### Everything in one file
+
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/asticore/shine@main/dist/shine.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix.min.css">
