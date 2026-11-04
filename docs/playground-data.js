@@ -81,6 +81,204 @@ window.EFX_PLAYGROUND = {
    "example": "<div class=\"efx-stagger grid md:grid-cols-4 gap-4 p-6\" data-efx-stagger=\"100\">\n  <div class=\"card p-4 efx-fade-in-up efx-scroll\">Fade in up</div>\n  <div class=\"card p-4 efx-bounce-in efx-scroll\">Bounce in</div>\n  <div class=\"card p-4 efx-pop-elastic efx-scroll\">Pop elastic</div>\n  <div class=\"card p-4 efx-flip-x efx-scroll\">Flip X</div>\n</div>\n<div class=\"cluster gap-3 p-6\">\n  <button class=\"btn efx-shake efx-hover\">Hover: shake</button>\n  <button class=\"btn efx-tada efx-click\">Click: tada</button>\n  <button class=\"btn efx-pulse efx-loop\">Pulse loop</button>\n  <a href=\"#\" class=\"efx-underline-center\">Center underline</a>\n  <a href=\"#\" class=\"efx-underline-grow\">Grow underline</a>\n</div>"
   },
   {
+   "name": "nudge",
+   "title": "Nudge",
+   "group": "Animations",
+   "kind": "effect",
+   "classes": [
+    "efx-nudge"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-every",
+     "def": "6000",
+     "desc": "Ms between nudges.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-anim",
+     "def": "shake",
+     "desc": "shake · wobble · ring, or any animate.css name (pulse, tada, heartbeat, jello...).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-times",
+     "def": "0",
+     "desc": "Max repeats (0 = until interaction).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-delay",
+     "def": "3000",
+     "desc": "Ms before the first nudge.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-stop",
+     "def": "click",
+     "desc": "click · hover · never.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-dot",
+     "def": "false",
+     "desc": "Add a pulsing notification dot top-right (hides on interaction).",
+     "type": "bool"
+    }
+   ],
+   "example": "<div class=\"cluster gap-6 p-6\" style=\"min-height:300px;align-content:center;justify-content:center\">\n  <button class=\"btn efx-nudge\" data-efx-anim=\"ring\" data-efx-dot data-efx-delay=\"600\" data-efx-every=\"3000\" aria-label=\"Notifications\">🔔</button>\n  <button class=\"btn tone-primary efx-nudge\" data-efx-anim=\"shake\" data-efx-delay=\"1200\" data-efx-every=\"3000\">Click me</button>\n  <button class=\"btn efx-nudge\" data-efx-anim=\"wobble\" data-efx-stop=\"hover\" data-efx-delay=\"1800\" data-efx-every=\"3000\">Hover to stop</button>\n</div>"
+  },
+  {
+   "name": "distort",
+   "title": "Distort",
+   "group": "Images",
+   "kind": "effect",
+   "classes": [
+    "efx-distort"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-scale",
+     "def": "30",
+     "desc": "Maximum displacement in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-frequency",
+     "def": "0.02",
+     "desc": "Noise base frequency (lower = broader waves).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-speed",
+     "def": "1",
+     "desc": "Animation speed multiplier.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-trigger",
+     "def": "hover",
+     "desc": "hover · always (while on screen) · view (one pulse when scrolled in).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"grid md:grid-cols-3 gap-4\">\n  <div class=\"card p-3\"><img class=\"efx-distort rounded-lg\" src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2306b6d4%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2322c55e%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.7%22%20stroke-width%3D%2210%22%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22200%22%20r%3D%2250%22%2F%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22200%22%20r%3D%22100%22%2F%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22200%22%20r%3D%22150%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%2260%22%20y%3D%2260%22%20width%3D%2290%22%20height%3D%2290%22%20fill%3D%22%23fff%22%20opacity%3D%22.35%22%2F%3E%3C%2Fsvg%3E\" alt=\"Rings\" style=\"display:block;width:100%;height:200px;object-fit:cover\"><p class=\"mt-2\">hover</p></div>\n  <div class=\"card p-3\"><img class=\"efx-distort rounded-lg\" data-efx-trigger=\"always\" data-efx-scale=\"18\" data-efx-frequency=\"0.012\" src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%236366f1%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ec4899%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22440%22%20cy%3D%22130%22%20r%3D%2270%22%20fill%3D%22%23fde68a%22%2F%3E%3Cpath%20d%3D%22M0%20400V290l130-110%20110%2090%20120-150%20240%20170v110z%22%20fill%3D%22%230f172a%22%20opacity%3D%22.55%22%2F%3E%3C%2Fsvg%3E\" alt=\"Mountain\" style=\"display:block;width:100%;height:200px;object-fit:cover\"><p class=\"mt-2\">always</p></div>\n  <div class=\"card p-3\"><h3 class=\"efx-distort\" data-efx-scale=\"14\" data-efx-frequency=\"0.03\">Any element</h3><p>Text warps too.</p></div>\n</div>"
+  },
+  {
+   "name": "flip",
+   "title": "Flip card",
+   "group": "Images",
+   "kind": "effect",
+   "classes": [
+    "efx-flip"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-trigger",
+     "def": "hover",
+     "desc": "hover · click. Click mode makes the card a button with aria-pressed. Touch devices always use click.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-axis",
+     "def": "y",
+     "desc": "y (horizontal flip) · x (vertical flip).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-duration",
+     "def": "600",
+     "desc": "Flip time in ms.",
+     "type": "number"
+    }
+   ],
+   "example": "<div class=\"grid md:grid-cols-2 gap-4\">\n  <div class=\"efx-flip\">\n    <div class=\"efx-flip__front card p-0 overflow-hidden\"><img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%236366f1%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ec4899%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22440%22%20cy%3D%22130%22%20r%3D%2270%22%20fill%3D%22%23fde68a%22%2F%3E%3Cpath%20d%3D%22M0%20400V290l130-110%20110%2090%20120-150%20240%20170v110z%22%20fill%3D%22%230f172a%22%20opacity%3D%22.55%22%2F%3E%3C%2Fsvg%3E\" alt=\"Mountain at sunrise\" style=\"display:block;width:100%;height:220px;object-fit:cover\"><div class=\"p-4\">Hover to flip</div></div>\n    <div class=\"efx-flip__back card tone-primary p-6\"><h3>Back side</h3><p>Any content, any height.</p></div>\n  </div>\n  <div class=\"efx-flip\" data-efx-trigger=\"click\" data-efx-axis=\"x\">\n    <div class=\"efx-flip__front card p-0 overflow-hidden\"><img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f97316%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23a855f7%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Cg%20fill%3D%22%23fff%22%20opacity%3D%22.55%22%3E%3Crect%20x%3D%2260%22%20y%3D%22230%22%20width%3D%2270%22%20height%3D%22110%22%2F%3E%3Crect%20x%3D%22150%22%20y%3D%22160%22%20width%3D%2270%22%20height%3D%22180%22%2F%3E%3Crect%20x%3D%22240%22%20y%3D%22100%22%20width%3D%2270%22%20height%3D%22240%22%2F%3E%3Crect%20x%3D%22330%22%20y%3D%22190%22%20width%3D%2270%22%20height%3D%22150%22%2F%3E%3Crect%20x%3D%22420%22%20y%3D%22130%22%20width%3D%2270%22%20height%3D%22210%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22500%22%20cy%3D%2270%22%20r%3D%2236%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22%2F%3E%3C%2Fsvg%3E\" alt=\"City skyline\" style=\"display:block;width:100%;height:220px;object-fit:cover\"><div class=\"p-4\">Click, Enter or Space (vertical)</div></div>\n    <div class=\"efx-flip__back card tone-success p-6\"><h3>Flipped</h3><p>Press again to flip back.</p></div>\n  </div>\n</div>"
+  },
+  {
+   "name": "kenburns",
+   "title": "Ken Burns",
+   "group": "Images",
+   "kind": "effect",
+   "classes": [
+    "efx-kenburns"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-duration",
+     "def": "12000",
+     "desc": "Pan/zoom length in ms; also the slideshow interval.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-zoom",
+     "def": "1.15",
+     "desc": "End zoom factor.",
+     "type": "number"
+    }
+   ],
+   "example": "<div class=\"grid md:grid-cols-2 gap-4\">\n  <div class=\"card p-3\"><img class=\"efx-kenburns rounded-lg\" data-efx-duration=\"8000\" src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%236366f1%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ec4899%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22440%22%20cy%3D%22130%22%20r%3D%2270%22%20fill%3D%22%23fde68a%22%2F%3E%3Cpath%20d%3D%22M0%20400V290l130-110%20110%2090%20120-150%20240%20170v110z%22%20fill%3D%22%230f172a%22%20opacity%3D%22.55%22%2F%3E%3C%2Fsvg%3E\" alt=\"Mountain\" style=\"height:220px\"><p class=\"mt-2\">single image</p></div>\n  <div class=\"card p-3\"><div class=\"efx-kenburns rounded-lg\" data-efx-duration=\"4000\" style=\"height:220px\"><img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2306b6d4%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2322c55e%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.7%22%20stroke-width%3D%2210%22%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22200%22%20r%3D%2250%22%2F%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22200%22%20r%3D%22100%22%2F%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22200%22%20r%3D%22150%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%2260%22%20y%3D%2260%22%20width%3D%2290%22%20height%3D%2290%22%20fill%3D%22%23fff%22%20opacity%3D%22.35%22%2F%3E%3C%2Fsvg%3E\" alt=\"Rings\"><img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f97316%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23a855f7%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Cg%20fill%3D%22%23fff%22%20opacity%3D%22.55%22%3E%3Crect%20x%3D%2260%22%20y%3D%22230%22%20width%3D%2270%22%20height%3D%22110%22%2F%3E%3Crect%20x%3D%22150%22%20y%3D%22160%22%20width%3D%2270%22%20height%3D%22180%22%2F%3E%3Crect%20x%3D%22240%22%20y%3D%22100%22%20width%3D%2270%22%20height%3D%22240%22%2F%3E%3Crect%20x%3D%22330%22%20y%3D%22190%22%20width%3D%2270%22%20height%3D%22150%22%2F%3E%3Crect%20x%3D%22420%22%20y%3D%22130%22%20width%3D%2270%22%20height%3D%22210%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22500%22%20cy%3D%2270%22%20r%3D%2236%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22%2F%3E%3C%2Fsvg%3E\" alt=\"City\"><img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%236366f1%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ec4899%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22440%22%20cy%3D%22130%22%20r%3D%2270%22%20fill%3D%22%23fde68a%22%2F%3E%3Cpath%20d%3D%22M0%20400V290l130-110%20110%2090%20120-150%20240%20170v110z%22%20fill%3D%22%230f172a%22%20opacity%3D%22.55%22%2F%3E%3C%2Fsvg%3E\" alt=\"Mountain\"></div><p class=\"mt-2\">slideshow</p></div>\n</div>"
+  },
+  {
+   "name": "pixelate",
+   "title": "Pixelate",
+   "group": "Images",
+   "kind": "effect",
+   "classes": [
+    "efx-pixelate"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-from",
+     "def": "32",
+     "desc": "Largest block size in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-duration",
+     "def": "900",
+     "desc": "Transition time in ms.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-trigger",
+     "def": "view",
+     "desc": "view (sharpen on scroll-in) · hover (pixelate on hover, sharpen on leave).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"grid md:grid-cols-2 gap-4\">\n  <div class=\"card p-3\"><img class=\"efx-pixelate rounded-lg\" src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%236366f1%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ec4899%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22440%22%20cy%3D%22130%22%20r%3D%2270%22%20fill%3D%22%23fde68a%22%2F%3E%3Cpath%20d%3D%22M0%20400V290l130-110%20110%2090%20120-150%20240%20170v110z%22%20fill%3D%22%230f172a%22%20opacity%3D%22.55%22%2F%3E%3C%2Fsvg%3E\" alt=\"Mountain\" style=\"display:block;width:100%;height:200px;object-fit:cover\"><p class=\"mt-2\">trigger: view</p></div>\n  <div class=\"card p-3\"><img class=\"efx-pixelate rounded-lg\" data-efx-trigger=\"hover\" data-efx-from=\"24\" src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f97316%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23a855f7%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Cg%20fill%3D%22%23fff%22%20opacity%3D%22.55%22%3E%3Crect%20x%3D%2260%22%20y%3D%22230%22%20width%3D%2270%22%20height%3D%22110%22%2F%3E%3Crect%20x%3D%22150%22%20y%3D%22160%22%20width%3D%2270%22%20height%3D%22180%22%2F%3E%3Crect%20x%3D%22240%22%20y%3D%22100%22%20width%3D%2270%22%20height%3D%22240%22%2F%3E%3Crect%20x%3D%22330%22%20y%3D%22190%22%20width%3D%2270%22%20height%3D%22150%22%2F%3E%3Crect%20x%3D%22420%22%20y%3D%22130%22%20width%3D%2270%22%20height%3D%22210%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22500%22%20cy%3D%2270%22%20r%3D%2236%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22%2F%3E%3C%2Fsvg%3E\" alt=\"City\" style=\"display:block;width:100%;height:200px;object-fit:cover\"><p class=\"mt-2\">trigger: hover</p></div>\n</div>"
+  },
+  {
+   "name": "mask",
+   "title": "Spotlight mask",
+   "group": "Images",
+   "kind": "effect",
+   "classes": [
+    "efx-mask"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-radius",
+     "def": "120",
+     "desc": "Spotlight radius in px (grows in on enter).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-soft",
+     "def": "0.4",
+     "desc": "Edge softness 0–1.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-gray",
+     "def": "true",
+     "desc": "false = leave the base image in colour (use with a different reveal image).",
+     "type": "bool"
+    }
+   ],
+   "example": "<div class=\"grid md:grid-cols-2 gap-4\">\n  <div class=\"efx-mask rounded-lg overflow-hidden\" style=\"height:240px\"><img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%236366f1%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ec4899%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22440%22%20cy%3D%22130%22%20r%3D%2270%22%20fill%3D%22%23fde68a%22%2F%3E%3Cpath%20d%3D%22M0%20400V290l130-110%20110%2090%20120-150%20240%20170v110z%22%20fill%3D%22%230f172a%22%20opacity%3D%22.55%22%2F%3E%3C%2Fsvg%3E\" alt=\"Mountain at sunrise\"></div>\n  <div class=\"efx-mask rounded-lg overflow-hidden\" data-efx-gray=\"false\" data-efx-radius=\"90\" style=\"height:240px\"><img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f97316%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23a855f7%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Cg%20fill%3D%22%23fff%22%20opacity%3D%22.55%22%3E%3Crect%20x%3D%2260%22%20y%3D%22230%22%20width%3D%2270%22%20height%3D%22110%22%2F%3E%3Crect%20x%3D%22150%22%20y%3D%22160%22%20width%3D%2270%22%20height%3D%22180%22%2F%3E%3Crect%20x%3D%22240%22%20y%3D%22100%22%20width%3D%2270%22%20height%3D%22240%22%2F%3E%3Crect%20x%3D%22330%22%20y%3D%22190%22%20width%3D%2270%22%20height%3D%22150%22%2F%3E%3Crect%20x%3D%22420%22%20y%3D%22130%22%20width%3D%2270%22%20height%3D%22210%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22500%22%20cy%3D%2270%22%20r%3D%2236%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22%2F%3E%3C%2Fsvg%3E\" alt=\"City by day\"><img class=\"efx-mask__reveal\" src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2306b6d4%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%2322c55e%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-opacity%3D%22.7%22%20stroke-width%3D%2210%22%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22200%22%20r%3D%2250%22%2F%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22200%22%20r%3D%22100%22%2F%3E%3Ccircle%20cx%3D%22300%22%20cy%3D%22200%22%20r%3D%22150%22%2F%3E%3C%2Fg%3E%3Crect%20x%3D%2260%22%20y%3D%2260%22%20width%3D%2290%22%20height%3D%2290%22%20fill%3D%22%23fff%22%20opacity%3D%22.35%22%2F%3E%3C%2Fsvg%3E\" alt=\"\"></div>\n</div>"
+  },
+  {
    "name": "totop",
    "title": "Back to top",
    "group": "Scroll",
@@ -2127,6 +2325,36 @@ window.EFX_PLAYGROUND = {
    "example": "<button class=\"btn\" data-efx-open=\"demo-popup\">Open popup</button>\n<dialog class=\"modal efx-popup\" id=\"demo-popup\" aria-labelledby=\"demo-popup-t\">\n  <div class=\"modal-header\"><strong id=\"demo-popup-t\">Join the newsletter</strong><button class=\"btn-close\" data-efx-close aria-label=\"Close\"></button></div>\n  <div class=\"modal-body\">Auto popups wait for a delay, scroll depth or exit intent, and respect a frequency cap.</div>\n  <div class=\"modal-footer\"><button class=\"btn btn-ghost\" data-efx-close>Not now</button><button class=\"btn\" data-efx-close>Subscribe</button></div>\n</dialog>"
   },
   {
+   "name": "pricing",
+   "title": "Pricing toggle",
+   "group": "Components",
+   "kind": "effect",
+   "classes": [
+    "efx-pricing"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-periods",
+     "def": "Monthly|Yearly",
+     "desc": "Period names, in the order of every \"|\" list below.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-start",
+     "def": "0",
+     "desc": "Index of the initial period.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-duration",
+     "def": "600",
+     "desc": "Count tween time in ms (non-odometer prices).",
+     "type": "number"
+    }
+   ],
+   "example": "<div class=\"efx-pricing card p-6 stack gap-4 text-center\" data-efx-periods=\"Monthly|Yearly\" style=\"max-width:22rem;margin:auto\">\n  <div class=\"cluster gap-2\" style=\"justify-content:center\">\n    <button class=\"btn\" data-efx-period=\"Monthly\">Monthly</button>\n    <button class=\"btn\" data-efx-period=\"Yearly\">Yearly</button>\n    <span class=\"badge tone-success\" data-efx-show-on=\"Yearly\">Save 20%</span>\n  </div>\n  <div class=\"text-5xl font-bold\"><span data-efx-prices=\"9|90\">$<span class=\"efx-odometer\">9</span></span></div>\n  <div class=\"text-muted\" data-efx-period-text=\"per month|per year\">per month</div>\n  <div class=\"text-2xl\">Fallback tween: <b data-efx-prices=\"$19.50|$190.00\">$19.50</b></div>\n</div>"
+  },
+  {
    "name": "schedule",
    "title": "Schedule visibility",
    "group": "Components",
@@ -2167,6 +2395,33 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"stack gap-3\">\n  <div class=\"card p-4 tone-success efx-schedule\" hidden data-efx-from=\"2020-01-01\" data-efx-until=\"2099-01-01\">Visible now: inside the window.</div>\n  <div class=\"card p-4 tone-danger efx-schedule\" hidden data-efx-from=\"2099-01-01\">Hidden now: starts in 2099.</div>\n  <div class=\"card p-4 efx-schedule\" data-efx-days=\"mon-fri\" data-efx-hours=\"09:00-17:00\" data-efx-mode=\"hide\">Shown outside weekday office hours.</div>\n</div>"
+  },
+  {
+   "name": "shimmer",
+   "title": "Shimmer / skeleton",
+   "group": "Components",
+   "kind": "effect",
+   "classes": [
+    "efx-shimmer",
+    "efx-skeleton-line",
+    "efx-skeleton-circle",
+    "efx-skeleton-rect"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-until",
+     "def": "",
+     "desc": "Selector of image/element to wait for (load/error event; \"efx:ready\" event also works).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-for",
+     "def": "0",
+     "desc": "Ms to wait, or the timeout when combined with until.",
+     "type": "number"
+    }
+   ],
+   "example": "<div class=\"grid md:grid-cols-2 gap-6 p-6\" style=\"min-height:300px\">\n  <div class=\"stack gap-3\">\n    <div class=\"cluster gap-3\"><div class=\"efx-skeleton-circle\"></div><div class=\"stack\" style=\"flex:1\"><div class=\"efx-skeleton-line\"></div><div class=\"efx-skeleton-line\" style=\"width:60%\"></div></div></div>\n    <div class=\"efx-skeleton-rect\"></div>\n    <div class=\"efx-shimmer-text text-2xl font-bold\">Loading…</div>\n    <button class=\"btn efx-shimmer-btn\">Upgrade now</button>\n  </div>\n  <div class=\"efx-shimmer card\" data-efx-for=\"2500\" style=\"min-height:10rem\"><div class=\"p-4\"><h3>Content ready</h3><p>This card was a skeleton for 2.5 seconds.</p></div></div>\n</div>"
   },
   {
    "name": "media",
@@ -2227,6 +2482,42 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"efx-collapse stack gap-2 p-6\">\n  <details class=\"card p-4\" name=\"faq\" open><summary>What is Effix?</summary><p class=\"mt-2\">A small JS partner for the Shine CSS framework.</p></details>\n  <details class=\"card p-4\" name=\"faq\"><summary>Is it accessible?</summary><p class=\"mt-2\">Native details/summary: keyboard and screen readers work as usual.</p><p>Opening one closes the other, animated.</p></details>\n  <details class=\"card p-4\" name=\"faq\"><summary>Does it need JS?</summary><p class=\"mt-2\">No: without JS the accordion toggles natively.</p></details>\n</div>"
+  },
+  {
+   "name": "toast",
+   "title": "Toast",
+   "group": "Components",
+   "kind": "effect",
+   "classes": [
+    "efx-toast"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-show",
+     "def": "(off)",
+     "desc": "Show automatically after this many ms.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-position",
+     "def": "bottom-right",
+     "desc": "top|bottom + left|center|right.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-duration",
+     "def": "5000",
+     "desc": "Auto-hide ms (0 = sticky). Paused while hovered or focused.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-tone",
+     "def": "",
+     "desc": "Shine tone (primary, success, danger...).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"stack gap-3 p-6 text-center\" style=\"min-height:300px;align-content:center\">\n  <div class=\"efx-toast\" id=\"toast-demo\" data-efx-tone=\"success\" data-efx-duration=\"4000\" hidden><strong>Saved!</strong> Your changes are live.</div>\n  <div class=\"cluster gap-3\" style=\"justify-content:center\">\n    <button class=\"btn tone-primary\" data-efx-toast=\"#toast-demo\">Show toast</button>\n    <button class=\"btn\" onclick=\"document.dispatchEvent(new CustomEvent('efx:toast',{detail:{text:'Ad-hoc <b>escaped</b> toast',tone:'warning',position:'top-center'}}))\">Ad-hoc toast</button>\n  </div>\n</div>"
   },
   {
    "name": "transition",

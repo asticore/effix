@@ -1632,7 +1632,7 @@
         } else raf2 = requestAnimationFrame(tick);
         put(ring, rx, ry);
       };
-      const show2 = (v) => parts.forEach((n) => {
+      const show3 = (v) => parts.forEach((n) => {
         n.style.opacity = v ? "" : "0";
       });
       const offs = [
@@ -1649,7 +1649,7 @@
             } else if (!raf2) raf2 = requestAnimationFrame(tick);
           }
           seen = true;
-          show2(true);
+          show3(true);
           const h = !!(e.target.closest && e.target.closest(hoverSel));
           parts.forEach((n) => n.toggleAttribute("data-hover", h));
         }, { passive: true }),
@@ -1657,11 +1657,11 @@
         on(document, "pointerup", () => parts.forEach((n) => n.removeAttribute("data-down"))),
         on(document.documentElement, "pointerleave", () => {
           seen = false;
-          show2(false);
+          show3(false);
         }),
         on(window, "blur", () => {
           seen = false;
-          show2(false);
+          show3(false);
         })
       ];
       return () => {
@@ -1723,6 +1723,74 @@
         el.classList.remove("is-hover", "efx-direction-fill", "efx-direction-snap");
         el.removeAttribute("data-efx-from");
         if (restorePos) el.style.position = "";
+      };
+    }
+  };
+
+  // src/features/distort.js
+  var NS2 = "http://www.w3.org/2000/svg";
+  var uid2 = 0;
+  var distort_default = {
+    name: "distort",
+    selector: ".efx-distort",
+    defaults: { scale: 30, frequency: 0.02, speed: 1, trigger: "hover" },
+    init(el, o) {
+      if (!motionOK() || o.trigger === "hover" && !finePointer()) return;
+      const id = "efx-distort-" + ++uid2;
+      const svg = document.createElementNS(NS2, "svg");
+      svg.setAttribute("class", "efx-distort__svg");
+      svg.setAttribute("aria-hidden", "true");
+      svg.innerHTML = `<filter id="${id}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="${o.frequency}" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter>`;
+      document.body.appendChild(svg);
+      const turb = svg.querySelector("feTurbulence"), disp = svg.querySelector("feDisplacementMap");
+      const prevFilter = el.style.filter;
+      let target = 0, k = 0, t = 0, last = 0, raf2 = 0, vis = true, pulse = 0;
+      const frame = (now) => {
+        const dt = Math.min(now - last, 50) / 1e3;
+        last = now;
+        t += dt * o.speed;
+        k += (target - k) * Math.min(1, dt * 6);
+        if (!target && k < 0.01) {
+          raf2 = 0;
+          el.style.filter = prevFilter;
+          return;
+        }
+        const f2 = o.frequency;
+        turb.setAttribute("baseFrequency", (f2 * (1 + 0.3 * Math.sin(t * 2.1))).toFixed(5) + " " + (f2 * (1 + 0.3 * Math.cos(t * 1.7))).toFixed(5));
+        disp.setAttribute("scale", (o.scale * k).toFixed(2));
+        raf2 = requestAnimationFrame(frame);
+      };
+      const go = (v) => {
+        target = v;
+        if (v && !raf2 && vis) {
+          el.style.filter = `url(#${id})`;
+          last = performance.now();
+          raf2 = requestAnimationFrame(frame);
+        }
+      };
+      const offs = [];
+      let stop;
+      if (o.trigger === "hover") offs.push(on(el, "pointerenter", (e) => e.pointerType !== "touch" && go(1)), on(el, "pointerleave", () => go(0)));
+      else stop = onVisible(el, (v) => {
+        vis = v;
+        clearTimeout(pulse);
+        if (!v) {
+          cancelAnimationFrame(raf2);
+          raf2 = 0;
+          el.style.filter = prevFilter;
+          k = 0;
+          return;
+        }
+        go(1);
+        if (o.trigger === "view") pulse = setTimeout(() => go(0), 900 / o.speed);
+      });
+      return () => {
+        offs.forEach((f2) => f2());
+        stop && stop();
+        clearTimeout(pulse);
+        cancelAnimationFrame(raf2);
+        el.style.filter = prevFilter;
+        svg.remove();
       };
     }
   };
@@ -2117,6 +2185,61 @@
     }
   };
 
+  // src/features/flip.js
+  var flip_default = {
+    name: "flip",
+    selector: ".efx-flip",
+    defaults: { trigger: "hover", axis: "y", duration: 600 },
+    init(el, o) {
+      const front = el.querySelector(":scope > .efx-flip__front"), back = el.querySelector(":scope > .efx-flip__back");
+      if (!front || !back) return;
+      const click = o.trigger === "click" || !finePointer();
+      const prev = { role: el.getAttribute("role"), tab: el.getAttribute("tabindex"), pressed: el.getAttribute("aria-pressed") };
+      const cls = ["efx-flip-on", o.axis === "x" ? "efx-flip-x" : "efx-flip-y"];
+      if (!motionOK()) cls.push("efx-flip-fade");
+      el.classList.add(...cls);
+      el.style.setProperty("--efx-flip-duration", o.duration + "ms");
+      const set = (v) => {
+        el.classList.toggle("is-flipped", v);
+        back.setAttribute("aria-hidden", String(!v));
+        if (click) el.setAttribute("aria-pressed", String(v));
+      };
+      set(false);
+      const flipped = () => el.classList.contains("is-flipped");
+      const offs = [];
+      if (click) {
+        el.setAttribute("role", "button");
+        el.setAttribute("tabindex", "0");
+        offs.push(
+          on(el, "click", () => set(!flipped())),
+          on(el, "keydown", (e) => {
+            if ((e.key === "Enter" || e.key === " ") && e.target === el) {
+              e.preventDefault();
+              set(!flipped());
+            }
+          })
+        );
+      } else {
+        offs.push(
+          on(el, "pointerenter", (e) => e.pointerType !== "touch" && set(true)),
+          on(el, "pointerleave", () => set(false)),
+          on(el, "focusin", () => set(true)),
+          on(el, "focusout", (e) => !el.contains(e.relatedTarget) && set(false))
+        );
+      }
+      return () => {
+        offs.forEach((f2) => f2());
+        el.classList.remove(...cls, "is-flipped");
+        el.style.removeProperty("--efx-flip-duration");
+        back.removeAttribute("aria-hidden");
+        ["role", "tabindex", "aria-pressed"].forEach((a, i) => {
+          const v = [prev.role, prev.tab, prev.pressed][i];
+          v == null ? el.removeAttribute(a) : el.setAttribute(a, v);
+        });
+      };
+    }
+  };
+
   // src/features/glitch.js
   var glitch_default = {
     name: "glitch",
@@ -2377,6 +2500,78 @@
           while (t.firstChild) el.insertBefore(t.firstChild, t);
           t.remove();
         });
+      };
+    }
+  };
+
+  // src/features/kenburns.js
+  var rnd2 = (m) => ((Math.random() * 2 - 1) * m).toFixed(2) + "%";
+  var kenburns_default = {
+    name: "kenburns",
+    selector: ".efx-kenburns",
+    defaults: { duration: 12e3, zoom: 1.15 },
+    init(el, o) {
+      let host = el, frame = null;
+      const single = el.tagName === "IMG";
+      if (single) {
+        frame = document.createElement("span");
+        frame.className = "efx-kenburns__frame";
+        el.parentNode.insertBefore(frame, el);
+        frame.appendChild(el);
+        host = frame;
+      }
+      const imgs = single ? [el] : [...el.querySelectorAll("img")];
+      if (!imgs.length) return;
+      const live = motionOK(), multi = imgs.length > 1;
+      const m = Math.max(0, (o.zoom - 1) / (2 * o.zoom) * 100);
+      host.classList.add("efx-kenburns-on");
+      if (!live) host.classList.add("is-static");
+      host.style.setProperty("--efx-kb-duration", o.duration + (multi ? 1e3 : 0) + "ms");
+      host.style.setProperty("--efx-kb-zoom", String(o.zoom));
+      if (multi) host.classList.add("is-slides");
+      imgs.forEach((im) => {
+        im.classList.add("efx-kenburns__img");
+        ["x0", "y0", "x1", "y1"].forEach((k) => im.style.setProperty("--efx-kb-" + k, rnd2(m)));
+      });
+      let i = 0, timer = 0;
+      const show3 = (n) => {
+        imgs.forEach((im, j) => {
+          im.classList.toggle("is-active", j === n);
+          im.classList.toggle("is-leaving", j === i && j !== n);
+        });
+        if (multi) imgs.forEach((im) => {
+          if (im.classList.contains("is-active")) {
+            ["x0", "y0", "x1", "y1"].forEach((k) => im.style.setProperty("--efx-kb-" + k, rnd2(m)));
+          }
+        });
+        i = n;
+      };
+      show3(0);
+      const tick = () => {
+        timer = setTimeout(() => {
+          show3((i + 1) % imgs.length);
+          tick();
+        }, o.duration);
+      };
+      const stop = live ? onVisible(host, (v) => {
+        host.classList.toggle("is-paused", !v);
+        clearTimeout(timer);
+        if (v && multi) tick();
+      }) : () => {
+      };
+      return () => {
+        stop();
+        clearTimeout(timer);
+        host.classList.remove("efx-kenburns-on", "is-static", "is-slides", "is-paused");
+        ["--efx-kb-duration", "--efx-kb-zoom"].forEach((v) => host.style.removeProperty(v));
+        imgs.forEach((im) => {
+          im.classList.remove("efx-kenburns__img", "is-active", "is-leaving");
+          ["x0", "y0", "x1", "y1"].forEach((k) => im.style.removeProperty("--efx-kb-" + k));
+        });
+        if (frame) {
+          frame.parentNode.insertBefore(el, frame);
+          frame.remove();
+        }
       };
     }
   };
@@ -2668,6 +2863,92 @@
     }
   };
 
+  // src/features/mask.js
+  var mask_default = {
+    name: "mask",
+    selector: ".efx-mask",
+    defaults: { radius: 120, soft: 0.4, gray: true },
+    init(el, o) {
+      const base = el.querySelector("img");
+      if (!base) return;
+      let reveal = el.querySelector(".efx-mask__reveal"), made = false;
+      if (!reveal) {
+        reveal = base.cloneNode();
+        reveal.className = "efx-mask__reveal";
+        reveal.alt = "";
+        reveal.removeAttribute("id");
+        reveal.removeAttribute("loading");
+        el.appendChild(reveal);
+        made = true;
+      }
+      reveal.setAttribute("aria-hidden", "true");
+      const prev = { role: el.getAttribute("role"), tab: el.getAttribute("tabindex"), label: el.getAttribute("aria-label") };
+      el.classList.add("efx-mask-on");
+      base.classList.toggle("efx-mask__base", o.gray);
+      el.style.setProperty("--efx-soft", String(Math.min(0.99, Math.max(0, o.soft))));
+      el.style.setProperty("--efx-r", "0px");
+      el.style.setProperty("--efx-x", "50%");
+      el.style.setProperty("--efx-y", "50%");
+      el.setAttribute("role", "button");
+      el.setAttribute("tabindex", "0");
+      el.setAttribute("aria-pressed", "false");
+      if (!prev.label) el.setAttribute("aria-label", base.alt || "Reveal image");
+      let r = 0, target = 0, raf2 = 0;
+      const anim = () => {
+        r += (target - r) * (motionOK() ? 0.18 : 1);
+        if (Math.abs(target - r) < 0.5) r = target;
+        el.style.setProperty("--efx-r", r.toFixed(1) + "px");
+        raf2 = r === target ? 0 : requestAnimationFrame(anim);
+      };
+      const grow = (v) => {
+        target = v;
+        if (!raf2) raf2 = requestAnimationFrame(anim);
+      };
+      const move = rafThrottle((e) => {
+        const b = el.getBoundingClientRect();
+        el.style.setProperty("--efx-x", e.clientX - b.left + "px");
+        el.style.setProperty("--efx-y", e.clientY - b.top + "px");
+      });
+      const toggle = () => {
+        const v = !el.classList.contains("is-full");
+        el.classList.toggle("is-full", v);
+        el.setAttribute("aria-pressed", String(v));
+      };
+      const offs = [
+        on(el, "click", toggle),
+        on(el, "keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            toggle();
+          }
+        })
+      ];
+      if (finePointer()) offs.push(
+        on(el, "pointerenter", (e) => {
+          if (e.pointerType === "touch") return;
+          move(e);
+          grow(o.radius);
+        }),
+        on(el, "pointermove", (e) => e.pointerType !== "touch" && move(e)),
+        on(el, "pointerleave", () => grow(0))
+      );
+      return () => {
+        offs.forEach((f2) => f2());
+        move.cancel();
+        cancelAnimationFrame(raf2);
+        if (made) reveal.remove();
+        else reveal.removeAttribute("aria-hidden");
+        base.classList.remove("efx-mask__base");
+        el.classList.remove("efx-mask-on", "is-full");
+        ["--efx-soft", "--efx-r", "--efx-x", "--efx-y"].forEach((v) => el.style.removeProperty(v));
+        ["role", "tabindex", "aria-pressed", "aria-label"].forEach((a) => el.removeAttribute(a));
+        if (prev.role) el.setAttribute("role", prev.role);
+        if (prev.tab) el.setAttribute("tabindex", prev.tab);
+        if (prev.label) el.setAttribute("aria-label", prev.label);
+      };
+    }
+  };
+
   // src/features/media.js
   var media_default = {
     name: "media",
@@ -2925,6 +3206,92 @@
     }
   };
 
+  // src/features/nudge.js
+  var BUILTIN = ["shake", "wobble", "ring"];
+  var nudge_default = {
+    name: "nudge",
+    selector: ".efx-nudge",
+    defaults: { every: 6e3, anim: "shake", times: 0, delay: 3e3, stop: "click", dot: false },
+    init(el, o) {
+      const offs = [];
+      let dot2, restorePos = null;
+      if (o.dot) {
+        if (getComputedStyle(el).position === "static") {
+          el.style.position = "relative";
+          restorePos = true;
+        }
+        dot2 = document.createElement("span");
+        dot2.className = "efx-nudge__dot";
+        dot2.setAttribute("aria-hidden", "true");
+        el.append(dot2);
+      }
+      if (!motionOK()) return () => {
+        if (dot2) dot2.remove();
+        if (restorePos) el.style.position = "";
+      };
+      const kf = BUILTIN.includes(o.anim) ? "efx-nudge-" + o.anim : o.anim.startsWith("efx-") ? o.anim : "efx-" + o.anim;
+      let timer = 0, count = 0, vis = false, stopped = false;
+      const clear = () => {
+        el.style.animation = "";
+        el.classList.remove("is-nudging");
+      };
+      const schedule = (ms) => {
+        clearTimeout(timer);
+        timer = 0;
+        if (!stopped && vis && !document.hidden) timer = setTimeout(play, ms);
+      };
+      const play = () => {
+        timer = 0;
+        if (stopped || !vis || document.hidden) return;
+        clear();
+        void el.offsetWidth;
+        el.classList.add("is-nudging");
+        el.style.animation = `${kf} .9s ease both`;
+        if (o.times && ++count >= o.times) {
+          stopped = true;
+          return;
+        }
+        schedule(o.every);
+      };
+      const halt = () => {
+        stopped = true;
+        clearTimeout(timer);
+        clear();
+        if (dot2) dot2.classList.add("is-seen");
+      };
+      offs.push(on(el, "animationend", (e) => {
+        if (e.target === el) clear();
+      }));
+      offs.push(onVisible(el, (v) => {
+        vis = v;
+        if (v) {
+          if (!timer) schedule(count ? o.every : o.delay);
+        } else {
+          clearTimeout(timer);
+          timer = 0;
+          clear();
+        }
+      }));
+      offs.push(on(document, "visibilitychange", () => {
+        if (document.hidden) {
+          clearTimeout(timer);
+          timer = 0;
+        } else if (!timer) schedule(o.every);
+      }));
+      if (o.stop === "click") offs.push(on(el, "click", halt), on(el, "keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") halt();
+      }));
+      else if (o.stop === "hover") offs.push(on(el, "pointerenter", halt), on(el, "focus", halt));
+      return () => {
+        clearTimeout(timer);
+        offs.forEach((f2) => f2());
+        clear();
+        if (dot2) dot2.remove();
+        if (restorePos) el.style.position = "";
+      };
+    }
+  };
+
   // src/features/odometer.js
   var DIGITS = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9";
   var odometer_default = {
@@ -3158,7 +3525,7 @@
       if (!shapes.length) shapes.push(get("particle-shape", "circle"));
       let w = 0, h = 0, dpr2 = 1, ps2 = [], raf2 = 0, vis = true, hidden = document.hidden;
       const ptr = { x: -1e4, y: -1e4 };
-      const rnd2 = (a, b) => a + Math.random() * (b - a);
+      const rnd3 = (a, b) => a + Math.random() * (b - a);
       const seed = () => {
         dpr2 = Math.min(devicePixelRatio || 1, 1.5);
         w = el.clientWidth;
@@ -3168,11 +3535,11 @@
         ctx2.setTransform(dpr2, 0, 0, dpr2, 0, 0);
         const n = Math.min(o.count, Math.round(w * h / 14e3));
         ps2 = Array.from({ length: n }, () => ({
-          x: rnd2(0, w),
-          y: rnd2(0, h),
-          vx: rnd2(-0.5, 0.5) * sp,
-          vy: rnd2(-0.5, 0.5) * sp,
-          r: rnd2(o.sizeMin, o.sizeMax),
+          x: rnd3(0, w),
+          y: rnd3(0, h),
+          vx: rnd3(-0.5, 0.5) * sp,
+          vy: rnd3(-0.5, 0.5) * sp,
+          r: rnd3(o.sizeMin, o.sizeMax),
           c: colors[Math.random() * colors.length | 0],
           s: shapes[Math.random() * shapes.length | 0]
         }));
@@ -3210,8 +3577,8 @@
         raf2 = 0;
         const R = o.interactRadius, push = o.interact === "repel" ? 1 : o.interact === "attract" ? -1 : 0;
         for (const p of ps2) {
-          p.vx = (p.vx + rnd2(-0.02, 0.02) * sp) * 0.99;
-          p.vy = (p.vy + rnd2(-0.02, 0.02) * sp) * 0.99;
+          p.vx = (p.vx + rnd3(-0.02, 0.02) * sp) * 0.99;
+          p.vy = (p.vy + rnd3(-0.02, 0.02) * sp) * 0.99;
           if (push) {
             const dx = p.x - ptr.x, dy = p.y - ptr.y, d = Math.hypot(dx, dy);
             if (d < R && d > 1) {
@@ -3291,7 +3658,7 @@
   };
 
   // src/features/path.js
-  var NS2 = "http://www.w3.org/2000/svg";
+  var NS3 = "http://www.w3.org/2000/svg";
   var clamp2 = (v) => Math.min(1, Math.max(0, v));
   var ease2 = (t) => 1 - Math.pow(1 - t, 3);
   var path_default = {
@@ -3304,12 +3671,12 @@
       let path, ref = null, vbox = null;
       if (o.d) {
         const vb = o.viewbox.split(/[\s,]+/).map(Number);
-        const svg = document.createElementNS(NS2, "svg");
+        const svg = document.createElementNS(NS3, "svg");
         svg.setAttribute("viewBox", o.viewbox);
         svg.setAttribute("class", "efx-path__svg");
         svg.setAttribute("aria-hidden", "true");
         svg.setAttribute("focusable", "false");
-        path = document.createElementNS(NS2, "path");
+        path = document.createElementNS(NS3, "path");
         path.setAttribute("d", o.d);
         path.setAttribute("class", "efx-path__line");
         if (!o.showPath) path.style.visibility = "hidden";
@@ -3427,6 +3794,115 @@
     }
   };
 
+  // src/features/pixelate.js
+  var pixelate_default = {
+    name: "pixelate",
+    selector: ".efx-pixelate",
+    defaults: { from: 32, duration: 900, trigger: "view" },
+    init(el, o) {
+      const img = el.tagName === "IMG" ? el : el.querySelector("img");
+      if (!img || !motionOK()) return;
+      const host = img.parentElement;
+      const restorePos = getComputedStyle(host).position === "static";
+      if (restorePos) host.style.position = "relative";
+      const hover = o.trigger === "hover";
+      const cv2 = document.createElement("canvas"), tiny = document.createElement("canvas");
+      cv2.className = "efx-pixelate__canvas";
+      cv2.setAttribute("aria-hidden", "true");
+      host.appendChild(cv2);
+      const prevOpacity = img.style.opacity;
+      let p = hover ? 0 : 1, target = p, from = 0, raf2 = 0, ready = false, shown2 = -1, stop;
+      const draw2 = () => {
+        const W = img.offsetWidth, H = img.offsetHeight, nw = img.naturalWidth, nh = img.naturalHeight;
+        if (!W || !H || !nw) return;
+        const b = Math.max(1, Math.round(Math.pow(o.from, p)));
+        if (b === shown2 && cv2.width) return;
+        shown2 = b;
+        const dpr2 = Math.min(devicePixelRatio || 1, 2);
+        cv2.style.left = img.offsetLeft + "px";
+        cv2.style.top = img.offsetTop + "px";
+        cv2.style.width = W + "px";
+        cv2.style.height = H + "px";
+        cv2.width = W * dpr2;
+        cv2.height = H * dpr2;
+        let sx = 0, sy = 0, sw = nw, sh = nh;
+        if (getComputedStyle(img).objectFit === "cover") {
+          const r = W / H;
+          if (nw / nh > r) {
+            sw = nh * r;
+            sx = (nw - sw) / 2;
+          } else {
+            sh = nw / r;
+            sy = (nh - sh) / 2;
+          }
+        }
+        const w = Math.max(1, Math.ceil(W / b)), h = Math.max(1, Math.ceil(H / b));
+        tiny.width = w;
+        tiny.height = h;
+        const t = tiny.getContext("2d");
+        t.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+        const c = cv2.getContext("2d");
+        c.imageSmoothingEnabled = false;
+        c.drawImage(tiny, 0, 0, w, h, 0, 0, w * b * dpr2, h * b * dpr2);
+      };
+      const render = () => {
+        const on_ = (b) => {
+          cv2.style.display = b ? "" : "none";
+          img.style.opacity = b ? "0" : prevOpacity;
+        };
+        if (p <= 1e-3) on_(false);
+        else {
+          on_(true);
+          draw2();
+        }
+      };
+      const frame = (now) => {
+        const d = (now - from) / Math.max(1, o.duration);
+        from = now;
+        p += Math.sign(target - p) * Math.min(Math.abs(target - p), d);
+        render();
+        raf2 = p === target ? 0 : requestAnimationFrame(frame);
+      };
+      const go = (v) => {
+        target = v;
+        if (ready && !raf2) {
+          from = performance.now();
+          raf2 = requestAnimationFrame(frame);
+        }
+      };
+      const start = () => {
+        ready = true;
+        render();
+        if (hover) return;
+        stop = onVisible(el, (v) => {
+          if (v) {
+            stop && stop();
+            go(0);
+          }
+        });
+      };
+      if (!hover) img.style.opacity = "0";
+      const offs = [];
+      if (hover) offs.push(on(el, "pointerenter", (e) => e.pointerType !== "touch" && go(1)), on(el, "pointerleave", () => go(0)));
+      if (img.complete && img.naturalWidth) start();
+      else offs.push(on(img, "load", start, { once: true }));
+      const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => {
+        shown2 = -1;
+        ready && p > 1e-3 && draw2();
+      }) : null;
+      ro && ro.observe(img);
+      return () => {
+        offs.forEach((f2) => f2());
+        stop && stop();
+        ro && ro.disconnect();
+        cancelAnimationFrame(raf2);
+        cv2.remove();
+        img.style.opacity = prevOpacity;
+        if (restorePos) host.style.position = "";
+      };
+    }
+  };
+
   // src/features/popup.js
   var shown = false;
   var bot = /bot|crawl|spider|lighthouse/i;
@@ -3520,6 +3996,145 @@
         unscroll();
         offs.forEach((f2) => f2());
         close();
+      };
+    }
+  };
+
+  // src/features/pricing.js
+  var num = /[\d][\d,]*\.?\d*/;
+  var pricing_default = {
+    name: "pricing",
+    selector: ".efx-pricing",
+    defaults: { periods: ["Monthly", "Yearly"], start: 0, duration: 600 },
+    init(el, o) {
+      const periods = o.periods, undo = [];
+      const norm = (s) => String(s).trim().toLowerCase();
+      const btns = [...el.querySelectorAll("[data-efx-period]")];
+      const chk = el.querySelector(".efx-pricing__toggle");
+      const prices = [...el.querySelectorAll("[data-efx-prices]")].map((p) => ({
+        el: p,
+        vals: p.dataset.efxPrices.split("|").map((s) => s.trim()),
+        odo: p.matches(".efx-odometer") ? p : p.querySelector(".efx-odometer"),
+        orig: p.innerHTML,
+        raf: 0
+      }));
+      const texts = [...el.querySelectorAll("[data-efx-period-text]")].map((t2) => ({ el: t2, vals: t2.dataset.efxPeriodText.split("|").map((s) => s.trim()), orig: t2.textContent }));
+      const shows = [...el.querySelectorAll("[data-efx-show-on]")].map((s) => ({ el: s, hid: s.hidden }));
+      const live = document.createElement("span");
+      live.className = "efx-pricing__live";
+      live.setAttribute("aria-live", "polite");
+      live.style.cssText = "position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap";
+      el.append(live);
+      const setAttr = (n, k, v) => {
+        const had = n.getAttribute(k);
+        n.setAttribute(k, v);
+        if (!undo.some((u) => u.n === n && u.k === k)) undo.push({ n, k, had });
+      };
+      const group = btns.length && btns[0].parentElement;
+      if (group && !group.hasAttribute("role")) setAttr(group, "role", "radiogroup");
+      btns.forEach((b) => {
+        if (!b.hasAttribute("role")) setAttr(b, "role", "radio");
+        if (!b.hasAttribute("type") && b.tagName === "BUTTON") setAttr(b, "type", "button");
+      });
+      const bIdx = (b) => {
+        const v = b.dataset.efxPeriod;
+        const i = periods.findIndex((p) => norm(p) === norm(v));
+        return i >= 0 ? i : parseInt(v, 10) || 0;
+      };
+      const fmtLike = (tpl, n) => {
+        const dec = (tpl.split(".")[1] || "").length;
+        const s = n.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        return tpl.includes(",") ? s : s.replace(/,/g, "");
+      };
+      const roll = (p, val, animate) => {
+        cancelAnimationFrame(p.raf);
+        if (p.odo) {
+          p.odo.dispatchEvent(new CustomEvent("efx:data", { detail: { value: val } }));
+          return;
+        }
+        const to = val.match(num), from = p.el.textContent.match(num);
+        if (!animate || !to || !from) {
+          p.el.textContent = val;
+          return;
+        }
+        const a = parseFloat(from[0].replace(/,/g, "")), b = parseFloat(to[0].replace(/,/g, "")), t0 = performance.now();
+        const step = (now) => {
+          const k = Math.min(1, (now - t0) / o.duration), e = 1 - (1 - k) ** 3;
+          p.el.textContent = k < 1 ? val.replace(num, fmtLike(to[0], a + (b - a) * e)) : val;
+          if (k < 1) p.raf = requestAnimationFrame(step);
+        };
+        p.raf = requestAnimationFrame(step);
+      };
+      let idx = -1;
+      const set = (i, animate, quiet) => {
+        i = Math.max(0, Math.min(periods.length - 1, i));
+        if (i === idx) return;
+        idx = i;
+        const anim = animate && motionOK();
+        prices.forEach((p) => {
+          var _a;
+          return roll(p, (_a = p.vals[i]) != null ? _a : p.vals[p.vals.length - 1], anim);
+        });
+        texts.forEach((t2) => {
+          var _a;
+          t2.el.textContent = (_a = t2.vals[i]) != null ? _a : t2.vals[t2.vals.length - 1];
+        });
+        shows.forEach((s) => {
+          s.el.hidden = norm(s.el.dataset.efxShowOn) !== norm(periods[i]);
+        });
+        btns.forEach((b) => {
+          const on2 = bIdx(b) === i;
+          b.setAttribute("aria-checked", on2);
+          b.tabIndex = on2 ? 0 : -1;
+          b.classList.toggle("is-active", on2);
+        });
+        if (chk) chk.checked = i > 0;
+        if (!quiet) {
+          const f2 = prices[0], ft = texts[0];
+          live.textContent = [periods[i], f2 && f2.vals[i], ft && ft.vals[i]].filter(Boolean).join(" ");
+          el.dispatchEvent(new CustomEvent("efx:period", { bubbles: true, detail: { index: i, period: periods[i] } }));
+        }
+      };
+      const offs = [];
+      btns.forEach((b) => {
+        offs.push(on(b, "click", () => set(bIdx(b), true)));
+        offs.push(on(b, "keydown", (e) => {
+          const k = e.key, d = k === "ArrowRight" || k === "ArrowDown" ? 1 : k === "ArrowLeft" || k === "ArrowUp" ? -1 : 0;
+          const to = k === "Home" ? 0 : k === "End" ? periods.length - 1 : idx + d;
+          if (!d && k !== "Home" && k !== "End") return;
+          e.preventDefault();
+          set(to, true);
+          const nb = btns.find((x) => bIdx(x) === idx);
+          if (nb) nb.focus();
+        }));
+      });
+      if (chk) offs.push(on(chk, "change", () => set(chk.checked ? 1 : 0, true)));
+      const start = Math.max(0, Math.min(periods.length - 1, o.start | 0));
+      set(start, false, true);
+      const t = setTimeout(() => prices.forEach((p) => {
+        var _a;
+        return p.odo && roll(p, (_a = p.vals[start]) != null ? _a : p.vals[0], false);
+      }), 0);
+      return () => {
+        clearTimeout(t);
+        offs.forEach((f2) => f2());
+        prices.forEach((p) => {
+          cancelAnimationFrame(p.raf);
+          if (!p.odo) p.el.innerHTML = p.orig;
+        });
+        texts.forEach((t2) => {
+          t2.el.textContent = t2.orig;
+        });
+        shows.forEach((s) => {
+          s.el.hidden = s.hid;
+        });
+        btns.forEach((b) => {
+          b.removeAttribute("aria-checked");
+          b.removeAttribute("tabindex");
+          b.classList.remove("is-active");
+        });
+        undo.forEach((u) => u.had === null ? u.n.removeAttribute(u.k) : u.n.setAttribute(u.k, u.had));
+        live.remove();
       };
     }
   };
@@ -3877,13 +4492,13 @@
       const pool = [...o.chars || "#"];
       vis.style.minWidth = Math.max(...words.map((w) => w.length)) + "ch";
       let cur = words[0], tgt = cur, tm = 0, running = false, played = false, i = 0;
-      const show2 = (t) => {
+      const show3 = (t) => {
         vis.textContent = t;
       };
       const set = (t) => {
         cur = t;
         sr.textContent = t;
-        show2(t);
+        show3(t);
       };
       set(cur);
       const run = (to, done) => {
@@ -3898,7 +4513,7 @@
             const c = to[k] || "", lock = (k + 1) / len * 0.85;
             out += p >= 1 || p >= lock ? c : c === " " ? " " : pool[Math.random() * pool.length | 0];
           }
-          show2(out);
+          show3(out);
           if (p < 1) tm = setTimeout(step, o.speed);
           else {
             running = false;
@@ -4225,6 +4840,54 @@
           el.style.height = saveH;
           el.classList.remove("efx-sequence-on");
         }
+      };
+    }
+  };
+
+  // src/features/shimmer.js
+  var shimmer_default = {
+    name: "shimmer",
+    selector: ".efx-shimmer[data-efx-until],.efx-shimmer[data-efx-for]",
+    defaults: { until: "", for: 0 },
+    init(el, o) {
+      const offs = [];
+      let timer = 0, done = false;
+      const prevBusy = el.getAttribute("aria-busy");
+      el.classList.add("is-loading");
+      el.setAttribute("aria-busy", "true");
+      const ready = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        offs.forEach((f2) => f2());
+        offs.length = 0;
+        el.classList.remove("is-loading");
+        el.classList.add("is-ready");
+        if (motionOK()) {
+          el.classList.add("is-fading");
+          const end = () => el.classList.remove("is-fading");
+          offs.push(on(el, "animationend", end, { once: true }));
+        }
+        el.setAttribute("aria-busy", "false");
+      };
+      const targets = o.until ? [...document.querySelectorAll(o.until)] : [];
+      const pending = targets.filter((t) => !(t.tagName === "IMG" ? t.complete : t.readyState === 4 || t.readyState === "complete"));
+      if (o.until && !pending.length && targets.length) ready();
+      else {
+        let left = pending.length;
+        pending.forEach((t) => ["load", "error", "loadeddata", "efx:ready"].forEach((ev) => offs.push(on(t, ev, () => {
+          if (--left <= 0) ready();
+        }, { once: true }))));
+        if (o.for > 0) timer = setTimeout(ready, o.for);
+        else if (!pending.length) timer = setTimeout(ready, 0);
+      }
+      return () => {
+        done = true;
+        clearTimeout(timer);
+        offs.forEach((f2) => f2());
+        el.classList.remove("is-loading", "is-ready", "is-fading");
+        if (prevBusy === null) el.removeAttribute("aria-busy");
+        else el.setAttribute("aria-busy", prevBusy);
       };
     }
   };
@@ -4605,6 +5268,141 @@
     }
   };
 
+  // src/features/toast.js
+  var POS = ["top-left", "top-center", "top-right", "bottom-left", "bottom-center", "bottom-right"];
+  var stacks = /* @__PURE__ */ new Map();
+  var users = 0;
+  var offGlobal = [];
+  var stackFor = (pos) => {
+    pos = POS.includes(pos) ? pos : "bottom-right";
+    let s = stacks.get(pos);
+    if (!s) {
+      s = document.createElement("div");
+      s.className = "efx-toast__stack";
+      s.dataset.pos = pos;
+      s.setAttribute("data-efx-skip", "");
+      s.setAttribute("popover", "manual");
+      document.body.append(s);
+      try {
+        s.showPopover();
+      } catch (e) {
+        s.removeAttribute("popover");
+      }
+      stacks.set(pos, s);
+    }
+    return s;
+  };
+  function show2(fill, o) {
+    const stack = stackFor(o.position);
+    const t = document.createElement("div");
+    t.className = "toast efx-toast__item" + (/^[\w-]+$/.test(o.tone || "") ? " tone-" + o.tone : "");
+    t.setAttribute("role", "status");
+    t.setAttribute("aria-live", "polite");
+    const body = document.createElement("div");
+    body.className = "efx-toast__body";
+    fill(body);
+    const x = document.createElement("button");
+    x.type = "button";
+    x.className = "btn-close";
+    x.setAttribute("aria-label", "Close");
+    t.append(body, x);
+    stack.append(t);
+    let left = o.duration, t0 = 0, timer = 0, paused = false, closed = false;
+    const run = () => {
+      if (o.duration > 0 && !paused && !closed) {
+        t0 = Date.now();
+        timer = setTimeout(close, Math.max(left, 300));
+      }
+    };
+    const pause = () => {
+      if (paused) return;
+      paused = true;
+      clearTimeout(timer);
+      if (t0) left -= Date.now() - t0;
+    };
+    const resume = () => {
+      if (!paused) return;
+      paused = false;
+      run();
+    };
+    function close() {
+      if (closed) return;
+      closed = true;
+      clearTimeout(timer);
+      t.classList.add("is-out");
+      const done = () => {
+        t.remove();
+        if (!stack.children.length && stacks.get(o.position) === stack) {
+          stack.remove();
+          stacks.delete(o.position);
+        }
+      };
+      t.addEventListener("animationend", done, { once: true });
+      setTimeout(done, 450);
+    }
+    x.addEventListener("click", close);
+    t.addEventListener("pointerenter", pause);
+    t.addEventListener("pointerleave", resume);
+    t.addEventListener("focusin", pause);
+    t.addEventListener("focusout", (e) => {
+      if (!t.contains(e.relatedTarget)) resume();
+    });
+    t.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") close();
+    });
+    run();
+    return close;
+  }
+  var toast_default = {
+    name: "toast",
+    selector: ".efx-toast",
+    defaults: { show: -1, position: "bottom-right", duration: 5e3, tone: "" },
+    init(el, o) {
+      const closers = /* @__PURE__ */ new Set(), timers = /* @__PURE__ */ new Set();
+      const id = el.id;
+      const fire2 = () => {
+        const c = show2((b) => {
+          for (const n of el.childNodes) b.append(n.cloneNode(true));
+        }, o);
+        closers.add(c);
+      };
+      if (el.hasAttribute("data-efx-show")) {
+        const t = setTimeout(fire2, Math.max(0, o.show));
+        timers.add(t);
+      }
+      if (!users++) {
+        offGlobal = [
+          on(document, "efx:toast", (e) => {
+            const d = e.detail || {};
+            show2((b) => {
+              b.textContent = d.text == null ? "" : String(d.text);
+            }, {
+              position: d.position || "bottom-right",
+              tone: d.tone || "",
+              duration: Number.isFinite(+d.duration) && d.duration !== void 0 ? +d.duration : 5e3
+            });
+          })
+        ];
+      }
+      const offClick = id ? on(document, "click", (e) => {
+        const a = e.target.closest && e.target.closest("[data-efx-toast]");
+        if (a && a.dataset.efxToast === "#" + id) fire2();
+      }) : () => {
+      };
+      return () => {
+        timers.forEach(clearTimeout);
+        offClick();
+        closers.forEach((c) => c());
+        if (!--users) {
+          offGlobal.forEach((f2) => f2());
+          offGlobal = [];
+          stacks.forEach((s) => s.remove());
+          stacks.clear();
+        }
+      };
+    }
+  };
+
   // src/features/totop.js
   var totop_default = {
     name: "totop",
@@ -4693,7 +5491,7 @@
       layer.setAttribute("aria-hidden", "true");
       el.append(layer);
       const hover = o.mode === "hover";
-      const rnd2 = (d) => (Math.random() * 2 - 1) * d;
+      const rnd3 = (d) => (Math.random() * 2 - 1) * d;
       const mkItem = () => {
         const n = document.createElement("div");
         n.className = "efx-trail__item";
@@ -4762,7 +5560,7 @@
             const [k2, ...a] = shape.split(":"), fn = get("trail-shape", k2);
             if (fn) n.append(fn(o.size, a.join(":")));
           }
-          const t = "translate(" + x + "px," + y + "px) translate(-50%,-50%) rotate(" + rnd2(o.rotate).toFixed(1) + "deg)";
+          const t = "translate(" + x + "px," + y + "px) translate(-50%,-50%) rotate(" + rnd3(o.rotate).toFixed(1) + "deg)";
           n._a = n.animate([
             { opacity: 0, transform: t + " scale(.6)" },
             { opacity: 1, transform: t + " scale(1)", offset: 0.2 },
@@ -5053,7 +5851,7 @@
   };
 
   // src/effix-entry.js
-  define(ambient_default, animate_default, beam_default, border_default, carousel_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, direction_default, divider_default, drag_default, draw_default, feed_default, glitch_default, globe_default, hscroll_default, lazyimg_default, lightbox_default, magnetic_default, marquee_default, media_default, morph_default, mouse_default, odometer_default, parallax_default, particles_default, path_default, popup_default, progress_default, proximity_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, sparkles_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
+  define(ambient_default, animate_default, beam_default, border_default, carousel_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, direction_default, distort_default, divider_default, drag_default, draw_default, feed_default, flip_default, glitch_default, globe_default, hscroll_default, kenburns_default, lazyimg_default, lightbox_default, magnetic_default, marquee_default, mask_default, media_default, morph_default, mouse_default, nudge_default, odometer_default, parallax_default, particles_default, path_default, pixelate_default, popup_default, pricing_default, progress_default, proximity_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, shimmer_default, sparkles_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, toast_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
   if (typeof window !== "undefined") window.Effix = core_default;
   autoBoot();
   var effix_entry_default = core_default;

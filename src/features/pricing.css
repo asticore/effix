@@ -1,0 +1,5 @@
+/* pricing — only state styling; layout comes from Shine */
+.efx-pricing [data-efx-period][aria-checked="true"] { font-weight: 600; }
+.efx-pricing [data-efx-show-on]:not([hidden]) { animation: efx-pricing-in var(--efx-duration, 400ms) var(--efx-ease, ease) both; }
+@keyframes efx-pricing-in { from { opacity: 0; transform: translateY(4px) scale(.9); } }
+@media (prefers-reduced-motion: reduce) { .efx-pricing [data-efx-show-on]:not([hidden]) { animation: none; } }

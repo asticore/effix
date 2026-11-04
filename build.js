@@ -20,7 +20,7 @@ const ROOT = __dirname;
 const SRC = path.join(ROOT, 'src');
 const pkg = require('./package.json');
 const BUDGET = { // gzip bytes
-  'effix.min.js': 38 * 1024, 'effix.min.css': 10 * 1024,
+  'effix.min.js': 44 * 1024, 'effix.min.css': 10 * 1024,
   'effix-charts.min.js': 28 * 1024, 'effix-charts.min.css': 3 * 1024,
 };
 

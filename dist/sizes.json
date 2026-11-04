@@ -3,15 +3,15 @@
   "core": 2586,
   "chartLib": 5287,
   "bundles": {
-    "effix.min.js": 35762,
-    "effix.min.css": 7877,
+    "effix.min.js": 41019,
+    "effix.min.css": 9413,
     "effix-charts.min.js": 27652,
     "effix-charts.min.css": 2293,
     "effix.core.min.js": 2635,
     "effix.core.min.css": 252,
-    "effix.auto.min.js": 4111,
-    "effix.all.min.js": 62570,
-    "effix.all.min.css": 9608
+    "effix.auto.min.js": 4259,
+    "effix.all.min.js": 67783,
+    "effix.all.min.css": 11150
   },
   "features": {
     "ambient": {
@@ -79,6 +79,11 @@
       "css": 390,
       "kind": "effect"
     },
+    "distort": {
+      "js": 751,
+      "css": 98,
+      "kind": "effect"
+    },
     "divider": {
       "js": 1871,
       "css": 368,
@@ -99,6 +104,11 @@
       "css": 53,
       "kind": "effect"
     },
+    "flip": {
+      "js": 540,
+      "css": 356,
+      "kind": "effect"
+    },
     "glitch": {
       "js": 183,
       "css": 499,
@@ -112,6 +122,11 @@
     "hscroll": {
       "js": 821,
       "css": 218,
+      "kind": "effect"
+    },
+    "kenburns": {
+      "js": 597,
+      "css": 385,
       "kind": "effect"
     },
     "lazyimg": {
@@ -134,6 +149,11 @@
       "css": 293,
       "kind": "effect"
     },
+    "mask": {
+      "js": 756,
+      "css": 290,
+      "kind": "effect"
+    },
     "media": {
       "js": 523,
       "css": 299,
@@ -147,6 +167,11 @@
     "mouse": {
       "js": 785,
       "css": 0,
+      "kind": "effect"
+    },
+    "nudge": {
+      "js": 608,
+      "css": 495,
       "kind": "effect"
     },
     "odometer": {
@@ -169,9 +194,19 @@
       "css": 298,
       "kind": "effect"
     },
+    "pixelate": {
+      "js": 934,
+      "css": 108,
+      "kind": "effect"
+    },
     "popup": {
       "js": 745,
       "css": 0,
+      "kind": "effect"
+    },
+    "pricing": {
+      "js": 1479,
+      "css": 230,
       "kind": "effect"
     },
     "progress": {
@@ -219,6 +254,11 @@
       "css": 158,
       "kind": "effect"
     },
+    "shimmer": {
+      "js": 380,
+      "css": 687,
+      "kind": "effect"
+    },
     "sparkles": {
       "js": 636,
       "css": 259,
@@ -252,6 +292,11 @@
     "tilt": {
       "js": 686,
       "css": 307,
+      "kind": "effect"
+    },
+    "toast": {
+      "js": 921,
+      "css": 578,
       "kind": "effect"
     },
     "totop": {
