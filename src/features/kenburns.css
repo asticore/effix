@@ -1,0 +1,11 @@
+@keyframes efx-kb { from { transform: scale(1) translate(var(--efx-kb-x0, 0), var(--efx-kb-y0, 0)); } to { transform: scale(var(--efx-kb-zoom, 1.15)) translate(var(--efx-kb-x1, 0), var(--efx-kb-y1, 0)); } }
+.efx-kenburns-on { display: block; overflow: hidden; border-radius: inherit; }
+.efx-kenburns-on > .efx-kenburns__img, .efx-kenburns-on .efx-kenburns__img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.efx-kenburns-on:not(.is-slides) .efx-kenburns__img { animation: efx-kb var(--efx-kb-duration, 12000ms) ease-in-out infinite alternate; }
+.efx-kenburns-on.is-slides { display: grid; }
+.efx-kenburns-on.is-slides > .efx-kenburns__img { grid-area: 1 / 1; opacity: 0; transition: opacity 1s ease; }
+.efx-kenburns-on.is-slides > .efx-kenburns__img.is-active, .efx-kenburns-on.is-slides > .efx-kenburns__img.is-leaving { animation: efx-kb var(--efx-kb-duration, 13000ms) linear both; }
+.efx-kenburns-on.is-slides > .is-active { opacity: 1; }
+.efx-kenburns-on.is-slides > .is-leaving { opacity: 0; }
+.efx-kenburns-on.is-paused .efx-kenburns__img { animation-play-state: paused; }
+.efx-kenburns-on.is-static .efx-kenburns__img { animation: none; transition: none; }
