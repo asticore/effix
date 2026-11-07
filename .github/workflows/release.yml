@@ -1,0 +1,42 @@
+name: GitHub release
+
+# Push a tag that matches package.json to publish a GitHub release, e.g.
+#   git tag v0.1.0 && git push origin v0.1.0
+# Release notes come from that version's section in CHANGELOG.md.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Tag matches package.json version
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - run: npm run build
+      - run: node tests/smoke.js chromium
+      - name: Release notes from CHANGELOG
+        run: awk -v t="## $GITHUB_REF_NAME" 'index($0,t)==1{f=1;next} /^## /{f=0} f' CHANGELOG.md > notes.md
+      - name: Package dist
+        run: |
+          cd dist && zip -qr "../effix-$GITHUB_REF_NAME.zip" . -x '_*' && cd ..
+      - name: Create release
+        run: >
+          gh release create "$GITHUB_REF_NAME" --title "Effix $GITHUB_REF_NAME" --notes-file notes.md
+          "effix-$GITHUB_REF_NAME.zip"
+          dist/effix.auto.min.js dist/effix.core.min.js dist/effix.core.min.css
+          dist/effix.min.js dist/effix.min.css
+          dist/effix-charts.min.js dist/effix-charts.min.css
+          dist/effix-diagrams.min.js dist/effix-diagrams.min.css
+          dist/effix.all.min.js dist/effix.all.min.css
+        env:
+          GH_TOKEN: ${{ github.token }}
