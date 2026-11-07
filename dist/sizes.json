@@ -1,46 +1,51 @@
 {
   "version": "0.1.0",
-  "core": 2586,
-  "chartLib": 5287,
+  "core": 2688,
+  "chartLib": 5286,
   "bundles": {
-    "effix.min.js": 41019,
-    "effix.min.css": 9413,
+    "effix.min.js": 47942,
+    "effix.min.css": 10532,
     "effix-charts.min.js": 27652,
     "effix-charts.min.css": 2293,
-    "effix.core.min.js": 2635,
+    "effix.core.min.js": 2737,
     "effix.core.min.css": 252,
-    "effix.auto.min.js": 4259,
-    "effix.all.min.js": 67783,
-    "effix.all.min.css": 11150
+    "effix.auto.min.js": 4459,
+    "effix.all.min.js": 74671,
+    "effix.all.min.css": 12247
   },
   "features": {
     "ambient": {
-      "js": 2556,
+      "js": 2655,
       "css": 142,
       "kind": "effect"
     },
     "animate": {
-      "js": 587,
+      "js": 1404,
       "css": 1689,
       "kind": "effect"
     },
     "beam": {
-      "js": 1002,
+      "js": 1007,
       "css": 252,
       "kind": "effect"
     },
     "border": {
-      "js": 513,
+      "js": 515,
       "css": 1051,
       "kind": "effect"
     },
     "carousel": {
-      "js": 1267,
+      "js": 1275,
       "css": 636,
       "kind": "effect"
     },
+    "chapter": {
+      "js": 1015,
+      "css": 501,
+      "kind": "effect"
+    },
     "collapse": {
-      "js": 733,
+      "js": 732,
       "css": 0,
       "kind": "effect"
     },
@@ -50,87 +55,102 @@
       "kind": "effect"
     },
     "confetti": {
-      "js": 1327,
+      "js": 1328,
       "css": 0,
       "kind": "effect"
     },
     "copy": {
-      "js": 495,
+      "js": 499,
       "css": 122,
       "kind": "effect"
     },
     "countdown": {
-      "js": 929,
+      "js": 924,
       "css": 299,
       "kind": "effect"
     },
     "counter": {
-      "js": 725,
+      "js": 727,
       "css": 137,
       "kind": "effect"
     },
     "cursor": {
-      "js": 726,
+      "js": 729,
       "css": 368,
       "kind": "effect"
     },
+    "dim": {
+      "js": 797,
+      "css": 406,
+      "kind": "effect"
+    },
     "direction": {
-      "js": 404,
-      "css": 390,
+      "js": 521,
+      "css": 433,
       "kind": "effect"
     },
     "distort": {
-      "js": 751,
+      "js": 755,
       "css": 98,
       "kind": "effect"
     },
     "divider": {
-      "js": 1871,
+      "js": 1878,
       "css": 368,
       "kind": "effect"
     },
     "drag": {
-      "js": 643,
+      "js": 649,
       "css": 99,
       "kind": "effect"
     },
+    "draggable": {
+      "js": 1675,
+      "css": 198,
+      "kind": "effect"
+    },
     "draw": {
-      "js": 665,
+      "js": 668,
       "css": 104,
       "kind": "effect"
     },
     "feed": {
-      "js": 733,
+      "js": 730,
       "css": 53,
       "kind": "effect"
     },
     "flip": {
-      "js": 540,
+      "js": 541,
       "css": 356,
       "kind": "effect"
     },
     "glitch": {
-      "js": 183,
+      "js": 184,
       "css": 499,
       "kind": "effect"
     },
     "globe": {
-      "js": 1135,
+      "js": 1147,
       "css": 116,
       "kind": "effect"
     },
     "hscroll": {
-      "js": 821,
+      "js": 818,
       "css": 218,
       "kind": "effect"
     },
     "kenburns": {
-      "js": 597,
+      "js": 601,
       "css": 385,
       "kind": "effect"
     },
+    "layout": {
+      "js": 1826,
+      "css": 280,
+      "kind": "effect"
+    },
     "lazyimg": {
-      "js": 373,
+      "js": 378,
       "css": 154,
       "kind": "effect"
     },
@@ -140,17 +160,17 @@
       "kind": "effect"
     },
     "magnetic": {
-      "js": 483,
+      "js": 485,
       "css": 112,
       "kind": "effect"
     },
     "marquee": {
-      "js": 585,
+      "js": 590,
       "css": 293,
       "kind": "effect"
     },
     "mask": {
-      "js": 756,
+      "js": 754,
       "css": 290,
       "kind": "effect"
     },
@@ -160,92 +180,92 @@
       "kind": "effect"
     },
     "morph": {
-      "js": 695,
+      "js": 701,
       "css": 262,
       "kind": "effect"
     },
     "mouse": {
-      "js": 785,
+      "js": 788,
       "css": 0,
       "kind": "effect"
     },
     "nudge": {
-      "js": 608,
+      "js": 602,
       "css": 495,
       "kind": "effect"
     },
     "odometer": {
-      "js": 688,
+      "js": 692,
       "css": 312,
       "kind": "effect"
     },
     "parallax": {
-      "js": 526,
+      "js": 530,
       "css": 144,
       "kind": "effect"
     },
     "particles": {
-      "js": 1690,
+      "js": 1691,
       "css": 144,
       "kind": "effect"
     },
     "path": {
-      "js": 1280,
+      "js": 1286,
       "css": 298,
       "kind": "effect"
     },
     "pixelate": {
-      "js": 934,
+      "js": 940,
       "css": 108,
       "kind": "effect"
     },
     "popup": {
-      "js": 745,
+      "js": 743,
       "css": 0,
       "kind": "effect"
     },
     "pricing": {
-      "js": 1479,
+      "js": 1480,
       "css": 230,
       "kind": "effect"
     },
     "progress": {
-      "js": 425,
+      "js": 431,
       "css": 231,
       "kind": "effect"
     },
     "proximity": {
-      "js": 926,
+      "js": 927,
       "css": 283,
       "kind": "effect"
     },
     "reveal": {
-      "js": 381,
+      "js": 1206,
       "css": 391,
       "kind": "effect"
     },
     "ripple": {
-      "js": 488,
+      "js": 489,
       "css": 278,
       "kind": "effect"
     },
     "schedule": {
-      "js": 721,
+      "js": 722,
       "css": 66,
       "kind": "effect"
     },
     "scramble": {
-      "js": 754,
+      "js": 758,
       "css": 146,
       "kind": "effect"
     },
     "scrollspy": {
-      "js": 648,
+      "js": 649,
       "css": 150,
       "kind": "effect"
     },
     "scrub": {
-      "js": 831,
+      "js": 872,
       "css": 0,
       "kind": "effect"
     },
@@ -254,63 +274,73 @@
       "css": 158,
       "kind": "effect"
     },
+    "shape": {
+      "js": 1964,
+      "css": 85,
+      "kind": "effect"
+    },
     "shimmer": {
-      "js": 380,
+      "js": 378,
       "css": 687,
       "kind": "effect"
     },
     "sparkles": {
-      "js": 636,
+      "js": 639,
       "css": 259,
       "kind": "effect"
     },
+    "spinner": {
+      "js": 241,
+      "css": 966,
+      "kind": "effect"
+    },
     "split": {
-      "js": 548,
+      "js": 552,
       "css": 412,
       "kind": "effect"
     },
     "spotlight": {
-      "js": 320,
+      "js": 317,
       "css": 423,
       "kind": "effect"
     },
     "stack": {
-      "js": 436,
+      "js": 437,
       "css": 0,
       "kind": "effect"
     },
     "sticky": {
-      "js": 394,
+      "js": 395,
       "css": 284,
       "kind": "effect"
     },
     "textfill": {
-      "js": 764,
+      "js": 768,
       "css": 225,
       "kind": "effect"
     },
     "tilt": {
-      "js": 686,
+      "js": 685,
       "css": 307,
       "kind": "effect"
     },
     "toast": {
-      "js": 921,
+      "js": 923,
       "css": 578,
       "kind": "effect"
     },
     "totop": {
-      "js": 373,
+      "js": 372,
       "css": 195,
       "kind": "effect"
     },
     "trail": {
-      "js": 1238,
+      "js": 1246,
       "css": 443,
       "kind": "effect"
     },
     "transition": {
-      "js": 946,
+      "js": 948,
       "css": 357,
       "kind": "effect"
     },
@@ -320,107 +350,107 @@
       "kind": "effect"
     },
     "zoom": {
-      "js": 612,
+      "js": 613,
       "css": 259,
       "kind": "effect"
     },
     "chart-bar": {
-      "js": 1707,
+      "js": 1708,
       "css": 0,
       "kind": "chart"
     },
     "chart-box": {
-      "js": 2414,
+      "js": 2415,
       "css": 0,
       "kind": "chart"
     },
     "chart-bullet": {
-      "js": 2321,
+      "js": 2322,
       "css": 80,
       "kind": "chart"
     },
     "chart-candle": {
-      "js": 2104,
+      "js": 2105,
       "css": 137,
       "kind": "chart"
     },
     "chart-combo": {
-      "js": 2272,
+      "js": 2273,
       "css": 203,
       "kind": "chart"
     },
     "chart-flow": {
-      "js": 2311,
+      "js": 2312,
       "css": 210,
       "kind": "chart"
     },
     "chart-funnel": {
-      "js": 3424,
+      "js": 3425,
       "css": 314,
       "kind": "chart"
     },
     "chart-gauge": {
-      "js": 2022,
+      "js": 2023,
       "css": 351,
       "kind": "chart"
     },
     "chart-heatmap": {
-      "js": 2365,
+      "js": 2366,
       "css": 0,
       "kind": "chart"
     },
     "chart-histogram": {
-      "js": 1723,
+      "js": 1724,
       "css": 0,
       "kind": "chart"
     },
     "chart-line": {
-      "js": 1925,
+      "js": 1926,
       "css": 207,
       "kind": "chart"
     },
     "chart-pie": {
-      "js": 2288,
+      "js": 2289,
       "css": 385,
       "kind": "chart"
     },
     "chart-progress": {
-      "js": 1632,
+      "js": 1633,
       "css": 0,
       "kind": "chart"
     },
     "chart-radar": {
-      "js": 1712,
+      "js": 1713,
       "css": 291,
       "kind": "chart"
     },
     "chart-scatter": {
-      "js": 2022,
+      "js": 2023,
       "css": 0,
       "kind": "chart"
     },
     "chart-spark": {
-      "js": 1866,
+      "js": 1867,
       "css": 105,
       "kind": "chart"
     },
     "chart-sunburst": {
-      "js": 2560,
+      "js": 2561,
       "css": 350,
       "kind": "chart"
     },
     "chart-timeline": {
-      "js": 2728,
+      "js": 2729,
       "css": 187,
       "kind": "chart"
     },
     "chart-treemap": {
-      "js": 1766,
+      "js": 1767,
       "css": 245,
       "kind": "chart"
     },
     "chart-waterfall": {
-      "js": 1698,
+      "js": 1699,
       "css": 87,
       "kind": "chart"
     }

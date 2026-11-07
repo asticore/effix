@@ -1,5 +1,6 @@
 /* Docs data for chapter (not bundled). */
 module.exports = {
+  smokeRefresh: false, // title shown depends on which section is in view at the moment
   title: 'Chapter indicator',
   group: 'Scroll',
   summary: 'A chip that shows the title of the section currently in view. The text slides up when the section changes and a ring tracks progress through that section. Clicking scrolls to the section.',

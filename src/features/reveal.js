@@ -1,9 +1,9 @@
 /* reveal — animate elements in when they scroll into view.
    <div class="efx-reveal" data-efx-reveal="fade-up">…</div>
-   Wrap siblings in .efx-stagger (data-efx-stagger="80") to cascade their delays. */
+   Wrap siblings in .efx-stagger (data-efx-stagger="80") to cascade their delays;
+   data-efx-from / -grid / -axis / -ease / -total shape the cascade (see _stagger.js). */
 import { onVisible, motionOK, on } from '../core.js';
-
-const groupItems = new WeakMap(); // .efx-stagger -> reveal items (computed once per group)
+import { stagger, staggerGroup } from './_stagger.js';
 
 export default {
   name: 'reveal',
@@ -11,13 +11,9 @@ export default {
   defaults: { reveal: 'fade-up', delay: 0, once: true, threshold: 0.15 },
   init(el, o) {
     if (!motionOK()) return;
-    const group = el.parentElement && el.parentElement.closest('.efx-stagger');
+    const group = staggerGroup(el);
     let delay = o.delay;
-    if (group) {
-      let items = groupItems.get(group);
-      if (!items || !items.includes(el)) { items = [...group.querySelectorAll('.efx-reveal')]; groupItems.set(group, items); }
-      delay += items.indexOf(el) * (parseFloat(group.dataset.efxStagger) || 80);
-    }
+    if (group) delay += stagger(group, '.efx-reveal', el);
     const prevDelay = el.style.getPropertyValue('--efx-delay');
     if (delay) el.style.setProperty('--efx-delay', delay + 'ms');
     el.setAttribute('data-efx-anim', o.reveal);

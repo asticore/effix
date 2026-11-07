@@ -18,7 +18,7 @@ const feats = found.map(({ n, dir }) => {
   const selector = (src.match(/selector:\s*(['"`])([\s\S]*?)\1/) || [])[2];
   const meta = fs.existsSync(path.join(dir, n + '.meta.js')) ? require(path.join(dir, n + '.meta.js')) : {};
   const ex = (meta.examples || [])[0];
-  return { n, selector, skip: meta.smoke === false, html: ex ? (typeof ex === 'string' ? ex : ex.html) : '' };
+  return { n, selector, skip: meta.smoke === false, stateful: meta.smokeRefresh === false, html: ex ? (typeof ex === 'string' ? ex : ex.html) : '' };
 });
 
 const html = `<!doctype html><html><head><meta charset="utf-8">
@@ -76,12 +76,17 @@ async function run(name, reducedMotion = 'no-preference') {
 
   // refresh() twice must not duplicate injected UI or throw
   // (lazy features re-queue on refresh, so compare after scrolling again)
-  const count = () => p.evaluate(() => [...document.querySelectorAll('section.box')].map(s => s.id + ':' + s.querySelectorAll('*').length));
+  // Wait for finite Web Animations (e.g. an outgoing title sliding away) to finish before counting nodes.
+  const settle = () => p.waitForFunction(() => !document.getAnimations || document.getAnimations()
+    .filter(a => a.playState === 'running' && (a.effect && a.effect.getComputedTiming().endTime !== Infinity)).length === 0, null, { timeout: 3000 }).catch(() => {});
+  const count = async () => { await settle(); return p.evaluate(() => [...document.querySelectorAll('section.box')].map(s => s.id + ':' + s.querySelectorAll('*').length)); };
   const before = await count();
   await p.evaluate(() => { Effix.refresh(document); Effix.refresh(document); });
   await visitAll(p);
   const after = await count();
-  before.forEach((b, i) => { if (b !== after[i]) fails.push(`refresh changed DOM: ${b} -> ${after[i].split(':')[1]}`); });
+  // Features whose DOM depends on live state (e.g. which section is in view) opt out with meta.smokeRefresh = false.
+  const stateful = new Set(feats.filter(f => f.stateful).map(f => 's-' + f.n));
+  before.forEach((b, i) => { if (b !== after[i] && !stateful.has(b.split(':')[0])) fails.push(`refresh changed DOM: ${b} -> ${after[i].split(':')[1]}`); });
 
   // destroy() must remove every running instance
   const left = await p.evaluate(() => { Effix.destroy(document); return document.querySelectorAll('[data-efx-ready]').length; });

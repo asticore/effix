@@ -176,6 +176,7 @@
     if (root.querySelectorAll) els.push(...root.querySelectorAll(def.selector));
     for (const el of els) {
       if (((_a = mounted.get(el)) == null ? void 0 : _a.has(def.name)) || ((_b = lazyQueue.get(el)) == null ? void 0 : _b.has(def.name)) || el.closest("[data-efx-skip]")) continue;
+      if (!mediaOK(el)) continue;
       if (def.lazy) queueLazy(el, def);
       else mount(el, def);
     }
@@ -199,35 +200,58 @@
     if (!root) return api;
     const sel = "[data-efx-ready], [data-efx-lazy]";
     const els = root.nodeType === 1 ? [root, ...root.querySelectorAll(sel)] : [...root.querySelectorAll(sel)];
-    for (const el of els) {
-      const q = lazyQueue.get(el);
-      if (q) {
-        if (name) q.delete(name);
-        else q.clear();
-        if (!q.size) {
-          lazyQueue.delete(el);
-          lazyIO.unobserve(el);
-          el.removeAttribute("data-efx-lazy");
-        }
-      }
-      const m = mounted.get(el);
-      if (!m) continue;
-      for (const [n, cleanup] of m) {
-        if (name && n !== name) continue;
-        try {
-          cleanup && cleanup();
-        } catch (err) {
-          console.error(`[effix] ${n} cleanup failed`, err);
-        }
-        m.delete(n);
-      }
-      if (m.size) el.setAttribute("data-efx-ready", [...m.keys()].join(" "));
-      else {
-        mounted.delete(el);
-        el.removeAttribute("data-efx-ready");
+    for (const el of els) teardown(el, name);
+    return api;
+  }
+  function teardown(el, name) {
+    const q = lazyQueue.get(el);
+    if (q) {
+      if (name) q.delete(name);
+      else q.clear();
+      if (!q.size) {
+        lazyQueue.delete(el);
+        lazyIO.unobserve(el);
+        el.removeAttribute("data-efx-lazy");
       }
     }
-    return api;
+    const m = mounted.get(el);
+    if (!m) return;
+    for (const [n, cleanup] of m) {
+      if (name && n !== name) continue;
+      try {
+        cleanup && cleanup();
+      } catch (err) {
+        console.error(`[effix] ${n} cleanup failed`, err);
+      }
+      m.delete(n);
+    }
+    if (m.size) el.setAttribute("data-efx-ready", [...m.keys()].join(" "));
+    else {
+      mounted.delete(el);
+      el.removeAttribute("data-efx-ready");
+    }
+  }
+  var mediaWatch = /* @__PURE__ */ new WeakMap();
+  function mediaOK(el) {
+    const q = el.getAttribute("data-efx-media");
+    if (!q || typeof matchMedia === "undefined") return true;
+    let mql = mediaWatch.get(el);
+    if (!mql) {
+      try {
+        mql = matchMedia(q);
+      } catch (e) {
+        return true;
+      }
+      mediaWatch.set(el, mql);
+      mql.addEventListener("change", () => {
+        if (!el.isConnected) return;
+        if (mql.matches) for (const def of registry.values()) {
+          if (el.matches(def.selector)) def.lazy ? queueLazy(el, def) : mount(el, def);
+        }
+        else teardown(el);
+      });
+    }
+    return mql.matches;
   }
   function refresh(root = doc, name) {
     destroy(root, name);
@@ -565,6 +589,33 @@
       }
     }
   });
+  add("ambient-mode", {
+    dots: {
+      count: (a) => {
+        const c = Math.max(16, Math.sqrt(a / 900));
+        return Math.ceil(a / (c * c) + 2 * Math.sqrt(a) / c + 2);
+      },
+      ptr: 1,
+      spawn: (p, S2) => {
+        const c = Math.max(16, Math.sqrt(S2.w * S2.h / 900)), n = Math.ceil(S2.w / c) || 1;
+        p.s = c;
+        p.x = p.i % n * c + c / 2;
+        p.y = (p.i / n | 0) * c + c / 2;
+        p.l = 0;
+      },
+      step: (p, S2) => {
+        const q = S2.ptr, d = Math.hypot(q.x - p.x, q.y - p.y);
+        p.l = q.on && d < 140 ? Math.max(p.l * 0.9, 1 - d / 140) : p.l * 0.92;
+        return 1;
+      },
+      draw: (c, p, S2) => {
+        if (p.y > S2.h + p.s) return;
+        c.globalAlpha = S2.op * (0.14 + p.l * 0.86);
+        dot(c, p.x, p.y, 1 + p.l * 1.8);
+        c.fill();
+      }
+    }
+  });
   var ambient_default = {
     name: "ambient",
     selector: ".efx-ambient",
@@ -682,9 +733,93 @@
     }
   };
 
+  // src/features/_easing.js
+  var io = (t) => t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t);
+  var oc = (t) => 1 - Math.pow(1 - t, 3);
+  add("easing", {
+    linear: (t) => t,
+    "ease-in": (t) => t * t,
+    "ease-out": (t) => 1 - (1 - t) * (1 - t),
+    "ease-in-out": io,
+    "ease-out-cubic": oc,
+    "back-out": (t) => 1 + 2.70158 * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2),
+    "elastic-out": (t) => t <= 0 || t >= 1 ? t : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * 2.0944) + 1,
+    in: (t) => t * t,
+    out: (t) => 1 - (1 - t) * (1 - t),
+    inout: io
+  });
+  var ease = (name) => get("easing", name) || get("easing", "linear");
+
+  // src/features/_stagger.js
+  var cache = /* @__PURE__ */ new WeakMap();
+  var bucket = (vals) => {
+    const u = [];
+    [...vals].sort((a, b) => a - b).forEach((v) => {
+      if (!u.length || v - u[u.length - 1] > 4) u.push(v);
+    });
+    return (v) => {
+      let k = 0;
+      u.forEach((c, i) => {
+        if (v >= c - 4) k = i;
+      });
+      return k;
+    };
+  };
+  function compute(g, items) {
+    const ds = g.dataset, n = items.length;
+    const step = parseFloat(ds.efxStagger) || 80, total = parseFloat(ds.efxTotal) || 0;
+    const from = (ds.efxFrom || "first").trim(), grid = (ds.efxGrid || "").trim(), axis = grid && ds.efxAxis;
+    let pos;
+    if (grid === "auto") {
+      const bx = bucket(items.map((e) => e.offsetLeft)), by = bucket(items.map((e) => e.offsetTop));
+      pos = items.map((e) => [bx(e.offsetLeft), by(e.offsetTop)]);
+    } else if (parseInt(grid) > 0) {
+      const c = parseInt(grid);
+      pos = items.map((_, i) => [i % c, Math.floor(i / c)]);
+    } else pos = items.map((_, i) => [i, 0]);
+    const mx = Math.max(...pos.map((p) => p[0])), my = Math.max(...pos.map((p) => p[1]));
+    const dist = (p, o) => {
+      const dx = p[0] - o[0], dy = p[1] - o[1];
+      return axis === "x" ? Math.abs(dx) : axis === "y" ? Math.abs(dy) : Math.hypot(dx, dy);
+    };
+    const mid = [mx / 2, my / 2];
+    let d;
+    if (from === "random") {
+      d = items.map((_, i) => i);
+      for (let i = n - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [d[i], d[j]] = [d[j], d[i]];
+      }
+    } else if (from === "edges") {
+      d = pos.map((p) => dist(p, mid));
+      const m = Math.max(...d);
+      d = d.map((v) => m - v);
+    } else {
+      const o = from === "center" ? mid : from === "last" ? pos[n - 1] : /^\d+$/.test(from) ? pos[Math.min(+from, n - 1)] : pos[0];
+      d = pos.map((p) => dist(p, o));
+    }
+    const max = Math.max(...d), fn = ds.efxEase ? ease(ds.efxEase) : null;
+    return d.map((v) => {
+      let t = max ? v / max : 0;
+      if (fn) t = fn(t);
+      return total > 0 ? t * total : t * max * step;
+    });
+  }
+  var staggerGroup = (el) => el.parentElement && el.parentElement.closest(".efx-stagger");
+  function stagger(group, sel, el) {
+    let m = cache.get(group);
+    if (!m) cache.set(group, m = /* @__PURE__ */ new Map());
+    const sig = JSON.stringify(group.dataset);
+    let c = m.get(sel);
+    if (!c || c.sig !== sig || !c.items.includes(el)) {
+      const items = [...group.querySelectorAll(sel)];
+      m.set(sel, c = { sig, items, delays: compute(group, items) });
+    }
+    return c.delays[c.items.indexOf(el)] || 0;
+  }
+
   // src/features/animate.js
   var ENTER = /\befx-(fade-in|bounce-(in|up|down)|slide-|pop-in|rotate-in|scale-|zoom-in|flip-)/;
-  var groupItems = /* @__PURE__ */ new WeakMap();
   var animate_default = {
     name: "animate",
     selector: ".efx-click,.efx-load,.efx-scroll",
@@ -694,15 +829,8 @@
       const cl = el.classList, st = el.style, offs = [];
       const prevDelay = st.getPropertyValue("--efx-delay"), prevIter = st.getPropertyValue("--efx-iter");
       let delay = o.delay;
-      const group = el.parentElement && el.parentElement.closest(".efx-stagger");
-      if (group && !cl.contains("efx-click")) {
-        let items = groupItems.get(group);
-        if (!items || !items.includes(el)) {
-          items = [...group.querySelectorAll(".efx-load,.efx-scroll")];
-          groupItems.set(group, items);
-        }
-        delay += items.indexOf(el) * (parseFloat(group.dataset.efxStagger) || 80);
-      }
+      const group = staggerGroup(el);
+      if (group && !cl.contains("efx-click")) delay += stagger(group, ".efx-load,.efx-scroll", el);
       if (delay) st.setProperty("--efx-delay", delay + "ms");
       if (o.repeat) st.setProperty("--efx-iter", o.repeat === "infinite" || o.repeat === "loop" ? "infinite" : parseFloat(o.repeat) || 1);
       const play = () => {
@@ -1047,6 +1175,94 @@
           s.classList.remove("is-active");
           s.style.flexBasis = "";
         });
+      };
+    }
+  };
+
+  // src/features/chapter.js
+  var NS2 = "http://www.w3.org/2000/svg";
+  var titleOf = (s) => s.dataset.efxTitle || (s.querySelector("h1,h2,h3,h4,h5,h6") || {}).textContent || "";
+  var chapter_default = {
+    name: "chapter",
+    selector: ".efx-chapter",
+    defaults: { sections: "section[data-efx-title]", ring: true },
+    init(el, o) {
+      const secs = [...document.querySelectorAll(o.sections)];
+      if (!secs.length) return;
+      const prevLive = el.getAttribute("aria-live"), prevHref = el.getAttribute("href");
+      if (!prevLive) el.setAttribute("aria-live", "polite");
+      el.classList.add("efx-chapter-on", "is-empty");
+      const nodes = [];
+      const add2 = (tag, cls, ns) => {
+        const n = ns ? document.createElementNS(NS2, tag) : document.createElement(tag);
+        n.setAttribute("class", cls);
+        nodes.push(n);
+        return n;
+      };
+      const text = add2("span", "efx-chapter__text");
+      let circle = null;
+      if (o.ring) {
+        const svg = add2("svg", "efx-chapter__ring", 1);
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("aria-hidden", "true");
+        const bg = add2("circle", "efx-chapter__track", 1);
+        circle = add2("circle", "efx-chapter__bar", 1);
+        [bg, circle].forEach((c) => {
+          c.setAttribute("cx", 12);
+          c.setAttribute("cy", 12);
+          c.setAttribute("r", 9);
+          c.setAttribute("pathLength", 100);
+          svg.append(c);
+        });
+        el.append(svg);
+      }
+      el.append(text);
+      const seen = /* @__PURE__ */ new Set();
+      let cur = null, label = null;
+      const set = (s) => {
+        if (s === cur) return;
+        cur = s;
+        el.classList.toggle("is-empty", !s);
+        if (!s) return;
+        const t = titleOf(s).trim();
+        if (s.id && el.tagName === "A") el.setAttribute("href", "#" + s.id);
+        if (t === (label && label.textContent)) return;
+        const n = document.createElement("span");
+        n.textContent = t;
+        const old = label;
+        label = n;
+        text.append(n);
+        if (old && motionOK()) {
+          const o2 = { duration: 400, easing: "cubic-bezier(.22,1,.36,1)", fill: "both" };
+          n.animate([{ transform: "translateY(100%)", opacity: 0 }, { transform: "none", opacity: 1 }], o2);
+          old.style.position = "absolute";
+          old.animate([{ transform: "none", opacity: 1 }, { transform: "translateY(-100%)", opacity: 0 }], o2).onfinish = () => old.remove();
+        } else if (old) old.remove();
+      };
+      const pick = () => set(secs.filter((s) => seen.has(s)).pop() || null);
+      const stops = secs.map((s) => onVisible(s, (v) => {
+        v ? seen.add(s) : seen.delete(s);
+        pick();
+      }, "-45% 0px -45% 0px"));
+      const stopScroll = circle && onScroll((y, vh) => {
+        if (!cur) return;
+        const r = cur.getBoundingClientRect(), p = Math.min(1, Math.max(0, (vh / 2 - r.top) / (r.height || 1)));
+        return () => circle.setAttribute("stroke-dashoffset", (100 - p * 100).toFixed(1));
+      });
+      const offClick = on(el, "click", (e) => {
+        if (!cur || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+        e.preventDefault();
+        cur.scrollIntoView({ behavior: motionOK() ? "smooth" : "auto", block: "start" });
+      });
+      return () => {
+        stops.forEach((f2) => f2());
+        stopScroll && stopScroll();
+        offClick();
+        nodes.forEach((n) => n.remove());
+        [...text.children].forEach((n) => n.remove());
+        el.classList.remove("efx-chapter-on", "is-empty");
+        prevLive === null ? el.removeAttribute("aria-live") : el.setAttribute("aria-live", prevLive);
+        prevHref === null ? el.removeAttribute("href") : el.setAttribute("href", prevHref);
       };
     }
   };
@@ -1504,23 +1720,6 @@
     }
   };
 
-  // src/features/_easing.js
-  var io = (t) => t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t);
-  var oc = (t) => 1 - Math.pow(1 - t, 3);
-  add("easing", {
-    linear: (t) => t,
-    "ease-in": (t) => t * t,
-    "ease-out": (t) => 1 - (1 - t) * (1 - t),
-    "ease-in-out": io,
-    "ease-out-cubic": oc,
-    "back-out": (t) => 1 + 2.70158 * Math.pow(t - 1, 3) + 1.70158 * Math.pow(t - 1, 2),
-    "elastic-out": (t) => t <= 0 || t >= 1 ? t : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * 2.0944) + 1,
-    in: (t) => t * t,
-    out: (t) => 1 - (1 - t) * (1 - t),
-    inout: io
-  });
-  var ease = (name) => get("easing", name) || get("easing", "linear");
-
   // src/features/counter.js
   var counter_default = {
     name: "counter",
@@ -1673,14 +1872,106 @@
     }
   };
 
+  // src/features/dim.js
+  var dim_default = {
+    name: "dim",
+    selector: ".efx-dim",
+    defaults: { opacity: 0.35, blur: 0, preview: true, items: "" },
+    init(el, o) {
+      const kids = () => o.items ? [...el.querySelectorAll(o.items)] : [...el.children].filter((c) => !c.classList.contains("efx-dim__preview"));
+      const s = el.style, saved = [s.getPropertyValue("--efx-dim-opacity"), s.getPropertyValue("--efx-dim-blur")];
+      if (!el.style.getPropertyValue("--efx-dim-opacity")) s.setProperty("--efx-dim-opacity", o.opacity);
+      if (o.blur) s.setProperty("--efx-dim-blur", o.blur + "px");
+      el.classList.add("efx-dim-on");
+      const fine = finePointer();
+      let cur = null, pv = null, restorePos = false, ptr = 0, shown2 = "";
+      if (o.preview && fine && motionOK()) {
+        if (getComputedStyle(el).position === "static") {
+          el.style.position = "relative";
+          restorePos = true;
+        }
+        pv = document.createElement("div");
+        pv.className = "efx-dim__preview";
+        pv.setAttribute("aria-hidden", "true");
+        el.append(pv);
+      }
+      const itemOf = (t) => {
+        const k = kids();
+        let n = t instanceof Element ? t : null;
+        while (n && n.parentElement !== el && !k.includes(n)) n = n.parentElement;
+        return n && k.includes(n) ? n : null;
+      };
+      const set = (it) => {
+        if (it === cur) return;
+        if (cur) cur.classList.remove("is-hovered");
+        cur = it;
+        el.classList.toggle("efx-dim-active", !!it);
+        if (it) it.classList.add("is-hovered");
+        if (pv) {
+          const src = it && it.dataset.efxImage;
+          pv.classList.toggle("is-on", !!src && ptr);
+          if (src && shown2 !== src) {
+            shown2 = src;
+            pv.style.backgroundImage = 'url("' + src.replace(/["\\]/g, "") + '")';
+          }
+        }
+      };
+      const move = (e) => {
+        if (e.pointerType === "touch") return;
+        ptr = 1;
+        set(itemOf(e.target));
+        if (pv && cur && cur.dataset.efxImage) {
+          const r = el.getBoundingClientRect();
+          pv.style.translate = e.clientX - r.left + "px " + (e.clientY - r.top) + "px";
+          pv.classList.add("is-on");
+        }
+      };
+      const offs = [
+        on(el, "pointermove", move),
+        on(el, "pointerover", move),
+        on(el, "pointerleave", (e) => {
+          if (e.pointerType === "touch") return;
+          ptr = 0;
+          pv && pv.classList.remove("is-on");
+          set(el.contains(document.activeElement) && document.activeElement.matches(":focus-visible") ? itemOf(document.activeElement) : null);
+        }),
+        on(el, "focusin", (e) => {
+          try {
+            if (e.target.matches(":focus-visible")) {
+              ptr = 0;
+              pv && pv.classList.remove("is-on");
+              set(itemOf(e.target));
+            }
+          } catch (_) {
+          }
+        }),
+        on(el, "focusout", (e) => {
+          if (!e.relatedTarget || !el.contains(e.relatedTarget)) {
+            if (!el.matches(":hover")) set(null);
+          }
+        })
+      ];
+      return () => {
+        offs.forEach((f2) => f2());
+        if (cur) cur.classList.remove("is-hovered");
+        el.classList.remove("efx-dim-on", "efx-dim-active");
+        saved[0] ? s.setProperty("--efx-dim-opacity", saved[0]) : s.removeProperty("--efx-dim-opacity");
+        saved[1] ? s.setProperty("--efx-dim-blur", saved[1]) : s.removeProperty("--efx-dim-blur");
+        pv && pv.remove();
+        if (restorePos) el.style.position = "";
+      };
+    }
+  };
+
   // src/features/direction.js
   var direction_default = {
     name: "direction",
     selector: ".efx-direction",
-    defaults: { fill: true },
+    defaults: { fill: "edge" },
     init(el, o) {
       let restorePos = false;
-      if (o.fill) {
+      const fill = !/^(false|off|0|none)$/.test(o.fill), circle = o.fill === "circle";
+      if (fill) {
         if (getComputedStyle(el).position === "static") {
           el.style.position = "relative";
           restorePos = true;
@@ -1692,21 +1983,29 @@
         const dx = (e.clientX - r.left) / (r.width || 1) - 0.5, dy = (e.clientY - r.top) / (r.height || 1) - 0.5;
         return Math.abs(dx) > Math.abs(dy) ? dx < 0 ? "left" : "right" : dy < 0 ? "top" : "bottom";
       };
-      const enter = (from) => {
+      const at = (e) => {
+        if (!circle) return;
+        const r = el.getBoundingClientRect();
+        el.style.setProperty("--efx-x", (e ? (e.clientX - r.left) / (r.width || 1) * 100 : 50).toFixed(1) + "%");
+        el.style.setProperty("--efx-y", (e ? (e.clientY - r.top) / (r.height || 1) * 100 : 50).toFixed(1) + "%");
+      };
+      const enter = (from, e) => {
+        at(e);
         el.setAttribute("data-efx-from", from);
         el.classList.add("efx-direction-snap");
         void el.offsetWidth;
         el.classList.remove("efx-direction-snap");
         el.classList.add("is-hover");
       };
-      const leave = (from) => {
+      const leave = (from, e) => {
+        at(e);
         el.setAttribute("data-efx-from", from);
         el.classList.remove("is-hover");
       };
       const mouse = (e) => e.pointerType !== "touch";
       const offs = [
-        on(el, "pointerenter", (e) => mouse(e) && enter(edge(e))),
-        on(el, "pointerleave", (e) => mouse(e) && leave(edge(e))),
+        on(el, "pointerenter", (e) => mouse(e) && enter(edge(e), e)),
+        on(el, "pointerleave", (e) => mouse(e) && leave(edge(e), e)),
         on(el, "focusin", (e) => {
           try {
             if (e.target.matches(":focus-visible")) enter("left");
@@ -1722,13 +2021,15 @@
         offs.forEach((f2) => f2());
         el.classList.remove("is-hover", "efx-direction-fill", "efx-direction-snap");
         el.removeAttribute("data-efx-from");
+        el.style.removeProperty("--efx-x");
+        el.style.removeProperty("--efx-y");
         if (restorePos) el.style.position = "";
       };
     }
   };
 
   // src/features/distort.js
-  var NS2 = "http://www.w3.org/2000/svg";
+  var NS3 = "http://www.w3.org/2000/svg";
   var uid2 = 0;
   var distort_default = {
     name: "distort",
@@ -1737,7 +2038,7 @@
     init(el, o) {
       if (!motionOK() || o.trigger === "hover" && !finePointer()) return;
       const id = "efx-distort-" + ++uid2;
-      const svg = document.createElementNS(NS2, "svg");
+      const svg = document.createElementNS(NS3, "svg");
       svg.setAttribute("class", "efx-distort__svg");
       svg.setAttribute("aria-hidden", "true");
       svg.innerHTML = `<filter id="${id}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="${o.frequency}" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter>`;
@@ -2005,6 +2306,183 @@
         offsMove.forEach((f2) => f2());
         restore();
         el.classList.remove("efx-drag-on");
+      };
+    }
+  };
+
+  // src/features/draggable.js
+  var KEYS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  var draggable_default = {
+    name: "draggable",
+    selector: ".efx-draggable",
+    defaults: { axis: "both", bounds: "parent", release: "spring", spring: "170,18", friction: 0.92, bounce: 0.5, snap: 0, step: 10, handle: "" },
+    init(el, o) {
+      const ax = o.axis === "x" || o.axis === "y" ? o.axis : "both";
+      const sp = o.spring.split(",").map(parseFloat), k = sp[0] > 0 ? sp[0] : 170, c = sp[1] >= 0 ? sp[1] : 18;
+      const handle = o.handle && el.querySelector(o.handle) || el;
+      const st = el.style, hs = handle.style;
+      const saved = { tr: st.translate, ta: hs.touchAction, cu: hs.cursor, ti: el.getAttribute("tabindex"), ro: el.getAttribute("role"), rd: el.getAttribute("aria-roledescription") };
+      let x = 0, y = 0, id = 0, drag = null, block = false, lim = [-Infinity, Infinity, -Infinity, Infinity], offW = [];
+      const emit = (n) => el.dispatchEvent(new CustomEvent("efx:" + n, { bubbles: true, detail: { x, y } }));
+      const put = () => {
+        st.translate = x + "px " + y + "px";
+      };
+      const stop = () => {
+        cancelAnimationFrame(id);
+        id = 0;
+      };
+      const snap = (v) => o.snap > 0 ? Math.round(v / o.snap) * o.snap : v;
+      const fit = (v, lo, hi) => Math.min(hi, Math.max(lo, snap(v)));
+      const limits = () => {
+        const box = o.bounds === "none" ? null : o.bounds === "parent" ? el.parentElement : document.querySelector(o.bounds) || el.parentElement;
+        if (!box) return [-Infinity, Infinity, -Infinity, Infinity];
+        const r = el.getBoundingClientRect(), p = box.getBoundingClientRect();
+        const x0 = x + p.left - r.left, y0 = y + p.top - r.top;
+        return [x0, Math.max(x0, x + p.right - r.right), y0, Math.max(y0, y + p.bottom - r.bottom)];
+      };
+      const run = (step) => {
+        let last = performance.now();
+        const f2 = (now) => {
+          const dt = Math.min(0.032, (now - last) / 1e3);
+          last = now;
+          const more = step(dt);
+          put();
+          id = more ? requestAnimationFrame(f2) : 0;
+        };
+        id = requestAnimationFrame(f2);
+      };
+      const release2 = (vx, vy) => {
+        if (o.release === "stay") return;
+        if (!motionOK()) {
+          if (o.release === "spring") {
+            x = 0;
+            y = 0;
+          }
+          return put();
+        }
+        if (o.release === "spring") {
+          run((dt) => {
+            vx += (-k * x - c * vx) * dt;
+            vy += (-k * y - c * vy) * dt;
+            x += vx * dt;
+            y += vy * dt;
+            if (Math.abs(x) < 0.1 && Math.abs(y) < 0.1 && Math.abs(vx) < 2 && Math.abs(vy) < 2) {
+              x = y = 0;
+              return false;
+            }
+            return true;
+          });
+        } else {
+          run((dt) => {
+            const f2 = Math.pow(o.friction, dt * 60);
+            vx *= f2;
+            vy *= f2;
+            x += vx * dt;
+            y += vy * dt;
+            if (x < lim[0] || x > lim[1]) {
+              x = x < lim[0] ? lim[0] : lim[1];
+              vx = -vx * o.bounce;
+            }
+            if (y < lim[2] || y > lim[3]) {
+              y = y < lim[2] ? lim[2] : lim[3];
+              vy = -vy * o.bounce;
+            }
+            if (Math.hypot(vx, vy) < 8) {
+              x = fit(x, lim[0], lim[1]);
+              y = fit(y, lim[2], lim[3]);
+              return false;
+            }
+            return true;
+          });
+        }
+      };
+      const mv = (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const dx = e.clientX - drag.px, dy = e.clientY - drag.py;
+        if (!drag.on) {
+          if (Math.hypot(dx, dy) < 4) return;
+          drag.on = true;
+          el.classList.add("is-dragging");
+          try {
+            handle.setPointerCapture(e.pointerId);
+          } catch (_) {
+          }
+          emit("dragstart");
+        }
+        x = ax === "y" ? x : fit(drag.sx + dx, lim[0], lim[1]);
+        y = ax === "x" ? y : fit(drag.sy + dy, lim[2], lim[3]);
+        put();
+        const s = drag.s;
+        s.push([e.timeStamp, x, y]);
+        while (s.length > 2 && e.timeStamp - s[0][0] > 100) s.shift();
+        emit("drag");
+      };
+      const up = (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const d = drag, s = d.s;
+        drag = null;
+        offW.forEach((f2) => f2());
+        offW = [];
+        try {
+          handle.releasePointerCapture(e.pointerId);
+        } catch (_) {
+        }
+        el.classList.remove("is-dragging");
+        if (!d.on) return;
+        block = true;
+        setTimeout(() => {
+          block = false;
+        });
+        const a = s[0], b = s[s.length - 1], dt = a && b && b[0] > a[0] ? (b[0] - a[0]) / 1e3 : 0;
+        const fresh = b && e.timeStamp - b[0] < 80;
+        emit("dragend");
+        release2(dt && fresh ? (b[1] - a[1]) / dt : 0, dt && fresh ? (b[2] - a[2]) / dt : 0);
+      };
+      const offs = [
+        on(handle, "pointerdown", (e) => {
+          if (e.pointerType === "mouse" && e.button !== 0 || e.target.closest("input,textarea,select,[contenteditable]")) return;
+          stop();
+          lim = limits();
+          drag = { id: e.pointerId, px: e.clientX, py: e.clientY, sx: x, sy: y, s: [], on: false };
+          offW = [on(window, "pointermove", mv), on(window, "pointerup", up), on(window, "pointercancel", up)];
+        }),
+        on(handle, "dragstart", (e) => e.preventDefault()),
+        on(el, "click", (e) => {
+          if (block) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }, true),
+        on(el, "keydown", (e) => {
+          const m = KEYS[e.key];
+          if (e.target !== el || !m || e.altKey || e.ctrlKey || e.metaKey || ax === "x" && m[1] || ax === "y" && m[0]) return;
+          e.preventDefault();
+          stop();
+          const L = limits(), s = (o.snap > 0 ? o.snap : o.step) * (e.shiftKey ? 5 : 1);
+          x = Math.min(L[1], Math.max(L[0], x + m[0] * s));
+          y = Math.min(L[3], Math.max(L[2], y + m[1] * s));
+          put();
+          emit("drag");
+        })
+      ];
+      hs.touchAction = "none";
+      hs.cursor = "grab";
+      if (saved.ti === null) el.setAttribute("tabindex", "0");
+      if (saved.ro === null) el.setAttribute("role", "group");
+      el.setAttribute("aria-roledescription", "draggable");
+      el.classList.add("efx-draggable-on");
+      return () => {
+        stop();
+        offs.forEach((f2) => f2());
+        offW.forEach((f2) => f2());
+        st.translate = saved.tr;
+        hs.touchAction = saved.ta;
+        hs.cursor = saved.cu;
+        const attr = (n, v) => v === null ? el.removeAttribute(n) : el.setAttribute(n, v);
+        attr("tabindex", saved.ti);
+        attr("role", saved.ro);
+        attr("aria-roledescription", saved.rd);
+        el.classList.remove("efx-draggable-on", "is-dragging");
       };
     }
   };
@@ -2414,7 +2892,7 @@
       const pinned = () => motionOK() && !mq2.matches;
       let pin, saveH = "", off = [], timer = 0, W = 0, H = 0, dist = 0, stop = () => {
       };
-      const teardown = () => {
+      const teardown2 = () => {
         stop();
         stop = () => {
         };
@@ -2487,7 +2965,7 @@
         });
       };
       const rebuild = () => {
-        teardown();
+        teardown2();
         setup();
       };
       setup();
@@ -2495,7 +2973,7 @@
       };
       return () => {
         offMq();
-        teardown();
+        teardown2();
         made.forEach((t) => {
           while (t.firstChild) el.insertBefore(t.firstChild, t);
           t.remove();
@@ -2572,6 +3050,199 @@
           frame.parentNode.insertBefore(el, frame);
           frame.remove();
         }
+      };
+    }
+  };
+
+  // src/features/layout.js
+  var SKIP = ".efx-layout__ghost,.efx-layout__status,[data-efx-filter],[data-efx-sort],[data-efx-controls]";
+  var layout_default = {
+    name: "layout",
+    selector: ".efx-layout",
+    defaults: { duration: 400, ease: "cubic-bezier(.22,1,.36,1)", scale: 0.9, noun: "item", count: "" },
+    init(el, o) {
+      const animate = motionOK() && !!el.animate;
+      const items = () => [...el.children].filter((c) => !c.matches(SKIP));
+      const shown2 = (c) => c.getClientRects().length > 0;
+      const savedPos = el.style.position;
+      if (getComputedStyle(el).position === "static") el.style.position = "relative";
+      const rectOf = (c) => {
+        const r = c.getBoundingClientRect(), b = el.getBoundingClientRect();
+        return { x: r.left - b.left - el.clientLeft, y: r.top - b.top - el.clientTop, w: r.width, h: r.height };
+      };
+      let cache2 = /* @__PURE__ */ new Map();
+      const running = /* @__PURE__ */ new Map();
+      const ghosts = /* @__PURE__ */ new Set();
+      const snapshot = () => {
+        cache2 = /* @__PURE__ */ new Map();
+        items().filter(shown2).forEach((c) => cache2.set(c, rectOf(c)));
+      };
+      const play = (c, frames) => {
+        const a = c.animate(frames, { duration: o.duration, easing: o.ease });
+        running.set(c, a);
+        const done = () => {
+          if (running.get(c) === a) running.delete(c);
+        };
+        a.onfinish = done;
+        a.oncancel = done;
+      };
+      const ghost = (c, r) => {
+        const g = c.cloneNode(true);
+        g.classList.add("efx-layout__ghost");
+        g.removeAttribute("id");
+        g.removeAttribute("hidden");
+        g.removeAttribute("data-efx-ready");
+        g.setAttribute("aria-hidden", "true");
+        g.querySelectorAll("[id]").forEach((n) => n.removeAttribute("id"));
+        Object.assign(g.style, { position: "absolute", margin: "0", boxSizing: "border-box", left: r.x + "px", top: r.y + "px", width: r.w + "px", height: r.h + "px" });
+        el.appendChild(g);
+        ghosts.add(g);
+        const a = g.animate([{ opacity: 1, scale: 1 }, { opacity: 0, scale: o.scale }], { duration: o.duration, easing: o.ease });
+        a.onfinish = a.oncancel = () => {
+          g.remove();
+          ghosts.delete(g);
+        };
+      };
+      const flip = () => {
+        const visual = /* @__PURE__ */ new Map();
+        running.forEach((a, c) => visual.set(c, rectOf(c)));
+        running.forEach((a) => a.cancel());
+        running.clear();
+        const now = items().filter(shown2), next = /* @__PURE__ */ new Map();
+        now.forEach((c) => next.set(c, rectOf(c)));
+        now.forEach((c) => {
+          const last = next.get(c), first = visual.get(c) || cache2.get(c);
+          if (!first) return play(c, [{ opacity: 0, scale: o.scale }, { opacity: 1, scale: 1 }]);
+          const dx = first.x - last.x, dy = first.y - last.y;
+          if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) play(c, [{ translate: dx + "px " + dy + "px" }, { translate: "0px 0px" }]);
+        });
+        cache2.forEach((r, c) => {
+          if (!next.has(c)) ghost(c, visual.get(c) || r);
+        });
+        cache2 = next;
+      };
+      let status = null;
+      const made = [];
+      const target = o.count && document.querySelector(o.count);
+      const savedLive = target ? target.getAttribute("aria-live") : null;
+      if (target) {
+        if (savedLive === null) target.setAttribute("aria-live", "polite");
+        status = target;
+      } else {
+        status = document.createElement("span");
+        status.className = "efx-layout__status";
+        status.setAttribute("role", "status");
+        status.setAttribute("aria-live", "polite");
+        el.after(status);
+        made.push(status);
+      }
+      const count = () => {
+        const n = items().filter((c) => !c.hidden && shown2(c)).length;
+        status.textContent = n + " " + o.noun + (n === 1 ? "" : "s");
+      };
+      const ctl = /* @__PURE__ */ new Set([...el.querySelectorAll("[data-efx-filter],[data-efx-sort]")]);
+      document.querySelectorAll("[data-efx-for]").forEach((b) => {
+        if (b.matches("[data-efx-filter],[data-efx-sort]") && el.matches(b.dataset.efxFor || "\0")) ctl.add(b);
+      });
+      const filters = [...ctl].filter((b) => b.hasAttribute("data-efx-filter"));
+      const sorts = [...ctl].filter((b) => b.hasAttribute("data-efx-sort"));
+      const savedPressed = new Map([...ctl].map((b) => [b, b.getAttribute("aria-pressed")]));
+      const hid = /* @__PURE__ */ new Set();
+      const setPressed = (list2, on_) => list2.forEach((b) => b.setAttribute("aria-pressed", b === on_ ? "true" : "false"));
+      const applyFilter = (tag) => {
+        items().forEach((c) => {
+          const ok = tag === "*" || (c.getAttribute("data-efx-tags") || "").split(/\s+/).includes(tag);
+          if (!ok && !c.hidden) {
+            c.hidden = true;
+            hid.add(c);
+          } else if (ok && c.hidden && hid.has(c)) {
+            c.hidden = false;
+            hid.delete(c);
+          }
+        });
+      };
+      const sortBy = (key, dir) => {
+        const val = (c) => c.getAttribute("data-efx-key-" + key) || "";
+        const list2 = items();
+        if (!list2.length) return;
+        const end = list2[list2.length - 1].nextSibling;
+        list2.sort((a, b) => {
+          const x = val(a), y = val(b), nx = parseFloat(x), ny = parseFloat(y);
+          const r = Number.isFinite(nx) && Number.isFinite(ny) && x !== "" && y !== "" ? nx - ny : x.localeCompare(y);
+          return dir === "desc" ? -r : r;
+        }).forEach((c) => el.insertBefore(c, end));
+      };
+      const offs = [];
+      filters.forEach((b) => offs.push(on(b, "click", () => {
+        applyFilter(b.getAttribute("data-efx-filter"));
+        setPressed(filters, b);
+      })));
+      sorts.forEach((b) => offs.push(on(b, "click", () => {
+        const dir = b.getAttribute("aria-pressed") === "true" && b.getAttribute("data-efx-dir") !== "desc" ? "desc" : "asc";
+        sorts.forEach((s) => s.removeAttribute("data-efx-dir"));
+        b.setAttribute("data-efx-dir", dir);
+        sortBy(b.getAttribute("data-efx-sort"), dir);
+        setPressed(sorts, b);
+      })));
+      const start = filters.find((b) => b.getAttribute("aria-pressed") === "true");
+      if (start) {
+        applyFilter(start.getAttribute("data-efx-filter"));
+        setPressed(filters, start);
+      } else filters.forEach((b) => {
+        if (b.getAttribute("data-efx-filter") === "*") b.setAttribute("aria-pressed", "true");
+        else b.setAttribute("aria-pressed", "false");
+      });
+      sorts.forEach((b) => {
+        if (b.getAttribute("aria-pressed") === null) b.setAttribute("aria-pressed", "false");
+      });
+      el.classList.add("efx-layout-on");
+      snapshot();
+      count();
+      let mo2 = null, ro = null, raf2 = 0;
+      if (animate) {
+        const relevant = (r) => [...r.addedNodes, ...r.removedNodes].some((n) => !(n.nodeType === 1 && n.classList.contains("efx-layout__ghost") || n.classList && n.classList.contains("efx-layout__status"))) || r.type === "attributes" && !r.target.classList.contains("efx-layout__ghost") && !(r.target.closest && r.target.closest(".efx-layout__ghost"));
+        mo2 = new MutationObserver((rs) => {
+          if (rs.some(relevant)) {
+            flip();
+            count();
+          }
+        });
+        mo2.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden", "class", "style"] });
+        if (typeof ResizeObserver !== "undefined") {
+          ro = new ResizeObserver(() => {
+            cancelAnimationFrame(raf2);
+            raf2 = requestAnimationFrame(() => items().filter(shown2).forEach((c) => {
+              if (!running.has(c)) cache2.set(c, rectOf(c));
+            }));
+          });
+          ro.observe(el);
+        }
+      } else {
+        mo2 = new MutationObserver(() => count());
+        mo2.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
+      }
+      return () => {
+        mo2 && mo2.disconnect();
+        ro && ro.disconnect();
+        cancelAnimationFrame(raf2);
+        offs.forEach((f2) => f2());
+        running.forEach((a) => {
+          a.onfinish = a.oncancel = null;
+          a.cancel();
+        });
+        ghosts.forEach((g) => g.remove());
+        ghosts.clear();
+        made.forEach((n) => n.remove());
+        if (target) {
+          if (savedLive === null) target.removeAttribute("aria-live");
+        }
+        hid.forEach((c) => {
+          c.hidden = false;
+        });
+        savedPressed.forEach((v, b) => v === null ? b.removeAttribute("aria-pressed") : b.setAttribute("aria-pressed", v));
+        ctl.forEach((b) => b.removeAttribute("data-efx-dir"));
+        el.style.position = savedPos;
+        el.classList.remove("efx-layout-on");
       };
     }
   };
@@ -2755,7 +3426,7 @@
     init(el, o) {
       if (!finePointer() || !motionOK()) return;
       let unsub = null, pulled = false, settle = 0;
-      const clamp3 = (v) => Math.max(-o.max, Math.min(o.max, v));
+      const clamp4 = (v) => Math.max(-o.max, Math.min(o.max, v));
       const set = (x, y) => {
         el.style.setProperty("--efx-mx", x + "px");
         el.style.setProperty("--efx-my", y + "px");
@@ -2778,7 +3449,7 @@
         clearTimeout(settle);
         pulled = true;
         el.classList.add("is-magnetic", "is-pulled");
-        set(clamp3((e.clientX - cx) * o.strength).toFixed(1), clamp3((e.clientY - cy) * o.strength).toFixed(1));
+        set(clamp4((e.clientX - cx) * o.strength).toFixed(1), clamp4((e.clientY - cy) * o.strength).toFixed(1));
       };
       const stopVis = onVisible(el, (v) => {
         if (v && !unsub) unsub = subscribe(handle);
@@ -3658,7 +4329,7 @@
   };
 
   // src/features/path.js
-  var NS3 = "http://www.w3.org/2000/svg";
+  var NS4 = "http://www.w3.org/2000/svg";
   var clamp2 = (v) => Math.min(1, Math.max(0, v));
   var ease2 = (t) => 1 - Math.pow(1 - t, 3);
   var path_default = {
@@ -3671,12 +4342,12 @@
       let path, ref = null, vbox = null;
       if (o.d) {
         const vb = o.viewbox.split(/[\s,]+/).map(Number);
-        const svg = document.createElementNS(NS3, "svg");
+        const svg = document.createElementNS(NS4, "svg");
         svg.setAttribute("viewBox", o.viewbox);
         svg.setAttribute("class", "efx-path__svg");
         svg.setAttribute("aria-hidden", "true");
         svg.setAttribute("focusable", "false");
-        path = document.createElementNS(NS3, "path");
+        path = document.createElementNS(NS4, "path");
         path.setAttribute("d", o.d);
         path.setAttribute("class", "efx-path__line");
         if (!o.showPath) path.style.visibility = "hidden";
@@ -4294,23 +4965,15 @@
   };
 
   // src/features/reveal.js
-  var groupItems2 = /* @__PURE__ */ new WeakMap();
   var reveal_default = {
     name: "reveal",
     selector: ".efx-reveal",
     defaults: { reveal: "fade-up", delay: 0, once: true, threshold: 0.15 },
     init(el, o) {
       if (!motionOK()) return;
-      const group = el.parentElement && el.parentElement.closest(".efx-stagger");
+      const group = staggerGroup(el);
       let delay = o.delay;
-      if (group) {
-        let items = groupItems2.get(group);
-        if (!items || !items.includes(el)) {
-          items = [...group.querySelectorAll(".efx-reveal")];
-          groupItems2.set(group, items);
-        }
-        delay += items.indexOf(el) * (parseFloat(group.dataset.efxStagger) || 80);
-      }
+      if (group) delay += stagger(group, ".efx-reveal", el);
       const prevDelay = el.style.getPropertyValue("--efx-delay");
       if (delay) el.style.setProperty("--efx-delay", delay + "ms");
       el.setAttribute("data-efx-anim", o.reveal);
@@ -4648,7 +5311,7 @@
   var scrub_default = {
     name: "scrub",
     selector: ".efx-scrub",
-    defaults: { from: "", to: "", start: 0, end: 1, ease: "linear", x: 0, y: 0, rotate: 0, scale: 1, opacity: -1, blur: 0 },
+    defaults: { from: "", to: "", start: 0, end: 1, ease: "linear", peak: "none", x: 0, y: 0, rotate: 0, scale: 1, opacity: -1, blur: 0 },
     init(el, o) {
       if (!motionOK()) return;
       const A = { ...NEUTRAL, ...parse(o.from) };
@@ -4663,7 +5326,9 @@
       const stop = onScroll((y, vh) => {
         const r = el.getBoundingClientRect();
         const h0 = r.height / (sc || 1), top0 = r.top - ty - h0 * (1 - sc) / 2;
-        const q = ease3(Math.min(1, Math.max(0, ((vh - top0) / (vh + h0) - o.start) / span2)));
+        let q = Math.min(1, Math.max(0, ((vh - top0) / (vh + h0) - o.start) / span2));
+        if (o.peak === "center") q = 1 - Math.abs(2 * q - 1);
+        q = ease3(q);
         const v = (k) => A[k] + (B[k] - A[k]) * q;
         return () => {
           ty = v("y");
@@ -4844,6 +5509,177 @@
     }
   };
 
+  // src/features/shape.js
+  var NS5 = "http://www.w3.org/2000/svg";
+  var clamp3 = (v) => Math.min(1, Math.max(0, v));
+  var star = [];
+  for (let i = 0; i < 10; i++) {
+    const a = Math.PI * i / 5 - Math.PI / 2, r = i % 2 ? 20 : 48;
+    star.push((50 + r * Math.cos(a)).toFixed(1) + "," + (50 + r * Math.sin(a)).toFixed(1));
+  }
+  add("shape", {
+    blob: "M50,6 C72,4 94,24 94,50 C94,76 72,96 48,94 C24,92 6,74 6,50 C6,26 28,8 50,6 Z",
+    circle: "M50,5 A45,45 0 1,1 49.9,5 Z",
+    star: "M" + star.join("L") + "Z",
+    heart: "M50,88 C10,58 4,32 22,18 C36,8 48,18 50,28 C52,18 64,8 78,18 C96,32 90,58 50,88 Z",
+    square: "M16,6 H84 Q94,6 94,16 V84 Q94,94 84,94 H16 Q6,94 6,84 V16 Q6,6 16,6 Z"
+  });
+  var isD = (s) => /^[Mm][\s\d.+-]/.test(s);
+  var closedD = (d) => /z\s*$/i.test(d.trim());
+  function sample(tok, host, n) {
+    tok = tok.trim();
+    let node = null, tmp = null, closed = true;
+    if (/^[#.[]/.test(tok)) {
+      node = document.querySelector(tok);
+      const d = node && node.getAttribute("d");
+      if (d) closed = closedD(d);
+    } else {
+      const d = isD(tok) ? tok : get("shape", tok);
+      if (!d) return null;
+      tmp = document.createElementNS(NS5, "path");
+      tmp.setAttribute("d", d);
+      host.appendChild(tmp);
+      node = tmp;
+      closed = closedD(d);
+    }
+    try {
+      const len = node.getTotalLength(), div = closed ? n : n - 1, pts = [];
+      for (let i = 0; i < n; i++) {
+        const p = node.getPointAtLength(len * i / div);
+        pts.push(p.x, p.y);
+      }
+      return { pts, closed };
+    } catch (_) {
+      return null;
+    } finally {
+      if (tmp) tmp.remove();
+    }
+  }
+  function align(a, b, closed) {
+    const n = a.length / 2;
+    const at = (r, s, i) => closed ? r ? (s - i + n) % n : (i + s) % n : r ? n - 1 - i : i;
+    let best = Infinity, bo = [0, 0];
+    for (let r = 0; r < 2; r++) {
+      for (let s = 0; s < (closed ? n : 1); s++) {
+        let cost = 0;
+        for (let i = 0; i < n && cost < best; i++) {
+          const j = at(r, s, i);
+          cost += (a[2 * i] - b[2 * j]) ** 2 + (a[2 * i + 1] - b[2 * j + 1]) ** 2;
+        }
+        if (cost < best) {
+          best = cost;
+          bo = [r, s];
+        }
+      }
+    }
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const j = at(bo[0], bo[1], i);
+      out.push(b[2 * j], b[2 * j + 1]);
+    }
+    return out;
+  }
+  var shape_default = {
+    name: "shape",
+    selector: ".efx-shape",
+    defaults: { shapes: "", d: "", to: "", points: 64, trigger: "loop", duration: 1200, pause: 800, ease: "ease-in-out", target: "" },
+    init(el, o) {
+      const isPath = el.localName === "path";
+      const svg = isPath ? el.ownerSVGElement : el;
+      if (!svg || !svg.createSVGPoint) return;
+      const own = isPath ? el.getAttribute("d") || "" : "";
+      const split2 = (s) => s.split("|").map((t) => t.trim()).filter(Boolean);
+      const toks = o.shapes ? split2(o.shapes) : o.d ? split2(o.d) : o.to ? [own, ...split2(o.to)].filter(Boolean) : [];
+      if (!toks.length) return;
+      const n = Math.max(8, Math.round(o.points) || 64);
+      const shapes = toks.map((t) => sample(t, svg, n)).filter(Boolean);
+      if (!shapes.length) return;
+      const closed = shapes.every((s) => s.closed), m = shapes.length;
+      const T = shapes.map((s, i) => [s.pts, align(s.pts, shapes[(i + 1) % m].pts, closed)]);
+      const named = toks.some((t) => !/^[#.[]/.test(t) && !isD(t));
+      const addVB = !isPath && named && !svg.hasAttribute("viewBox");
+      if (addVB) svg.setAttribute("viewBox", "0 0 100 100");
+      let path = el;
+      if (!isPath) {
+        path = document.createElementNS(NS5, "path");
+        path.setAttribute("class", "efx-shape__path");
+        svg.appendChild(path);
+      }
+      const draw2 = (i, t) => {
+        const [a, b] = T[i];
+        let s = "M";
+        for (let k = 0; k < n; k++) s += (k ? "L" : "") + (a[2 * k] + (b[2 * k] - a[2 * k]) * t).toFixed(2) + "," + (a[2 * k + 1] + (b[2 * k + 1] - a[2 * k + 1]) * t).toFixed(2);
+        path.setAttribute("d", s + (closed ? "Z" : ""));
+      };
+      const offs = [];
+      const e = ease(o.ease);
+      draw2(0, 0);
+      if (m > 1 && motionOK()) {
+        let raf2 = 0;
+        if (o.trigger === "hover") {
+          const host = o.target && document.querySelector(o.target) || el.closest("a,button,[tabindex]") || el;
+          let prog = 0, dir = 0, last = 0;
+          const tick = (now) => {
+            prog = clamp3(prog + (dir ? 1 : -1) * Math.max(0, now - last) / o.duration);
+            last = now;
+            draw2(0, e(prog));
+            raf2 = dir ? prog < 1 ? requestAnimationFrame(tick) : 0 : prog > 0 ? requestAnimationFrame(tick) : 0;
+          };
+          const go = (d) => () => {
+            dir = d;
+            if (!raf2) {
+              last = performance.now();
+              raf2 = requestAnimationFrame(tick);
+            }
+          };
+          offs.push(on(host, "pointerenter", go(1)), on(host, "pointerleave", go(0)), on(host, "focusin", go(1)), on(host, "focusout", go(0)));
+        } else if (o.trigger === "scroll") {
+          let stop = null;
+          offs.push(onVisible(el, (v) => {
+            if (v && !stop) {
+              stop = onScroll((y, h) => {
+                const r = el.getBoundingClientRect();
+                const q = clamp3((clamp3((h - r.top) / (h + r.height)) - 0.25) / 0.5) * (m - 1), i = Math.min(m - 2, Math.floor(q));
+                return () => draw2(i, e(q - i));
+              });
+            } else if (!v && stop) {
+              stop();
+              stop = null;
+            }
+          }, "100px"));
+          offs.push(() => stop && stop());
+        } else {
+          let acc = 0, t0 = 0;
+          const cyc = o.pause + o.duration;
+          const frame = (now) => {
+            acc += now - t0;
+            t0 = now;
+            draw2(Math.floor(acc / cyc) % m, e(clamp3((acc % cyc - o.pause) / o.duration)));
+            raf2 = requestAnimationFrame(frame);
+          };
+          offs.push(onVisible(el, (v) => {
+            cancelAnimationFrame(raf2);
+            if (v) {
+              t0 = performance.now();
+              raf2 = requestAnimationFrame(frame);
+            }
+          }));
+        }
+        offs.push(() => cancelAnimationFrame(raf2));
+      }
+      el.classList.add("is-morphing");
+      return () => {
+        offs.forEach((f2) => f2());
+        if (isPath) {
+          if (own) el.setAttribute("d", own);
+          else el.removeAttribute("d");
+        } else path.remove();
+        if (addVB) svg.removeAttribute("viewBox");
+        el.classList.remove("is-morphing");
+      };
+    }
+  };
+
   // src/features/shimmer.js
   var shimmer_default = {
     name: "shimmer",
@@ -4932,6 +5768,39 @@
         layer.remove();
         if (restore) el.style.position = "";
       };
+    }
+  };
+
+  // src/features/spinner.js
+  var spinner_default = {
+    name: "spinner",
+    selector: '.efx-spinner, [class*="efx-spinner-"]',
+    defaults: { type: "", label: "Loading" },
+    init(el, o) {
+      const undo = [];
+      if (o.type) {
+        const c = "efx-spinner-" + o.type;
+        if (!el.classList.contains(c)) {
+          el.classList.add(c);
+          undo.push(() => el.classList.remove(c));
+        }
+      }
+      if (!el.classList.contains("efx-spinner")) {
+        el.classList.add("efx-spinner");
+        undo.push(() => el.classList.remove("efx-spinner"));
+      }
+      if (!el.hasAttribute("role")) {
+        el.setAttribute("role", "status");
+        undo.push(() => el.removeAttribute("role"));
+      }
+      if (!el.hasAttribute("aria-label") && !el.querySelector(".efx-spinner__label") && !el.textContent.trim()) {
+        const l = document.createElement("span");
+        l.className = "efx-spinner__label";
+        l.textContent = o.label;
+        el.append(l);
+        undo.push(() => l.remove());
+      }
+      return () => undo.forEach((f2) => f2());
     }
   };
 
@@ -5851,7 +6720,7 @@
   };
 
   // src/effix-entry.js
-  define(ambient_default, animate_default, beam_default, border_default, carousel_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, direction_default, distort_default, divider_default, drag_default, draw_default, feed_default, flip_default, glitch_default, globe_default, hscroll_default, kenburns_default, lazyimg_default, lightbox_default, magnetic_default, marquee_default, mask_default, media_default, morph_default, mouse_default, nudge_default, odometer_default, parallax_default, particles_default, path_default, pixelate_default, popup_default, pricing_default, progress_default, proximity_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, shimmer_default, sparkles_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, toast_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
+  define(ambient_default, animate_default, beam_default, border_default, carousel_default, chapter_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, dim_default, direction_default, distort_default, divider_default, drag_default, draggable_default, draw_default, feed_default, flip_default, glitch_default, globe_default, hscroll_default, kenburns_default, layout_default, lazyimg_default, lightbox_default, magnetic_default, marquee_default, mask_default, media_default, morph_default, mouse_default, nudge_default, odometer_default, parallax_default, particles_default, path_default, pixelate_default, popup_default, pricing_default, progress_default, proximity_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, shape_default, shimmer_default, sparkles_default, spinner_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, toast_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
   if (typeof window !== "undefined") window.Effix = core_default;
   autoBoot();
   var effix_entry_default = core_default;

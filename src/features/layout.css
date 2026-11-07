@@ -1,0 +1,6 @@
+/* layout — ghosts are absolutely positioned clones of leaving items; status is a visually hidden live region */
+.efx-layout__ghost { pointer-events: none; z-index: 0; }
+.efx-layout__status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+[data-efx-filter][aria-pressed="true"], [data-efx-sort][aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); }
+[data-efx-sort][aria-pressed="true"][data-efx-dir="asc"]::after { content: " \2191"; }
+[data-efx-sort][aria-pressed="true"][data-efx-dir="desc"]::after { content: " \2193"; }

@@ -3,9 +3,9 @@
    <button class="btn efx-tada efx-click">Tap</button>                   plays on every click
    Wrap siblings in .efx-stagger (data-efx-stagger="80") to cascade delays of .efx-scroll/.efx-load items. */
 import { onVisible, motionOK, on } from '../core.js';
+import { stagger, staggerGroup } from './_stagger.js';
 
 const ENTER = /\befx-(fade-in|bounce-(in|up|down)|slide-|pop-in|rotate-in|scale-|zoom-in|flip-)/;
-const groupItems = new WeakMap();
 
 export default {
   name: 'animate',
@@ -16,12 +16,8 @@ export default {
     const cl = el.classList, st = el.style, offs = [];
     const prevDelay = st.getPropertyValue('--efx-delay'), prevIter = st.getPropertyValue('--efx-iter');
     let delay = o.delay;
-    const group = el.parentElement && el.parentElement.closest('.efx-stagger');
-    if (group && !cl.contains('efx-click')) {
-      let items = groupItems.get(group);
-      if (!items || !items.includes(el)) { items = [...group.querySelectorAll('.efx-load,.efx-scroll')]; groupItems.set(group, items); }
-      delay += items.indexOf(el) * (parseFloat(group.dataset.efxStagger) || 80);
-    }
+    const group = staggerGroup(el);
+    if (group && !cl.contains('efx-click')) delay += stagger(group, '.efx-load,.efx-scroll', el);
     if (delay) st.setProperty('--efx-delay', delay + 'ms');
     if (o.repeat) st.setProperty('--efx-iter', o.repeat === 'infinite' || o.repeat === 'loop' ? 'infinite' : parseFloat(o.repeat) || 1);
     const play = () => { cl.remove('efx-anim-pending'); cl.remove('is-playing'); void el.offsetWidth; cl.add('is-playing'); };

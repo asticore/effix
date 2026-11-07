@@ -27,6 +27,11 @@ module.exports = {
     ['data-efx-threshold', '0.15', 'efx-scroll: how far into the viewport (0-1) before it plays.'],
     ['data-efx-repeat', '', 'Iteration count (number or "infinite"); CSS handles 2-5 and infinite without JS.'],
     ['data-efx-stagger', '80', 'On .efx-stagger: ms between children.'],
+    ['data-efx-from', 'first', 'On .efx-stagger: where the cascade starts: first · last · center · edges · random · or an item index (0-based).'],
+    ['data-efx-grid', '', 'On .efx-stagger: "cols,rows" (e.g. "4,3") or "auto" (measures item positions) to delay by 2D distance from the origin.'],
+    ['data-efx-axis', '', 'On .efx-stagger with a grid: x or y to measure distance on one axis only.'],
+    ['data-efx-ease', 'linear', 'On .efx-stagger: easing name (see Effix.add("easing")) distributing the delays along a curve.'],
+    ['data-efx-total', '', 'On .efx-stagger: spread the cascade across this many ms in total instead of ms per step.'],
   ],
   extend: [
     ['CSS', '--efx-anim', 'Custom animation in pure CSS: `@keyframes efx-wiggle { 50% { rotate: 8deg } }  .efx-wiggle { --efx-anim: efx-wiggle }` then `class="efx-anim efx-wiggle efx-hover"`. All triggers and iteration knobs work.'],

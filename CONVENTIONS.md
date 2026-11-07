@@ -8,7 +8,7 @@ Rules every feature follows. Read this before adding one.
    Never re-implement something Shine already does with CSS (buttons, modals, carousel track, tooltips, colors, spacing).
 2. **Only pay for what is on the page.** On boot the core runs one `querySelectorAll` per registered feature. Absent features
    cost nothing. Heavy features set `lazy: true` (initialised when first near the viewport) and pause their loops off-screen.
-3. **Budget.** Effects bundle ≤ 44 KB gzip JS + 10 KB CSS, charts add-on ≤ 28 KB JS + 3 KB CSS (`build.js` fails above). Core ≈ 2 KB. Aim for ≤ 1 KB gzip per feature.
+3. **Budget.** Effects bundle ≤ 52 KB gzip JS + 12 KB CSS (the auto-loader is the recommended path; the full bundle is for sites using many features), charts add-on ≤ 28 KB JS + 3 KB CSS (`build.js` fails above). Core ≈ 2 KB. Aim for ≤ 1 KB gzip per feature.
 4. **Zero runtime dependencies.** esbuild + Playwright are dev-only.
 
 ## Files

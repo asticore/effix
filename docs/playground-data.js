@@ -76,6 +76,36 @@ window.EFX_PLAYGROUND = {
      "def": "80",
      "desc": "On .efx-stagger: ms between children.",
      "type": "number"
+    },
+    {
+     "attr": "data-efx-from",
+     "def": "first",
+     "desc": "On .efx-stagger: where the cascade starts: first · last · center · edges · random · or an item index (0-based).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-grid",
+     "def": "",
+     "desc": "On .efx-stagger: \"cols,rows\" (e.g. \"4,3\") or \"auto\" (measures item positions) to delay by 2D distance from the origin.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-axis",
+     "def": "",
+     "desc": "On .efx-stagger with a grid: x or y to measure distance on one axis only.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-ease",
+     "def": "linear",
+     "desc": "On .efx-stagger: easing name (see Effix.add(\"easing\")) distributing the delays along a curve.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-total",
+     "def": "",
+     "desc": "On .efx-stagger: spread the cascade across this many ms in total instead of ms per step.",
+     "type": "text"
     }
    ],
    "example": "<div class=\"efx-stagger grid md:grid-cols-4 gap-4 p-6\" data-efx-stagger=\"100\">\n  <div class=\"card p-4 efx-fade-in-up efx-scroll\">Fade in up</div>\n  <div class=\"card p-4 efx-bounce-in efx-scroll\">Bounce in</div>\n  <div class=\"card p-4 efx-pop-elastic efx-scroll\">Pop elastic</div>\n  <div class=\"card p-4 efx-flip-x efx-scroll\">Flip X</div>\n</div>\n<div class=\"cluster gap-3 p-6\">\n  <button class=\"btn efx-shake efx-hover\">Hover: shake</button>\n  <button class=\"btn efx-tada efx-click\">Click: tada</button>\n  <button class=\"btn efx-pulse efx-loop\">Pulse loop</button>\n  <a href=\"#\" class=\"efx-underline-center\">Center underline</a>\n  <a href=\"#\" class=\"efx-underline-grow\">Grow underline</a>\n</div>"
@@ -301,6 +331,30 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"cluster\"><button class=\"btn efx-totop\" data-efx-show=\"100\" data-efx-fixed=\"false\" style=\"position:static\" aria-label=\"Back to top\">↑ Top</button><span>Appears after scrolling 100px.</span></div>"
+  },
+  {
+   "name": "chapter",
+   "title": "Chapter indicator",
+   "group": "Scroll",
+   "kind": "effect",
+   "classes": [
+    "efx-chapter"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-sections",
+     "def": "section[data-efx-title]",
+     "desc": "CSS selector of the sections. Title comes from data-efx-title or the first heading.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-ring",
+     "def": "true",
+     "desc": "Show the section progress ring.",
+     "type": "bool"
+    }
+   ],
+   "example": "<div class=\"stack\">\n  <div style=\"position:sticky;top:1rem;z-index:2\"><a class=\"efx-chapter\" href=\"#\" data-efx-sections=\"#efx-chap-demo section\"></a></div>\n  <div id=\"efx-chap-demo\" class=\"stack\">\n    <section data-efx-title=\"Discover\" class=\"card p-6\" style=\"min-height:70vh\"><h3>Discover</h3></section>\n    <section data-efx-title=\"Build\" class=\"card p-6\" style=\"min-height:70vh\"><h3>Build</h3></section>\n    <section class=\"card p-6\" style=\"min-height:70vh\"><h3>Ship</h3></section>\n  </div>\n</div>"
   },
   {
    "name": "counter",
@@ -605,6 +659,36 @@ window.EFX_PLAYGROUND = {
      "def": "80",
      "desc": "On .efx-stagger: ms between children.",
      "type": "number"
+    },
+    {
+     "attr": "data-efx-from",
+     "def": "first",
+     "desc": "On .efx-stagger: where the cascade starts: first · last · center · edges · random · or an item index (0-based).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-grid",
+     "def": "",
+     "desc": "On .efx-stagger: \"cols,rows\" (e.g. \"4,3\") or \"auto\" (measures item positions) to delay by 2D distance from the origin.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-axis",
+     "def": "",
+     "desc": "On .efx-stagger with a grid: x or y to measure distance on one axis only.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-ease",
+     "def": "linear",
+     "desc": "On .efx-stagger: easing name (see Effix.add(\"easing\")) distributing the delays along a curve.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-total",
+     "def": "",
+     "desc": "On .efx-stagger: spread the cascade across this many ms in total instead of ms per step.",
+     "type": "text"
     }
    ],
    "example": "<div class=\"efx-stagger grid md:grid-cols-3 gap-4\" data-efx-stagger=\"120\">\n  <div class=\"card efx-reveal\" data-efx-reveal=\"fade-up\">Fade up</div>\n  <div class=\"card efx-reveal\" data-efx-reveal=\"zoom\">Zoom</div>\n  <div class=\"card efx-reveal\" data-efx-reveal=\"blur\">Blur</div>\n  <div class=\"card efx-reveal\" data-efx-reveal=\"wipe-up\">Wipe up</div>\n  <div class=\"card efx-reveal\" data-efx-reveal=\"rise\">Rise</div>\n  <div class=\"card efx-reveal\" data-efx-reveal=\"scale-down\">Scale down</div>\n</div>"
@@ -709,13 +793,19 @@ window.EFX_PLAYGROUND = {
      "type": "number"
     },
     {
+     "attr": "data-efx-peak",
+     "def": "none",
+     "desc": "center = progress is a triangle peaking at 1 when the element center is at the viewport center (images grow as they reach center, shrink after). none = normal 0 to 1.",
+     "type": "text"
+    },
+    {
      "attr": "data-efx-ease",
      "def": "linear",
      "desc": "linear · ease-in · ease-out · ease-in-out · ease-out-cubic · back-out · elastic-out (in/out/inout aliases), or any registered easing",
      "type": "text"
     }
    ],
-   "example": "<div class=\"grid md:grid-cols-3 gap-4 text-center\" style=\"min-height:300px;align-content:center\">\n  <div class=\"card tone-primary p-6 efx-scrub\" data-efx-from=\"y:60 opacity:0\" data-efx-to=\"y:0 opacity:1\" data-efx-end=\".5\">Rises in</div>\n  <div class=\"card tone-secondary p-6 efx-scrub\" data-efx-rotate=\"180\" data-efx-scale=\".6\">Spins and shrinks</div>\n  <button class=\"btn efx-scrub\" data-efx-x=\"-80\" data-efx-blur=\"6\">Slides and blurs</button>\n</div>"
+   "example": "<div class=\"grid md:grid-cols-3 gap-4 text-center\" style=\"min-height:300px;align-content:center\">\n  <div class=\"card tone-primary p-6 efx-scrub\" data-efx-from=\"y:60 opacity:0\" data-efx-to=\"y:0 opacity:1\" data-efx-end=\".5\">Rises in</div>\n  <div class=\"card tone-secondary p-6 efx-scrub\" data-efx-rotate=\"180\" data-efx-scale=\".6\">Spins and shrinks</div>\n  <div class=\"card tone-success p-6 efx-scrub\" data-efx-peak=\"center\" data-efx-scale=\"1.3\">Peaks at center</div>\n  <button class=\"btn efx-scrub\" data-efx-x=\"-80\" data-efx-blur=\"6\">Slides and blurs</button>\n</div>"
   },
   {
    "name": "sequence",
@@ -1394,7 +1484,7 @@ window.EFX_PLAYGROUND = {
     {
      "attr": "data-efx-mode",
      "def": "stars",
-     "desc": "stars · warp · orbs · waves · snow · leaves · bubbles · grid (cells light up near the pointer) · flicker (flickering squares) · meteors (diagonal shooting streaks), or any registered ambient-mode",
+     "desc": "stars · warp · orbs · waves · snow · leaves · bubbles · grid (cells light up near the pointer) · flicker (flickering squares) · meteors (diagonal shooting streaks) · dots (fine dot grid that glows near the pointer), or any registered ambient-mode",
      "type": "text"
     },
     {
@@ -1671,6 +1761,42 @@ window.EFX_PLAYGROUND = {
    "example": "<div class=\"efx-cursor p-6 rounded-lg stack\" data-efx-style=\"dot-ring\" data-efx-hide-native style=\"min-height:240px;background:var(--sh-surface,#f1f5f9)\">\n  <h3>Custom cursor zone</h3><div class=\"cluster gap-4\"><button class=\"btn\">Hover me</button><a href=\"#\">A link</a></div>\n</div>"
   },
   {
+   "name": "dim",
+   "title": "Dim siblings",
+   "group": "Pointer",
+   "kind": "effect",
+   "classes": [
+    "efx-dim"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-opacity",
+     "def": "0.35",
+     "desc": "Opacity of the dimmed siblings.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-blur",
+     "def": "0",
+     "desc": "Blur in px for dimmed siblings.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-preview",
+     "def": "true",
+     "desc": "Show a floating image following the cursor when the item has data-efx-image (fine pointers only).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-items",
+     "def": "",
+     "desc": "CSS selector for the items. Default: direct children.",
+     "type": "text"
+    }
+   ],
+   "example": "<ul class=\"efx-dim stack gap-2\" data-efx-blur=\"1\" style=\"list-style:none;padding:0;min-height:260px\">\n  <li class=\"card p-4\" tabindex=\"0\" data-efx-image=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='154'%3E%3Crect width='220' height='154' fill='%236366f1'/%3E%3C/svg%3E\"><h4>Alpha</h4></li>\n  <li class=\"card p-4\" tabindex=\"0\" data-efx-image=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='154'%3E%3Crect width='220' height='154' fill='%23ec4899'/%3E%3C/svg%3E\"><h4>Beta</h4></li>\n  <li class=\"card p-4\" tabindex=\"0\" data-efx-image=\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='154'%3E%3Crect width='220' height='154' fill='%2310b981'/%3E%3C/svg%3E\"><h4>Gamma</h4></li>\n  <li class=\"card p-4\" tabindex=\"0\"><h4>Delta (no image)</h4></li>\n</ul>"
+  },
+  {
    "name": "direction",
    "title": "Direction-aware hover",
    "group": "Pointer",
@@ -1681,12 +1807,78 @@ window.EFX_PLAYGROUND = {
    "options": [
     {
      "attr": "data-efx-fill",
-     "def": "true",
-     "desc": "false = only set data-efx-from and .is-hover, for custom CSS.",
-     "type": "bool"
+     "def": "edge",
+     "desc": "edge = slide from the entry edge · circle = flood as a circle from the exact pointer entry point and retract toward the exit point · false = only set data-efx-from and .is-hover, for custom CSS.",
+     "type": "text"
     }
    ],
-   "example": "<div class=\"grid md:grid-cols-3 gap-4\">\n  <div class=\"card efx-direction p-6 rounded-lg\" style=\"--efx-direction-color:rgb(99 102 241 / .25)\"><h4>Card</h4><p>Enter and leave from different sides.</p></div>\n  <div class=\"card efx-direction p-6 rounded-lg\" style=\"--efx-direction-color:rgb(244 63 94 / .25)\"><h4>Another</h4><p>Keyboard focus fills from the left.</p></div>\n  <a href=\"#\" class=\"btn efx-direction\" style=\"--efx-direction-color:rgb(16 185 129 / .3)\">Button</a>\n</div>"
+   "example": "<div class=\"grid md:grid-cols-3 gap-4\">\n  <div class=\"card efx-direction p-6 rounded-lg\" style=\"--efx-direction-color:rgb(99 102 241 / .25)\"><h4>Card</h4><p>Enter and leave from different sides.</p></div>\n  <div class=\"card efx-direction p-6 rounded-lg\" style=\"--efx-direction-color:rgb(244 63 94 / .25)\"><h4>Another</h4><p>Keyboard focus fills from the left.</p></div>\n  <a href=\"#\" class=\"btn efx-direction\" style=\"--efx-direction-color:rgb(16 185 129 / .3)\">Button</a>\n  <div class=\"card efx-direction p-6 rounded-lg\" data-efx-fill=\"circle\" style=\"--efx-direction-color:rgb(245 158 11 / .3)\"><h4>Circle</h4><p>Floods from where the pointer enters.</p></div>\n</div>"
+  },
+  {
+   "name": "draggable",
+   "title": "Draggable",
+   "group": "Pointer",
+   "kind": "effect",
+   "classes": [
+    "efx-draggable"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-axis",
+     "def": "both",
+     "desc": "x · y · both",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-bounds",
+     "def": "parent",
+     "desc": "\"parent\", a CSS selector of a bounding element, or \"none\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-release",
+     "def": "spring",
+     "desc": "spring = snap back to the start · inertia = keep gliding with friction · stay = leave it where dropped.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-spring",
+     "def": "170,18",
+     "desc": "Spring \"stiffness,damping\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-friction",
+     "def": "0.92",
+     "desc": "Inertia: velocity kept per frame (closer to 1 = longer glide).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-bounce",
+     "def": "0.5",
+     "desc": "Inertia: speed kept when bouncing off a bound (0 = dead stop).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-snap",
+     "def": "0",
+     "desc": "Grid size in px to snap to (0 = off).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-step",
+     "def": "10",
+     "desc": "Arrow-key step in px (Shift = ×5; the snap size wins when set).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-handle",
+     "def": "",
+     "desc": "Selector inside the element that starts the drag (touch-action:none is set on the handle only).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"grid md:grid-cols-3 gap-4 p-4\">\n  <div class=\"card p-4\" style=\"height:200px\"><p class=\"text-sm\">Spring back</p>\n    <button class=\"btn efx-draggable\" data-efx-release=\"spring\">Drag me</button></div>\n  <div class=\"card p-4\" style=\"height:200px\"><p class=\"text-sm\">Throw (inertia)</p>\n    <button class=\"btn efx-draggable\" data-efx-release=\"inertia\">Throw me</button></div>\n  <div class=\"card p-4\" style=\"height:200px\"><p class=\"text-sm\">Axis x, 40px grid</p>\n    <button class=\"btn efx-draggable\" data-efx-release=\"stay\" data-efx-axis=\"x\" data-efx-snap=\"40\">Snap</button></div>\n</div>"
   },
   {
    "name": "magnetic",
@@ -2001,6 +2193,72 @@ window.EFX_PLAYGROUND = {
    "example": "<section class=\"p-6 tone-primary\" style=\"position:relative;height:280px;overflow:hidden;background:var(--sh-primary,#4f46e5);color:#fff\">\n  <h3>Wavy section</h3><p>Dividers drift along the bottom edge.</p>\n  <div class=\"efx-divider\" data-efx-shape=\"waves\" data-efx-animate=\"drift\" data-efx-position=\"bottom\" data-efx-height=\"90\" data-efx-color=\"#fff\"></div>\n</section>"
   },
   {
+   "name": "shape",
+   "title": "Shape morph",
+   "group": "Sections",
+   "kind": "effect",
+   "classes": [
+    "efx-shape"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-d",
+     "def": "",
+     "desc": "Pipe-separated shapes: registered names (blob|star) or path data \"M…|M…\". Names use a 0 0 100 100 viewBox (set for you on an  without one).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-shapes",
+     "def": "",
+     "desc": "Pipe-separated selectors of existing geometry (path, circle, rect…), e.g. \"#s1|#s2|#s3\". Put the sources in .",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-to",
+     "def": "",
+     "desc": "On a : target path data. Morphs from the path's own d (pipe-separate for more).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-points",
+     "def": "64",
+     "desc": "Samples per shape. More = smoother, heavier.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-trigger",
+     "def": "loop",
+     "desc": "loop (cycle all shapes) · hover (first -> second on hover/focus) · scroll (progress through the viewport)",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-duration",
+     "def": "1200",
+     "desc": "Morph time in ms.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-pause",
+     "def": "800",
+     "desc": "loop: hold time between morphs in ms.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-ease",
+     "def": "ease-in-out",
+     "desc": "Easing name (see Effix.add(\"easing\")).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-target",
+     "def": "",
+     "desc": "hover: selector of the element that listens (default: the closest link/button, else the shape).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"cluster gap-6 p-6 items-center\">\n  <svg class=\"efx-shape\" viewBox=\"0 0 100 100\" width=\"160\" height=\"160\" data-efx-d=\"blob|star|heart|circle\" role=\"img\" aria-label=\"Morphing shape\"></svg>\n  <button class=\"btn\" style=\"display:inline-flex;align-items:center;gap:.75rem\">\n    <svg class=\"efx-shape\" viewBox=\"0 0 100 100\" width=\"40\" height=\"40\" data-efx-d=\"square|circle\" data-efx-trigger=\"hover\" data-efx-duration=\"400\" aria-hidden=\"true\"></svg>\n    Hover me\n  </button>\n</div>"
+  },
+  {
    "name": "feed",
    "title": "Animated feed",
    "group": "Components",
@@ -2203,6 +2461,48 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"grid md:grid-cols-2 gap-4\">\n  <div class=\"efx-zoom\" data-efx-shape=\"circle\"><img alt=\"Gradient sample\" style=\"display:block;width:100%;height:220px;object-fit:cover\" src=\"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cdefs%3E%3ClinearGradient id='g'%3E%3Cstop offset='0' stop-color='%236366f1'/%3E%3Cstop offset='1' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='600' height='400' fill='url(%23g)'/%3E%3Ccircle cx='300' cy='200' r='90' fill='none' stroke='white' stroke-width='6'/%3E%3Ctext x='300' y='215' font-size='40' text-anchor='middle' fill='white'%3EEffix%3C/text%3E%3C/svg%3E\"></div>\n  <div class=\"efx-zoom\" data-efx-shape=\"inner\" data-efx-scale=\"3\"><img alt=\"Gradient sample\" style=\"display:block;width:100%;height:220px;object-fit:cover\" src=\"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Cdefs%3E%3ClinearGradient id='g'%3E%3Cstop offset='0' stop-color='%2310b981'/%3E%3Cstop offset='1' stop-color='%23f59e0b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='600' height='400' fill='url(%23g)'/%3E%3Cpath d='M0 300 L150 150 L300 280 L450 120 L600 260 V400 H0Z' fill='white' opacity='.5'/%3E%3C/svg%3E\"></div>\n</div>"
+  },
+  {
+   "name": "layout",
+   "title": "Layout animation (FLIP)",
+   "group": "Components",
+   "kind": "effect",
+   "classes": [
+    "efx-layout"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-duration",
+     "def": "400",
+     "desc": "Animation length in ms.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-ease",
+     "def": "cubic-bezier(.22,1,.36,1)",
+     "desc": "CSS easing string (cubic-bezier, ease-out, linear(…)).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-scale",
+     "def": "0.9",
+     "desc": "Scale entering items start from / leaving items shrink to.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-noun",
+     "def": "item",
+     "desc": "Word used in the live count (\"6 items\").",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-count",
+     "def": "",
+     "desc": "Selector of your own element to receive the count (it gets aria-live=\"polite\"); otherwise a hidden status node is added after the container.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"stack gap-3 p-4\">\n  <div class=\"cluster gap-2\">\n    <button class=\"btn btn-sm\" data-efx-filter=\"*\" data-efx-for=\"#layout-demo\">All</button>\n    <button class=\"btn btn-sm\" data-efx-filter=\"design\" data-efx-for=\"#layout-demo\">Design</button>\n    <button class=\"btn btn-sm\" data-efx-filter=\"dev\" data-efx-for=\"#layout-demo\">Dev</button>\n    <button class=\"btn btn-sm\" data-efx-sort=\"price\" data-efx-for=\"#layout-demo\">Price</button>\n    <button class=\"btn btn-sm\" data-efx-sort=\"name\" data-efx-for=\"#layout-demo\">Name</button>\n  </div>\n  <div class=\"efx-layout grid grid-cols-3 gap-3\" id=\"layout-demo\">\n  <div class=\"card p-4\" data-efx-tags=\"design\" data-efx-key-price=\"19\" data-efx-key-name=\"Alpha\"><strong>Alpha</strong><br><small>design · $19</small></div>\n  <div class=\"card p-4\" data-efx-tags=\"dev\" data-efx-key-price=\"7\" data-efx-key-name=\"Bravo\"><strong>Bravo</strong><br><small>dev · $7</small></div>\n  <div class=\"card p-4\" data-efx-tags=\"design dev\" data-efx-key-price=\"42\" data-efx-key-name=\"Charlie\"><strong>Charlie</strong><br><small>design dev · $42</small></div>\n  <div class=\"card p-4\" data-efx-tags=\"dev\" data-efx-key-price=\"12\" data-efx-key-name=\"Delta\"><strong>Delta</strong><br><small>dev · $12</small></div>\n  <div class=\"card p-4\" data-efx-tags=\"design\" data-efx-key-price=\"28\" data-efx-key-name=\"Echo\"><strong>Echo</strong><br><small>design · $28</small></div>\n  <div class=\"card p-4\" data-efx-tags=\"dev\" data-efx-key-price=\"3\" data-efx-key-name=\"Foxtrot\"><strong>Foxtrot</strong><br><small>dev · $3</small></div>\n  </div>\n</div>"
   },
   {
    "name": "lazyimg",
@@ -2482,6 +2782,30 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"efx-collapse stack gap-2 p-6\">\n  <details class=\"card p-4\" name=\"faq\" open><summary>What is Effix?</summary><p class=\"mt-2\">A small JS partner for the Shine CSS framework.</p></details>\n  <details class=\"card p-4\" name=\"faq\"><summary>Is it accessible?</summary><p class=\"mt-2\">Native details/summary: keyboard and screen readers work as usual.</p><p>Opening one closes the other, animated.</p></details>\n  <details class=\"card p-4\" name=\"faq\"><summary>Does it need JS?</summary><p class=\"mt-2\">No: without JS the accordion toggles natively.</p></details>\n</div>"
+  },
+  {
+   "name": "spinner",
+   "title": "Spinners",
+   "group": "Components",
+   "kind": "effect",
+   "classes": [
+    "efx-spinner"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-type",
+     "def": "",
+     "desc": "ring · dots · bars · pulse · orbit · wave · square",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-label",
+     "def": "Loading",
+     "desc": "Hidden label text for screen readers.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"cluster gap-6\" style=\"align-items:center;min-height:120px\">\n  <span class=\"efx-spinner\" data-efx-type=\"ring\"></span>\n  <span class=\"efx-spinner\" data-efx-type=\"dots\"></span>\n  <span class=\"efx-spinner\" data-efx-type=\"bars\"></span>\n  <span class=\"efx-spinner\" data-efx-type=\"pulse\"></span>\n  <span class=\"efx-spinner\" data-efx-type=\"orbit\"></span>\n  <span class=\"efx-spinner\" data-efx-type=\"wave\"></span>\n  <span class=\"efx-spinner efx-spinner-square\" style=\"--efx-color:#ec4899\"></span>\n</div>"
   },
   {
    "name": "toast",

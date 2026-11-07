@@ -1,0 +1,2 @@
+/* shape — the generated path inherits fill from the svg; set fill/stroke on the svg or path yourself to override */
+svg.efx-shape { fill: var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); }
