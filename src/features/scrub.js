@@ -1,7 +1,8 @@
 /* scrub — scroll-scrubbed transform/filter/opacity tied to the element's progress through the viewport.
    <div class="efx-scrub" data-efx-y="80" data-efx-rotate="12" data-efx-opacity="1"></div>   (neutral → value)
    <img class="efx-scrub" data-efx-from="y:60 opacity:0" data-efx-to="y:0 opacity:1" data-efx-end=".5">
-   Progress p: 0 when the top hits the viewport bottom, 1 when the bottom leaves the top. Writes --efx-p. */
+   Progress p: 0 when the top hits the viewport bottom, 1 when the bottom leaves the top. Writes --efx-p.
+   data-efx-peak="center": progress becomes a triangle that peaks at 1 when the element center is at the viewport center (grow as it arrives, shrink as it leaves). */
 import { onScroll, motionOK } from '../core.js';
 import { ease as getEase } from './_easing.js';
 
@@ -15,7 +16,7 @@ const parse = s => {
 export default {
   name: 'scrub',
   selector: '.efx-scrub',
-  defaults: { from: '', to: '', start: 0, end: 1, ease: 'linear', x: 0, y: 0, rotate: 0, scale: 1, opacity: -1, blur: 0 },
+  defaults: { from: '', to: '', start: 0, end: 1, ease: 'linear', peak: 'none', x: 0, y: 0, rotate: 0, scale: 1, opacity: -1, blur: 0 },
   init(el, o) {
     if (!motionOK()) return;
     const A = { ...NEUTRAL, ...parse(o.from) };
@@ -30,7 +31,9 @@ export default {
       const r = el.getBoundingClientRect();
       // Undo our own translate/scale so the element's progress doesn't feed back into itself.
       const h0 = r.height / (sc || 1), top0 = r.top - ty - h0 * (1 - sc) / 2;
-      const q = ease(Math.min(1, Math.max(0, ((vh - top0) / (vh + h0) - o.start) / span)));
+      let q = Math.min(1, Math.max(0, ((vh - top0) / (vh + h0) - o.start) / span));
+      if (o.peak === 'center') q = 1 - Math.abs(2 * q - 1);
+      q = ease(q);
       const v = k => A[k] + (B[k] - A[k]) * q;
       return () => {
         ty = v('y'); sc = v('scale');

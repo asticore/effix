@@ -1,0 +1,10 @@
+/* chapter — chip showing the current section. Rendered only while .efx-chapter-on (set by JS). */
+.efx-chapter-on { display: inline-flex; align-items: center; gap: .5rem; padding: .4rem .9rem .4rem .5rem; border-radius: 999px; text-decoration: none; color: inherit;
+  background: var(--efx-chapter-bg, color-mix(in srgb, var(--sh-surface, #fff) 85%, transparent)); border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+  backdrop-filter: blur(8px); font-size: .875rem; font-weight: 500; transition: opacity .3s var(--efx-ease, ease); }
+.efx-chapter-on.is-empty { opacity: 0; pointer-events: none; }
+.efx-chapter__ring { width: 1.5rem; height: 1.5rem; flex: none; transform: rotate(-90deg); }
+.efx-chapter__track, .efx-chapter__bar { fill: none; stroke-width: 2.5; }
+.efx-chapter__track { stroke: color-mix(in srgb, currentColor 18%, transparent); }
+.efx-chapter__bar { stroke: var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); stroke-dasharray: 100; stroke-dashoffset: 100; stroke-linecap: round; }
+.efx-chapter__text { position: relative; display: inline-flex; overflow: hidden; white-space: nowrap; min-width: 1ch; }

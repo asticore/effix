@@ -10,5 +10,8 @@
 .efx-direction-fill[data-efx-from="top"]::before { clip-path: inset(0 0 100% 0); }
 .efx-direction-fill[data-efx-from="bottom"]::before { clip-path: inset(100% 0 0 0); }
 .efx-direction-fill.is-hover::before { clip-path: inset(0); }
+/* circle mode: floods from the pointer entry point, retracts toward the exit point */
+.efx-direction-fill[data-efx-fill="circle"]::before { clip-path: circle(0 at var(--efx-x, 50%) var(--efx-y, 50%)); }
+.efx-direction-fill[data-efx-fill="circle"].is-hover::before { clip-path: circle(142% at var(--efx-x, 50%) var(--efx-y, 50%)); }
 .efx-direction-fill.efx-direction-snap::before { transition: none; }
 @media (prefers-reduced-motion: reduce) { .efx-direction-fill::before { transition: none; } }

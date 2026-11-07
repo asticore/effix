@@ -17,6 +17,7 @@ module.exports = {
     ['data-efx-to', '', 'Advanced end state, same keys. Overrides the single options.'],
     ['data-efx-start', '0', 'Progress (0–1) where the scrub begins.'],
     ['data-efx-end', '1', 'Progress (0–1) where it finishes.'],
+    ['data-efx-peak', 'none', 'center = progress is a triangle peaking at 1 when the element center is at the viewport center (images grow as they reach center, shrink after). none = normal 0 to 1.'],
     ['data-efx-ease', 'linear', 'linear · ease-in · ease-out · ease-in-out · ease-out-cubic · back-out · elastic-out (in/out/inout aliases), or any registered easing'],
   ],
   extend: [
@@ -35,6 +36,7 @@ window.EffixConfig = { extend(E) {
     { html: `<div class="grid md:grid-cols-3 gap-4 text-center" style="min-height:300px;align-content:center">
   <div class="card tone-primary p-6 efx-scrub" data-efx-from="y:60 opacity:0" data-efx-to="y:0 opacity:1" data-efx-end=".5">Rises in</div>
   <div class="card tone-secondary p-6 efx-scrub" data-efx-rotate="180" data-efx-scale=".6">Spins and shrinks</div>
+  <div class="card tone-success p-6 efx-scrub" data-efx-peak="center" data-efx-scale="1.3">Peaks at center</div>
   <button class="btn efx-scrub" data-efx-x="-80" data-efx-blur="6">Slides and blurs</button>
 </div>` },
   ],

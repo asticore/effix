@@ -1,6 +1,6 @@
 /* ambient — animated canvas backgrounds behind an element's content.
    <section class="efx-ambient" data-efx-mode="orbs" data-efx-color="#6366f1|#ec4899">…</section>
-   mode: stars | warp | orbs | waves | snow | leaves | bubbles | grid | flicker | meteors. color: one value or a '|' list (commas outside parentheses ok). */
+   mode: stars | warp | orbs | waves | snow | leaves | bubbles | grid | flicker | meteors | dots. color: one value or a '|' list (commas outside parentheses ok). */
 import { onVisible, motionOK, finePointer, themeColor, on, add, get } from '../core.js';
 
 const split = s => {
@@ -113,6 +113,17 @@ add('ambient-mode', {
       c.globalAlpha = S.op; c.strokeStyle = g; c.lineWidth = 1.5; c.lineCap = 'round';
       c.beginPath(); c.moveTo(p.x, p.y); c.lineTo(p.x + t, p.y - t); c.stroke();
     },
+  },
+});
+
+/* dots: fine dot grid, dim at rest, glowing and swelling near the pointer (Opal style) */
+add('ambient-mode', {
+  dots: {
+    count: a => { const c = Math.max(16, Math.sqrt(a / 900)); return Math.ceil(a / (c * c) + 2 * Math.sqrt(a) / c + 2); },
+    ptr: 1,
+    spawn: (p, S) => { const c = Math.max(16, Math.sqrt(S.w * S.h / 900)), n = Math.ceil(S.w / c) || 1; p.s = c; p.x = (p.i % n) * c + c / 2; p.y = ((p.i / n) | 0) * c + c / 2; p.l = 0; },
+    step: (p, S) => { const q = S.ptr, d = Math.hypot(q.x - p.x, q.y - p.y); p.l = q.on && d < 140 ? Math.max(p.l * .9, 1 - d / 140) : p.l * .92; return 1; },
+    draw: (c, p, S) => { if (p.y > S.h + p.s) return; c.globalAlpha = S.op * (.14 + p.l * .86); dot(c, p.x, p.y, 1 + p.l * 1.8); c.fill(); },
   },
 });
 

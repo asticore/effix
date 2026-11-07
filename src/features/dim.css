@@ -1,0 +1,7 @@
+/* dim — siblings fade while one child is hovered/focused. Keyed on .efx-dim-active (set by JS only when active). */
+.efx-dim-on > * { transition-property: opacity, filter; transition-duration: var(--efx-duration, .3s); transition-timing-function: var(--efx-ease, ease); }
+.efx-dim-active > :not(.is-hovered):not(.efx-dim__preview) { opacity: var(--efx-dim-opacity, .35); filter: blur(var(--efx-dim-blur, 0px)) grayscale(var(--efx-dim-gray, 0)); }
+.efx-dim__preview { position: absolute; left: 0; top: 0; width: var(--efx-dim-size, 220px); height: calc(var(--efx-dim-size, 220px) * .7); margin: calc(var(--efx-dim-size, 220px) * -.35) 0 0 calc(var(--efx-dim-size, 220px) * -.5);
+  background: center / cover no-repeat; border-radius: var(--sh-radius, .5rem); pointer-events: none; z-index: 5; opacity: 0; scale: .85; transition: opacity .25s var(--efx-ease, ease), scale .25s var(--efx-ease, ease); }
+.efx-dim__preview.is-on { opacity: 1; scale: 1; }
+@media (prefers-reduced-motion: reduce) { .efx-dim-on > *, .efx-dim__preview { transition: none; } }

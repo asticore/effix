@@ -7,7 +7,7 @@ module.exports = {
     ['efx-ambient', 'Injects a canvas behind the content (content stays clickable and above). Pick the look with data-efx-mode.'],
   ],
   options: [
-    ['data-efx-mode', 'stars', 'stars · warp · orbs · waves · snow · leaves · bubbles · grid (cells light up near the pointer) · flicker (flickering squares) · meteors (diagonal shooting streaks), or any registered ambient-mode'],
+    ['data-efx-mode', 'stars', 'stars · warp · orbs · waves · snow · leaves · bubbles · grid (cells light up near the pointer) · flicker (flickering squares) · meteors (diagonal shooting streaks) · dots (fine dot grid that glows near the pointer), or any registered ambient-mode'],
     ['data-efx-count', '0', 'Number of particles / orbs / wave layers. 0 = automatic by area and mode.'],
     ['data-efx-color', '(theme)', 'One color or a list separated by | (commas outside parentheses also work). Empty = Shine tone/primary.'],
     ['data-efx-speed', '1', 'Speed multiplier.'],
@@ -42,6 +42,7 @@ window.EffixConfig = { extend(E) {
   <div class="efx-ambient card p-6 rounded-lg" data-efx-mode="leaves" data-efx-color="#f97316|#eab308|#b91c1c" style="min-height:200px;background:#1c1917;color:#fff"><h4>Leaves</h4></div>
   <div class="efx-ambient card p-6 rounded-lg" data-efx-mode="bubbles" data-efx-color="#7dd3fc" style="min-height:200px;background:#0c4a6e;color:#fff"><h4>Bubbles</h4></div>
   <div class="efx-ambient card p-6 rounded-lg" data-efx-mode="stars" style="min-height:200px;background:#0f172a;color:#fff" data-efx-color="#fff|#fde68a"><h4>Stars</h4></div>
+  <div class="efx-ambient card p-6 rounded-lg" data-efx-mode="dots" data-efx-color="#a5b4fc" style="min-height:200px;background:#0b1020;color:#fff"><h4>Dots</h4></div>
 </div>` },
   ],
 };
