@@ -1,0 +1,3 @@
+/* chart-quadrant */
+.efx-quad__q { fill: var(--efx-chart-text); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; pointer-events: none; }
+.efx-quad__l { fill: var(--sh-text, #0f172a); font-size: 12px; font-weight: 500; pointer-events: none; paint-order: stroke; stroke: var(--sh-surface, #fff); stroke-width: 3px; stroke-linejoin: round; }

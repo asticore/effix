@@ -1,0 +1,7 @@
+/* diagram-cycle */
+.efx-cyc__num { fill: #fff; font-size: 13px; font-weight: 700; pointer-events: none; }
+.efx-cyc__l { fill: var(--sh-text, #0f172a); font-size: 12px; font-weight: 600; pointer-events: none; }
+.efx-cyc__c { font-size: 14px; pointer-events: none; }
+.efx-cyc__flow { stroke-dasharray: 5 7; animation: efx-cyc-flow 1.2s linear infinite; }
+@keyframes efx-cyc-flow { to { stroke-dashoffset: -12; } }
+@media (prefers-reduced-motion: reduce) { .efx-cyc__flow { animation: none; } }
