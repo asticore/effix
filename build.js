@@ -21,7 +21,7 @@ const SRC = path.join(ROOT, 'src');
 const pkg = require('./package.json');
 const BUDGET = { // gzip bytes
   'effix.min.js': 52 * 1024, 'effix.min.css': 12 * 1024,
-  'effix-charts.min.js': 28 * 1024, 'effix-charts.min.css': 3 * 1024,
+  'effix-charts.min.js': 36 * 1024, 'effix-charts.min.css': 5 * 1024,
 };
 
 const args = Object.fromEntries(process.argv.slice(2).map(a => {

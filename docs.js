@@ -20,7 +20,7 @@ const B = n => sizes.bundles[n] || 0;
 const effectsKB = B('effix.min.js') + B('effix.min.css');
 const chartsKB = B('effix-charts.min.js') + B('effix-charts.min.css');
 
-const GROUPS = ['Animations', 'Images', 'Scroll', 'Text', 'Buttons & borders', 'Background', 'Pointer', 'Sections', 'Components', 'Page', 'Time', 'Charts'];
+const GROUPS = ['Animations', 'Images', 'Scroll', 'Text', 'Buttons & borders', 'Background', 'Pointer', 'Sections', 'Components', 'Page', 'Time', 'Charts', 'Diagrams'];
 const found = DIRS.flatMap(dir => fs.readdirSync(dir).filter(f => /^[a-z][\w-]*\.js$/.test(f) && !f.endsWith('.meta.js')).map(f => ({ name: f.slice(0, -3), dir })));
 const names = found.map(f => f.name).sort();
 const dirOf = n => found.find(f => f.name === n).dir;
