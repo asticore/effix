@@ -167,6 +167,7 @@ function scan(root, def) {
   if (root.querySelectorAll) els.push(...root.querySelectorAll(def.selector));
   for (const el of els) {
     if (mounted.get(el)?.has(def.name) || lazyQueue.get(el)?.has(def.name) || el.closest('[data-efx-skip]')) continue;
+    if (!mediaOK(el)) continue;
     if (def.lazy) queueLazy(el, def); else mount(el, def);
   }
 }
@@ -195,23 +196,46 @@ export function destroy(root = doc, name) {
   if (!root) return api;
   const sel = '[data-efx-ready], [data-efx-lazy]';
   const els = root.nodeType === 1 ? [root, ...root.querySelectorAll(sel)] : [...root.querySelectorAll(sel)];
-  for (const el of els) {
-    const q = lazyQueue.get(el);
-    if (q) {
-      if (name) q.delete(name); else q.clear();
-      if (!q.size) { lazyQueue.delete(el); lazyIO.unobserve(el); el.removeAttribute('data-efx-lazy'); }
-    }
-    const m = mounted.get(el);
-    if (!m) continue;
-    for (const [n, cleanup] of m) {
-      if (name && n !== name) continue;
-      try { cleanup && cleanup(); } catch (err) { console.error(`[effix] ${n} cleanup failed`, err); }
-      m.delete(n);
-    }
-    if (m.size) el.setAttribute('data-efx-ready', [...m.keys()].join(' '));
-    else { mounted.delete(el); el.removeAttribute('data-efx-ready'); }
-  }
+  for (const el of els) teardown(el, name);
   return api;
+}
+
+/** Stop features on one element only (not its descendants). */
+function teardown(el, name) {
+  const q = lazyQueue.get(el);
+  if (q) {
+    if (name) q.delete(name); else q.clear();
+    if (!q.size) { lazyQueue.delete(el); lazyIO.unobserve(el); el.removeAttribute('data-efx-lazy'); }
+  }
+  const m = mounted.get(el);
+  if (!m) return;
+  for (const [n, cleanup] of m) {
+    if (name && n !== name) continue;
+    try { cleanup && cleanup(); } catch (err) { console.error(`[effix] ${n} cleanup failed`, err); }
+    m.delete(n);
+  }
+  if (m.size) el.setAttribute('data-efx-ready', [...m.keys()].join(' '));
+  else { mounted.delete(el); el.removeAttribute('data-efx-ready'); }
+}
+
+/* ------------------------------------------------- responsive gating */
+// <div class="efx-particles" data-efx-media="(min-width: 768px)"> runs only while the query matches;
+// it starts and stops as the viewport crosses the breakpoint.
+const mediaWatch = new WeakMap();
+function mediaOK(el) {
+  const q = el.getAttribute('data-efx-media');
+  if (!q || typeof matchMedia === 'undefined') return true;
+  let mql = mediaWatch.get(el);
+  if (!mql) {
+    try { mql = matchMedia(q); } catch (e) { return true; }
+    mediaWatch.set(el, mql);
+    mql.addEventListener('change', () => {
+      if (!el.isConnected) return;
+      if (mql.matches) for (const def of registry.values()) { if (el.matches(def.selector)) def.lazy ? queueLazy(el, def) : mount(el, def); }
+      else teardown(el);
+    });
+  }
+  return mql.matches;
 }
 
 /** Re-read options: destroy then init again (e.g. after a visual editor changes data-efx-*). */
