@@ -134,6 +134,7 @@ const knobRows = [
   ['<html data-efx-reduce>', 'Force reduced motion (static end states), e.g. for an editor canvas or a user toggle.'],
   ['<html data-efx-margin="200px">', 'How early lazy features (particles…) start before entering the viewport.'],
   ['data-efx-skip', 'On any element: observe() ignores nodes inside it.'],
+  ['data-efx-media="(min-width: 768px)"', 'On any element: its effects run only while the media query matches, and start/stop as the viewport crosses it (e.g. particles on desktop only).'],
   ['window.EffixConfig = { auto:false, observe:true }', 'Same switches from JS, set before the script loads.'],
 ];
 

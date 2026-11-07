@@ -329,6 +329,7 @@ Global knobs: `--efx-duration`, `--efx-ease`, `--efx-distance`, `--efx-color`. S
 | `<html data-efx-observe>` | Start features on elements added later (SPAs, visual editors). |
 | `<html data-efx-reduce>` | Force reduced motion. |
 | `<html data-efx-margin="200px">` | How early lazy features start before they enter the viewport. |
+| `data-efx-media="(min-width: 768px)"` | On any element: effects run only while the media query matches (e.g. desktop-only particles), starting/stopping as the viewport changes. |
 | `window.EffixConfig = { auto: false, observe: true }` | The same switches from JS. Set it before the script loads. |
 
 ## Visual editors and SPAs
