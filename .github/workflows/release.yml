@@ -1,11 +1,13 @@
 name: GitHub release
 
-# Push a tag that matches package.json to publish a GitHub release, e.g.
-#   git tag v0.1.0 && git push origin v0.1.0
-# Release notes come from that version's section in CHANGELOG.md.
+# Releases automatically: on every push to main, if no GitHub release exists yet for
+# the version in package.json, build + test and create release v<version> (tag included).
+# To ship a new version: bump package.json "version", add a "## v<version>" section to
+# CHANGELOG.md, push to main. Can also be run by hand from the Actions tab.
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,24 +17,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Version and whether it is already released
+        id: v
+        run: |
+          v="v$(node -p "require('./package.json').version")"
+          echo "TAG=$v" >> "$GITHUB_ENV"
+          if gh release view "$v" >/dev/null 2>&1; then echo "exists=true" >> "$GITHUB_OUTPUT"; else echo "exists=false" >> "$GITHUB_OUTPUT"; fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - if: steps.v.outputs.exists == 'false'
+        uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium
-      - name: Tag matches package.json version
-        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
-      - run: npm run build
-      - run: node tests/smoke.js chromium
+      - if: steps.v.outputs.exists == 'false'
+        run: npm install --no-audit --no-fund
+      - if: steps.v.outputs.exists == 'false'
+        run: npx playwright install --with-deps chromium
+      - if: steps.v.outputs.exists == 'false'
+        run: npm run build
+      - if: steps.v.outputs.exists == 'false'
+        run: node tests/smoke.js chromium
       - name: Release notes from CHANGELOG
-        run: awk -v t="## $GITHUB_REF_NAME" 'index($0,t)==1{f=1;next} /^## /{f=0} f' CHANGELOG.md > notes.md
+        if: steps.v.outputs.exists == 'false'
+        run: awk -v t="## $TAG" 'index($0,t)==1{f=1;next} /^## /{f=0} f' CHANGELOG.md > notes.md
       - name: Package dist
+        if: steps.v.outputs.exists == 'false'
         run: |
-          cd dist && zip -qr "../effix-$GITHUB_REF_NAME.zip" . -x '_*' && cd ..
+          cd dist && zip -qr "../effix-$TAG.zip" . -x '_*' && cd ..
       - name: Create release
+        if: steps.v.outputs.exists == 'false'
         run: >
-          gh release create "$GITHUB_REF_NAME" --title "Effix $GITHUB_REF_NAME" --notes-file notes.md
-          "effix-$GITHUB_REF_NAME.zip"
+          gh release create "$TAG" --target "$GITHUB_SHA" --title "Effix $TAG" --notes-file notes.md
+          "effix-$TAG.zip"
           dist/effix.auto.min.js dist/effix.core.min.js dist/effix.core.min.css
           dist/effix.min.js dist/effix.min.css
           dist/effix-charts.min.js dist/effix-charts.min.css
