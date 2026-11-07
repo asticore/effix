@@ -22,6 +22,7 @@ const pkg = require('./package.json');
 const BUDGET = { // gzip bytes
   'effix.min.js': 52 * 1024, 'effix.min.css': 12 * 1024,
   'effix-charts.min.js': 36 * 1024, 'effix-charts.min.css': 5 * 1024,
+  'effix-diagrams.min.js': 24 * 1024, 'effix-diagrams.min.css': 5 * 1024,
 };
 
 const args = Object.fromEntries(process.argv.slice(2).map(a => {
@@ -38,8 +39,11 @@ const scanDir = dir => fs.readdirSync(path.join(SRC, dir))
   .filter(f => /^[a-z][\w-]*\.js$/.test(f) && !f.endsWith('.meta.js'))
   .map(f => ({ name: f.slice(0, -3), dir })).sort((a, b) => a.name.localeCompare(b.name));
 const EFFECTS = scanDir('features');
-const CHARTS = scanDir('charts');
-const ALL = [...EFFECTS, ...CHARTS];
+const CHART_DIR = scanDir('charts');
+// diagram-* ship as their own add-on so chart-only pages don't download them
+const CHARTS = CHART_DIR.filter(f => !f.name.startsWith('diagram-'));
+const DIAGRAMS = CHART_DIR.filter(f => f.name.startsWith('diagram-'));
+const ALL = [...EFFECTS, ...CHARTS, ...DIAGRAMS];
 const unknown = [...(only || []), ...(exclude || [])].filter(n => !ALL.some(f => f.name === n));
 if (unknown.length) { console.error(`Unknown feature(s): ${unknown.join(', ')}\nAvailable: ${ALL.map(f => f.name).join(', ')}`); process.exit(1); }
 const pick = fs0 => fs0.filter(f => (!only || only.includes(f.name)) && (!exclude || !exclude.includes(f.name)));
@@ -129,6 +133,13 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
     const cssC = wrapCss(bC, [CHART_CSS, ...cssFor(CHARTS)]);
     write('effix-charts.css', cssC);
     write('effix-charts.min.css', bC + minCss(cssC));
+    // diagrams add-on (tree, flow, sequence, cycle, fishbone)
+    const bD = banner(' Diagrams', DIAGRAMS);
+    write('effix-diagrams.js', bD + await bundle(addonEntry(DIAGRAMS), { minify: false, plugins: [useHostCore] }));
+    write('effix-diagrams.min.js', bD + await bundle(addonEntry(DIAGRAMS), { plugins: [useHostCore] }));
+    const cssD = wrapCss(bD, [CHART_CSS, ...cssFor(DIAGRAMS)]);
+    write('effix-diagrams.css', cssD);
+    write('effix-diagrams.min.css', bD + minCss(cssD));
     // core only + auto-loader (plain pages: load just the feature files the page uses)
     const bK = banner(' core', []);
     write('effix.core.min.js', bK + await bundle(entry([])));
@@ -146,6 +157,7 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
         return [f.name, [[...new Set([...sel.split(',').map(x => x.trim()), ...extra])].join(','), !!cssOf(path.join(SRC, f.dir, f.name + '.css'))]];
       })),
       charts: CHARTS.map(f => `.efx-${f.name}`).join(','),
+      diagrams: DIAGRAMS.map(f => `.efx-${f.name}`).join(','),
     };
     const autoEntry = `import api, { autoBoot } from './core.js';\nimport { autoload } from './loader.js';\nwindow.Effix = api;\nautoload(api, ${JSON.stringify(manifest)});\nautoBoot();\nexport default api;`;
     write('effix.auto.min.js', banner(' auto-loader', []) + await bundle(autoEntry));

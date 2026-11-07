@@ -5260,6 +5260,594 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Profit bridge</h3>\n  <div class=\"efx-chart-waterfall\" data-efx-prefix=\"$\" data-efx-suffix=\"k\" data-efx-totals=\"0|-1\"\n    data-efx-labels=\"Revenue|Refunds|COGS|Salaries|Ads|Other income|Profit\" data-efx-data=\"480,-32,-140,-170,-45,25,0\"></div>\n</div>"
+  },
+  {
+   "name": "diagram-cycle",
+   "title": "Cycle diagram",
+   "group": "Diagrams",
+   "kind": "chart",
+   "classes": [
+    "efx-diagram-cycle"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-labels",
+     "def": "",
+     "desc": "Step names in order: \"Plan|Build|Measure|Learn\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-descriptions",
+     "def": "",
+     "desc": "Tooltip text per step, \"a|b|c\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-center",
+     "def": "",
+     "desc": "Label in the middle; \"|\" starts a new line.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-numbers",
+     "def": "true",
+     "desc": "Number the steps.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-flow",
+     "def": "true",
+     "desc": "Animate dashes flowing along the arrows.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-start",
+     "def": "0",
+     "desc": "Angle of step 1 in degrees (0 = top, clockwise).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "340",
+     "desc": "Chart height in px (0 = element CSS height).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "One color per step.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: just nodes and arrows, behind the content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name (else aria-label or first heading).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Product loop</h3>\n  <div class=\"efx-diagram-cycle\" data-efx-center=\"Ship|learn|repeat\" data-efx-labels=\"Discover|Build|Launch|Measure|Learn\" data-efx-descriptions=\"Talk to users and find the problem|Make the smallest useful thing|Put it in front of real people|Watch what they actually do|Decide what to change next\"></div>\n</div>"
+  },
+  {
+   "name": "diagram-fishbone",
+   "title": "Fishbone diagram",
+   "group": "Diagrams",
+   "kind": "chart",
+   "classes": [
+    "efx-diagram-fishbone"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-problem",
+     "def": "",
+     "desc": "Problem (head of the fish). Overrides the JSON value.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "JSON {problem, causes:[{name, items[]}]}.",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Bone colors.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-4\"><div class=\"efx-diagram-fishbone\" data-efx-problem=\"Late deliveries\"><ul>\n  <li>People<ul><li>Short staffed</li><li>Training gaps</li><li>High turnover</li></ul></li>\n  <li>Process<ul><li>Manual dispatch</li><li>No backup route</li><li>Late cutoffs</li></ul></li>\n  <li>Vehicles<ul><li>Breakdowns</li><li>Fuel stops</li></ul></li>\n  <li>Customers<ul><li>Wrong address</li><li>Not home</li><li>Changed slot</li></ul></li>\n  <li>Weather<ul><li>Snow</li><li>Floods</li></ul></li>\n  <li>Systems<ul><li>Stale ETAs</li><li>Scanner outages</li><li>Slow routing</li></ul></li>\n</ul></div></div>"
+  },
+  {
+   "name": "diagram-flow",
+   "title": "Flow diagram",
+   "group": "Diagrams",
+   "kind": "chart",
+   "classes": [
+    "efx-diagram-flow"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-edges",
+     "def": "",
+     "desc": "Connections: \"a>b|b>c:label|c~>a\". Operators > ~> => <>.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-layout",
+     "def": "",
+     "desc": "\"auto\" = layered layout (longest-path ranks, barycenter ordering) for the container’s direct children. Empty = place with data-efx-cell or let it flow.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-direction",
+     "def": "TB",
+     "desc": "Auto layout direction: TB (top to bottom) or LR.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-cols",
+     "def": "0",
+     "desc": "Grid columns when using data-efx-cell (inferred from the cells if 0). Also valid on a group.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-lanes",
+     "def": "",
+     "desc": "Swimlane names \"Customer|Support|Billing\". Nodes pick a lane with data-efx-lane=\"Support\"; column comes from the flow rank or data-efx-cell.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-route",
+     "def": "orth",
+     "desc": "\"orth\" elbow connectors, \"curve\" or \"straight\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-flow",
+     "def": "false",
+     "desc": "Animated dots travelling along each connector (off for reduced motion).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Palette for numeric tones (data-efx-tone=\"3\").",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-4\"><div class=\"efx-diagram-flow\" data-efx-layout=\"auto\" data-efx-edges=\"start>in|in>check|check>ok:Yes|check>fix:No|fix>in:retry|ok>done\">\n  <div id=\"start\" data-efx-shape=\"pill\" data-efx-tone=\"success\">Start</div>\n  <div id=\"in\">Receive order</div>\n  <div id=\"check\" data-efx-shape=\"diamond\">In stock?</div>\n  <div id=\"ok\">Ship order</div>\n  <div id=\"fix\" data-efx-tone=\"warning\">Backorder</div>\n  <div id=\"done\" data-efx-shape=\"pill\" data-efx-tone=\"primary\">Done</div>\n</div></div>"
+  },
+  {
+   "name": "chart-pyramid",
+   "title": "Pyramid",
+   "group": "Diagrams",
+   "kind": "chart",
+   "classes": [
+    "efx-chart-pyramid"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-labels",
+     "def": "",
+     "desc": "Tier names top → bottom: \"A|B|C\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "Optional values \"1,3,6,12\": tier heights follow them.",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-equal",
+     "def": "false",
+     "desc": "Equal tier heights even when values exist.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-inverted",
+     "def": "false",
+     "desc": "Point the triangle down (widest tier on top).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-notes",
+     "def": "",
+     "desc": "Side annotations, one per tier \"Why|Where|How\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-gap",
+     "def": "3",
+     "desc": "Gap between tiers in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "320",
+     "desc": "Chart height in px (0 = element CSS height).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "One color per tier.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-legend",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: just the tiers, behind the content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name (else aria-label or first heading).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Planning layers</h3>\n  <div class=\"efx-chart-pyramid\" data-efx-labels=\"Vision|Strategy|Tactics|Daily tasks\" data-efx-notes=\"Why we exist|Where we play and how we win|Quarterly bets and projects|The work itself\" data-efx-legend=\"false\"></div>\n</div>"
+  },
+  {
+   "name": "chart-quadrant",
+   "title": "Quadrant matrix",
+   "group": "Diagrams",
+   "kind": "chart",
+   "classes": [
+    "efx-chart-quadrant"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "JSON items [{\"label\",\"x\",\"y\",\"r?\",\"group?\"}].",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-quadrants",
+     "def": "",
+     "desc": "Names \"Quick wins|Big bets|Fill-ins|Money pits\" (top-left, top-right, bottom-left, bottom-right).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-x-label",
+     "def": "",
+     "desc": "Axis titles, e.g. \"Effort →\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-y-label",
+     "def": "",
+     "desc": "Axis titles, e.g. \"Effort →\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-x-domain",
+     "def": "0,100",
+     "desc": "Value range of each axis, e.g. \"0,10\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-y-domain",
+     "def": "0,100",
+     "desc": "Value range of each axis, e.g. \"0,10\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "360",
+     "desc": "Chart height in px (0 = element CSS height).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Palette; groups and quadrant tints use it in order.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: tinted quadrants and dots only, behind the content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name (else aria-label or first heading).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Roadmap bets</h3>\n  <div class=\"efx-chart-quadrant\" data-efx-quadrants=\"Quick wins|Big bets|Fill-ins|Money pits\" data-efx-x-label=\"Effort →\" data-efx-y-label=\"Impact →\"\n    data-efx-data='[{\"label\":\"Onboarding\",\"x\":22,\"y\":82,\"group\":\"Growth\"},{\"label\":\"Search\",\"x\":30,\"y\":68,\"group\":\"Core\"},{\"label\":\"Rewrite API\",\"x\":84,\"y\":78,\"group\":\"Core\"},{\"label\":\"Mobile app\",\"x\":78,\"y\":60,\"group\":\"Growth\"},{\"label\":\"Dark mode\",\"x\":18,\"y\":32,\"group\":\"Polish\"},{\"label\":\"Legacy sync\",\"x\":88,\"y\":18,\"group\":\"Core\"},{\"label\":\"Emoji\",\"x\":40,\"y\":12,\"group\":\"Polish\"}]'></div>\n</div>"
+  },
+  {
+   "name": "diagram-sequence",
+   "title": "Sequence diagram",
+   "group": "Diagrams",
+   "kind": "chart",
+   "classes": [
+    "efx-diagram-sequence"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "The diagram text or JSON (otherwise read from the inline  / ).",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-play",
+     "def": "false",
+     "desc": "Draw messages in one by one when scrolled into view (static for reduced motion).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-step",
+     "def": "420",
+     "desc": "Play: ms between messages.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-activations",
+     "def": "false",
+     "desc": "Automatic activation bars: a sync/async message activates its target until it returns.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-numbers",
+     "def": "false",
+     "desc": "Number the messages (or write autonumber).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-bottom",
+     "def": "false",
+     "desc": "Repeat participant boxes at the bottom.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-gap",
+     "def": "0",
+     "desc": "Minimum px between lifelines (0 = auto).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Participant accent colors.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Keyboard-step tooltip.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6 efx-diagram-sequence\" data-efx-title=\"Token refresh\" data-efx-bottom><script type=\"text/plain\">\nparticipant Client\nparticipant API as \"API Gateway\"\nparticipant Auth\nClient -> API: GET /me\nAPI --> Client: 401 Unauthorized\nnote over Client: token expired\nloop retry up to 3x\n  Client ->> Auth: POST /refresh\n  alt valid refresh token\n    Auth --> Client: new access token\n  else revoked\n    Auth --> Client: 403\n  end\nend\nClient -> API: GET /me\nAPI -> API: verify JWT\nAPI --> Client: 200 OK\n</script></div>"
+  },
+  {
+   "name": "diagram-tree",
+   "title": "Tree diagram",
+   "group": "Diagrams",
+   "kind": "chart",
+   "classes": [
+    "efx-diagram-tree"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-direction",
+     "def": "down",
+     "desc": "\"down\" (org chart) or \"right\" (horizontal tree).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-layout",
+     "def": "tree",
+     "desc": "\"mindmap\" centres the root and splits its children left/right.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-links",
+     "def": "elbow",
+     "desc": "\"elbow\", \"curve\" or \"straight\" connectors.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-collapsible",
+     "def": "true",
+     "desc": "Branches fold on click / Enter / Space.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-collapse",
+     "def": "0",
+     "desc": "Start folded from this depth (1 = fold every branch below the root's children). 0 = all open.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-gap",
+     "def": "16",
+     "desc": "Gap between siblings in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-level-gap",
+     "def": "44",
+     "desc": "Gap between levels in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-tone",
+     "def": "",
+     "desc": "Default tone for every node (a Shine tone name).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Entrance + fold animation (off for reduced motion).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name (or aria-label on the list).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\"><ul class=\"efx-diagram-tree\" aria-label=\"Organisation\">\n  <li data-efx-tone=\"primary\"><span>CEO</span><ul>\n    <li data-efx-tone=\"info\"><span>CTO</span><ul><li>Platform</li><li>Mobile</li><li>Data</li></ul></li>\n    <li data-efx-tone=\"success\"><span>CFO</span><ul><li>Finance</li><li>Legal</li></ul></li>\n    <li data-efx-tone=\"warning\"><span>COO</span><ul><li>Support</li><li>Ops</li></ul></li>\n  </ul></li></ul></div>"
+  },
+  {
+   "name": "chart-venn",
+   "title": "Venn diagram",
+   "group": "Diagrams",
+   "kind": "chart",
+   "classes": [
+    "efx-chart-venn"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "JSON regions [{\"sets\":[\"A\"],\"size\":12},{\"sets\":[\"A\",\"B\"],\"size\":4}].",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-opacity",
+     "def": "0.4",
+     "desc": "Circle fill opacity.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "300",
+     "desc": "Chart height in px (0 = element CSS height).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "One color per set \"#f43f5e|#8b5cf6|#10b981\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Number formatting of the counts.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Number formatting of the counts.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "",
+     "desc": "Number formatting of the counts.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-decimals",
+     "def": "",
+     "desc": "Number formatting of the counts.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: just the circles, behind the content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name (else aria-label or first heading).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Who uses what</h3>\n  <div class=\"efx-chart-venn\" data-efx-data='[{\"sets\":[\"Web\"],\"size\":120},{\"sets\":[\"Mobile\"],\"size\":80},{\"sets\":[\"Desktop\"],\"size\":50},{\"sets\":[\"Web\",\"Mobile\"],\"size\":35},{\"sets\":[\"Web\",\"Desktop\"],\"size\":20},{\"sets\":[\"Mobile\",\"Desktop\"],\"size\":12},{\"sets\":[\"Web\",\"Mobile\",\"Desktop\"],\"size\":6}]' data-efx-suffix=\" users\"></div>\n</div>"
   }
  ]
 };

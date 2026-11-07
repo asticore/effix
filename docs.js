@@ -106,7 +106,11 @@ const installBundle = `<link rel="stylesheet" href="${CDN}/shine@main/dist/shine
 
 <!-- optional: charts & funnels add-on -->
 <link rel="stylesheet" href="${CDN}/effix@main/dist/effix-charts.min.css">
-<script src="${CDN}/effix@main/dist/effix-charts.min.js" defer></script>`;
+<script src="${CDN}/effix@main/dist/effix-charts.min.js" defer></script>
+
+<!-- optional: diagrams add-on (tree, flow, sequence, cycle, fishbone) -->
+<link rel="stylesheet" href="${CDN}/effix@main/dist/effix-diagrams.min.css">
+<script src="${CDN}/effix@main/dist/effix-diagrams.min.js" defer></script>`;
 const installPick = `<script src="${CDN}/effix@main/dist/effix.core.min.js" defer></script>
 <link rel="stylesheet" href="${CDN}/effix@main/dist/effix.core.min.css">
 <!-- then one tag per feature you use -->

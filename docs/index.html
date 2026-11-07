@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Effix — JavaScript effects for Shine CSS</title>
-<meta name="description" content="Effix adds particles, parallax, scroll reveals, tilt, magnetic buttons, rotating borders, shape dividers, carousels, popups and more with plain classes. Pairs with Shine CSS. 57.1 KB gzipped, only features on the page start. Interactive SVG charts and funnels as a 29.2 KB add-on.">
+<meta name="description" content="Effix adds particles, parallax, scroll reveals, tilt, magnetic buttons, rotating borders, shape dividers, carousels, popups and more with plain classes. Pairs with Shine CSS. 57.1 KB gzipped, only features on the page start. Interactive SVG charts and funnels as a 33.0 KB add-on.">
 <link rel="canonical" href="https://asticore.github.io/effix/docs/">
 <link rel="icon" href="logo.svg">
 <link rel="stylesheet" href="vendor/shine.min.css">
@@ -107,7 +107,7 @@ document.addEventListener('efx:ready', ({ detail: E }) => {
     <div class="lg:col-span-7 stack gap-6">
       <p class="cluster gap-2">
         <span class="badge badge-solid">effects 57.1 KB gzip</span>
-        <span class="badge tone-accent">charts add-on 29.2 KB</span>
+        <span class="badge tone-accent">charts add-on 33.0 KB</span>
         <span class="badge tone-success">core 2.6 KB</span>
         <span class="badge tone-neutral">MIT · 0 dependencies</span>
       </p>
@@ -116,7 +116,7 @@ document.addEventListener('efx:ready', ({ detail: E }) => {
       <p class="text-muted m-0 max-w-xl">Built as the partner of <a href="https://asticore.github.io/shine/docs/">Shine CSS</a>: Shine handles styling with zero JS, Effix adds behaviour and reads Shine's tokens, so <code>tone-*</code> classes and <code>--sh-primary</code> recolour every effect. Only the features found on the page start; heavy ones wait until they scroll into view.</p>
       <div class="cluster gap-3">
         <a class="btn btn-lg efx-magnetic efx-ripple" href="#start">Get started</a>
-        <a class="btn btn-lg btn-outline efx-border-spin" href="#features">Browse 88 features</a>
+        <a class="btn btn-lg btn-outline efx-border-spin" href="#features">Browse 96 features</a>
       </div>
     </div>
     <div class="lg:col-span-5">
@@ -150,7 +150,11 @@ document.addEventListener('efx:ready', ({ detail: E }) => {
 
 &lt;!-- optional: charts &amp; funnels add-on --&gt;
 &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-charts.min.css&quot;&gt;
-&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-charts.min.js&quot; defer&gt;&lt;/script&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-bundle">Copy</button></div></div></div>
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-charts.min.js&quot; defer&gt;&lt;/script&gt;
+
+&lt;!-- optional: diagrams add-on (tree, flow, sequence, cycle, fishbone) --&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-diagrams.min.css&quot;&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-diagrams.min.js&quot; defer&gt;&lt;/script&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-bundle">Copy</button></div></div></div>
       <div class="card"><div class="card-body stack"><h3 class="card-title m-0">4 · npm / bundlers</h3><p class="text-sm m-0">Import the bundle, or only the features you use from the ES sources.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-esm" tabindex="0"><code>npm i effix shine-css
 
 import 'shine-css';
@@ -292,10 +296,18 @@ init();</code></pre><button class="btn btn-outline btn-sm flex-none self-start e
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="chart-sunburst" data-kind="chart" data-size="2911" checked> Sunburst chart <span class="text-muted ml-auto">2.8 KB</span></label>
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="chart-timeline" data-kind="chart" data-size="2916" checked> Timeline / Gantt chart <span class="text-muted ml-auto">2.8 KB</span></label>
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="chart-treemap" data-kind="chart" data-size="2012" checked> Treemap chart <span class="text-muted ml-auto">2.0 KB</span></label>
-<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="chart-waterfall" data-kind="chart" data-size="1786" checked> Waterfall chart <span class="text-muted ml-auto">1.7 KB</span></label></div>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="chart-waterfall" data-kind="chart" data-size="1786" checked> Waterfall chart <span class="text-muted ml-auto">1.7 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="diagram-cycle" data-kind="chart" data-size="2352" checked> Cycle diagram <span class="text-muted ml-auto">2.3 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="diagram-fishbone" data-kind="chart" data-size="2813" checked> Fishbone diagram <span class="text-muted ml-auto">2.7 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="diagram-flow" data-kind="chart" data-size="6845" checked> Flow diagram <span class="text-muted ml-auto">6.7 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="chart-pyramid" data-kind="chart" data-size="2154" checked> Pyramid <span class="text-muted ml-auto">2.1 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="chart-quadrant" data-kind="chart" data-size="2724" checked> Quadrant matrix <span class="text-muted ml-auto">2.7 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="diagram-sequence" data-kind="chart" data-size="6789" checked> Sequence diagram <span class="text-muted ml-auto">6.6 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="diagram-tree" data-kind="chart" data-size="5028" checked> Tree diagram <span class="text-muted ml-auto">4.9 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="chart-venn" data-kind="chart" data-size="2958" checked> Venn diagram <span class="text-muted ml-auto">2.9 KB</span></label></div>
       </div></fieldset>
       <div class="card"><div class="card-body stack">
-        <p class="m-0">Estimated: <strong id="pick-size" data-core="2688" data-chartlib="5286">86.3 KB</strong> gzip</p>
+        <p class="m-0">Estimated: <strong id="pick-size" data-core="2688" data-chartlib="5286">90.1 KB</strong> gzip</p>
         <div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="pick-cmd" tabindex="0"><code>node build.js</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#pick-cmd">Copy</button></div>
         <div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="pick-esm" tabindex="0"><code>import { define, init } from 'effix/core';</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#pick-esm">Copy</button></div>
       </div></div>
@@ -491,9 +503,10 @@ document.addEventListener('efx:ready', ({ detail: E }) =&gt; {
 <li><span class="text-xs font-semibold uppercase text-muted">Components</span><ul class="stack gap-1 mt-1"><li><a href="#f-feed">Animated feed</a></li><li><a href="#f-compare">Before / after compare</a></li><li><a href="#f-carousel">Carousel controls</a></li><li><a href="#f-copy">Copy to clipboard</a></li><li><a href="#f-drag">Drag to scroll</a></li><li><a href="#f-zoom">Image zoom lens</a></li><li><a href="#f-layout">Layout animation (FLIP)</a></li><li><a href="#f-lazyimg">Lazy images</a></li><li><a href="#f-lightbox">Lightbox</a></li><li><a href="#f-popup">Popup triggers</a></li><li><a href="#f-pricing">Pricing toggle</a></li><li><a href="#f-schedule">Schedule visibility</a></li><li><a href="#f-shimmer">Shimmer / skeleton</a></li><li><a href="#f-media">Smart video</a></li><li><a href="#f-collapse">Smooth collapse</a></li><li><a href="#f-spinner">Spinners</a></li><li><a href="#f-toast">Toast</a></li></ul></li>
 <li><span class="text-xs font-semibold uppercase text-muted">Page</span><ul class="stack gap-1 mt-1"><li><a href="#f-transition">Page transitions</a></li></ul></li>
 <li><span class="text-xs font-semibold uppercase text-muted">Time</span><ul class="stack gap-1 mt-1"><li><a href="#f-countdown">Countdown</a></li></ul></li>
-<li><span class="text-xs font-semibold uppercase text-muted">Charts</span><ul class="stack gap-1 mt-1"><li><a href="#f-chart-bar">Bar chart</a></li><li><a href="#f-chart-box">Box plot</a></li><li><a href="#f-chart-bullet">Bullet chart</a></li><li><a href="#f-chart-candle">Candlestick chart</a></li><li><a href="#f-chart-combo">Combo chart</a></li><li><a href="#f-chart-flow">Flow chart</a></li><li><a href="#f-chart-funnel">Funnel chart</a></li><li><a href="#f-chart-gauge">Gauge &amp; ring</a></li><li><a href="#f-chart-heatmap">Heatmap</a></li><li><a href="#f-chart-histogram">Histogram</a></li><li><a href="#f-chart-line">Line chart</a></li><li><a href="#f-chart-pie">Pie &amp; donut chart</a></li><li><a href="#f-chart-progress">Progress bars</a></li><li><a href="#f-chart-radar">Radar chart</a></li><li><a href="#f-chart-scatter">Scatter chart</a></li><li><a href="#f-chart-spark">Sparkline</a></li><li><a href="#f-chart-sunburst">Sunburst chart</a></li><li><a href="#f-chart-timeline">Timeline / Gantt chart</a></li><li><a href="#f-chart-treemap">Treemap chart</a></li><li><a href="#f-chart-waterfall">Waterfall chart</a></li></ul></li></ul></nav>
+<li><span class="text-xs font-semibold uppercase text-muted">Charts</span><ul class="stack gap-1 mt-1"><li><a href="#f-chart-bar">Bar chart</a></li><li><a href="#f-chart-box">Box plot</a></li><li><a href="#f-chart-bullet">Bullet chart</a></li><li><a href="#f-chart-candle">Candlestick chart</a></li><li><a href="#f-chart-combo">Combo chart</a></li><li><a href="#f-chart-flow">Flow chart</a></li><li><a href="#f-chart-funnel">Funnel chart</a></li><li><a href="#f-chart-gauge">Gauge &amp; ring</a></li><li><a href="#f-chart-heatmap">Heatmap</a></li><li><a href="#f-chart-histogram">Histogram</a></li><li><a href="#f-chart-line">Line chart</a></li><li><a href="#f-chart-pie">Pie &amp; donut chart</a></li><li><a href="#f-chart-progress">Progress bars</a></li><li><a href="#f-chart-radar">Radar chart</a></li><li><a href="#f-chart-scatter">Scatter chart</a></li><li><a href="#f-chart-spark">Sparkline</a></li><li><a href="#f-chart-sunburst">Sunburst chart</a></li><li><a href="#f-chart-timeline">Timeline / Gantt chart</a></li><li><a href="#f-chart-treemap">Treemap chart</a></li><li><a href="#f-chart-waterfall">Waterfall chart</a></li></ul></li>
+<li><span class="text-xs font-semibold uppercase text-muted">Diagrams</span><ul class="stack gap-1 mt-1"><li><a href="#f-diagram-cycle">Cycle diagram</a></li><li><a href="#f-diagram-fishbone">Fishbone diagram</a></li><li><a href="#f-diagram-flow">Flow diagram</a></li><li><a href="#f-chart-pyramid">Pyramid</a></li><li><a href="#f-chart-quadrant">Quadrant matrix</a></li><li><a href="#f-diagram-sequence">Sequence diagram</a></li><li><a href="#f-diagram-tree">Tree diagram</a></li><li><a href="#f-chart-venn">Venn diagram</a></li></ul></li></ul></nav>
     <div class="lg:col-span-3 stack gap-12 min-w-0">
-      <header class="stack gap-2"><p class="label m-0 text-primary">Features</p><h2 id="h-features" class="text-3xl md:text-4xl font-bold tracking-tight m-0">88 features</h2>
+      <header class="stack gap-2"><p class="label m-0 text-primary">Features</p><h2 id="h-features" class="text-3xl md:text-4xl font-bold tracking-tight m-0">96 features</h2>
       <p class="m-0 text-muted">Every demo is live: edit the HTML under it and the demo restarts with your options.</p></header>
       <section id="f-animate" class="stack gap-4 feature" aria-labelledby="h-animate">
   <header class="stack gap-1">
@@ -5309,6 +5322,720 @@ or <code>{"labels":[…],"series":[{"values":[…]}]}</code> (first series only)
 <thead><tr><th scope="col">Event</th><th scope="col">When</th></tr></thead>
 <tbody><tr><td><code>efx:select</code></td><td>Bar clicked / Enter pressed. detail = { index, label, value }.</td></tr>
 <tr><td><code>efx:data (listen)</code></td><td>Dispatch with detail { labels, series:[{values}] } to update.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-diagram-cycle" class="stack gap-4 feature" aria-labelledby="h-diagram-cycle">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-diagram-cycle" class="text-2xl font-bold m-0">Cycle diagram</h3>
+      <span class="badge tone-neutral"><code>diagram-cycle</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">2.3 KB</span></div>
+    <p class="m-0 text-muted">Numbered steps on a circle joined by curved, flowing arrows, with an optional centre label. Hover or arrow-key through steps for the description; click a step to fire <code>efx:select</code>. The arrow flow stops for reduced motion.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-cycle-117"><div class="card p-6">
+  <h3 class="m-0 mb-3">Product loop</h3>
+  <div class="efx-diagram-cycle" data-efx-center="Ship|learn|repeat" data-efx-labels="Discover|Build|Launch|Measure|Learn" data-efx-descriptions="Talk to users and find the problem|Make the smallest useful thing|Put it in front of real people|Watch what they actually do|Decide what to change next"></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-cycle-117-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-cycle-117-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-cycle-117-code" data-demo="ex-diagram-cycle-117" spellcheck="false" rows="5">&lt;div class=&quot;card p-6&quot;&gt;
+  &lt;h3 class=&quot;m-0 mb-3&quot;&gt;Product loop&lt;/h3&gt;
+  &lt;div class=&quot;efx-diagram-cycle&quot; data-efx-center=&quot;Ship|learn|repeat&quot; data-efx-labels=&quot;Discover|Build|Launch|Measure|Learn&quot; data-efx-descriptions=&quot;Talk to users and find the problem|Make the smallest useful thing|Put it in front of real people|Watch what they actually do|Decide what to change next&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-cycle-118"><div class="grid md:grid-cols-2 gap-4">
+  <div class="card p-6"><div class="efx-diagram-cycle" data-efx-height="260" data-efx-labels="Plan|Do|Check|Act" data-efx-title="PDCA cycle"></div></div>
+  <div class="card p-6 efx-diagram-cycle" data-efx-background data-efx-labels="A|B|C|D|E"><h3 class="m-0">Always iterating</h3><p class="m-0">Cycle as a card background.</p></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-cycle-118-code">Compact PDCA loop, and a cycle as a card background</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-cycle-118-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-cycle-118-code" data-demo="ex-diagram-cycle-118" spellcheck="false" rows="5">&lt;div class=&quot;grid md:grid-cols-2 gap-4&quot;&gt;
+  &lt;div class=&quot;card p-6&quot;&gt;&lt;div class=&quot;efx-diagram-cycle&quot; data-efx-height=&quot;260&quot; data-efx-labels=&quot;Plan|Do|Check|Act&quot; data-efx-title=&quot;PDCA cycle&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;card p-6 efx-diagram-cycle&quot; data-efx-background data-efx-labels=&quot;A|B|C|D|E&quot;&gt;&lt;h3 class=&quot;m-0&quot;&gt;Always iterating&lt;/h3&gt;&lt;p class=&quot;m-0&quot;&gt;Cycle as a card background.&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="alert tone-info"><span class="alert-title">Data format</span><div class="stack gap-2 text-sm">Steps are the labels, in order: <code>data-efx-labels="Plan|Build|Measure|Learn"</code> (or JSON <code>[{"label":"Plan","desc":"Pick a bet"}]</code>, <code>{"labels":[…]}</code>).
+Step descriptions show in the tooltip: <code>data-efx-descriptions="Pick a bet|Ship it|…"</code>, or a <code>desc</code> field on each JSON item. Arrows run clockwise and the last step loops back to the first.
+Values are not used; an inline <code>&lt;script type="application/json"&gt;</code> and <code>efx:data</code> (<code>{labels, descriptions}</code> or an items array) also work.</div></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-diagram-cycle</code></td><td>Renders a loop diagram from data-efx-labels.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-labels</code></td><td></td><td>Step names in order: &quot;Plan|Build|Measure|Learn&quot;.</td></tr>
+<tr><td><code>data-efx-descriptions</code></td><td></td><td>Tooltip text per step, &quot;a|b|c&quot;.</td></tr>
+<tr><td><code>data-efx-center</code></td><td></td><td>Label in the middle; &quot;|&quot; starts a new line.</td></tr>
+<tr><td><code>data-efx-numbers</code></td><td><code>true</code></td><td>Number the steps.</td></tr>
+<tr><td><code>data-efx-flow</code></td><td><code>true</code></td><td>Animate dashes flowing along the arrows.</td></tr>
+<tr><td><code>data-efx-start</code></td><td><code>0</code></td><td>Angle of step 1 in degrees (0 = top, clockwise).</td></tr>
+<tr><td><code>data-efx-height</code></td><td><code>340</code></td><td>Chart height in px (0 = element CSS height).</td></tr>
+<tr><td><code>data-efx-colors</code></td><td><code>Shine tones</code></td><td>One color per step.</td></tr>
+<tr><td><code>data-efx-tooltip / animate</code></td><td><code>true</code></td><td>Turn parts off.</td></tr>
+<tr><td><code>data-efx-background</code></td><td><code>false</code></td><td>Decorative: just nodes and arrows, behind the content.</td></tr>
+<tr><td><code>data-efx-title</code></td><td></td><td>Accessible name (else aria-label or first heading).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-chart-1 … 7</code></td><td><code>Shine tones</code></td><td>Step colors.</td></tr>
+<tr><td><code>--efx-chart-text</code></td><td><code>muted text</code></td><td>Arrows.</td></tr>
+<tr><td><code>--efx-chart-bg-opacity</code></td><td><code>.35</code></td><td>Opacity in background mode.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Event</th><th scope="col">When</th></tr></thead>
+<tbody><tr><td><code>efx:select</code></td><td>Step clicked / Enter pressed. detail = { index, label, value }.</td></tr>
+<tr><td><code>efx:data (listen)</code></td><td>Dispatch on the diagram with detail { labels, descriptions } to update it.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-diagram-fishbone" class="stack gap-4 feature" aria-labelledby="h-diagram-fishbone">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-diagram-fishbone" class="text-2xl font-bold m-0">Fishbone diagram</h3>
+      <span class="badge tone-neutral"><code>diagram-fishbone</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">2.7 KB</span></div>
+    <p class="m-0 text-muted">Ishikawa diagram: a spine ending in the problem, angled category bones alternating above and below, and cause labels along each bone. Hover or focus a bone to isolate it. Scales with the container width.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-fishbone-119"><div class="card p-4"><div class="efx-diagram-fishbone" data-efx-problem="Late deliveries"><ul>
+  <li>People<ul><li>Short staffed</li><li>Training gaps</li><li>High turnover</li></ul></li>
+  <li>Process<ul><li>Manual dispatch</li><li>No backup route</li><li>Late cutoffs</li></ul></li>
+  <li>Vehicles<ul><li>Breakdowns</li><li>Fuel stops</li></ul></li>
+  <li>Customers<ul><li>Wrong address</li><li>Not home</li><li>Changed slot</li></ul></li>
+  <li>Weather<ul><li>Snow</li><li>Floods</li></ul></li>
+  <li>Systems<ul><li>Stale ETAs</li><li>Scanner outages</li><li>Slow routing</li></ul></li>
+</ul></div></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-fishbone-119-code">Nested list</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-fishbone-119-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-fishbone-119-code" data-demo="ex-diagram-fishbone-119" spellcheck="false" rows="9">&lt;div class=&quot;card p-4&quot;&gt;&lt;div class=&quot;efx-diagram-fishbone&quot; data-efx-problem=&quot;Late deliveries&quot;&gt;&lt;ul&gt;
+  &lt;li&gt;People&lt;ul&gt;&lt;li&gt;Short staffed&lt;/li&gt;&lt;li&gt;Training gaps&lt;/li&gt;&lt;li&gt;High turnover&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+  &lt;li&gt;Process&lt;ul&gt;&lt;li&gt;Manual dispatch&lt;/li&gt;&lt;li&gt;No backup route&lt;/li&gt;&lt;li&gt;Late cutoffs&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+  &lt;li&gt;Vehicles&lt;ul&gt;&lt;li&gt;Breakdowns&lt;/li&gt;&lt;li&gt;Fuel stops&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+  &lt;li&gt;Customers&lt;ul&gt;&lt;li&gt;Wrong address&lt;/li&gt;&lt;li&gt;Not home&lt;/li&gt;&lt;li&gt;Changed slot&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+  &lt;li&gt;Weather&lt;ul&gt;&lt;li&gt;Snow&lt;/li&gt;&lt;li&gt;Floods&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+  &lt;li&gt;Systems&lt;ul&gt;&lt;li&gt;Stale ETAs&lt;/li&gt;&lt;li&gt;Scanner outages&lt;/li&gt;&lt;li&gt;Slow routing&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-fishbone-120"><div class="card p-4"><div class="efx-diagram-fishbone" data-efx-data='{"problem":"Checkout drop-off","causes":[{"name":"UX","items":["Long form","Hidden fees"]},{"name":"Trust","items":["No reviews","Odd domain"]},{"name":"Speed","items":["Slow payment","Big images"]},{"name":"Payment","items":["Few methods","3DS failures"]}]}'></div></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-fishbone-120-code">JSON</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-fishbone-120-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-fishbone-120-code" data-demo="ex-diagram-fishbone-120" spellcheck="false" rows="2">&lt;div class=&quot;card p-4&quot;&gt;&lt;div class=&quot;efx-diagram-fishbone&quot; data-efx-data='{&quot;problem&quot;:&quot;Checkout drop-off&quot;,&quot;causes&quot;:[{&quot;name&quot;:&quot;UX&quot;,&quot;items&quot;:[&quot;Long form&quot;,&quot;Hidden fees&quot;]},{&quot;name&quot;:&quot;Trust&quot;,&quot;items&quot;:[&quot;No reviews&quot;,&quot;Odd domain&quot;]},{&quot;name&quot;:&quot;Speed&quot;,&quot;items&quot;:[&quot;Slow payment&quot;,&quot;Big images&quot;]},{&quot;name&quot;:&quot;Payment&quot;,&quot;items&quot;:[&quot;Few methods&quot;,&quot;3DS failures&quot;]}]}'&gt;&lt;/div&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="alert tone-info"><span class="alert-title">Data format</span><div class="stack gap-2 text-sm">Cause-and-effect (Ishikawa). Either JSON in <code>data-efx-data</code> (or an inline <code>&lt;script type="application/json"&gt;</code>):
+<code>{"problem":"Late deliveries","causes":[{"name":"People","items":["Training","Turnover"]},{"name":"Process","items":["Manual dispatch"]}]}</code>
+or a nested list inside the element with the problem in <code>data-efx-problem</code>:
+<code>&lt;ul&gt;&lt;li&gt;People&lt;ul&gt;&lt;li&gt;Training&lt;/li&gt;…&lt;/ul&gt;&lt;/li&gt;…&lt;/ul&gt;</code>. Update live with <code>efx:data</code> and the same object.</div></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-diagram-fishbone</code></td><td>Renders the diagram from JSON or a nested list.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-problem</code></td><td></td><td>Problem (head of the fish). Overrides the JSON value.</td></tr>
+<tr><td><code>data-efx-data</code></td><td></td><td>JSON {problem, causes:[{name, items[]}]}.</td></tr>
+<tr><td><code>data-efx-colors</code></td><td><code>Shine tones</code></td><td>Bone colors.</td></tr>
+<tr><td><code>data-efx-title</code></td><td></td><td>Accessible name.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-chart-1 … 7</code></td><td><code>Shine tones</code></td><td>Bone palette.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Event</th><th scope="col">When</th></tr></thead>
+<tbody><tr><td><code>efx:select</code></td><td>Bone clicked / Enter pressed. detail = { index, label, items, problem }.</td></tr>
+<tr><td><code>efx:data (listen)</code></td><td>Dispatch with detail { problem, causes } to update.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-diagram-flow" class="stack gap-4 feature" aria-labelledby="h-diagram-flow">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-diagram-flow" class="text-2xl font-bold m-0">Flow diagram</h3>
+      <span class="badge tone-neutral"><code>diagram-flow</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">6.7 KB</span></div>
+    <p class="m-0 text-muted">One engine for flowcharts, process maps, swimlanes, architecture and data-flow diagrams, state machines and ER/UML cards. Your nodes stay real HTML; orthogonal connectors are drawn behind them and redraw on resize. Hover or focus a node to light up its connections.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-flow-121"><div class="card p-4"><div class="efx-diagram-flow" data-efx-layout="auto" data-efx-edges="start>in|in>check|check>ok:Yes|check>fix:No|fix>in:retry|ok>done">
+  <div id="start" data-efx-shape="pill" data-efx-tone="success">Start</div>
+  <div id="in">Receive order</div>
+  <div id="check" data-efx-shape="diamond">In stock?</div>
+  <div id="ok">Ship order</div>
+  <div id="fix" data-efx-tone="warning">Backorder</div>
+  <div id="done" data-efx-shape="pill" data-efx-tone="primary">Done</div>
+</div></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-flow-121-code">Flowchart with a decision</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-flow-121-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-flow-121-code" data-demo="ex-diagram-flow-121" spellcheck="false" rows="9">&lt;div class=&quot;card p-4&quot;&gt;&lt;div class=&quot;efx-diagram-flow&quot; data-efx-layout=&quot;auto&quot; data-efx-edges=&quot;start&gt;in|in&gt;check|check&gt;ok:Yes|check&gt;fix:No|fix&gt;in:retry|ok&gt;done&quot;&gt;
+  &lt;div id=&quot;start&quot; data-efx-shape=&quot;pill&quot; data-efx-tone=&quot;success&quot;&gt;Start&lt;/div&gt;
+  &lt;div id=&quot;in&quot;&gt;Receive order&lt;/div&gt;
+  &lt;div id=&quot;check&quot; data-efx-shape=&quot;diamond&quot;&gt;In stock?&lt;/div&gt;
+  &lt;div id=&quot;ok&quot;&gt;Ship order&lt;/div&gt;
+  &lt;div id=&quot;fix&quot; data-efx-tone=&quot;warning&quot;&gt;Backorder&lt;/div&gt;
+  &lt;div id=&quot;done&quot; data-efx-shape=&quot;pill&quot; data-efx-tone=&quot;primary&quot;&gt;Done&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-flow-122"><div class="card p-4"><div class="efx-diagram-flow" data-efx-flow data-efx-edges="web>cdn|cdn>api:HTTPS|api>db|api~>cache|api=>worker|worker>db">
+  <div id="web" data-efx-cell="1,1" data-efx-tone="info" data-efx-shape="pill">Browser</div>
+  <div id="cdn" data-efx-cell="2,1" data-efx-shape="circle">CDN</div>
+  <div data-efx-group="Backend" data-efx-cols="1" data-efx-cell="3,1" data-efx-tone="primary">
+    <div id="api" data-efx-tone="primary">API</div>
+    <div id="worker">Worker</div>
+  </div>
+  <div data-efx-group="Data" data-efx-cols="1" data-efx-cell="4,1" data-efx-tone="success">
+    <div id="db" data-efx-shape="db" data-efx-tone="success">Postgres</div>
+    <div id="cache" data-efx-shape="db">Redis</div>
+  </div>
+</div></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-flow-122-code">Architecture with groups</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-flow-122-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-flow-122-code" data-demo="ex-diagram-flow-122" spellcheck="false" rows="13">&lt;div class=&quot;card p-4&quot;&gt;&lt;div class=&quot;efx-diagram-flow&quot; data-efx-flow data-efx-edges=&quot;web&gt;cdn|cdn&gt;api:HTTPS|api&gt;db|api~&gt;cache|api=&gt;worker|worker&gt;db&quot;&gt;
+  &lt;div id=&quot;web&quot; data-efx-cell=&quot;1,1&quot; data-efx-tone=&quot;info&quot; data-efx-shape=&quot;pill&quot;&gt;Browser&lt;/div&gt;
+  &lt;div id=&quot;cdn&quot; data-efx-cell=&quot;2,1&quot; data-efx-shape=&quot;circle&quot;&gt;CDN&lt;/div&gt;
+  &lt;div data-efx-group=&quot;Backend&quot; data-efx-cols=&quot;1&quot; data-efx-cell=&quot;3,1&quot; data-efx-tone=&quot;primary&quot;&gt;
+    &lt;div id=&quot;api&quot; data-efx-tone=&quot;primary&quot;&gt;API&lt;/div&gt;
+    &lt;div id=&quot;worker&quot;&gt;Worker&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div data-efx-group=&quot;Data&quot; data-efx-cols=&quot;1&quot; data-efx-cell=&quot;4,1&quot; data-efx-tone=&quot;success&quot;&gt;
+    &lt;div id=&quot;db&quot; data-efx-shape=&quot;db&quot; data-efx-tone=&quot;success&quot;&gt;Postgres&lt;/div&gt;
+    &lt;div id=&quot;cache&quot; data-efx-shape=&quot;db&quot;&gt;Redis&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-flow-123"><div class="card p-4"><div class="efx-diagram-flow" data-efx-lanes="Customer|Support|Billing" data-efx-edges="c1>s1|s1>s2|s2>b1:Yes|s2>c2:No|b1>c2">
+  <div id="c1" data-efx-lane="Customer" data-efx-shape="pill" data-efx-tone="success">Request</div>
+  <div id="s1" data-efx-lane="Support">Triage</div>
+  <div id="s2" data-efx-lane="Support" data-efx-shape="diamond">Refund?</div>
+  <div id="b1" data-efx-lane="Billing" data-efx-tone="accent">Issue refund</div>
+  <div id="c2" data-efx-lane="Customer" data-efx-shape="pill" data-efx-tone="primary">Notified</div>
+</div></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-flow-123-code">Swimlane process</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-flow-123-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-flow-123-code" data-demo="ex-diagram-flow-123" spellcheck="false" rows="8">&lt;div class=&quot;card p-4&quot;&gt;&lt;div class=&quot;efx-diagram-flow&quot; data-efx-lanes=&quot;Customer|Support|Billing&quot; data-efx-edges=&quot;c1&gt;s1|s1&gt;s2|s2&gt;b1:Yes|s2&gt;c2:No|b1&gt;c2&quot;&gt;
+  &lt;div id=&quot;c1&quot; data-efx-lane=&quot;Customer&quot; data-efx-shape=&quot;pill&quot; data-efx-tone=&quot;success&quot;&gt;Request&lt;/div&gt;
+  &lt;div id=&quot;s1&quot; data-efx-lane=&quot;Support&quot;&gt;Triage&lt;/div&gt;
+  &lt;div id=&quot;s2&quot; data-efx-lane=&quot;Support&quot; data-efx-shape=&quot;diamond&quot;&gt;Refund?&lt;/div&gt;
+  &lt;div id=&quot;b1&quot; data-efx-lane=&quot;Billing&quot; data-efx-tone=&quot;accent&quot;&gt;Issue refund&lt;/div&gt;
+  &lt;div id=&quot;c2&quot; data-efx-lane=&quot;Customer&quot; data-efx-shape=&quot;pill&quot; data-efx-tone=&quot;primary&quot;&gt;Notified&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-flow-124"><div class="card p-4"><div class="efx-diagram-flow" data-efx-layout="auto" data-efx-direction="LR" data-efx-edges="s0>idle|idle>running:start|running<>paused:pause / resume|running>done:finish|running>failed:error|failed>idle:reset">
+  <div id="s0" data-efx-shape="dot" aria-label="Initial"></div>
+  <div id="idle" data-efx-shape="pill">Idle</div>
+  <div id="running" data-efx-shape="pill" data-efx-tone="primary">Running</div>
+  <div id="paused" data-efx-shape="pill" data-efx-tone="warning">Paused</div>
+  <div id="done" data-efx-shape="pill" data-efx-tone="success">Done</div>
+  <div id="failed" data-efx-shape="pill" data-efx-tone="danger">Failed</div>
+</div></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-flow-124-code">State machine</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-flow-124-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-flow-124-code" data-demo="ex-diagram-flow-124" spellcheck="false" rows="9">&lt;div class=&quot;card p-4&quot;&gt;&lt;div class=&quot;efx-diagram-flow&quot; data-efx-layout=&quot;auto&quot; data-efx-direction=&quot;LR&quot; data-efx-edges=&quot;s0&gt;idle|idle&gt;running:start|running&lt;&gt;paused:pause / resume|running&gt;done:finish|running&gt;failed:error|failed&gt;idle:reset&quot;&gt;
+  &lt;div id=&quot;s0&quot; data-efx-shape=&quot;dot&quot; aria-label=&quot;Initial&quot;&gt;&lt;/div&gt;
+  &lt;div id=&quot;idle&quot; data-efx-shape=&quot;pill&quot;&gt;Idle&lt;/div&gt;
+  &lt;div id=&quot;running&quot; data-efx-shape=&quot;pill&quot; data-efx-tone=&quot;primary&quot;&gt;Running&lt;/div&gt;
+  &lt;div id=&quot;paused&quot; data-efx-shape=&quot;pill&quot; data-efx-tone=&quot;warning&quot;&gt;Paused&lt;/div&gt;
+  &lt;div id=&quot;done&quot; data-efx-shape=&quot;pill&quot; data-efx-tone=&quot;success&quot;&gt;Done&lt;/div&gt;
+  &lt;div id=&quot;failed&quot; data-efx-shape=&quot;pill&quot; data-efx-tone=&quot;danger&quot;&gt;Failed&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-flow-125"><div class="card p-4"><div class="efx-diagram-flow" data-efx-edges="users>orders:1..0n|orders>items:1..n|products>items:1..0n">
+  <div id="users" data-efx-cell="1,1" data-efx-shape="table" data-efx-tone="primary"><b>users</b><span>id <i>PK</i></span><span>email</span><span>name</span></div>
+  <div id="orders" data-efx-cell="2,1" data-efx-shape="table" data-efx-tone="accent"><b>orders</b><span>id <i>PK</i></span><span>user_id <i>FK</i></span><span>placed_at</span></div>
+  <div id="items" data-efx-cell="3,1" data-efx-shape="table" data-efx-tone="success"><b>order_items</b><span>order_id <i>FK</i></span><span>product_id <i>FK</i></span><span>qty</span></div>
+  <div id="products" data-efx-cell="3,2" data-efx-shape="table" data-efx-tone="info"><b>products</b><span>id <i>PK</i></span><span>sku</span><span>price</span></div>
+</div></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-flow-125-code">ER diagram with field cards</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-flow-125-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-flow-125-code" data-demo="ex-diagram-flow-125" spellcheck="false" rows="7">&lt;div class=&quot;card p-4&quot;&gt;&lt;div class=&quot;efx-diagram-flow&quot; data-efx-edges=&quot;users&gt;orders:1..0n|orders&gt;items:1..n|products&gt;items:1..0n&quot;&gt;
+  &lt;div id=&quot;users&quot; data-efx-cell=&quot;1,1&quot; data-efx-shape=&quot;table&quot; data-efx-tone=&quot;primary&quot;&gt;&lt;b&gt;users&lt;/b&gt;&lt;span&gt;id &lt;i&gt;PK&lt;/i&gt;&lt;/span&gt;&lt;span&gt;email&lt;/span&gt;&lt;span&gt;name&lt;/span&gt;&lt;/div&gt;
+  &lt;div id=&quot;orders&quot; data-efx-cell=&quot;2,1&quot; data-efx-shape=&quot;table&quot; data-efx-tone=&quot;accent&quot;&gt;&lt;b&gt;orders&lt;/b&gt;&lt;span&gt;id &lt;i&gt;PK&lt;/i&gt;&lt;/span&gt;&lt;span&gt;user_id &lt;i&gt;FK&lt;/i&gt;&lt;/span&gt;&lt;span&gt;placed_at&lt;/span&gt;&lt;/div&gt;
+  &lt;div id=&quot;items&quot; data-efx-cell=&quot;3,1&quot; data-efx-shape=&quot;table&quot; data-efx-tone=&quot;success&quot;&gt;&lt;b&gt;order_items&lt;/b&gt;&lt;span&gt;order_id &lt;i&gt;FK&lt;/i&gt;&lt;/span&gt;&lt;span&gt;product_id &lt;i&gt;FK&lt;/i&gt;&lt;/span&gt;&lt;span&gt;qty&lt;/span&gt;&lt;/div&gt;
+  &lt;div id=&quot;products&quot; data-efx-cell=&quot;3,2&quot; data-efx-shape=&quot;table&quot; data-efx-tone=&quot;info&quot;&gt;&lt;b&gt;products&lt;/b&gt;&lt;span&gt;id &lt;i&gt;PK&lt;/i&gt;&lt;/span&gt;&lt;span&gt;sku&lt;/span&gt;&lt;span&gt;price&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="alert tone-info"><span class="alert-title">Data format</span><div class="stack gap-2 text-sm">Nodes are ordinary HTML children with an <code>id</code>; connections go in <code>data-efx-edges</code>, separated by <code>|</code>:
+<code>data-efx-edges="start&gt;check|check&gt;ok:Yes|check&gt;fix:No|fix~&gt;check"</code>
+Edge styles: <code>a&gt;b</code> solid arrow, <code>a~&gt;b</code> dashed, <code>a=&gt;b</code> thick, <code>a&lt;&gt;b</code> both ways. Text after <code>:</code> is the label.
+ER cardinality: a label such as <code>1..n</code>, <code>1..0n</code>, <code>01..n</code> (1, n, 0n = zero-or-many, 01 = zero-or-one) draws crow's-foot markers instead of text.
+Shapes via <code>data-efx-shape</code>: box (default), pill, diamond, circle, db, doc, dot, end, table. Tone via <code>data-efx-tone</code> (primary, accent, success, warning, danger, info, secondary, or 1–7).
+Placement: <code>data-efx-cell="col,row[,colspan,rowspan]"</code>, or <code>data-efx-layout="auto"</code>, or swimlanes (<code>data-efx-lanes</code> + <code>data-efx-lane</code>).</div></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-diagram-flow</code></td><td>The diagram container. Children with ids are nodes.</td></tr>
+<tr><td><code>data-efx-group=&quot;Name&quot;</code></td><td>On a wrapper element: labelled dashed boundary around the nodes inside (zones, deployment boxes). Add data-efx-cols to lay it out as a grid.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-edges</code></td><td></td><td>Connections: &quot;a&gt;b|b&gt;c:label|c~&gt;a&quot;. Operators &gt; ~&gt; =&gt; &lt;&gt;.</td></tr>
+<tr><td><code>data-efx-layout</code></td><td></td><td>&quot;auto&quot; = layered layout (longest-path ranks, barycenter ordering) for the container’s direct children. Empty = place with data-efx-cell or let it flow.</td></tr>
+<tr><td><code>data-efx-direction</code></td><td><code>TB</code></td><td>Auto layout direction: TB (top to bottom) or LR.</td></tr>
+<tr><td><code>data-efx-cols</code></td><td><code>0</code></td><td>Grid columns when using data-efx-cell (inferred from the cells if 0). Also valid on a group.</td></tr>
+<tr><td><code>data-efx-lanes</code></td><td></td><td>Swimlane names &quot;Customer|Support|Billing&quot;. Nodes pick a lane with data-efx-lane=&quot;Support&quot;; column comes from the flow rank or data-efx-cell.</td></tr>
+<tr><td><code>data-efx-route</code></td><td><code>orth</code></td><td>&quot;orth&quot; elbow connectors, &quot;curve&quot; or &quot;straight&quot;.</td></tr>
+<tr><td><code>data-efx-flow</code></td><td><code>false</code></td><td>Animated dots travelling along each connector (off for reduced motion).</td></tr>
+<tr><td><code>data-efx-colors</code></td><td><code>Shine tones</code></td><td>Palette for numeric tones (data-efx-tone=&quot;3&quot;).</td></tr>
+<tr><td><code>data-efx-title</code></td><td></td><td>Accessible name.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-diagram-gap</code></td><td><code>3rem 3.5rem</code></td><td>Gap between nodes.</td></tr>
+<tr><td><code>--efx-lane-h</code></td><td><code>5.5rem</code></td><td>Minimum swimlane height.</td></tr>
+<tr><td><code>--efx-edge</code></td><td><code>text-muted</code></td><td>Default connector color (a node tone colors its outgoing edges).</td></tr>
+<tr><td><code>--efx-n</code></td><td><code>per tone</code></td><td>Node accent color; set it on a node to override.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Event</th><th scope="col">When</th></tr></thead>
+<tbody><tr><td><code>efx:select</code></td><td>Node clicked / Enter or Space pressed. detail = { id, label, index }.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-chart-pyramid" class="stack gap-4 feature" aria-labelledby="h-chart-pyramid">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-chart-pyramid" class="text-2xl font-bold m-0">Pyramid</h3>
+      <span class="badge tone-neutral"><code>chart-pyramid</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">2.1 KB</span></div>
+    <p class="m-0 text-muted">Layered pyramid (or inverted triangle) with stacked tiers, optional value-sized bands and leader-lined side notes. Tiers stagger in. Click a legend key to hide a tier, click a tier to fire <code>efx:select</code>.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-chart-pyramid-126"><div class="card p-6">
+  <h3 class="m-0 mb-3">Planning layers</h3>
+  <div class="efx-chart-pyramid" data-efx-labels="Vision|Strategy|Tactics|Daily tasks" data-efx-notes="Why we exist|Where we play and how we win|Quarterly bets and projects|The work itself" data-efx-legend="false"></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-chart-pyramid-126-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-chart-pyramid-126-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-chart-pyramid-126-code" data-demo="ex-chart-pyramid-126" spellcheck="false" rows="5">&lt;div class=&quot;card p-6&quot;&gt;
+  &lt;h3 class=&quot;m-0 mb-3&quot;&gt;Planning layers&lt;/h3&gt;
+  &lt;div class=&quot;efx-chart-pyramid&quot; data-efx-labels=&quot;Vision|Strategy|Tactics|Daily tasks&quot; data-efx-notes=&quot;Why we exist|Where we play and how we win|Quarterly bets and projects|The work itself&quot; data-efx-legend=&quot;false&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-chart-pyramid-127"><div class="grid md:grid-cols-2 gap-4">
+  <div class="card p-6"><div class="efx-chart-pyramid" data-efx-inverted data-efx-height="240" data-efx-data="420,260,140,60" data-efx-labels="Leads|Qualified|Proposals|Won" data-efx-legend="false" data-efx-title="Sales pipeline"></div></div>
+  <div class="card p-6 efx-chart-pyramid" data-efx-background data-efx-labels="A|B|C|D"><h3 class="m-0">Foundations first</h3><p class="m-0">Pyramid as a card background.</p></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-chart-pyramid-127-code">Inverted value-sized pyramid, and a pyramid as a card background</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-chart-pyramid-127-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-chart-pyramid-127-code" data-demo="ex-chart-pyramid-127" spellcheck="false" rows="5">&lt;div class=&quot;grid md:grid-cols-2 gap-4&quot;&gt;
+  &lt;div class=&quot;card p-6&quot;&gt;&lt;div class=&quot;efx-chart-pyramid&quot; data-efx-inverted data-efx-height=&quot;240&quot; data-efx-data=&quot;420,260,140,60&quot; data-efx-labels=&quot;Leads|Qualified|Proposals|Won&quot; data-efx-legend=&quot;false&quot; data-efx-title=&quot;Sales pipeline&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;card p-6 efx-chart-pyramid&quot; data-efx-background data-efx-labels=&quot;A|B|C|D&quot;&gt;&lt;h3 class=&quot;m-0&quot;&gt;Foundations first&lt;/h3&gt;&lt;p class=&quot;m-0&quot;&gt;Pyramid as a card background.&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="alert tone-info"><span class="alert-title">Data format</span><div class="stack gap-2 text-sm">Tiers are the labels, <strong>top to bottom</strong>: <code>data-efx-labels="Vision|Strategy|Tactics|Tasks"</code>.
+Without values every tier gets the same height. Add values (<code>data-efx-data="1,3,6,12"</code>, JSON <code>[{"label":"Vision","value":1}]</code>, or a table via <code>data-efx-source</code>) and tier heights follow them (set <code>data-efx-equal</code> to ignore them).
+Side notes are one per tier, in the same order: <code>data-efx-notes="Why|Where|How|What"</code>. Only the first series is used.</div></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-chart-pyramid</code></td><td>Renders a pyramid from data-efx-labels (and optional values).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-labels</code></td><td></td><td>Tier names top → bottom: &quot;A|B|C&quot;.</td></tr>
+<tr><td><code>data-efx-data</code></td><td></td><td>Optional values &quot;1,3,6,12&quot;: tier heights follow them.</td></tr>
+<tr><td><code>data-efx-equal</code></td><td><code>false</code></td><td>Equal tier heights even when values exist.</td></tr>
+<tr><td><code>data-efx-inverted</code></td><td><code>false</code></td><td>Point the triangle down (widest tier on top).</td></tr>
+<tr><td><code>data-efx-notes</code></td><td></td><td>Side annotations, one per tier &quot;Why|Where|How&quot;.</td></tr>
+<tr><td><code>data-efx-gap</code></td><td><code>3</code></td><td>Gap between tiers in px.</td></tr>
+<tr><td><code>data-efx-height</code></td><td><code>320</code></td><td>Chart height in px (0 = element CSS height).</td></tr>
+<tr><td><code>data-efx-colors</code></td><td><code>Shine tones</code></td><td>One color per tier.</td></tr>
+<tr><td><code>data-efx-legend / tooltip / animate</code></td><td><code>true</code></td><td>Turn parts off.</td></tr>
+<tr><td><code>data-efx-background</code></td><td><code>false</code></td><td>Decorative: just the tiers, behind the content.</td></tr>
+<tr><td><code>data-efx-title</code></td><td></td><td>Accessible name (else aria-label or first heading).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-chart-1 … 7</code></td><td><code>Shine tones</code></td><td>Tier colors.</td></tr>
+<tr><td><code>--efx-chart-text</code></td><td><code>muted text</code></td><td>Side notes.</td></tr>
+<tr><td><code>--efx-chart-bg-opacity</code></td><td><code>.35</code></td><td>Opacity in background mode.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Event</th><th scope="col">When</th></tr></thead>
+<tbody><tr><td><code>efx:select</code></td><td>Tier clicked / Enter pressed. detail = { index, label, value }.</td></tr>
+<tr><td><code>efx:data (listen)</code></td><td>Dispatch on the chart with detail { labels, series } to update it.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-chart-quadrant" class="stack gap-4 feature" aria-labelledby="h-chart-quadrant">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-chart-quadrant" class="text-2xl font-bold m-0">Quadrant matrix</h3>
+      <span class="badge tone-neutral"><code>chart-quadrant</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">2.7 KB</span></div>
+    <p class="m-0 text-muted">Prioritisation 2×2 with tinted quadrants, axis titles and labelled dots whose labels nudge apart when they would collide. Hover or arrow-key for details, click a dot to fire <code>efx:select</code>.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-chart-quadrant-128"><div class="card p-6">
+  <h3 class="m-0 mb-3">Roadmap bets</h3>
+  <div class="efx-chart-quadrant" data-efx-quadrants="Quick wins|Big bets|Fill-ins|Money pits" data-efx-x-label="Effort →" data-efx-y-label="Impact →"
+    data-efx-data='[{"label":"Onboarding","x":22,"y":82,"group":"Growth"},{"label":"Search","x":30,"y":68,"group":"Core"},{"label":"Rewrite API","x":84,"y":78,"group":"Core"},{"label":"Mobile app","x":78,"y":60,"group":"Growth"},{"label":"Dark mode","x":18,"y":32,"group":"Polish"},{"label":"Legacy sync","x":88,"y":18,"group":"Core"},{"label":"Emoji","x":40,"y":12,"group":"Polish"}]'></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-chart-quadrant-128-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-chart-quadrant-128-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-chart-quadrant-128-code" data-demo="ex-chart-quadrant-128" spellcheck="false" rows="6">&lt;div class=&quot;card p-6&quot;&gt;
+  &lt;h3 class=&quot;m-0 mb-3&quot;&gt;Roadmap bets&lt;/h3&gt;
+  &lt;div class=&quot;efx-chart-quadrant&quot; data-efx-quadrants=&quot;Quick wins|Big bets|Fill-ins|Money pits&quot; data-efx-x-label=&quot;Effort →&quot; data-efx-y-label=&quot;Impact →&quot;
+    data-efx-data='[{&quot;label&quot;:&quot;Onboarding&quot;,&quot;x&quot;:22,&quot;y&quot;:82,&quot;group&quot;:&quot;Growth&quot;},{&quot;label&quot;:&quot;Search&quot;,&quot;x&quot;:30,&quot;y&quot;:68,&quot;group&quot;:&quot;Core&quot;},{&quot;label&quot;:&quot;Rewrite API&quot;,&quot;x&quot;:84,&quot;y&quot;:78,&quot;group&quot;:&quot;Core&quot;},{&quot;label&quot;:&quot;Mobile app&quot;,&quot;x&quot;:78,&quot;y&quot;:60,&quot;group&quot;:&quot;Growth&quot;},{&quot;label&quot;:&quot;Dark mode&quot;,&quot;x&quot;:18,&quot;y&quot;:32,&quot;group&quot;:&quot;Polish&quot;},{&quot;label&quot;:&quot;Legacy sync&quot;,&quot;x&quot;:88,&quot;y&quot;:18,&quot;group&quot;:&quot;Core&quot;},{&quot;label&quot;:&quot;Emoji&quot;,&quot;x&quot;:40,&quot;y&quot;:12,&quot;group&quot;:&quot;Polish&quot;}]'&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-chart-quadrant-129"><div class="card p-6 efx-chart-quadrant" data-efx-background data-efx-data='[{"label":"A","x":20,"y":75,"r":4},{"label":"B","x":70,"y":60,"r":9},{"label":"C","x":40,"y":25,"r":6},{"label":"D","x":82,"y":20,"r":3}]'>
+  <h3 class="m-0">Portfolio health</h3><p class="m-0">The matrix sits behind this card as a background.</p>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-chart-quadrant-129-code">A quadrant as a card background</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-chart-quadrant-129-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-chart-quadrant-129-code" data-demo="ex-chart-quadrant-129" spellcheck="false" rows="4">&lt;div class=&quot;card p-6 efx-chart-quadrant&quot; data-efx-background data-efx-data='[{&quot;label&quot;:&quot;A&quot;,&quot;x&quot;:20,&quot;y&quot;:75,&quot;r&quot;:4},{&quot;label&quot;:&quot;B&quot;,&quot;x&quot;:70,&quot;y&quot;:60,&quot;r&quot;:9},{&quot;label&quot;:&quot;C&quot;,&quot;x&quot;:40,&quot;y&quot;:25,&quot;r&quot;:6},{&quot;label&quot;:&quot;D&quot;,&quot;x&quot;:82,&quot;y&quot;:20,&quot;r&quot;:3}]'&gt;
+  &lt;h3 class=&quot;m-0&quot;&gt;Portfolio health&lt;/h3&gt;&lt;p class=&quot;m-0&quot;&gt;The matrix sits behind this card as a background.&lt;/p&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="alert tone-info"><span class="alert-title">Data format</span><div class="stack gap-2 text-sm">A list of items, each with a position: <code>[{"label":"Search","x":20,"y":80},{"label":"Rewrite","x":85,"y":70,"r":8,"group":"Core"}]</code>.
+<code>x</code> and <code>y</code> run 0–100 unless you set <code>data-efx-x-domain="0,10"</code> / <code>data-efx-y-domain</code>. Optional <code>r</code> sizes the dot (bubble) and <code>group</code> colors it.
+Quadrants are named top-left | top-right | bottom-left | bottom-right in <code>data-efx-quadrants</code>.
+Data can sit in <code>data-efx-data</code>, an inline <code>&lt;script type="application/json"&gt;</code>, or arrive through <code>efx:data</code> as an array (or <code>{items:[…]}</code>).</div></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-chart-quadrant</code></td><td>Renders a 2×2 matrix from a list of {label, x, y} items.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-data</code></td><td></td><td>JSON items [{&quot;label&quot;,&quot;x&quot;,&quot;y&quot;,&quot;r?&quot;,&quot;group?&quot;}].</td></tr>
+<tr><td><code>data-efx-quadrants</code></td><td></td><td>Names &quot;Quick wins|Big bets|Fill-ins|Money pits&quot; (top-left, top-right, bottom-left, bottom-right).</td></tr>
+<tr><td><code>data-efx-x-label / y-label</code></td><td></td><td>Axis titles, e.g. &quot;Effort →&quot;.</td></tr>
+<tr><td><code>data-efx-x-domain / y-domain</code></td><td><code>0,100</code></td><td>Value range of each axis, e.g. &quot;0,10&quot;.</td></tr>
+<tr><td><code>data-efx-height</code></td><td><code>360</code></td><td>Chart height in px (0 = element CSS height).</td></tr>
+<tr><td><code>data-efx-colors</code></td><td><code>Shine tones</code></td><td>Palette; groups and quadrant tints use it in order.</td></tr>
+<tr><td><code>data-efx-tooltip / animate</code></td><td><code>true</code></td><td>Turn parts off.</td></tr>
+<tr><td><code>data-efx-background</code></td><td><code>false</code></td><td>Decorative: tinted quadrants and dots only, behind the content.</td></tr>
+<tr><td><code>data-efx-title</code></td><td></td><td>Accessible name (else aria-label or first heading).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-chart-1 … 7</code></td><td><code>Shine tones</code></td><td>Palette.</td></tr>
+<tr><td><code>--efx-chart-text</code></td><td><code>muted text</code></td><td>Axis titles and quadrant names.</td></tr>
+<tr><td><code>--efx-chart-bg-opacity</code></td><td><code>.35</code></td><td>Opacity in background mode.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Event</th><th scope="col">When</th></tr></thead>
+<tbody><tr><td><code>efx:select</code></td><td>Dot clicked / Enter pressed. detail = { index, label, value, series }.</td></tr>
+<tr><td><code>efx:data (listen)</code></td><td>Dispatch on the chart with detail = an items array to update it.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-diagram-sequence" class="stack gap-4 feature" aria-labelledby="h-diagram-sequence">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-diagram-sequence" class="text-2xl font-bold m-0">Sequence diagram</h3>
+      <span class="badge tone-neutral"><code>diagram-sequence</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">6.6 KB</span></div>
+    <p class="m-0 text-muted">Draws a UML sequence diagram from a few lines of text: lifelines, sync / return / async arrows, self-messages, notes, loop / alt / opt frames and activation bars. Hover a message to light it and its participants; arrow keys step through messages; <code>data-efx-play</code> draws it in as you scroll. A screen-reader list narrates every step.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-sequence-130"><div class="card p-6 efx-diagram-sequence" data-efx-title="Token refresh" data-efx-bottom><script type="text/plain">
+participant Client
+participant API as "API Gateway"
+participant Auth
+Client -> API: GET /me
+API --> Client: 401 Unauthorized
+note over Client: token expired
+loop retry up to 3x
+  Client ->> Auth: POST /refresh
+  alt valid refresh token
+    Auth --> Client: new access token
+  else revoked
+    Auth --> Client: 403
+  end
+end
+Client -> API: GET /me
+API -> API: verify JWT
+API --> Client: 200 OK
+</script></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-sequence-130-code">Auth flow with frames</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-sequence-130-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-sequence-130-code" data-demo="ex-diagram-sequence-130" spellcheck="false" rows="14">&lt;div class=&quot;card p-6 efx-diagram-sequence&quot; data-efx-title=&quot;Token refresh&quot; data-efx-bottom&gt;&lt;script type=&quot;text/plain&quot;&gt;
+participant Client
+participant API as &quot;API Gateway&quot;
+participant Auth
+Client -&gt; API: GET /me
+API --&gt; Client: 401 Unauthorized
+note over Client: token expired
+loop retry up to 3x
+  Client -&gt;&gt; Auth: POST /refresh
+  alt valid refresh token
+    Auth --&gt; Client: new access token
+  else revoked
+    Auth --&gt; Client: 403
+  end
+end
+Client -&gt; API: GET /me
+API -&gt; API: verify JWT
+API --&gt; Client: 200 OK
+&lt;/script&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-sequence-131"><div class="card p-6 efx-diagram-sequence" data-efx-play data-efx-activations data-efx-numbers><script type="text/plain">
+Browser ->> Server: submit order
+Server -> DB: INSERT order
+DB --> Server: id 42
+Server ->> Mailer: send receipt
+note right of Mailer: queued
+Server --> Browser: 201 Created
+</script></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-sequence-131-code">Play mode with activations (scroll in)</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-sequence-131-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-sequence-131-code" data-demo="ex-diagram-sequence-131" spellcheck="false" rows="9">&lt;div class=&quot;card p-6 efx-diagram-sequence&quot; data-efx-play data-efx-activations data-efx-numbers&gt;&lt;script type=&quot;text/plain&quot;&gt;
+Browser -&gt;&gt; Server: submit order
+Server -&gt; DB: INSERT order
+DB --&gt; Server: id 42
+Server -&gt;&gt; Mailer: send receipt
+note right of Mailer: queued
+Server --&gt; Browser: 201 Created
+&lt;/script&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="alert tone-info"><span class="alert-title">Data format</span><div class="stack gap-2 text-sm">Plain text, one statement per line, inside an inline <code>&lt;script type="text/plain"&gt;</code> (or <code>data-efx-data</code>, or a <code>&lt;pre&gt;</code> that stays readable without JS).
+<code>Client -&gt; API: GET /me</code> solid sync · <code>API --&gt; Client: 401</code> dashed return · <code>Client -&gt;&gt; Queue: enqueue</code> async open arrow (<code>-&gt;+</code> / <code>--&gt;-</code> activate / deactivate).
+<code>note over API: text</code> / <code>note left of A</code> / <code>note right of A</code> / <code>note over A,B</code> · <code>loop</code> <code>alt</code> <code>opt</code> <code>par</code> … <code>else</code> … <code>end</code> frames (nestable) · <code>participant API as "Gateway"</code> · <code>activate X</code> / <code>deactivate X</code> · <code>autonumber</code> · <code>title</code>.
+Participants appear in order of first mention. JSON works too: <code>{"participants":["A","B"],"messages":[{"from":"A","to":"B","text":"hi","kind":"sync|return|async"},{"note":"x","over":"B"},{"frame":"loop","label":"retry"},{"end":true}]}</code>. Update with <code>efx:data</code> (text or object).</div></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-diagram-sequence</code></td><td>Container; the text lives in an inline script (or data-efx-data).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-data</code></td><td></td><td>The diagram text or JSON (otherwise read from the inline &lt;script type=&quot;text/plain&quot;&gt; / &lt;pre&gt;).</td></tr>
+<tr><td><code>data-efx-play</code></td><td><code>false</code></td><td>Draw messages in one by one when scrolled into view (static for reduced motion).</td></tr>
+<tr><td><code>data-efx-step</code></td><td><code>420</code></td><td>Play: ms between messages.</td></tr>
+<tr><td><code>data-efx-activations</code></td><td><code>false</code></td><td>Automatic activation bars: a sync/async message activates its target until it returns.</td></tr>
+<tr><td><code>data-efx-numbers</code></td><td><code>false</code></td><td>Number the messages (or write &lt;code&gt;autonumber&lt;/code&gt;).</td></tr>
+<tr><td><code>data-efx-bottom</code></td><td><code>false</code></td><td>Repeat participant boxes at the bottom.</td></tr>
+<tr><td><code>data-efx-gap</code></td><td><code>0</code></td><td>Minimum px between lifelines (0 = auto).</td></tr>
+<tr><td><code>data-efx-colors</code></td><td><code>Shine tones</code></td><td>Participant accent colors.</td></tr>
+<tr><td><code>data-efx-tooltip</code></td><td><code>true</code></td><td>Keyboard-step tooltip.</td></tr>
+<tr><td><code>data-efx-title</code></td><td></td><td>Accessible name.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-seq-line</code></td><td><code>muted text</code></td><td>Arrow color.</td></tr>
+<tr><td><code>--efx-seq-note</code></td><td><code>tinted warning</code></td><td>Note fill.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Event</th><th scope="col">When</th></tr></thead>
+<tbody><tr><td><code>efx:select</code></td><td>Message clicked. detail = { index, label, from, to }.</td></tr>
+<tr><td><code>efx:data (listen)</code></td><td>Dispatch with detail = new text or JSON to redraw.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-diagram-tree" class="stack gap-4 feature" aria-labelledby="h-diagram-tree">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-diagram-tree" class="text-2xl font-bold m-0">Tree diagram</h3>
+      <span class="badge tone-neutral"><code>diagram-tree</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">4.9 KB</span></div>
+    <p class="m-0 text-muted">Turns a nested list into an org chart, tree or mind map. JS lays the nodes out and draws curved or elbow connectors; the list stays real, accessible HTML (role=tree). Click, Enter or Space folds a branch (animated); arrow keys move between nodes.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-tree-132"><div class="card p-6"><ul class="efx-diagram-tree" aria-label="Organisation">
+  <li data-efx-tone="primary"><span>CEO</span><ul>
+    <li data-efx-tone="info"><span>CTO</span><ul><li>Platform</li><li>Mobile</li><li>Data</li></ul></li>
+    <li data-efx-tone="success"><span>CFO</span><ul><li>Finance</li><li>Legal</li></ul></li>
+    <li data-efx-tone="warning"><span>COO</span><ul><li>Support</li><li>Ops</li></ul></li>
+  </ul></li></ul></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-tree-132-code">Org chart (click a node to fold)</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-tree-132-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-tree-132-code" data-demo="ex-diagram-tree-132" spellcheck="false" rows="7">&lt;div class=&quot;card p-6&quot;&gt;&lt;ul class=&quot;efx-diagram-tree&quot; aria-label=&quot;Organisation&quot;&gt;
+  &lt;li data-efx-tone=&quot;primary&quot;&gt;&lt;span&gt;CEO&lt;/span&gt;&lt;ul&gt;
+    &lt;li data-efx-tone=&quot;info&quot;&gt;&lt;span&gt;CTO&lt;/span&gt;&lt;ul&gt;&lt;li&gt;Platform&lt;/li&gt;&lt;li&gt;Mobile&lt;/li&gt;&lt;li&gt;Data&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+    &lt;li data-efx-tone=&quot;success&quot;&gt;&lt;span&gt;CFO&lt;/span&gt;&lt;ul&gt;&lt;li&gt;Finance&lt;/li&gt;&lt;li&gt;Legal&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+    &lt;li data-efx-tone=&quot;warning&quot;&gt;&lt;span&gt;COO&lt;/span&gt;&lt;ul&gt;&lt;li&gt;Support&lt;/li&gt;&lt;li&gt;Ops&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+  &lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-tree-133"><div class="card p-6"><ul class="efx-diagram-tree" data-efx-layout="mindmap" data-efx-links="curve" aria-label="Launch plan">
+  <li data-efx-tone="primary"><span>Launch</span><ul>
+    <li data-efx-tone="info"><span>Marketing</span><ul><li>Blog</li><li>Social</li></ul></li>
+    <li data-efx-tone="success"><span>Product</span><ul><li>Beta</li><li>Docs</li></ul></li>
+    <li data-efx-tone="warning"><span>Sales</span><ul><li>Pricing</li><li>Demos</li></ul></li>
+    <li data-efx-tone="danger"><span>Risks</span><ul><li>Load</li><li>Legal</li></ul></li>
+  </ul></li></ul></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-tree-133-code">Mind map</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-tree-133-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-tree-133-code" data-demo="ex-diagram-tree-133" spellcheck="false" rows="8">&lt;div class=&quot;card p-6&quot;&gt;&lt;ul class=&quot;efx-diagram-tree&quot; data-efx-layout=&quot;mindmap&quot; data-efx-links=&quot;curve&quot; aria-label=&quot;Launch plan&quot;&gt;
+  &lt;li data-efx-tone=&quot;primary&quot;&gt;&lt;span&gt;Launch&lt;/span&gt;&lt;ul&gt;
+    &lt;li data-efx-tone=&quot;info&quot;&gt;&lt;span&gt;Marketing&lt;/span&gt;&lt;ul&gt;&lt;li&gt;Blog&lt;/li&gt;&lt;li&gt;Social&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+    &lt;li data-efx-tone=&quot;success&quot;&gt;&lt;span&gt;Product&lt;/span&gt;&lt;ul&gt;&lt;li&gt;Beta&lt;/li&gt;&lt;li&gt;Docs&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+    &lt;li data-efx-tone=&quot;warning&quot;&gt;&lt;span&gt;Sales&lt;/span&gt;&lt;ul&gt;&lt;li&gt;Pricing&lt;/li&gt;&lt;li&gt;Demos&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+    &lt;li data-efx-tone=&quot;danger&quot;&gt;&lt;span&gt;Risks&lt;/span&gt;&lt;ul&gt;&lt;li&gt;Load&lt;/li&gt;&lt;li&gt;Legal&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+  &lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-diagram-tree-134"><div class="card p-6"><ul class="efx-diagram-tree" data-efx-direction="right" data-efx-collapse="1" aria-label="Files">
+  <li data-efx-tone="secondary"><span>src</span><ul>
+    <li><span>charts</span><ul><li>_lib.js</li><li>chart-bar.js</li></ul></li>
+    <li><span>features</span><ul><li>reveal.js</li><li>tilt.js</li></ul></li>
+    <li>core.js</li>
+  </ul></li></ul></div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-diagram-tree-134-code">Horizontal, folded</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-diagram-tree-134-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-diagram-tree-134-code" data-demo="ex-diagram-tree-134" spellcheck="false" rows="7">&lt;div class=&quot;card p-6&quot;&gt;&lt;ul class=&quot;efx-diagram-tree&quot; data-efx-direction=&quot;right&quot; data-efx-collapse=&quot;1&quot; aria-label=&quot;Files&quot;&gt;
+  &lt;li data-efx-tone=&quot;secondary&quot;&gt;&lt;span&gt;src&lt;/span&gt;&lt;ul&gt;
+    &lt;li&gt;&lt;span&gt;charts&lt;/span&gt;&lt;ul&gt;&lt;li&gt;_lib.js&lt;/li&gt;&lt;li&gt;chart-bar.js&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;span&gt;features&lt;/span&gt;&lt;ul&gt;&lt;li&gt;reveal.js&lt;/li&gt;&lt;li&gt;tilt.js&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+    &lt;li&gt;core.js&lt;/li&gt;
+  &lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="alert tone-info"><span class="alert-title">Data format</span><div class="stack gap-2 text-sm">A plain nested list. The node is the first element (or text) of each <code>&lt;li&gt;</code>; a nested <code>&lt;ul&gt;</code> holds its children.
+<code>&lt;ul class="efx-diagram-tree"&gt;&lt;li data-efx-tone="primary"&gt;&lt;span&gt;CEO&lt;/span&gt;&lt;ul&gt;&lt;li&gt;CTO&lt;/li&gt;&lt;li&gt;CFO&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;</code>
+Per-node: <code>data-efx-tone="success"</code> (any Shine tone or CSS colour), <code>data-efx-collapsed</code> to start folded. Links, headings and other markup inside a node are kept. Without JS it stays a readable nested list.</div></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-diagram-tree</code></td><td>On a &lt;ul&gt;: lay the list out as a diagram.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-direction</code></td><td><code>down</code></td><td>&quot;down&quot; (org chart) or &quot;right&quot; (horizontal tree).</td></tr>
+<tr><td><code>data-efx-layout</code></td><td><code>tree</code></td><td>&quot;mindmap&quot; centres the root and splits its children left/right.</td></tr>
+<tr><td><code>data-efx-links</code></td><td><code>elbow</code></td><td>&quot;elbow&quot;, &quot;curve&quot; or &quot;straight&quot; connectors.</td></tr>
+<tr><td><code>data-efx-collapsible</code></td><td><code>true</code></td><td>Branches fold on click / Enter / Space.</td></tr>
+<tr><td><code>data-efx-collapse</code></td><td><code>0</code></td><td>Start folded from this depth (1 = fold every branch below the root's children). 0 = all open.</td></tr>
+<tr><td><code>data-efx-gap</code></td><td><code>16</code></td><td>Gap between siblings in px.</td></tr>
+<tr><td><code>data-efx-level-gap</code></td><td><code>44</code></td><td>Gap between levels in px.</td></tr>
+<tr><td><code>data-efx-tone</code></td><td></td><td>Default tone for every node (a Shine tone name).</td></tr>
+<tr><td><code>data-efx-animate</code></td><td><code>true</code></td><td>Entrance + fold animation (off for reduced motion).</td></tr>
+<tr><td><code>data-efx-title</code></td><td></td><td>Accessible name (or aria-label on the list).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-tree-line</code></td><td><code>muted</code></td><td>Connector colour.</td></tr>
+<tr><td><code>--efx-tone</code></td><td><code>per node</code></td><td>Node accent + connector colour; set by data-efx-tone.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Event</th><th scope="col">When</th></tr></thead>
+<tbody><tr><td><code>efx:select</code></td><td>Node clicked / Enter. detail = { label, depth }.</td></tr>
+<tr><td><code>efx:toggle</code></td><td>Branch folded or unfolded. detail = { label, expanded }.</td></tr></tbody></table></div>
+  
+  
+</section>
+<section id="f-chart-venn" class="stack gap-4 feature" aria-labelledby="h-chart-venn">
+  <header class="stack gap-1">
+    <div class="cluster gap-2"><h3 id="h-chart-venn" class="text-2xl font-bold m-0">Venn diagram</h3>
+      <span class="badge tone-neutral"><code>chart-venn</code></span>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">2.9 KB</span></div>
+    <p class="m-0 text-muted">Area-proportional two- or three-set Venn with translucent blended circles, set names, totals and overlap counts. Hover a region (or arrow through them) for a tooltip; click fires <code>efx:select</code>.</p>
+  </header>
+  <div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-chart-venn-135"><div class="card p-6">
+  <h3 class="m-0 mb-3">Who uses what</h3>
+  <div class="efx-chart-venn" data-efx-data='[{"sets":["Web"],"size":120},{"sets":["Mobile"],"size":80},{"sets":["Desktop"],"size":50},{"sets":["Web","Mobile"],"size":35},{"sets":["Web","Desktop"],"size":20},{"sets":["Mobile","Desktop"],"size":12},{"sets":["Web","Mobile","Desktop"],"size":6}]' data-efx-suffix=" users"></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-chart-venn-135-code">HTML — edit to try options live</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-chart-venn-135-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-chart-venn-135-code" data-demo="ex-chart-venn-135" spellcheck="false" rows="5">&lt;div class=&quot;card p-6&quot;&gt;
+  &lt;h3 class=&quot;m-0 mb-3&quot;&gt;Who uses what&lt;/h3&gt;
+  &lt;div class=&quot;efx-chart-venn&quot; data-efx-data='[{&quot;sets&quot;:[&quot;Web&quot;],&quot;size&quot;:120},{&quot;sets&quot;:[&quot;Mobile&quot;],&quot;size&quot;:80},{&quot;sets&quot;:[&quot;Desktop&quot;],&quot;size&quot;:50},{&quot;sets&quot;:[&quot;Web&quot;,&quot;Mobile&quot;],&quot;size&quot;:35},{&quot;sets&quot;:[&quot;Web&quot;,&quot;Desktop&quot;],&quot;size&quot;:20},{&quot;sets&quot;:[&quot;Mobile&quot;,&quot;Desktop&quot;],&quot;size&quot;:12},{&quot;sets&quot;:[&quot;Web&quot;,&quot;Mobile&quot;,&quot;Desktop&quot;],&quot;size&quot;:6}]' data-efx-suffix=&quot; users&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+<div class="card card-flat overflow-hidden">
+  <div class="demo p-6" id="ex-chart-venn-136"><div class="grid md:grid-cols-2 gap-4">
+  <div class="card p-6"><div class="efx-chart-venn" data-efx-height="200" data-efx-data='[{"sets":["Design"],"size":12},{"sets":["Dev"],"size":10},{"sets":["Design","Dev"],"size":4}]' data-efx-title="Design and dev overlap"></div></div>
+  <div class="card p-6 efx-chart-venn" data-efx-background data-efx-data='[{"sets":["A"],"size":10},{"sets":["B"],"size":8},{"sets":["A","B"],"size":3}]'><h3 class="m-0">Overlap</h3><p class="m-0">Venn as a card background.</p></div>
+</div></div>
+  <div class="border-t bg-surface-2">
+    <div class="flex items-center justify-between gap-2 px-3 py-2">
+      <label class="text-sm text-muted" for="ex-chart-venn-136-code">Two-set overlap, and a Venn as a card background</label>
+      <button class="btn btn-sm btn-outline efx-copy" type="button" data-efx-target="#ex-chart-venn-136-code">Copy</button>
+    </div>
+    <textarea class="code-edit" id="ex-chart-venn-136-code" data-demo="ex-chart-venn-136" spellcheck="false" rows="5">&lt;div class=&quot;grid md:grid-cols-2 gap-4&quot;&gt;
+  &lt;div class=&quot;card p-6&quot;&gt;&lt;div class=&quot;efx-chart-venn&quot; data-efx-height=&quot;200&quot; data-efx-data='[{&quot;sets&quot;:[&quot;Design&quot;],&quot;size&quot;:12},{&quot;sets&quot;:[&quot;Dev&quot;],&quot;size&quot;:10},{&quot;sets&quot;:[&quot;Design&quot;,&quot;Dev&quot;],&quot;size&quot;:4}]' data-efx-title=&quot;Design and dev overlap&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;card p-6 efx-chart-venn&quot; data-efx-background data-efx-data='[{&quot;sets&quot;:[&quot;A&quot;],&quot;size&quot;:10},{&quot;sets&quot;:[&quot;B&quot;],&quot;size&quot;:8},{&quot;sets&quot;:[&quot;A&quot;,&quot;B&quot;],&quot;size&quot;:3}]'&gt;&lt;h3 class=&quot;m-0&quot;&gt;Overlap&lt;/h3&gt;&lt;p class=&quot;m-0&quot;&gt;Venn as a card background.&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;</textarea>
+  </div>
+</div>
+  
+  <div class="alert tone-info"><span class="alert-title">Data format</span><div class="stack gap-2 text-sm">A list of regions: <code>[{"sets":["Design"],"size":12},{"sets":["Dev"],"size":10},{"sets":["Design","Dev"],"size":4}]</code>.
+A one-set entry is that set's <em>total</em> size (circle area ∝ size); a two- or three-set entry is the size of that overlap. Two-set overlaps are exact; with three sets each pair overlap is exact and the centre region is approximate.
+<code>sets</code> may also be written <code>"Design&amp;Dev"</code>. Up to three sets. Data can sit in <code>data-efx-data</code>, an inline <code>&lt;script type="application/json"&gt;</code>, or arrive through <code>efx:data</code> as an array.</div></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
+<tbody><tr><td><code>efx-chart-venn</code></td><td>Renders a 2- or 3-set Venn from region sizes.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
+<tbody><tr><td><code>data-efx-data</code></td><td></td><td>JSON regions [{&quot;sets&quot;:[&quot;A&quot;],&quot;size&quot;:12},{&quot;sets&quot;:[&quot;A&quot;,&quot;B&quot;],&quot;size&quot;:4}].</td></tr>
+<tr><td><code>data-efx-opacity</code></td><td><code>0.4</code></td><td>Circle fill opacity.</td></tr>
+<tr><td><code>data-efx-height</code></td><td><code>300</code></td><td>Chart height in px (0 = element CSS height).</td></tr>
+<tr><td><code>data-efx-colors</code></td><td><code>Shine tones</code></td><td>One color per set &quot;#f43f5e|#8b5cf6|#10b981&quot;.</td></tr>
+<tr><td><code>data-efx-prefix / suffix / compact / decimals</code></td><td></td><td>Number formatting of the counts.</td></tr>
+<tr><td><code>data-efx-tooltip / animate</code></td><td><code>true</code></td><td>Turn parts off.</td></tr>
+<tr><td><code>data-efx-background</code></td><td><code>false</code></td><td>Decorative: just the circles, behind the content.</td></tr>
+<tr><td><code>data-efx-title</code></td><td></td><td>Accessible name (else aria-label or first heading).</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">CSS variable</th><th scope="col">Default</th><th scope="col">Controls</th></tr></thead>
+<tbody><tr><td><code>--efx-chart-1 … 3</code></td><td><code>Shine tones</code></td><td>Set colors.</td></tr>
+<tr><td><code>--efx-chart-bg-opacity</code></td><td><code>.35</code></td><td>Opacity in background mode.</td></tr></tbody></table></div>
+  <div class="overflow-x-auto"><table class="table table-sm">
+<thead><tr><th scope="col">Event</th><th scope="col">When</th></tr></thead>
+<tbody><tr><td><code>efx:select</code></td><td>Region clicked / Enter pressed. detail = { index, label, value }.</td></tr>
+<tr><td><code>efx:data (listen)</code></td><td>Dispatch on the chart with detail = a regions array to update it.</td></tr></tbody></table></div>
   
   
 </section>

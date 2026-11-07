@@ -5,13 +5,15 @@
   "bundles": {
     "effix.min.js": 47942,
     "effix.min.css": 10532,
-    "effix-charts.min.js": 27652,
-    "effix-charts.min.css": 2293,
+    "effix-charts.min.js": 31282,
+    "effix-charts.min.css": 2547,
+    "effix-diagrams.min.js": 19528,
+    "effix-diagrams.min.css": 3944,
     "effix.core.min.js": 2737,
     "effix.core.min.css": 252,
-    "effix.auto.min.js": 4459,
-    "effix.all.min.js": 74671,
-    "effix.all.min.css": 12247
+    "effix.auto.min.js": 4526,
+    "effix.all.min.js": 92863,
+    "effix.all.min.css": 15147
   },
   "features": {
     "ambient": {
@@ -419,6 +421,16 @@
       "css": 0,
       "kind": "chart"
     },
+    "chart-pyramid": {
+      "js": 1848,
+      "css": 306,
+      "kind": "chart"
+    },
+    "chart-quadrant": {
+      "js": 2508,
+      "css": 216,
+      "kind": "chart"
+    },
     "chart-radar": {
       "js": 1713,
       "css": 291,
@@ -449,9 +461,39 @@
       "css": 245,
       "kind": "chart"
     },
+    "chart-venn": {
+      "js": 2663,
+      "css": 295,
+      "kind": "chart"
+    },
     "chart-waterfall": {
       "js": 1699,
       "css": 87,
+      "kind": "chart"
+    },
+    "diagram-cycle": {
+      "js": 2115,
+      "css": 237,
+      "kind": "chart"
+    },
+    "diagram-fishbone": {
+      "js": 2268,
+      "css": 545,
+      "kind": "chart"
+    },
+    "diagram-flow": {
+      "js": 5150,
+      "css": 1695,
+      "kind": "chart"
+    },
+    "diagram-sequence": {
+      "js": 5595,
+      "css": 1194,
+      "kind": "chart"
+    },
+    "diagram-tree": {
+      "js": 4078,
+      "css": 950,
       "kind": "chart"
     }
   }
