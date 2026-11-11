@@ -1,5 +1,6 @@
 /* Docs data for kinetic (not bundled). */
 module.exports = {
+  smokeRefresh: false, // the word on screen depends on the current beat
   title: 'Kinetic bumper',
   group: 'Text',
   summary: 'Kinetic typography: big centered type that shows one word per beat with rotating punch, slide, spin, blur and split entrances, colored from Shine tones. Screen readers get the full sentence; reduced motion shows it statically.',

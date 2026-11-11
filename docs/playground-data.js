@@ -159,6 +159,120 @@ window.EFX_PLAYGROUND = {
    "example": "<div class=\"cluster gap-6 p-6\" style=\"min-height:300px;align-content:center;justify-content:center\">\n  <button class=\"btn efx-nudge\" data-efx-anim=\"ring\" data-efx-dot data-efx-delay=\"600\" data-efx-every=\"3000\" aria-label=\"Notifications\">🔔</button>\n  <button class=\"btn tone-primary efx-nudge\" data-efx-anim=\"shake\" data-efx-delay=\"1200\" data-efx-every=\"3000\">Click me</button>\n  <button class=\"btn efx-nudge\" data-efx-anim=\"wobble\" data-efx-stop=\"hover\" data-efx-delay=\"1800\" data-efx-every=\"3000\">Hover to stop</button>\n</div>"
   },
   {
+   "name": "reel",
+   "title": "Scene reel",
+   "group": "Animations",
+   "kind": "effect",
+   "classes": [
+    "efx-reel"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-autoplay",
+     "def": "true",
+     "desc": "Start playing when visible (never with reduced motion).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-loop",
+     "def": "false",
+     "desc": "Restart after the last scene.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-controls",
+     "def": "true",
+     "desc": "Inject play/pause button and progress segments.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-duration",
+     "def": "3000",
+     "desc": "Default scene length in ms (override per scene).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-transition",
+     "def": "fade",
+     "desc": "Default transition: fade · slide · wipe · zoom · cut (override per scene).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"efx-reel rounded-lg\" data-efx-loop>\n  <section class=\"efx-reel__scene tone-primary p-6 stack gap-2 justify-center\" data-efx-duration=\"2200\" data-efx-transition=\"fade\" style=\"min-height:260px;background:var(--sh-tone);color:var(--sh-on-tone,#fff)\"><h2 class=\"efx-fade-in-up efx-scroll\" >Meet Effix</h2><p class=\"efx-fade-in-up efx-scroll\" data-efx-delay=\"200\">Motion for Shine, in one script.</p></section>\n  <section class=\"efx-reel__scene tone-success p-6 stack gap-2 justify-center\" data-efx-duration=\"2200\" data-efx-transition=\"slide\" style=\"min-height:260px;background:var(--sh-tone);color:var(--sh-on-tone,#fff)\"><h2 class=\"efx-fade-in-up efx-scroll\" >Slide right in</h2><p class=\"efx-fade-in-up efx-scroll\" data-efx-delay=\"200\">Each scene replays its own effects.</p></section>\n  <section class=\"efx-reel__scene tone-info p-6 stack gap-2 justify-center\" data-efx-duration=\"2200\" data-efx-transition=\"wipe\" style=\"min-height:260px;background:var(--sh-tone);color:var(--sh-on-tone,#fff)\"><h2 class=\"efx-fade-in-up efx-scroll\" >Wipe it clean</h2><p class=\"efx-fade-in-up efx-scroll\" data-efx-delay=\"200\">Clip-path reveal.</p></section>\n  <section class=\"efx-reel__scene tone-warning p-6 stack gap-2 justify-center\" data-efx-duration=\"2200\" data-efx-transition=\"zoom\" style=\"min-height:260px;background:var(--sh-tone);color:var(--sh-on-tone,#fff)\"><h2 class=\"efx-fade-in-up efx-scroll\" >Zoom finale</h2><p class=\"efx-fade-in-up efx-scroll\" data-efx-delay=\"200\">Loop, pause, or jump with the bar.</p></section>\n</div>"
+  },
+  {
+   "name": "ascii",
+   "title": "ASCII art",
+   "group": "Images",
+   "kind": "effect",
+   "classes": [
+    "efx-ascii"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-cols",
+     "def": "80",
+     "desc": "Characters per row (rows follow the aspect ratio).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-chars",
+     "def": ".:-=+*#%@",
+     "desc": "Characters from dark to bright.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-invert",
+     "def": "false",
+     "desc": "Flip the brightness mapping (use on light backgrounds).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-color",
+     "def": "mono",
+     "desc": "mono (inherits text color, or --efx-ascii-color) · source (per-character color from the image).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-text",
+     "def": "",
+     "desc": "Render this text large and convert it (use \"&#10;\" for line breaks). Falls back to the element's own text.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-output",
+     "def": "pre",
+     "desc": "pre · canvas.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-reveal",
+     "def": "true",
+     "desc": "Scramble-then-settle animation when first visible.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-duration",
+     "def": "1200",
+     "desc": "Reveal length in ms.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-fps",
+     "def": "24",
+     "desc": "Frame cap for the reveal and live video.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-live",
+     "def": "false",
+     "desc": "On a  source: re-sample every frame. Videos are always live while playing.",
+     "type": "bool"
+    }
+   ],
+   "example": "<div class=\"grid md:grid-cols-2 gap-4 p-4\">\n  <div><img class=\"efx-ascii\" src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27320%27%20height%3D%27200%27%3E%3Cdefs%3E%3CradialGradient%20id%3D%27g%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27white%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27black%27%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%27320%27%20height%3D%27200%27%20fill%3D%27black%27%2F%3E%3Ccircle%20cx%3D%27160%27%20cy%3D%27100%27%20r%3D%2785%27%20fill%3D%27url(%23g)%27%2F%3E%3Ccircle%20cx%3D%27120%27%20cy%3D%2785%27%20r%3D%2714%27%20fill%3D%27black%27%2F%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2785%27%20r%3D%2714%27%20fill%3D%27black%27%2F%3E%3Cpath%20d%3D%27M110%20125%20Q160%20175%20210%20125%27%20stroke%3D%27black%27%20stroke-width%3D%2710%27%20fill%3D%27none%27%2F%3E%3C%2Fsvg%3E\" alt=\"A smiling face\" data-efx-cols=\"60\" data-efx-color=\"source\" style=\"width:100%\"></div>\n  <div class=\"stack gap-3\"><div class=\"efx-ascii\" data-efx-text=\"EFFIX\" data-efx-cols=\"46\" style=\"font-weight:800;font-family:sans-serif\"></div>\n  <img class=\"efx-ascii\" src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27320%27%20height%3D%27200%27%3E%3Cdefs%3E%3CradialGradient%20id%3D%27g%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27white%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27black%27%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%27320%27%20height%3D%27200%27%20fill%3D%27black%27%2F%3E%3Ccircle%20cx%3D%27160%27%20cy%3D%27100%27%20r%3D%2785%27%20fill%3D%27url(%23g)%27%2F%3E%3Ccircle%20cx%3D%27120%27%20cy%3D%2785%27%20r%3D%2714%27%20fill%3D%27black%27%2F%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%2785%27%20r%3D%2714%27%20fill%3D%27black%27%2F%3E%3Cpath%20d%3D%27M110%20125%20Q160%20175%20210%20125%27%20stroke%3D%27black%27%20stroke-width%3D%2710%27%20fill%3D%27none%27%2F%3E%3C%2Fsvg%3E\" alt=\"A smiling face\" data-efx-cols=\"36\" data-efx-chars=\" .oO@\" data-efx-reveal=\"false\" style=\"width:100%\"></div>\n</div>"
+  },
+  {
    "name": "distort",
    "title": "Distort",
    "group": "Images",
@@ -277,6 +391,36 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"grid md:grid-cols-2 gap-4\">\n  <div class=\"card p-3\"><img class=\"efx-pixelate rounded-lg\" src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%236366f1%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ec4899%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Ccircle%20cx%3D%22440%22%20cy%3D%22130%22%20r%3D%2270%22%20fill%3D%22%23fde68a%22%2F%3E%3Cpath%20d%3D%22M0%20400V290l130-110%20110%2090%20120-150%20240%20170v110z%22%20fill%3D%22%230f172a%22%20opacity%3D%22.55%22%2F%3E%3C%2Fsvg%3E\" alt=\"Mountain\" style=\"display:block;width:100%;height:200px;object-fit:cover\"><p class=\"mt-2\">trigger: view</p></div>\n  <div class=\"card p-3\"><img class=\"efx-pixelate rounded-lg\" data-efx-trigger=\"hover\" data-efx-from=\"24\" src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f97316%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23a855f7%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22400%22%20fill%3D%22url(%23g)%22%2F%3E%3Cg%20fill%3D%22%23fff%22%20opacity%3D%22.55%22%3E%3Crect%20x%3D%2260%22%20y%3D%22230%22%20width%3D%2270%22%20height%3D%22110%22%2F%3E%3Crect%20x%3D%22150%22%20y%3D%22160%22%20width%3D%2270%22%20height%3D%22180%22%2F%3E%3Crect%20x%3D%22240%22%20y%3D%22100%22%20width%3D%2270%22%20height%3D%22240%22%2F%3E%3Crect%20x%3D%22330%22%20y%3D%22190%22%20width%3D%2270%22%20height%3D%22150%22%2F%3E%3Crect%20x%3D%22420%22%20y%3D%22130%22%20width%3D%2270%22%20height%3D%22210%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%22500%22%20cy%3D%2270%22%20r%3D%2236%22%20fill%3D%22%23fff%22%20opacity%3D%22.8%22%2F%3E%3C%2Fsvg%3E\" alt=\"City\" style=\"display:block;width:100%;height:200px;object-fit:cover\"><p class=\"mt-2\">trigger: hover</p></div>\n</div>"
+  },
+  {
+   "name": "popout",
+   "title": "Poster pop-out",
+   "group": "Images",
+   "kind": "effect",
+   "classes": [
+    "efx-popout"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-depth",
+     "def": "20",
+     "desc": "Layer travel in px (foreground moves most, background least).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-tilt",
+     "def": "8",
+     "desc": "Maximum 3D tilt in degrees (pointer).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-mode",
+     "def": "both",
+     "desc": "pointer · scroll · both (pointer needs a fine pointer; scroll works on touch).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"p-6\" style=\"padding-top:5rem\"><div class=\"efx-popout rounded-xl\" style=\"max-width:360px;margin-inline:auto;aspect-ratio:4/3\" data-efx-depth=\"26\" data-efx-tilt=\"9\">\n  <div class=\"efx-popout__bg\" style=\"background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22600%22%20height%3D%22420%22%20viewBox%3D%220%200%20600%20420%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22s%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%231e1b4b%22%2F%3E%3Cstop%20offset%3D%22.6%22%20stop-color%3D%22%237c3aed%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23f472b6%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22600%22%20height%3D%22420%22%20fill%3D%22url(%23s)%22%2F%3E%3Cg%20fill%3D%22%23fff%22%20opacity%3D%22.8%22%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2250%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%22180%22%20cy%3D%22110%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%22330%22%20cy%3D%2240%22%20r%3D%222%22%2F%3E%3Ccircle%20cx%3D%22470%22%20cy%3D%2290%22%20r%3D%222.5%22%2F%3E%3Ccircle%20cx%3D%22540%22%20cy%3D%22200%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%22120%22%20cy%3D%22220%22%20r%3D%221.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E')\"></div>\n  <img class=\"efx-popout__fg\" src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22420%22%20height%3D%22500%22%20viewBox%3D%220%200%20420%20500%22%3E%3Cdefs%3E%3CradialGradient%20id%3D%22p%22%20cx%3D%22.35%22%20cy%3D%22.3%22%20r%3D%22.8%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fde68a%22%2F%3E%3Cstop%20offset%3D%22.6%22%20stop-color%3D%22%23f59e0b%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23b45309%22%2F%3E%3C%2FradialGradient%3E%3C%2Fdefs%3E%3Cellipse%20cx%3D%22210%22%20cy%3D%22190%22%20rx%3D%22205%22%20ry%3D%2242%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%2210%22%20opacity%3D%22.9%22%20transform%3D%22rotate(-14%20210%20190)%22%2F%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%22190%22%20r%3D%22125%22%20fill%3D%22url(%23p)%22%2F%3E%3Cpath%20d%3D%22M95%20200a125%20125%200%200%200%20230%200z%22%20fill%3D%22%2392400e%22%20opacity%3D%22.25%22%2F%3E%3Cpath%20d%3D%22M5%20190c60-50%20330-90%20410%200%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%2210%22%20transform%3D%22rotate(-14%20210%20190)%22%20opacity%3D%22.95%22%2F%3E%3Crect%20x%3D%22170%22%20y%3D%22310%22%20width%3D%2280%22%20height%3D%22170%22%20rx%3D%2240%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%22210%22%20cy%3D%22365%22%20r%3D%2220%22%20fill%3D%22%237c3aed%22%2F%3E%3C%2Fsvg%3E\" alt=\"A ringed planet bursting out of the frame\">\n</div></div>"
   },
   {
    "name": "mask",
@@ -1040,6 +1184,54 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"stack gap-4 p-6\">\n  <h2 class=\"efx-glitch text-4xl font-bold\">System failure</h2>\n  <h3 class=\"efx-glitch text-2xl font-bold\" data-efx-trigger=\"hover\">Hover me</h3>\n</div>"
+  },
+  {
+   "name": "kinetic",
+   "title": "Kinetic bumper",
+   "group": "Text",
+   "kind": "effect",
+   "classes": [
+    "efx-kinetic"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-words",
+     "def": "",
+     "desc": "Words or phrases separated by |.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-beat",
+     "def": "600",
+     "desc": "Milliseconds per word.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-styles",
+     "def": "punch|slide|spin|blur|split",
+     "desc": "Entrance styles, cycled in order.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-random",
+     "def": "false",
+     "desc": "Pick styles at random instead of cycling.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "",
+     "desc": "Per-word colors separated by |; defaults to Shine tones.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-hold",
+     "def": "false",
+     "desc": "true = stop on the last word instead of looping.",
+     "type": "bool"
+    }
+   ],
+   "example": "<div class=\"efx-kinetic\" style=\"min-height:260px\" data-efx-words=\"Ship|faster|with|Effix\" data-efx-beat=\"700\"></div>"
   },
   {
    "name": "morph",
@@ -2295,6 +2487,48 @@ window.EFX_PLAYGROUND = {
    "example": "<div class=\"efx-feed stack gap-2\" data-efx-max=\"4\" data-efx-interval=\"1400\" style=\"min-height:300px\">\n  <div class=\"card p-3 rounded-lg\">New signup: <strong>Ada</strong></div>\n  <div class=\"card p-3 rounded-lg\">Payment received: <strong>$49</strong></div>\n  <div class=\"card p-3 rounded-lg\">Deploy finished on <strong>main</strong></div>\n  <div class=\"card p-3 rounded-lg\">Comment from <strong>Linus</strong></div>\n  <div class=\"card p-3 rounded-lg\">Invoice <strong>#1042</strong> sent</div>\n  <div class=\"card p-3 rounded-lg\">New review: 5 stars</div>\n</div>"
   },
   {
+   "name": "audio",
+   "title": "Audio visualizer",
+   "group": "Components",
+   "kind": "effect",
+   "classes": [
+    "efx-audio"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-for",
+     "def": "(audio/video inside)",
+     "desc": "Selector of the media element, e.g. #song.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-type",
+     "def": "bars",
+     "desc": "bars · wave · circle · scope · dots, or any registered audio-viz.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-color",
+     "def": "(Shine chain)",
+     "desc": "Color or list separated by |; empty = --efx-chart-1…4, then Shine tone/primary.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-count",
+     "def": "48",
+     "desc": "Number of bars / spokes.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-gain",
+     "def": "1",
+     "desc": "Multiplier on the --efx-level value.",
+     "type": "number"
+    }
+   ],
+   "example": "<div class=\"stack gap-3 p-4\">\n  <audio id=\"efx-au-a\" controls loop style=\"width:100%\"></audio>\n  <div class=\"efx-audio card rounded-lg\" data-efx-for=\"#efx-au-a\" data-efx-type=\"bars\"  style=\"height:140px\"></div>\n</div><script>(function(a){var r=8000,n=r*10,b=new Uint8Array(44+n),d=new DataView(b.buffer),w=function(o,t){for(var i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)};w(0,'RIFF');d.setUint32(4,36+n,1);w(8,'WAVEfmt ');d.setUint32(16,16,1);d.setUint16(20,1,1);d.setUint16(22,1,1);d.setUint32(24,r,1);d.setUint32(28,r,1);d.setUint16(32,1,1);d.setUint16(34,8,1);w(36,'data');d.setUint32(40,n,1);for(var i=0;i<n;i++){var t=i/r,f=110*Math.pow(2,[0,3,7,10][Math.floor(t*2)%4]/12),e=Math.pow(1-(t*4%1),2),s=Math.sin(6.283*f*t)+.5*Math.sin(6.283*f*2*t)+.3*Math.sin(6.283*(300+200*Math.sin(t))*t);b[44+i]=128+34*s*(.35+.65*e)}a.src=URL.createObjectURL(new Blob([b],{type:'audio/wav'}))})(document.getElementById('efx-au-a'))</script>"
+  },
+  {
    "name": "compare",
    "title": "Before / after compare",
    "group": "Components",
@@ -2575,6 +2809,54 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"efx-lightbox cluster gap-3\">\n  <a href=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%236366f1%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EOne%3C%2Ftext%3E%3C%2Fsvg%3E\" data-efx-caption=\"One caption\"><img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%236366f1%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EOne%3C%2Ftext%3E%3C%2Fsvg%3E\" alt=\"One\" class=\"rounded-lg\" style=\"width:120px;height:75px;object-fit:cover\"></a>\n  <a href=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%230f766e%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ETwo%3C%2Ftext%3E%3C%2Fsvg%3E\" data-efx-caption=\"Two caption\"><img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%230f766e%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3ETwo%3C%2Ftext%3E%3C%2Fsvg%3E\" alt=\"Two\" class=\"rounded-lg\" style=\"width:120px;height:75px;object-fit:cover\"></a>\n  <a href=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23be123c%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EThree%3C%2Ftext%3E%3C%2Fsvg%3E\" data-efx-caption=\"Three caption\"><img src=\"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22800%22%20height%3D%22500%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23be123c%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23fff%22%20font-size%3D%2264%22%20font-family%3D%22sans-serif%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3EThree%3C%2Ftext%3E%3C%2Fsvg%3E\" alt=\"Three\" class=\"rounded-lg\" style=\"width:120px;height:75px;object-fit:cover\"></a>\n</div>"
+  },
+  {
+   "name": "lyrics",
+   "title": "Lyrics & captions",
+   "group": "Components",
+   "kind": "effect",
+   "classes": [
+    "efx-lyrics"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-for",
+     "def": "(parent audio/video)",
+     "desc": "Selector of the media element, e.g. #song.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-cues",
+     "def": "",
+     "desc": "JSON [{\"t\":0,\"text\":\"…\",\"end\":2,\"words\":[{\"t\":0,\"w\":\"…\"}]}]. Alternatives: an inline  child, or a captions/subtitles  on the media (WebVTT;  stamps give word timing).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-karaoke",
+     "def": "false",
+     "desc": "Fill words progressively (background-clip text gradient). Words without timing are spread evenly over the line.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-scroll",
+     "def": "true",
+     "desc": "Auto-scroll the active line to the middle of the box (pauses 3s after you scroll it yourself).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-seek",
+     "def": "true",
+     "desc": "Clicking a line sets media.currentTime.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-offset",
+     "def": "0",
+     "desc": "Seconds added to the media time (lyrics early/late).",
+     "type": "number"
+    }
+   ],
+   "example": "<div class=\"stack gap-3 p-4\">\n  <audio id=\"efx-ly-a\" controls loop style=\"width:100%\"></audio>\n  <div class=\"efx-lyrics card\" data-efx-for=\"#efx-ly-a\" data-efx-cues='[{\"t\":0,\"text\":\"Every light is turning on\"},{\"t\":2,\"text\":\"Somewhere past the edge of dawn\"},{\"t\":4,\"text\":\"Carry me, carry me home\"},{\"t\":6,\"text\":\"Where the quiet signals roam\"},{\"t\":8,\"text\":\"Count the stars and let them go\"},{\"t\":10,\"text\":\"Softly now, the river flows\"}]' style=\"--efx-lyrics-height:11rem\"></div>\n</div><script>(function(a){var r=8000,n=r*12,b=new Uint8Array(44+n),d=new DataView(b.buffer),w=function(o,t){for(var i=0;i<t.length;i++)b[o+i]=t.charCodeAt(i)};w(0,'RIFF');d.setUint32(4,36+n,1);w(8,'WAVEfmt ');d.setUint32(16,16,1);d.setUint16(20,1,1);d.setUint16(22,1,1);d.setUint32(24,r,1);d.setUint32(28,r,1);d.setUint16(32,1,1);d.setUint16(34,8,1);w(36,'data');d.setUint32(40,n,1);for(var i=0;i<n;i++){var t=i/r,f=220*Math.pow(2,[0,4,7,12,7,4][Math.floor(t*2)%6]/12);b[44+i]=128+40*Math.sin(6.283*f*t)}a.src=URL.createObjectURL(new Blob([b],{type:'audio/wav'}))})(document.getElementById('efx-ly-a'))</script>"
   },
   {
    "name": "popup",

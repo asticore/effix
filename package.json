@@ -1,6 +1,6 @@
 {
   "name": "effix",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Class-driven JavaScript effects (particles, parallax, reveal, tilt, carousels, popups\u2026) plus interactive SVG charts and funnels, built to pair with Shine CSS. Only features found on the page start.",
   "main": "dist/effix.min.js",
   "module": "dist/effix.esm.js",

@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.2.0
+
+Motion-video ideas (from AI motion-prompt galleries) turned into web features. 102 features in total.
+
+### New
+- **Reel** (`efx-reel`): an HTML scene sequencer for showreels and product explainers, with timed scenes, fade/slide/wipe/zoom/cut transitions, effects that replay per scene, play/pause, clickable progress segments and keyboard control.
+- **Kinetic typography** (`efx-kinetic`): one word per beat with punch, slide, spin, blur or split transitions; the full sentence stays available to screen readers.
+- **Lyrics & captions** (`efx-lyrics`): synced to `<audio>`/`<video>` from JSON or WebVTT tracks, with karaoke word fill, auto-scroll inside the box and click-to-seek.
+- **Audio visualizer** (`efx-audio`): bars, wave, circle, scope or dots from the media's sound, plus a `--efx-level` CSS variable so any element can pulse to the beat. Custom visualizers via the `audio-viz` plugin.
+- **ASCII art** (`efx-ascii`): renders images, video, canvas or big text as animated ASCII.
+- **Popout** (`efx-popout`): "poster breaking its frame" — a cut-out spills past the card with layered depth on hover or scroll.
+
+### Changed
+- Full effects bundle guard raised to 60 KB JS / 14 KB CSS (the auto-loader still ships only what a page uses).
+
 ## v0.1.0 — first release
 
 Effix is the JavaScript partner to [Shine CSS](https://github.com/asticore/shine): effects, charts and diagrams applied with classes, tuned with `data-efx-*` attributes and styled through Shine's tokens.

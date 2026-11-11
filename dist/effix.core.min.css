@@ -1,2 +1,2 @@
-/*! Effix core v0.1.0 | MIT | https://github.com/asticore/effix */
-/*! Effix core v0.1.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{:root{--efx-duration: .7s;--efx-ease: cubic-bezier(.22, 1, .36, 1);--efx-distance: 24px}[data-efx-reduce] [class*=efx-],[data-efx-reduce] [class*=efx-]:before,[data-efx-reduce] [class*=efx-]:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+/*! Effix core v0.2.0 | MIT | https://github.com/asticore/effix */
+/*! Effix core v0.2.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{:root{--efx-duration: .7s;--efx-ease: cubic-bezier(.22, 1, .36, 1);--efx-distance: 24px}[data-efx-reduce] [class*=efx-],[data-efx-reduce] [class*=efx-]:before,[data-efx-reduce] [class*=efx-]:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}

@@ -1,2 +1,2 @@
-/*! Effix totop v0.1.0 | MIT | https://github.com/asticore/effix */
-/*! Effix totop v0.1.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-totop{opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .3s,transform .3s,visibility 0s .3s}.efx-totop:not([data-efx-fixed=false]){position:fixed;right:1.25rem;bottom:1.25rem;z-index:900}.efx-totop.is-shown{opacity:1;visibility:visible;transform:none;transition-delay:0s}}
+/*! Effix totop v0.2.0 | MIT | https://github.com/asticore/effix */
+/*! Effix totop v0.2.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-totop{opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .3s,transform .3s,visibility 0s .3s}.efx-totop:not([data-efx-fixed=false]){position:fixed;right:1.25rem;bottom:1.25rem;z-index:900}.efx-totop.is-shown{opacity:1;visibility:visible;transform:none;transition-delay:0s}}

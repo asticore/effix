@@ -1,19 +1,19 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "core": 2688,
   "chartLib": 5286,
   "bundles": {
-    "effix.min.js": 47942,
-    "effix.min.css": 10532,
-    "effix-charts.min.js": 31282,
+    "effix.min.js": 55313,
+    "effix.min.css": 12067,
+    "effix-charts.min.js": 31283,
     "effix-charts.min.css": 2547,
     "effix-diagrams.min.js": 19528,
     "effix-diagrams.min.css": 3944,
-    "effix.core.min.js": 2737,
+    "effix.core.min.js": 2738,
     "effix.core.min.css": 252,
-    "effix.auto.min.js": 4526,
-    "effix.all.min.js": 92863,
-    "effix.all.min.css": 15147
+    "effix.auto.min.js": 4631,
+    "effix.all.min.js": 100230,
+    "effix.all.min.css": 16678
   },
   "features": {
     "ambient": {
@@ -26,18 +26,28 @@
       "css": 1689,
       "kind": "effect"
     },
+    "ascii": {
+      "js": 2110,
+      "css": 297,
+      "kind": "effect"
+    },
+    "audio": {
+      "js": 2263,
+      "css": 138,
+      "kind": "effect"
+    },
     "beam": {
       "js": 1007,
       "css": 252,
       "kind": "effect"
     },
     "border": {
-      "js": 515,
+      "js": 516,
       "css": 1051,
       "kind": "effect"
     },
     "carousel": {
-      "js": 1275,
+      "js": 1276,
       "css": 636,
       "kind": "effect"
     },
@@ -47,7 +57,7 @@
       "kind": "effect"
     },
     "collapse": {
-      "js": 732,
+      "js": 731,
       "css": 0,
       "kind": "effect"
     },
@@ -72,17 +82,17 @@
       "kind": "effect"
     },
     "counter": {
-      "js": 727,
+      "js": 728,
       "css": 137,
       "kind": "effect"
     },
     "cursor": {
-      "js": 729,
+      "js": 730,
       "css": 368,
       "kind": "effect"
     },
     "dim": {
-      "js": 797,
+      "js": 798,
       "css": 406,
       "kind": "effect"
     },
@@ -112,22 +122,22 @@
       "kind": "effect"
     },
     "draw": {
-      "js": 668,
+      "js": 669,
       "css": 104,
       "kind": "effect"
     },
     "feed": {
-      "js": 730,
+      "js": 731,
       "css": 53,
       "kind": "effect"
     },
     "flip": {
-      "js": 541,
+      "js": 542,
       "css": 356,
       "kind": "effect"
     },
     "glitch": {
-      "js": 184,
+      "js": 185,
       "css": 499,
       "kind": "effect"
     },
@@ -142,8 +152,13 @@
       "kind": "effect"
     },
     "kenburns": {
-      "js": 601,
+      "js": 602,
       "css": 385,
+      "kind": "effect"
+    },
+    "kinetic": {
+      "js": 762,
+      "css": 643,
       "kind": "effect"
     },
     "layout": {
@@ -159,6 +174,11 @@
     "lightbox": {
       "js": 1174,
       "css": 524,
+      "kind": "effect"
+    },
+    "lyrics": {
+      "js": 1538,
+      "css": 540,
       "kind": "effect"
     },
     "magnetic": {
@@ -182,7 +202,7 @@
       "kind": "effect"
     },
     "morph": {
-      "js": 701,
+      "js": 700,
       "css": 262,
       "kind": "effect"
     },
@@ -197,12 +217,12 @@
       "kind": "effect"
     },
     "odometer": {
-      "js": 692,
+      "js": 693,
       "css": 312,
       "kind": "effect"
     },
     "parallax": {
-      "js": 530,
+      "js": 531,
       "css": 144,
       "kind": "effect"
     },
@@ -221,13 +241,18 @@
       "css": 108,
       "kind": "effect"
     },
+    "popout": {
+      "js": 555,
+      "css": 424,
+      "kind": "effect"
+    },
     "popup": {
-      "js": 743,
+      "js": 744,
       "css": 0,
       "kind": "effect"
     },
     "pricing": {
-      "js": 1480,
+      "js": 1481,
       "css": 230,
       "kind": "effect"
     },
@@ -241,6 +266,11 @@
       "css": 283,
       "kind": "effect"
     },
+    "reel": {
+      "js": 1588,
+      "css": 1074,
+      "kind": "effect"
+    },
     "reveal": {
       "js": 1206,
       "css": 391,
@@ -252,17 +282,17 @@
       "kind": "effect"
     },
     "schedule": {
-      "js": 722,
+      "js": 721,
       "css": 66,
       "kind": "effect"
     },
     "scramble": {
-      "js": 758,
+      "js": 759,
       "css": 146,
       "kind": "effect"
     },
     "scrollspy": {
-      "js": 649,
+      "js": 650,
       "css": 150,
       "kind": "effect"
     },
@@ -322,12 +352,12 @@
       "kind": "effect"
     },
     "tilt": {
-      "js": 685,
+      "js": 687,
       "css": 307,
       "kind": "effect"
     },
     "toast": {
-      "js": 923,
+      "js": 924,
       "css": 578,
       "kind": "effect"
     },

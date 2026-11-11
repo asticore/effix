@@ -1,2 +1,2 @@
-/*! Effix parallax v0.1.0 | MIT | https://github.com/asticore/effix */
-/*! Effix parallax v0.1.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-parallax__bg{position:absolute;top:-20%;right:0;bottom:-20%;left:0;z-index:-1;pointer-events:none}.efx-parallax[data-efx-axis=x]>.efx-parallax__bg{top:0;right:-20%;bottom:0;left:-20%}}
+/*! Effix parallax v0.2.0 | MIT | https://github.com/asticore/effix */
+/*! Effix parallax v0.2.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-parallax__bg{position:absolute;top:-20%;right:0;bottom:-20%;left:0;z-index:-1;pointer-events:none}.efx-parallax[data-efx-axis=x]>.efx-parallax__bg{top:0;right:-20%;bottom:0;left:-20%}}

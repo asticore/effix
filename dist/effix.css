@@ -1,4 +1,4 @@
-/*! Effix v0.1.0 | MIT | https://github.com/asticore/effix */
+/*! Effix v0.2.0 | MIT | https://github.com/asticore/effix */
 @layer shine, effix;
 @layer effix {
 /* Effix base — shared knobs. Colors fall back to Shine tokens when Shine is loaded.
@@ -68,6 +68,14 @@
 .efx-underline-left,.efx-underline-grow{background-position:0 100%}.efx-underline-right{background-position:100% 100%}.efx-underline-center{background-position:50% 100%}
 .efx-underline-grow:is(:hover,:focus-visible){background-position:0 100%}.efx-underline-grow{background-position:100% 100%}.efx-underline-left:is(:hover,:focus-visible),.efx-underline-right:is(:hover,:focus-visible),.efx-underline-center:is(:hover,:focus-visible),.efx-underline-grow:is(:hover,:focus-visible){background-size:100% var(--efx-thickness,2px)}
 @media (prefers-reduced-motion:reduce){[class*="efx-underline-"]{transition:none}}
+
+.efx-ascii__out { display: block; margin: 0; padding: 0; max-width: 100%; overflow: hidden; white-space: pre; user-select: none;
+  font: normal 10px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0; color: var(--efx-ascii-color, inherit); }
+.efx-ascii__src { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip-path: inset(50%) !important; opacity: 0 !important; pointer-events: none !important; }
+video + .efx-ascii__out { cursor: pointer; }
+
+.efx-audio { min-height: 6rem; }
+.efx-audio__canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; display: block; }
 
 /* beam — overlay svg; the moving segment is a dashed copy of the path (pathLength 100) */
 .efx-beam__svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
@@ -366,6 +374,26 @@
 .efx-kenburns-on.is-paused .efx-kenburns__img { animation-play-state: paused; }
 .efx-kenburns-on.is-static .efx-kenburns__img { animation: none; transition: none; }
 
+/* kinetic — big centered one-word-per-beat type. */
+.efx-kinetic{display:grid;place-items:center;text-align:center;min-height:1.3em;font-size:clamp(2.5rem,10vw,6rem);font-weight:900;line-height:1.1;letter-spacing:-.03em;overflow:hidden}
+.efx-kinetic__sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.efx-kinetic__stage{display:grid;place-items:center;min-height:1.2em}
+.efx-kinetic__word{display:block;animation-duration:var(--efx-kin,450ms);animation-timing-function:cubic-bezier(.22,1,.36,1);animation-fill-mode:both}
+.efx-kinetic__word.k-punch{animation-name:efx-kin-punch}
+.efx-kinetic__word.k-slide{animation-name:efx-kin-slide}
+.efx-kinetic__word.k-spin{animation-name:efx-kin-spin}
+.efx-kinetic__word.k-blur{animation-name:efx-kin-blur}
+.efx-kinetic__word.k-split{animation:none}
+.efx-kinetic__word.k-split>span{display:inline-block;animation:efx-kin-split var(--efx-kin,450ms) cubic-bezier(.22,1,.36,1) calc(var(--efx-i,0)*30ms) both}
+.efx-kinetic__word.k-split>span:nth-child(even){--efx-from:-90%}
+@keyframes efx-kin-punch{0%{opacity:0;transform:scale(2.6)}60%{opacity:1;transform:scale(.93)}100%{transform:none}}
+@keyframes efx-kin-slide{from{opacity:0;transform:translateX(70%) skewX(-12deg)}}
+@keyframes efx-kin-spin{from{opacity:0;transform:perspective(500px) rotateX(-90deg) rotate(-10deg) scale(.5)}}
+@keyframes efx-kin-blur{from{opacity:0;filter:blur(24px);transform:scale(1.25)}}
+@keyframes efx-kin-split{from{opacity:0;transform:translateY(var(--efx-from,90%))}}
+@media (prefers-reduced-motion:reduce){.efx-kinetic__word,.efx-kinetic__word>span{animation:none!important}}
+.efx-kinetic.is-static{font-size:clamp(1.75rem,6vw,3.5rem)}
+
 /* layout — ghosts are absolutely positioned clones of leaving items; status is a visually hidden live region */
 .efx-layout__ghost { pointer-events: none; z-index: 0; }
 .efx-layout__status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
@@ -391,6 +419,19 @@
 .efx-lightbox__prev[hidden], .efx-lightbox__next[hidden] { display: none; }
 .efx-lightbox__count { position: absolute; inset-block-start: .75rem; inset-inline-start: .75rem; padding: .125rem .5rem; border-radius: 99px; font-size: .8125rem; background: color-mix(in oklab, var(--sh-surface, #fff) 80%, transparent); }
 .efx-lightbox__count:empty { display: none; }
+
+.efx-lyrics { overflow-y: auto; max-height: var(--efx-lyrics-height, 16rem); overscroll-behavior: contain;
+  -webkit-mask-image: linear-gradient(transparent, #000 14%, #000 86%, transparent); mask-image: linear-gradient(transparent, #000 14%, #000 86%, transparent); }
+.efx-lyrics__list { list-style: none; margin: 0; padding: 4rem 0; display: flex; flex-direction: column; gap: .4rem; text-align: center; }
+.efx-lyrics__btn { font: inherit; color: inherit; background: none; border: 0; padding: .15rem .6rem; cursor: pointer; opacity: .45; border-radius: .4rem;
+  transition: opacity .3s, color .3s; }
+span.efx-lyrics__btn { cursor: default; }
+.efx-lyrics__btn:hover { opacity: .75; }
+.efx-lyrics__line.is-active .efx-lyrics__btn { opacity: 1; font-weight: 600; color: var(--efx-lyrics-active, var(--sh-primary, #6366f1)); }
+.efx-lyrics--karaoke .efx-lyrics__word { display: inline-block;
+  background: linear-gradient(90deg, var(--efx-lyrics-fill, var(--sh-primary, #6366f1)) calc(var(--p, 0) * 100%), var(--efx-lyrics-dim, color-mix(in srgb, currentColor 45%, transparent)) calc(var(--p, 0) * 100%));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+@media (prefers-reduced-motion: reduce) { .efx-lyrics__btn { transition: none; } }
 
 /* magnetic — uses the individual `translate` property so it composes with other transforms.
    Only applied while JS has the element pulled/settling (.is-magnetic), so Shine's own transitions are untouched otherwise. */
@@ -474,6 +515,14 @@
 
 .efx-pixelate__canvas { position: absolute; pointer-events: none; image-rendering: pixelated; border-radius: inherit; }
 
+/* popout — background stays in the frame, the cut-out breaks out of it. Depth only applies while .is-popout (JS-added). */
+.efx-popout__bg{position:absolute;inset:0;border-radius:inherit;background:center/cover no-repeat;object-fit:cover}
+.efx-popout__fg{position:absolute;inset-inline:0;bottom:0;margin-inline:auto;width:100%;height:150%;max-width:none;object-fit:contain;object-position:bottom;background:center bottom/contain no-repeat;pointer-events:none;z-index:2}
+.efx-popout__clip{position:absolute;inset:0;border-radius:inherit;overflow:hidden;z-index:0}
+.is-popout{transform-style:preserve-3d;transform:perspective(900px) rotateX(calc(var(--efx-py,0)*var(--efx-tilt,0deg)*-1)) rotateY(calc(var(--efx-px,0)*var(--efx-tilt,0deg)));transition:transform .25s ease-out}
+.is-popout .efx-popout__clip>.efx-popout__bg{inset:calc(var(--efx-depth,20px)*-1);border-radius:0;translate:calc(var(--efx-px,0)*var(--efx-depth,20px)*-.4) calc((var(--efx-py,0) + var(--efx-sy,0)*-1)*var(--efx-depth,20px)*-.4);transition:translate .25s ease-out}
+.is-popout>.efx-popout__fg{translate:calc(var(--efx-px,0)*var(--efx-depth,20px)) calc((var(--efx-py,0) + var(--efx-sy,0)*-1.2)*var(--efx-depth,20px));transition:translate .25s ease-out}
+
 /* pricing — only state styling; layout comes from Shine */
 .efx-pricing [data-efx-period][aria-checked="true"] { font-weight: 600; }
 .efx-pricing [data-efx-show-on]:not([hidden]) { animation: efx-pricing-in var(--efx-duration, 400ms) var(--efx-ease, ease) both; }
@@ -500,6 +549,45 @@
 .efx-proximity.has-pcolor .efx-proximity__c,
 .efx-proximity.has-pcolor [data-efx-item] { color: color-mix(in srgb, var(--efx-pcolor) calc(var(--efx-p, 0) * 100%), currentColor); }
 .efx-proximity__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* reel — scene sequencer. Everything is keyed on .is-reel (added by JS), so without JS scenes simply stack. */
+.efx-reel.is-reel{display:grid;overflow:hidden;--efx-reel-t:600ms}
+.efx-reel.is-reel:focus-visible{outline:2px solid var(--efx-color,var(--sh-tone,var(--sh-primary,#6366f1)));outline-offset:2px}
+.is-reel>.efx-reel__scene,.is-reel>[data-efx-scene]{grid-area:1/1;visibility:hidden;pointer-events:none;min-width:0}
+.is-reel>.is-active,.is-reel>.is-leave{visibility:visible}
+.is-reel>.is-active{pointer-events:auto;z-index:1}
+.is-reel>.is-leave{z-index:0}
+.is-reel>.is-enter.t-wipe{z-index:2}
+.is-reel>.is-enter,.is-reel>.is-leave{animation-duration:var(--efx-reel-t);animation-timing-function:cubic-bezier(.22,1,.36,1);animation-fill-mode:both}
+.is-reel>.is-enter.t-fade{animation-name:efx-reel-fade-in}
+.is-reel>.is-leave.t-fade{animation-name:efx-reel-fade-out}
+.is-reel>.is-enter.t-slide{animation-name:efx-reel-slide-in}
+.is-reel>.is-leave.t-slide{animation-name:efx-reel-slide-out}
+.is-reel>.is-enter.t-wipe{animation-name:efx-reel-wipe}
+.is-reel>.is-enter.t-zoom{animation-name:efx-reel-zoom-in}
+.is-reel>.is-leave.t-zoom{animation-name:efx-reel-zoom-out}
+@keyframes efx-reel-fade-in{from{opacity:0}}
+@keyframes efx-reel-fade-out{to{opacity:0}}
+@keyframes efx-reel-slide-in{from{transform:translateX(calc(var(--efx-dir,1)*100%))}}
+@keyframes efx-reel-slide-out{to{transform:translateX(calc(var(--efx-dir,1)*-100%))}}
+@keyframes efx-reel-wipe{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0)}}
+@keyframes efx-reel-zoom-in{from{opacity:0;transform:scale(1.18)}}
+@keyframes efx-reel-zoom-out{to{opacity:0;transform:scale(.9)}}
+.efx-reel__live{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.efx-reel__controls{position:absolute;z-index:5;left:.75rem;right:.75rem;bottom:.75rem;display:flex;align-items:center;gap:.4rem}
+.efx-reel__play{flex:none;width:2rem;height:2rem;border:0;border-radius:50%;cursor:pointer;display:grid;place-items:center;color:var(--sh-on-tone,#fff);background:rgb(0 0 0/.55);backdrop-filter:blur(6px)}
+.efx-reel__play::before{content:"";width:.7rem;height:.7rem;background:currentColor;clip-path:polygon(15% 0,100% 50%,15% 100%)}
+.efx-reel__play.is-on::before{clip-path:polygon(0 0,34% 0,34% 100%,0 100%,0 0,66% 0,100% 0,100% 100%,66% 100%,66% 0)}
+.efx-reel__seg{flex:1;height:1.25rem;padding:0;border:0;background:none;cursor:pointer;display:flex;align-items:center}
+.efx-reel__fill{display:block;position:relative;width:100%;height:4px;border-radius:2px;background:rgb(255 255 255/.35);overflow:hidden;box-shadow:0 0 0 1px rgb(0 0 0/.15)}
+.efx-reel__fill::after{content:"";position:absolute;inset:0;background:var(--efx-color,var(--sh-tone,var(--sh-primary,#fff)));transform-origin:0 50%;transform:scaleX(0)}
+.efx-reel__seg:focus-visible{outline:2px solid #fff;outline-offset:1px;border-radius:2px}
+.efx-reel__seg.is-done .efx-reel__fill::after{transform:none}
+.efx-reel__seg.is-current .efx-reel__fill::after{animation:efx-reel-fill var(--efx-d,3000ms) linear forwards}
+.efx-reel.is-paused .efx-reel__seg.is-current .efx-reel__fill::after{animation-play-state:paused}
+.efx-reel.is-manual .efx-reel__seg.is-current .efx-reel__fill::after{animation:none;transform:none}
+@keyframes efx-reel-fill{to{transform:none}}
+@media (prefers-reduced-motion:reduce){.is-reel>.is-enter,.is-reel>.is-leave{animation:none}}
 
 /* reveal — hidden only once JS has claimed the element, so no-JS pages still show content */
 .efx-reveal-pending {

@@ -1,4 +1,4 @@
-/*! Effix v0.1.0 | MIT | https://github.com/asticore/effix */
+/*! Effix v0.2.0 | MIT | https://github.com/asticore/effix */
 (() => {
   // src/core.js
   var registry = /* @__PURE__ */ new Map();
@@ -307,7 +307,7 @@
   };
   var features = () => [...registry.keys()];
   var api = {
-    version: "0.1.0",
+    version: "0.2.0",
     define,
     init,
     destroy,
@@ -875,6 +875,437 @@
     }
   };
 
+  // src/features/ascii.js
+  var CH = 0.6;
+  var esc = (c) => c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === "&" ? "&amp;" : c;
+  var ascii_default = {
+    name: "ascii",
+    selector: ".efx-ascii",
+    lazy: true,
+    defaults: { cols: 80, chars: " .:-=+*#%@", invert: false, color: "mono", text: "", fps: 24, reveal: true, duration: 1200, output: "pre", live: false },
+    init(el, o) {
+      const tag = el.tagName, isVid = tag === "VIDEO", isCv = tag === "CANVAS", isImg = tag === "IMG";
+      const text = !(isVid || isCv || isImg) ? o.text || el.textContent.trim() : "";
+      if (!(isVid || isCv || isImg) && !text) return;
+      const chars = o.chars || " .:-=+*#%@", pool = chars.replace(/ /g, "") || chars, N = chars.length;
+      const source = o.color === "source" && !text, toCv = o.output === "canvas";
+      const offs = [], reduce = !motionOK();
+      const parent = text ? el : el.parentElement || el;
+      const initW = text ? 0 : el.getBoundingClientRect().width;
+      const mkText = () => {
+        const cs = getComputedStyle(el), f2 = cs.fontWeight + " 100px " + cs.fontFamily, lines = text.split("\n");
+        const c = document.createElement("canvas"), x = c.getContext("2d");
+        x.font = f2;
+        c.width = Math.ceil(Math.max(...lines.map((l) => x.measureText(l).width))) + 20;
+        c.height = 130 * lines.length;
+        x.font = f2;
+        x.textBaseline = "middle";
+        x.fillStyle = "#fff";
+        lines.forEach((l, i) => x.fillText(l, 10, 130 * (i + 0.5)));
+        return c;
+      };
+      const was = { html: el.innerHTML, label: el.getAttribute("aria-label"), role: el.getAttribute("role") };
+      let tc = text ? mkText() : null;
+      const out = document.createElement(toCv ? "canvas" : "pre");
+      out.className = "efx-ascii__out";
+      out.setAttribute("aria-hidden", "true");
+      if (text) {
+        el.setAttribute("role", "img");
+        el.setAttribute("aria-label", text);
+        el.textContent = "";
+        el.appendChild(out);
+      } else {
+        if (isImg && el.alt) el.setAttribute("aria-label", el.alt);
+        el.classList.add("efx-ascii__src");
+        el.after(out);
+      }
+      if (isVid) offs.push(on(out, "click", () => el.paused ? el.play() : el.pause()));
+      const oc2 = document.createElement("canvas"), ox = oc2.getContext("2d", { willReadFrequently: true });
+      const src = text ? () => tc : () => el;
+      const dims = () => text ? [tc.width, tc.height] : isImg ? [el.naturalWidth, el.naturalHeight] : isVid ? [el.videoWidth, el.videoHeight] : [el.width, el.height];
+      let g = null, S2 = null, raf2 = 0, last = 0, k0 = null, vis = false, dead = false, fs = 10, revealed = !(o.reveal && !reduce);
+      const sample2 = () => {
+        const [w, h] = dims();
+        if (!w || !h) return null;
+        const cols = Math.max(4, o.cols | 0), rows = Math.max(1, Math.round(cols * h / w * CH));
+        oc2.width = cols;
+        oc2.height = rows;
+        let d;
+        try {
+          ox.drawImage(src(), 0, 0, cols, rows);
+          d = ox.getImageData(0, 0, cols, rows).data;
+        } catch (e) {
+          return e.name === "SecurityError" ? false : null;
+        }
+        const L = new Float32Array(cols * rows), C = source ? [] : null;
+        for (let i = 0; i < L.length; i++) {
+          const r = d[i * 4], gg = d[i * 4 + 1], b = d[i * 4 + 2], l = (0.2126 * r + 0.7152 * gg + 0.0722 * b) / 255 * d[i * 4 + 3] / 255;
+          L[i] = o.invert ? 1 - l : l;
+          if (C) C[i] = "rgb(" + (r & 240) + "," + (gg & 240) + "," + (b & 240) + ")";
+        }
+        return { cols, rows, L, C };
+      };
+      const fit = () => {
+        if (!g) return;
+        const tw = Math.min(initW || 1e9, parent.clientWidth) || 300;
+        fs = Math.max(2, tw / (g.cols * CH));
+        if (!toCv) out.style.fontSize = fs + "px";
+      };
+      const paint = (k) => {
+        const { cols, rows, L, C } = g, n = cols * rows;
+        if (k != null && (!S2 || S2.length !== n)) {
+          S2 = new Float32Array(n);
+          for (let i = 0; i < n; i++) S2[i] = (i % cols / cols * 0.5 + Math.random() * 0.5) * o.duration;
+        }
+        const at = (i) => {
+          const ch = chars[Math.max(0, Math.min(N - 1, Math.round(L[i] * (N - 1))))];
+          return k != null && S2[i] > k && ch !== " " ? pool[Math.random() * pool.length | 0] : ch;
+        };
+        if (toCv) {
+          const dpr2 = Math.min(devicePixelRatio || 1, 2), W = Math.ceil(cols * fs * CH), H = Math.ceil(rows * fs), c = out.getContext("2d");
+          out.width = W * dpr2;
+          out.height = H * dpr2;
+          out.style.width = W + "px";
+          out.style.height = H + "px";
+          c.setTransform(dpr2, 0, 0, dpr2, 0, 0);
+          c.font = fs + "px ui-monospace,Menlo,Consolas,monospace";
+          c.textBaseline = "top";
+          c.fillStyle = getComputedStyle(out).color;
+          for (let i = 0; i < n; i++) {
+            const ch = at(i);
+            if (ch === " ") continue;
+            if (C) c.fillStyle = C[i];
+            c.fillText(ch, i % cols * fs * CH, (i / cols | 0) * fs);
+          }
+          return;
+        }
+        let s = "", run = null;
+        for (let i = 0; i < n; i++) {
+          if (C && C[i] !== run) {
+            s += (run ? "</span>" : "") + '<span style="color:' + C[i] + '">';
+            run = C[i];
+          }
+          s += esc(at(i)) + ((i + 1) % cols ? "" : "\n");
+        }
+        if (C) out.innerHTML = s + "</span>";
+        else out.textContent = s;
+      };
+      const live = () => isVid && !el.paused && !el.ended && !reduce || isCv && o.live && !reduce;
+      const frame = (t) => {
+        raf2 = 0;
+        if (dead) return;
+        if (t - last >= 1e3 / o.fps || !g) {
+          last = t;
+          if (!revealed && k0 == null) k0 = t;
+          const r = live() || !g ? sample2() : g;
+          if (r === false) {
+            console.warn("[effix] ascii: source is cross-origin/tainted (needs same-origin or CORS), showing the original");
+            dead = true;
+            out.remove();
+            el.classList.remove("efx-ascii__src");
+            return;
+          }
+          if (r) {
+            g = r;
+            fit();
+            const k = revealed ? null : t - k0;
+            paint(k);
+            if (k != null && k >= o.duration) revealed = true;
+          }
+        }
+        if (vis && g && (!revealed || live())) raf2 = requestAnimationFrame(frame);
+      };
+      const kick = () => {
+        if (!raf2 && !dead && vis) raf2 = requestAnimationFrame(frame);
+      };
+      const refresh2 = () => {
+        g = null;
+        kick();
+      };
+      offs.push(onVisible(out, (v) => {
+        vis = v;
+        if (v) kick();
+        else {
+          cancelAnimationFrame(raf2);
+          raf2 = 0;
+        }
+      }));
+      if (typeof ResizeObserver !== "undefined") {
+        const ro = new ResizeObserver(() => {
+          fit();
+          if (g && !raf2) paint(revealed ? null : -1);
+        });
+        ro.observe(parent);
+        offs.push(() => ro.disconnect());
+      }
+      if (isImg) offs.push(on(el, "load", refresh2));
+      if (isVid) ["loadeddata", "seeked", "play"].forEach((e) => offs.push(on(el, e, e === "play" ? kick : refresh2)));
+      if (text && document.fonts) document.fonts.ready.then(() => {
+        if (!dead) {
+          tc = mkText();
+          refresh2();
+        }
+      });
+      return () => {
+        dead = true;
+        cancelAnimationFrame(raf2);
+        offs.forEach((f2) => f2());
+        out.remove();
+        el.classList.remove("efx-ascii__src");
+        if (text) el.innerHTML = was.html;
+        ["aria-label", "role"].forEach((a, i) => {
+          const v = [was.label, was.role][i];
+          v == null ? el.removeAttribute(a) : el.setAttribute(a, v);
+        });
+      };
+    }
+  };
+
+  // src/features/audio.js
+  var split2 = (s) => {
+    const out = [];
+    let d = 0, cur = "";
+    for (const ch of String(s)) {
+      if (ch === "(") d++;
+      else if (ch === ")") d = Math.max(0, d - 1);
+      if ((ch === "|" || ch === ",") && !d) {
+        out.push(cur);
+        cur = "";
+      } else cur += ch;
+    }
+    out.push(cur);
+    return out.map((c) => c.trim()).filter(Boolean);
+  };
+  var pick = (c, f2) => c[Math.min(c.length - 1, f2 * c.length | 0)];
+  var avg = (a, i, n, step) => {
+    let s = 0;
+    for (let k = 0; k < step; k++) s += a[i * step + k] || 0;
+    return s / step / 255;
+  };
+  var grad = (c, cols, x0, x1) => {
+    const g = c.createLinearGradient(x0, 0, x1, 0);
+    cols.forEach((k, i) => g.addColorStop(cols.length > 1 ? i / (cols.length - 1) : 0, k));
+    return g;
+  };
+  add("audio-viz", {
+    bars(c, d, w, h, cols) {
+      const n = d.count, step = Math.max(1, Math.floor(d.freq.length * 0.75 / n)), bw = w / n;
+      for (let i = 0; i < n; i++) {
+        const v = Math.pow(avg(d.freq, i, n, step), 1.2), bh = Math.max(3, v * h * 0.96);
+        c.fillStyle = pick(cols, i / n);
+        c.beginPath();
+        c.roundRect ? c.roundRect(i * bw + bw * 0.15, h - bh, bw * 0.7, bh, Math.min(bw * 0.35, 6)) : c.rect(i * bw + bw * 0.15, h - bh, bw * 0.7, bh);
+        c.fill();
+      }
+    },
+    wave(c, d, w, h, cols) {
+      const t = d.time, n = t.length;
+      c.lineWidth = 2.5;
+      c.lineJoin = "round";
+      c.strokeStyle = grad(c, cols, 0, w);
+      c.beginPath();
+      for (let i = 0; i < n; i++) {
+        const x = i / (n - 1) * w, y = h / 2 + (t[i] - 128) / 128 * h * 0.45;
+        i ? c.lineTo(x, y) : c.moveTo(x, y);
+      }
+      c.stroke();
+    },
+    circle(c, d, w, h, cols) {
+      const n = d.count, step = Math.max(1, Math.floor(d.freq.length * 0.75 / n)), m = Math.min(w, h), r0 = m * 0.2;
+      c.lineCap = "round";
+      c.lineWidth = Math.max(2, m * 0.018);
+      for (let i = 0; i < n; i++) {
+        const a = i / n * 6.2832 - 1.5708, len = 3 + avg(d.freq, i, n, step) * m * 0.26;
+        c.strokeStyle = pick(cols, i / n);
+        c.beginPath();
+        c.moveTo(w / 2 + Math.cos(a) * r0, h / 2 + Math.sin(a) * r0);
+        c.lineTo(w / 2 + Math.cos(a) * (r0 + len), h / 2 + Math.sin(a) * (r0 + len));
+        c.stroke();
+      }
+    },
+    scope(c, d, w, h, cols) {
+      const t = d.time, n = t.length, off = n >> 2, m = Math.min(w, h);
+      c.lineWidth = 1.5;
+      c.strokeStyle = cols[0];
+      c.shadowColor = cols[cols.length - 1];
+      c.shadowBlur = 10;
+      c.lineJoin = "round";
+      c.beginPath();
+      for (let i = 0; i < n; i++) {
+        const x = w / 2 + (t[i] - 128) / 128 * m * 0.46, y = h / 2 + (t[(i + off) % n] - 128) / 128 * m * 0.46;
+        i ? c.lineTo(x, y) : c.moveTo(x, y);
+      }
+      c.stroke();
+    },
+    dots(c, d, w, h, cols) {
+      const n = Math.max(8, d.count >> 1), rows = 8, step = Math.max(1, Math.floor(d.freq.length * 0.75 / n)), cw = w / n, rh = h / rows, r = Math.max(1.5, Math.min(cw, rh) * 0.32);
+      for (let i = 0; i < n; i++) {
+        const lit = avg(d.freq, i, n, step) * rows;
+        c.fillStyle = pick(cols, i / n);
+        for (let j = 0; j < rows; j++) {
+          c.globalAlpha = j < lit ? 1 : 0.14;
+          c.beginPath();
+          c.arc(i * cw + cw / 2, h - j * rh - rh / 2, r, 0, 6.2832);
+          c.fill();
+        }
+      }
+      c.globalAlpha = 1;
+    }
+  });
+  var graphs = /* @__PURE__ */ new WeakMap();
+  var AC;
+  var sameOK = (m) => {
+    const u = m.currentSrc || m.src;
+    if (!u || m.crossOrigin !== null) return true;
+    try {
+      const l = new URL(u, location.href);
+      return /^(data|blob):$/.test(l.protocol) || l.origin === location.origin;
+    } catch (e) {
+      return true;
+    }
+  };
+  function tap(m) {
+    const had = graphs.get(m);
+    if (had !== void 0) return had;
+    const AX = window.AudioContext || window.webkitAudioContext;
+    if (!AX) return null;
+    if (!sameOK(m)) {
+      graphs.set(m, null);
+      console.warn("[effix] audio: cross-origin media without crossorigin attribute, visualizer skipped", m.currentSrc);
+      return null;
+    }
+    if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null;
+    try {
+      AC = AC || new AX();
+      const a = AC.createAnalyser();
+      a.fftSize = 512;
+      a.smoothingTimeConstant = 0.8;
+      AC.createMediaElementSource(m).connect(a);
+      a.connect(AC.destination);
+      const g = { a, f: new Uint8Array(a.frequencyBinCount), t: new Uint8Array(a.fftSize) };
+      graphs.set(m, g);
+      return g;
+    } catch (e) {
+      graphs.set(m, null);
+      console.warn("[effix] audio: analyser unavailable", e);
+      return null;
+    }
+  }
+  var audio_default = {
+    name: "audio",
+    selector: ".efx-audio",
+    lazy: true,
+    defaults: { for: "", type: "bars", color: "", count: 48, gain: 1 },
+    init(el, o, Effix) {
+      const m = o.for ? document.querySelector(o.for) : el.querySelector("audio,video");
+      if (!m || el === m) return console.warn("[effix] audio: media not found", o.for);
+      const fn = Effix.get("audio-viz", o.type) || Effix.get("audio-viz", "bars");
+      let restore = false;
+      if (getComputedStyle(el).position === "static") {
+        el.style.position = "relative";
+        restore = true;
+      }
+      const cv2 = document.createElement("canvas");
+      cv2.className = "efx-audio__canvas";
+      cv2.setAttribute("aria-hidden", "true");
+      el.appendChild(cv2);
+      const cx = cv2.getContext("2d");
+      let colors = split2(o.color);
+      if (!colors.length) for (let i = 1; i < 5; i++) {
+        const v = cssVar(el, "--efx-chart-" + i);
+        if (v) colors.push(v);
+      }
+      if (!colors.length) colors = [themeColor(el)];
+      const count = Math.max(4, o.count | 0);
+      const offs = [], reduce = !motionOK();
+      let w = 0, h = 0, raf2 = 0, vis = true, playing = false, lv = 0, g = null, linked = [];
+      const idle = { freq: new Uint8Array(256), time: new Uint8Array(512).fill(128), level: 0, count };
+      const calm = { freq: idle.freq.map((_, i) => 70 + 40 * Math.cos(i / 40)), time: idle.time.map((_, i) => 128 + 22 * Math.sin(i / 14)), level: 0.2, count };
+      const paint = (d) => {
+        cx.clearRect(0, 0, w, h);
+        cx.save();
+        cx.fillStyle = cx.strokeStyle = colors[0];
+        fn(cx, d, w, h, colors);
+        cx.restore();
+      };
+      const setLv = (v) => {
+        const s = v.toFixed(3);
+        [el, ...linked].forEach((n) => n.style.setProperty("--efx-level", s));
+      };
+      const rest = () => paint(reduce ? calm : idle);
+      const tick = () => {
+        raf2 = 0;
+        if (!g) return;
+        g.a.getByteFrequencyData(g.f);
+        g.a.getByteTimeDomainData(g.t);
+        let s = 0;
+        const n = g.f.length * 0.6 | 0;
+        for (let i = 0; i < n; i++) s += g.f[i];
+        lv += (Math.min(1, s / n / 255 * 1.6 * o.gain) - lv) * 0.25;
+        paint({ freq: g.f, time: g.t, level: lv, count });
+        setLv(lv);
+        if (vis && (playing || lv > 0.01)) raf2 = requestAnimationFrame(tick);
+        else if (!playing) {
+          lv = 0;
+          setLv(0);
+          rest();
+        }
+      };
+      const kick = () => {
+        if (!raf2 && g) raf2 = requestAnimationFrame(tick);
+      };
+      const size = () => {
+        const dpr2 = Math.min(devicePixelRatio || 1, 2);
+        w = el.clientWidth;
+        h = el.clientHeight;
+        cv2.width = w * dpr2;
+        cv2.height = h * dpr2;
+        cx.setTransform(dpr2, 0, 0, dpr2, 0, 0);
+        if (!raf2) rest();
+      };
+      size();
+      if (typeof ResizeObserver !== "undefined") {
+        const ro = new ResizeObserver(size);
+        ro.observe(el);
+        offs.push(() => ro.disconnect());
+      }
+      if (!reduce) {
+        const onPlay = () => {
+          linked = [...document.querySelectorAll("[data-efx-level-for]")].filter((n) => document.querySelector(n.dataset.efxLevelFor) === m);
+          g = tap(m);
+          if (!g) return;
+          if (AC.state === "suspended") AC.resume();
+          playing = true;
+          kick();
+        };
+        const onStop = () => {
+          playing = false;
+          kick();
+        };
+        offs.push(
+          on(m, "play", onPlay),
+          on(m, "playing", onPlay),
+          on(m, "pause", onStop),
+          on(m, "ended", onStop),
+          onVisible(el, (v) => {
+            vis = v;
+            if (v) kick();
+          })
+        );
+        if (!m.paused) onPlay();
+      }
+      return () => {
+        cancelAnimationFrame(raf2);
+        raf2 = 0;
+        playing = false;
+        offs.forEach((f2) => f2());
+        [el, ...linked].forEach((n) => n.style.removeProperty("--efx-level"));
+        cv2.remove();
+        if (restore) el.style.position = "";
+      };
+    }
+  };
+
   // src/features/beam.js
   var NS = "http://www.w3.org/2000/svg";
   var mk = (t, a, p) => {
@@ -1239,10 +1670,10 @@
           old.animate([{ transform: "none", opacity: 1 }, { transform: "translateY(-100%)", opacity: 0 }], o2).onfinish = () => old.remove();
         } else if (old) old.remove();
       };
-      const pick = () => set(secs.filter((s) => seen.has(s)).pop() || null);
+      const pick2 = () => set(secs.filter((s) => seen.has(s)).pop() || null);
       const stops = secs.map((s) => onVisible(s, (v) => {
         v ? seen.add(s) : seen.delete(s);
-        pick();
+        pick2();
       }, "-45% 0px -45% 0px"));
       const stopScroll = circle && onScroll((y, vh) => {
         if (!cur) return;
@@ -2331,8 +2762,8 @@
         cancelAnimationFrame(id);
         id = 0;
       };
-      const snap = (v) => o.snap > 0 ? Math.round(v / o.snap) * o.snap : v;
-      const fit = (v, lo, hi) => Math.min(hi, Math.max(lo, snap(v)));
+      const snap2 = (v) => o.snap > 0 ? Math.round(v / o.snap) * o.snap : v;
+      const fit = (v, lo, hi) => Math.min(hi, Math.max(lo, snap2(v)));
       const limits = () => {
         const box = o.bounds === "none" ? null : o.bounds === "parent" ? el.parentElement : document.querySelector(o.bounds) || el.parentElement;
         if (!box) return [-Infinity, Infinity, -Infinity, Infinity];
@@ -2579,11 +3010,11 @@
       }
       const newest = o.order !== "append", lim = Math.min(max, n - 1);
       const shown2 = [], timers = /* @__PURE__ */ new Set();
-      const later = (fn, ms) => {
+      const later = (fn, ms2) => {
         const t = setTimeout(() => {
           timers.delete(t);
           fn();
-        }, ms);
+        }, ms2);
         timers.add(t);
       };
       const collapse = (s) => {
@@ -3054,6 +3485,92 @@
     }
   };
 
+  // src/features/kinetic.js
+  var STYLES = ["punch", "slide", "spin", "blur", "split"];
+  var TONES = ["var(--sh-primary,#6366f1)", "var(--sh-success,#22c55e)", "var(--sh-info,#0ea5e9)", "var(--sh-warning,#f59e0b)", "var(--sh-danger,#ef4444)", "var(--sh-accent,#ec4899)"];
+  var kinetic_default = {
+    name: "kinetic",
+    selector: ".efx-kinetic",
+    defaults: { words: [], beat: 600, styles: STYLES, colors: [], random: false, hold: false },
+    init(el, o) {
+      const words = o.words.length ? o.words : el.textContent.trim().split(/\s+/).filter(Boolean);
+      if (!words.length) return;
+      const html = el.innerHTML, sentence = words.join(" ");
+      const sr = document.createElement("span");
+      sr.className = "efx-kinetic__sr";
+      sr.textContent = sentence;
+      const stage = document.createElement("span");
+      stage.className = "efx-kinetic__stage";
+      stage.setAttribute("aria-hidden", "true");
+      el.textContent = "";
+      el.append(sr, stage);
+      const styles = o.styles.filter((s) => STYLES.includes(s)), list2 = styles.length ? styles : STYLES;
+      const colors = o.colors.length ? o.colors : TONES;
+      const cleanup = () => {
+        el.innerHTML = html;
+        el.classList.remove("is-kinetic");
+        el.style.removeProperty("--efx-kin");
+      };
+      if (!motionOK()) {
+        stage.textContent = sentence;
+        el.classList.add("is-kinetic", "is-static");
+        return () => {
+          el.classList.remove("is-static");
+          cleanup();
+        };
+      }
+      el.classList.add("is-kinetic");
+      el.style.setProperty("--efx-kin", Math.min(o.beat * 0.75, 700) + "ms");
+      let cur = -1, timer = 0, vis = false, tab = !document.hidden, k = 0;
+      const stop = () => {
+        clearTimeout(timer);
+        timer = 0;
+      };
+      const later = () => {
+        if (cur + 1 < words.length) timer = setTimeout(() => show3(cur + 1), o.beat);
+        else if (!o.hold) timer = setTimeout(() => show3(0), o.beat);
+      };
+      const show3 = (i) => {
+        cur = i;
+        const st = o.random ? list2[Math.floor(Math.random() * list2.length)] : list2[k++ % list2.length];
+        const w = document.createElement("span");
+        w.className = "efx-kinetic__word k-" + st;
+        w.style.color = colors[i % colors.length];
+        if (st === "split") [...words[i]].forEach((c, j) => {
+          const s = document.createElement("span");
+          s.textContent = c;
+          s.style.setProperty("--efx-i", j);
+          w.appendChild(s);
+        });
+        else w.textContent = words[i];
+        stage.textContent = "";
+        stage.appendChild(w);
+        later();
+      };
+      const sync = () => {
+        stop();
+        if (vis && tab) {
+          if (cur < 0) show3(0);
+          else later();
+        }
+      };
+      const offs = [on(document, "visibilitychange", () => {
+        tab = !document.hidden;
+        sync();
+      })];
+      const off = onVisible(el, (v) => {
+        vis = v;
+        sync();
+      });
+      return () => {
+        off();
+        offs.forEach((f2) => f2());
+        stop();
+        cleanup();
+      };
+    }
+  };
+
   // src/features/layout.js
   var SKIP = ".efx-layout__ghost,.efx-layout__status,[data-efx-filter],[data-efx-sort],[data-efx-controls]";
   var layout_default = {
@@ -3399,6 +3916,153 @@
         S.d.remove();
         if (op && op.isConnected && op.focus) op.focus();
         S = null;
+      };
+    }
+  };
+
+  // src/features/lyrics.js
+  var ts = (s) => s.split(":").reduce((a, v) => a * 60 + parseFloat(v), 0);
+  var parse = (a) => (Array.isArray(a) ? a : []).map((c) => ({ t: +c.t || 0, end: c.end, text: String(c.text == null ? "" : c.text), words: c.words })).sort((a2, b) => a2.t - b.t);
+  var lyrics_default = {
+    name: "lyrics",
+    selector: ".efx-lyrics",
+    defaults: { for: "", karaoke: false, scroll: true, seek: true, offset: 0 },
+    init(el, o) {
+      const m = o.for && document.querySelector(o.for) || el.parentElement && el.parentElement.querySelector("audio,video");
+      if (!m) return console.warn("[effix] lyrics: media not found", o.for);
+      const orig = el.innerHTML;
+      const offs = [];
+      let cues = [], lines = [], W = [], cur = -2, raf2 = 0, hold2 = 0, rm = [];
+      const reduce = !motionOK();
+      const sc = el.querySelector('script[type="application/json"]');
+      try {
+        cues = parse(JSON.parse(el.dataset.efxCues || sc && sc.textContent || "[]"));
+      } catch (e) {
+        console.warn("[effix] lyrics: bad cue JSON", e);
+      }
+      const ol = document.createElement("ol");
+      ol.className = "efx-lyrics__list";
+      el.textContent = "";
+      el.appendChild(ol);
+      el.classList.toggle("efx-lyrics--karaoke", o.karaoke);
+      const build2 = () => {
+        ol.textContent = "";
+        W = [];
+        cur = -2;
+        lines = cues.map((c, i) => {
+          const li = document.createElement("li");
+          li.className = "efx-lyrics__line";
+          const b = document.createElement(o.seek ? "button" : "span");
+          b.className = "efx-lyrics__btn";
+          if (o.seek) {
+            b.type = "button";
+            b.onclick = () => {
+              m.currentTime = Math.max(0, c.t - o.offset);
+            };
+          }
+          if (o.karaoke) {
+            const end = c.end != null ? c.end : cues[i + 1] ? cues[i + 1].t : c.t + 4;
+            let ws = c.words;
+            if (!ws || !ws.length) {
+              const parts = c.text.split(/\s+/).filter(Boolean), tot = parts.join("").length || 1;
+              let a = c.t;
+              ws = parts.map((w) => {
+                const t = a;
+                a += (end - c.t) * w.length / tot;
+                return { t, w };
+              });
+            }
+            W[i] = ws.map((w, k) => {
+              const s = document.createElement("span");
+              s.className = "efx-lyrics__word";
+              s.textContent = w.w;
+              if (k) b.appendChild(document.createTextNode(" "));
+              b.appendChild(s);
+              return { s, t0: w.t, t1: ws[k + 1] ? ws[k + 1].t : end, p: 0 };
+            });
+          } else b.textContent = c.text;
+          li.appendChild(b);
+          ol.appendChild(li);
+          return li;
+        });
+        sync();
+      };
+      const setP = (w, p) => {
+        if (w.p !== p) {
+          w.p = p;
+          w.s.style.setProperty("--p", p);
+        }
+      };
+      const sync = () => {
+        const t = m.currentTime + o.offset;
+        let a = -1;
+        for (let i = 0; i < cues.length && cues[i].t <= t; i++) a = i;
+        if (a !== cur) {
+          if (lines[cur]) {
+            lines[cur].removeAttribute("aria-current");
+            lines[cur].classList.remove("is-active");
+          }
+          if (lines[a]) {
+            lines[a].setAttribute("aria-current", "true");
+            lines[a].classList.add("is-active");
+            if (o.scroll && Date.now() > hold2) {
+              const r = lines[a].getBoundingClientRect(), b = el.getBoundingClientRect();
+              el.scrollTo({ top: r.top - b.top + el.scrollTop - (el.clientHeight - r.height) / 2, behavior: reduce ? "auto" : "smooth" });
+            }
+          }
+          if (o.karaoke) W.forEach((ws, i) => ws.forEach((w) => setP(w, i < a ? 1 : 0)));
+          cur = a;
+        }
+        if (o.karaoke && W[a]) W[a].forEach((w) => setP(w, reduce ? 1 : Math.min(1, Math.max(0, (t - w.t0) / (w.t1 - w.t0 || 1)))));
+      };
+      const loop = () => {
+        sync();
+        raf2 = m.paused || m.ended ? 0 : requestAnimationFrame(loop);
+      };
+      const kick = () => {
+        if (!raf2) raf2 = requestAnimationFrame(loop);
+      };
+      if (!cues.length) {
+        const read = () => {
+          const tt = [...m.textTracks].find((t) => t.kind === "captions" || t.kind === "subtitles");
+          if (!tt) return;
+          if (tt.mode === "disabled") {
+            rm.push([tt, tt.mode]);
+            tt.mode = "hidden";
+          }
+          if (!tt.cues || !tt.cues.length || tt.cues.length === cues.length) return;
+          cues = parse([...tt.cues].map((c) => {
+            const text = c.text || "", parts = text.split(/<((?:\d+:)?\d+:\d+\.\d+)>/);
+            let tm = c.startTime;
+            const words = parts.length > 1 ? parts.reduce((a, p, k) => {
+              if (k % 2) tm = ts(p);
+              else p.replace(/<[^>]+>/g, "").trim().split(/\s+/).filter(Boolean).forEach((w) => a.push({ t: tm, w }));
+              return a;
+            }, []) : 0;
+            return { t: c.startTime, end: c.endTime, text: text.replace(/<[^>]+>/g, ""), words };
+          }));
+          build2();
+        };
+        read();
+        [...m.querySelectorAll("track")].forEach((tr) => offs.push(on(tr, "load", read)));
+        offs.push(on(m, "loadedmetadata", read));
+      }
+      offs.push(on(m, "play", kick), on(m, "timeupdate", sync), on(m, "seeked", sync), on(m, "loadedmetadata", sync));
+      const hush = () => {
+        hold2 = Date.now() + 3e3;
+      };
+      offs.push(on(el, "wheel", hush, { passive: true }), on(el, "touchmove", hush, { passive: true }));
+      build2();
+      if (!m.paused) kick();
+      return () => {
+        cancelAnimationFrame(raf2);
+        raf2 = 0;
+        offs.forEach((f2) => f2());
+        rm.forEach(([t, md]) => {
+          t.mode = md;
+        });
+        el.classList.remove("efx-lyrics--karaoke");
+        el.innerHTML = orig;
       };
     }
   };
@@ -3906,10 +4570,10 @@
         el.style.animation = "";
         el.classList.remove("is-nudging");
       };
-      const schedule = (ms) => {
+      const schedule = (ms2) => {
         clearTimeout(timer);
         timer = 0;
-        if (!stopped && vis && !document.hidden) timer = setTimeout(play, ms);
+        if (!stopped && vis && !document.hidden) timer = setTimeout(play, ms2);
       };
       const play = () => {
         timer = 0;
@@ -4574,6 +5238,66 @@
     }
   };
 
+  // src/features/popout.js
+  var popout_default = {
+    name: "popout",
+    selector: ".efx-popout",
+    defaults: { depth: 20, tilt: 8, mode: "both" },
+    init(el, o) {
+      let restorePos = false;
+      if (getComputedStyle(el).position === "static") {
+        el.style.position = "relative";
+        restorePos = true;
+      }
+      const undoPos = () => {
+        if (restorePos) el.style.position = "";
+      };
+      const bg = el.querySelector(":scope > .efx-popout__bg");
+      if (!bg || !motionOK()) return undoPos;
+      const ptr = finePointer() && o.mode !== "scroll", scr = o.mode !== "pointer";
+      if (!ptr && !scr) return undoPos;
+      const clip = document.createElement("div");
+      clip.className = "efx-popout__clip";
+      const mark = document.createComment("efx-popout");
+      bg.replaceWith(mark);
+      clip.appendChild(bg);
+      mark.replaceWith(clip);
+      el.style.setProperty("--efx-depth", o.depth + "px");
+      el.style.setProperty("--efx-tilt", o.tilt + "deg");
+      el.classList.add("is-popout");
+      const offs = [];
+      let rect = null;
+      if (ptr) {
+        const move = rafThrottle((e) => {
+          if (!rect) rect = el.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width * 2 - 1, y = (e.clientY - rect.top) / rect.height * 2 - 1;
+          el.style.setProperty("--efx-px", x.toFixed(3));
+          el.style.setProperty("--efx-py", y.toFixed(3));
+        });
+        const leave = () => {
+          move.cancel();
+          rect = null;
+          el.style.removeProperty("--efx-px");
+          el.style.removeProperty("--efx-py");
+        };
+        offs.push(on(el, "pointermove", move), on(el, "pointerleave", leave), () => move.cancel());
+      }
+      const stopScroll = scr ? onScroll((y, vh) => {
+        const r = el.getBoundingClientRect();
+        const p = Math.max(-1, Math.min(1, (r.top + r.height / 2 - vh / 2) / vh));
+        return () => el.style.setProperty("--efx-sy", p.toFixed(3));
+      }) : null;
+      return () => {
+        offs.forEach((f2) => f2());
+        stopScroll && stopScroll();
+        ["--efx-depth", "--efx-tilt", "--efx-px", "--efx-py", "--efx-sy"].forEach((v) => el.style.removeProperty(v));
+        el.classList.remove("is-popout");
+        clip.replaceWith(bg);
+        undoPos();
+      };
+    }
+  };
+
   // src/features/popup.js
   var shown = false;
   var bot = /bot|crawl|spider|lighthouse/i;
@@ -4964,6 +5688,199 @@
     }
   };
 
+  // src/features/reel.js
+  var snap = (n, attrs) => {
+    const o = attrs.map((a) => [a, n.getAttribute(a)]);
+    return () => o.forEach(([a, v]) => v == null ? n.removeAttribute(a) : n.setAttribute(a, v));
+  };
+  var ms = (v) => {
+    const n = parseFloat(v);
+    return /ms\s*$/.test(v) || !/s\s*$/.test(v) ? n || 600 : n * 1e3;
+  };
+  var reel_default = {
+    name: "reel",
+    selector: ".efx-reel",
+    defaults: { autoplay: true, loop: false, controls: true, duration: 3e3, transition: "fade" },
+    init(el, o) {
+      const scenes = [...el.children].filter((c) => c.matches(".efx-reel__scene,[data-efx-scene]"));
+      const n = scenes.length;
+      if (!n) return;
+      const calm = !motionOK();
+      const undo = [snap(el, ["role", "aria-roledescription", "aria-label", "tabindex"])];
+      let restorePos = false;
+      if (getComputedStyle(el).position === "static") {
+        el.style.position = "relative";
+        restorePos = true;
+      }
+      el.classList.add("is-reel");
+      if (calm) el.classList.add("is-manual");
+      el.setAttribute("role", "group");
+      el.setAttribute("aria-roledescription", "scene sequence");
+      if (!el.hasAttribute("aria-label")) el.setAttribute("aria-label", "Scenes");
+      if (!el.hasAttribute("tabindex")) el.tabIndex = 0;
+      const dur = (s) => Math.max(200, parseFloat(s.dataset.efxDuration) || o.duration);
+      scenes.forEach((s, i) => {
+        undo.push(snap(s, ["role", "aria-roledescription", "aria-label", "aria-hidden", "inert"]));
+        s.setAttribute("role", "group");
+        s.setAttribute("aria-roledescription", "scene");
+        s.setAttribute("aria-label", `${i + 1} of ${n}`);
+        s.setAttribute("aria-hidden", "true");
+        s.inert = true;
+      });
+      const live = document.createElement("span");
+      live.className = "efx-reel__live";
+      live.setAttribute("aria-live", "polite");
+      el.appendChild(live);
+      let bar, btn;
+      const segs = [];
+      if (o.controls) {
+        bar = document.createElement("div");
+        bar.className = "efx-reel__controls";
+        btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "efx-reel__play";
+        bar.appendChild(btn);
+        scenes.forEach((s, i) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "efx-reel__seg";
+          b.setAttribute("aria-label", `Go to scene ${i + 1} of ${n}`);
+          b.style.setProperty("--efx-d", dur(s) + "ms");
+          b.innerHTML = '<span class="efx-reel__fill"></span>';
+          b.onclick = () => go(i, true);
+          segs.push(b);
+          bar.appendChild(b);
+        });
+        el.appendChild(bar);
+      }
+      let idx = -1, want = o.autoplay && !calm, vis = false, tab = !document.hidden, timer = 0, t0 = 0, left = 0, leaving = null, leaveT = 0;
+      const running = () => want && vis && tab;
+      const halt = () => {
+        if (timer) {
+          clearTimeout(timer);
+          timer = 0;
+          left -= performance.now() - t0;
+        }
+      };
+      const sync = () => {
+        halt();
+        const r = running();
+        el.classList.toggle("is-paused", !r);
+        if (btn) {
+          btn.setAttribute("aria-label", want ? "Pause" : "Play");
+          btn.classList.toggle("is-on", want);
+        }
+        if (r) {
+          t0 = performance.now();
+          timer = setTimeout(() => {
+            timer = 0;
+            step();
+          }, Math.max(0, left));
+        }
+      };
+      const step = () => {
+        if (idx + 1 < n || o.loop) go((idx + 1) % n);
+        else {
+          want = false;
+          left = 0;
+          sync();
+        }
+      };
+      function go(i, manual) {
+        i = (i % n + n) % n;
+        if (i === idx) return;
+        const dir = i > idx ? 1 : -1, s = scenes[i], prev = scenes[idx];
+        const type = calm ? "cut" : s.dataset.efxTransition || o.transition;
+        el.style.setProperty("--efx-dir", dir);
+        clearTimeout(leaveT);
+        if (leaving) leaving.className = leaving.className.replace(/\s?(is-leave|t-\w+)/g, "");
+        scenes.forEach((x) => x.classList.remove("is-enter"));
+        if (prev) {
+          prev.classList.remove("is-active");
+          prev.inert = true;
+          prev.setAttribute("aria-hidden", "true");
+          if (type !== "cut") {
+            prev.classList.add("is-leave", "t-" + type);
+            leaving = prev;
+            leaveT = setTimeout(() => {
+              prev.classList.remove("is-leave", "t-" + type);
+              leaving = null;
+            }, ms(cssVar(el, "--efx-reel-t", "600ms")) + 50);
+          }
+        }
+        idx = i;
+        s.classList.add("is-active", "t-" + type);
+        if (prev && type !== "cut") s.classList.add("is-enter");
+        s.inert = false;
+        s.removeAttribute("aria-hidden");
+        el.classList.remove("is-first");
+        if (i === 0) el.classList.add("is-first");
+        segs.forEach((b, k) => {
+          b.classList.toggle("is-current", k === i);
+          b.classList.toggle("is-done", k < i);
+          if (k === i) b.setAttribute("aria-current", "true");
+          else b.removeAttribute("aria-current");
+          if (k === i) {
+            const f2 = b.firstChild;
+            f2.style.animation = "none";
+            void f2.offsetWidth;
+            f2.style.animation = "";
+          }
+        });
+        halt();
+        left = dur(s);
+        core_default.refresh(s);
+        if (manual || !running()) live.textContent = `Scene ${i + 1} of ${n}`;
+        el.dispatchEvent(new CustomEvent("efx:scene", { detail: { index: i }, bubbles: true }));
+        sync();
+      }
+      const toggle = () => {
+        if (!want && idx === n - 1 && !o.loop) {
+          want = true;
+          idx = -1;
+          go(0);
+          return;
+        }
+        want = !want;
+        sync();
+      };
+      const offs = [
+        on(el, "keydown", (e) => {
+          if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+          const k = e.key;
+          if (k === "ArrowRight") go(idx + 1, true);
+          else if (k === "ArrowLeft") go(idx - 1, true);
+          else if (k === " " && !e.target.closest("button")) toggle();
+          else return;
+          e.preventDefault();
+        }),
+        on(document, "visibilitychange", () => {
+          tab = !document.hidden;
+          sync();
+        })
+      ];
+      btn && (btn.onclick = toggle);
+      const stop = onVisible(el, (v) => {
+        vis = v;
+        sync();
+      });
+      go(0);
+      return () => {
+        stop();
+        offs.forEach((f2) => f2());
+        halt();
+        clearTimeout(leaveT);
+        bar && bar.remove();
+        live.remove();
+        scenes.forEach((s) => s.classList.remove("is-active", "is-enter", "is-leave", "t-fade", "t-slide", "t-wipe", "t-zoom", "t-cut"));
+        undo.reverse().forEach((f2) => f2());
+        el.classList.remove("is-reel", "is-manual", "is-paused", "is-first");
+        el.style.removeProperty("--efx-dir");
+        if (restorePos) el.style.position = "";
+      };
+    }
+  };
+
   // src/features/reveal.js
   var reveal_default = {
     name: "reveal",
@@ -5300,7 +6217,7 @@
 
   // src/features/scrub.js
   var NEUTRAL = { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, blur: 0 };
-  var parse = (s) => {
+  var parse2 = (s) => {
     const o = {};
     String(s).split(/[\s;,]+/).forEach((t) => {
       const [k, v] = t.split(":"), n = parseFloat(v);
@@ -5314,8 +6231,8 @@
     defaults: { from: "", to: "", start: 0, end: 1, ease: "linear", peak: "none", x: 0, y: 0, rotate: 0, scale: 1, opacity: -1, blur: 0 },
     init(el, o) {
       if (!motionOK()) return;
-      const A = { ...NEUTRAL, ...parse(o.from) };
-      const B = { ...NEUTRAL, x: o.x, y: o.y, rotate: o.rotate, scale: o.scale, blur: o.blur, ...o.opacity >= 0 ? { opacity: o.opacity } : {}, ...parse(o.to) };
+      const A = { ...NEUTRAL, ...parse2(o.from) };
+      const B = { ...NEUTRAL, x: o.x, y: o.y, rotate: o.rotate, scale: o.scale, blur: o.blur, ...o.opacity >= 0 ? { opacity: o.opacity } : {}, ...parse2(o.to) };
       const ease3 = ease(o.ease), span2 = o.end - o.start || 1;
       const s = el.style, saved = [s.translate, s.rotate, s.scale, s.opacity, s.filter, s.transition, s.willChange, s.getPropertyValue("--efx-p")];
       const use = (k) => A[k] !== B[k];
@@ -5588,8 +6505,8 @@
       const svg = isPath ? el.ownerSVGElement : el;
       if (!svg || !svg.createSVGPoint) return;
       const own = isPath ? el.getAttribute("d") || "" : "";
-      const split2 = (s) => s.split("|").map((t) => t.trim()).filter(Boolean);
-      const toks = o.shapes ? split2(o.shapes) : o.d ? split2(o.d) : o.to ? [own, ...split2(o.to)].filter(Boolean) : [];
+      const split3 = (s) => s.split("|").map((t) => t.trim()).filter(Boolean);
+      const toks = o.shapes ? split3(o.shapes) : o.d ? split3(o.d) : o.to ? [own, ...split3(o.to)].filter(Boolean) : [];
       if (!toks.length) return;
       const n = Math.max(8, Math.round(o.points) || 64);
       const shapes = toks.map((t) => sample(t, svg, n)).filter(Boolean);
@@ -6596,9 +7513,9 @@
       el.append(sr, vis);
       el.setAttribute("data-efx-mode", o.mode);
       let i = 0, n = 0, dir = 1, tm = 0, seen = true;
-      const later = (ms, fn) => {
+      const later = (ms2, fn) => {
         clearTimeout(tm);
-        tm = setTimeout(fn, ms);
+        tm = setTimeout(fn, ms2);
       };
       const swap = () => {
         txt.classList.add("is-out");
@@ -6720,7 +7637,7 @@
   };
 
   // src/effix-entry.js
-  define(ambient_default, animate_default, beam_default, border_default, carousel_default, chapter_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, dim_default, direction_default, distort_default, divider_default, drag_default, draggable_default, draw_default, feed_default, flip_default, glitch_default, globe_default, hscroll_default, kenburns_default, layout_default, lazyimg_default, lightbox_default, magnetic_default, marquee_default, mask_default, media_default, morph_default, mouse_default, nudge_default, odometer_default, parallax_default, particles_default, path_default, pixelate_default, popup_default, pricing_default, progress_default, proximity_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, shape_default, shimmer_default, sparkles_default, spinner_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, toast_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
+  define(ambient_default, animate_default, ascii_default, audio_default, beam_default, border_default, carousel_default, chapter_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, dim_default, direction_default, distort_default, divider_default, drag_default, draggable_default, draw_default, feed_default, flip_default, glitch_default, globe_default, hscroll_default, kenburns_default, kinetic_default, layout_default, lazyimg_default, lightbox_default, lyrics_default, magnetic_default, marquee_default, mask_default, media_default, morph_default, mouse_default, nudge_default, odometer_default, parallax_default, particles_default, path_default, pixelate_default, popout_default, popup_default, pricing_default, progress_default, proximity_default, reel_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, shape_default, shimmer_default, sparkles_default, spinner_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, toast_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
   if (typeof window !== "undefined") window.Effix = core_default;
   autoBoot();
   var effix_entry_default = core_default;
