@@ -1,0 +1,6 @@
+/* viz-parallel */
+.efx-pc__line { pointer-events: none; transition: opacity .2s, stroke-width .15s; }
+.efx-pc__line.is-active { stroke-width: 3.2; stroke-opacity: 1; filter: none; }
+.efx-pc__line.is-off.efx-chart__mark { opacity: .06; }
+.efx-pc__ov { cursor: ns-resize; touch-action: none; }
+.efx-pc__sel { fill: var(--sh-primary, #6366f1); fill-opacity: .25; stroke: var(--sh-primary, #6366f1); pointer-events: none; }

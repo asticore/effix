@@ -1,2 +1,2 @@
-/*! Effix scrollspy v0.2.0 | MIT | https://github.com/asticore/effix */
-/*! Effix scrollspy v0.2.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-scrollspy a{transition:color .2s,background-color .2s,box-shadow .2s}.efx-scrollspy a.is-active{color:var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1)));font-weight:600}}
+/*! Effix scrollspy v0.3.0 | MIT | https://github.com/asticore/effix */
+/*! Effix scrollspy v0.3.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-scrollspy a{transition:color .2s,background-color .2s,box-shadow .2s}.efx-scrollspy a.is-active{color:var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1)));font-weight:600}}

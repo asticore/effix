@@ -1,4 +1,4 @@
-/*! Effix v0.2.0 | MIT | https://github.com/asticore/effix */
+/*! Effix v0.3.0 | MIT | https://github.com/asticore/effix */
 (() => {
   // src/core.js
   var registry = /* @__PURE__ */ new Map();
@@ -307,7 +307,7 @@
   };
   var features = () => [...registry.keys()];
   var api = {
-    version: "0.2.0",
+    version: "0.3.0",
     define,
     init,
     destroy,

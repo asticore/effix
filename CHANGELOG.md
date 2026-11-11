@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.3.0
+
+d3-gallery visualisations and a leaner loading model. 112 features in total.
+
+### Loading
+- The auto-loader (`effix.auto.min.js`) now fetches **one small file per chart, diagram or visualisation** instead of whole add-on bundles. Chart types share one toolkit file (`features/_chartkit.min.js`) fetched once.
+- `build.js` fails if any single feature file exceeds 8 KB gzip (largest today: 5.6 KB). All-in-one bundles remain optional.
+
+### New visualisations (`efx-viz-*`)
+- **Network** — force-directed graph with drag, zoom/pan and neighbour highlighting.
+- **Chord** and **arc** diagrams for relationships and flows.
+- **Circle packing** with click-to-zoom.
+- **Distribution** — density, violin, ridgeline or beeswarm from raw samples (KDE).
+- **Parallel coordinates** with axis brushing.
+- **Rank** — bump or slope charts.
+- **Marimekko** mosaic.
+- **Word cloud** from weighted words or raw text.
+- **Map** — choropleth, bubbles and routes from your own GeoJSON (no map data bundled).
+
+### New chart options
+- Bar: `lollipop` style, `radial` (circular barplot), `normalize` (100% stacked), `diverging`.
+- Line: `stream` (streamgraph). Scatter: `connected`.
+
 ## v0.2.0
 
 Motion-video ideas (from AI motion-prompt galleries) turned into web features. 102 features in total.

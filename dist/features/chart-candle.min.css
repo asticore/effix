@@ -1,0 +1,2 @@
+/*! Effix chart-candle v0.3.0 | MIT | https://github.com/asticore/effix */
+/*! Effix chart-candle v0.3.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-cd__pt{cursor:crosshair}.efx-cd__pt.is-active{filter:none}.efx-cd__band{fill:var(--efx-chart-text);opacity:0;transition:opacity .15s}.efx-cd__pt.is-active .efx-cd__band{opacity:.08}}

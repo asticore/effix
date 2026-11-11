@@ -1,2 +1,2 @@
-/*! Effix lazyimg v0.2.0 | MIT | https://github.com/asticore/effix */
-/*! Effix lazyimg v0.2.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-lazyimg.is-lazy{filter:blur(var(--efx-blur, 12px))}.efx-lazyimg.is-loaded{filter:none;transition:filter var(--efx-duration) var(--efx-ease)}.efx-lazyimg[data-efx-bg]{background-size:cover;background-position:center}}
+/*! Effix lazyimg v0.3.0 | MIT | https://github.com/asticore/effix */
+/*! Effix lazyimg v0.3.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-lazyimg.is-lazy{filter:blur(var(--efx-blur, 12px))}.efx-lazyimg.is-loaded{filter:none;transition:filter var(--efx-duration) var(--efx-ease)}.efx-lazyimg[data-efx-bg]{background-size:cover;background-position:center}}

@@ -1,0 +1,2 @@
+/*! Effix viz-chord v0.3.0 | MIT | https://github.com/asticore/effix */
+/*! Effix viz-chord v0.3.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-viz__label{paint-order:stroke;stroke:var(--sh-surface, #fff);stroke-width:3px;stroke-linejoin:round;pointer-events:none}.efx-viz-chord .efx-chart__plot .efx-chart__mark.is-dim{opacity:.3}}

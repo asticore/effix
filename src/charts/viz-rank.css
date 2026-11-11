@@ -1,0 +1,5 @@
+/* viz-rank */
+.efx-vr__item path { transition: stroke-width .15s; }
+.efx-vr__item.is-active path { stroke-width: 5; }
+.efx-vr__item.is-active { filter: none; }
+.efx-chart__plot .efx-vr__item .efx-chart__draw { stroke-dasharray: 1; }

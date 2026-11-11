@@ -3255,6 +3255,30 @@ window.EFX_PLAYGROUND = {
      "type": "bool"
     },
     {
+     "attr": "data-efx-style",
+     "def": "bar",
+     "desc": "lollipop draws a stick and a dot instead of a bar.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-radial",
+     "def": "false",
+     "desc": "Circular barplot: bars radiate from an inner circle, labels around the ring (works stacked or grouped).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-normalize",
+     "def": "false",
+     "desc": "100% stacked: every category is scaled to 100% (tooltip shows % and raw value).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-diverging",
+     "def": "false",
+     "desc": "Negative values extend left/down from a centred zero line; with one series negatives use the danger colour.",
+     "type": "bool"
+    },
+    {
      "attr": "data-efx-values",
      "def": "false",
      "desc": "Print values on the bars.",
@@ -4449,6 +4473,12 @@ window.EFX_PLAYGROUND = {
      "type": "bool"
     },
     {
+     "attr": "data-efx-stream",
+     "def": "false",
+     "desc": "Streamgraph: stacked areas around a centred wiggle baseline (no y axis), smooth. Tooltip still shows real values.",
+     "type": "bool"
+    },
+    {
      "attr": "data-efx-smooth",
      "def": "true",
      "desc": "Monotone curve; false = straight segments.",
@@ -4939,6 +4969,12 @@ window.EFX_PLAYGROUND = {
      "def": "",
      "desc": "Axis titles (also used in the tooltip).",
      "type": "text"
+    },
+    {
+     "attr": "data-efx-connected",
+     "def": "false",
+     "desc": "Join each series' points in data order with a line and an arrow at the end (trajectories, paths over time).",
+     "type": "bool"
     },
     {
      "attr": "data-efx-bubble",
@@ -6130,6 +6166,1002 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Who uses what</h3>\n  <div class=\"efx-chart-venn\" data-efx-data='[{\"sets\":[\"Web\"],\"size\":120},{\"sets\":[\"Mobile\"],\"size\":80},{\"sets\":[\"Desktop\"],\"size\":50},{\"sets\":[\"Web\",\"Mobile\"],\"size\":35},{\"sets\":[\"Web\",\"Desktop\"],\"size\":20},{\"sets\":[\"Mobile\",\"Desktop\"],\"size\":12},{\"sets\":[\"Web\",\"Mobile\",\"Desktop\"],\"size\":6}]' data-efx-suffix=\" users\"></div>\n</div>"
+  },
+  {
+   "name": "viz-arc",
+   "title": "Arc diagram",
+   "group": "Visualisations",
+   "kind": "chart",
+   "classes": [
+    "efx-viz-arc"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "Graph JSON (see data format).",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-sort",
+     "def": "",
+     "desc": "Order nodes by \"group\" or \"degree\" (default: input order).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-radius",
+     "def": "5",
+     "desc": "Base node radius.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "280",
+     "desc": "Chart height in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Group colors.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Character co-appearances</h3>\n  <div class=\"efx-viz-arc\" data-efx-sort=\"group\" data-efx-data='{\"nodes\":[{\"id\":\"Myriel\",\"group\":\"A\"},{\"id\":\"Napoleon\",\"group\":\"A\"},{\"id\":\"Valjean\",\"group\":\"B\"},{\"id\":\"Javert\",\"group\":\"B\"},{\"id\":\"Fantine\",\"group\":\"C\"},{\"id\":\"Cosette\",\"group\":\"C\"},{\"id\":\"Marius\",\"group\":\"D\"},{\"id\":\"Eponine\",\"group\":\"D\"}],\"links\":[{\"source\":\"Myriel\",\"target\":\"Napoleon\",\"value\":2},{\"source\":\"Myriel\",\"target\":\"Valjean\",\"value\":5},{\"source\":\"Valjean\",\"target\":\"Javert\",\"value\":8},{\"source\":\"Valjean\",\"target\":\"Fantine\",\"value\":4},{\"source\":\"Valjean\",\"target\":\"Cosette\",\"value\":9},{\"source\":\"Cosette\",\"target\":\"Marius\",\"value\":6},{\"source\":\"Marius\",\"target\":\"Eponine\",\"value\":3},{\"source\":\"Javert\",\"target\":\"Eponine\"},{\"source\":\"Fantine\",\"target\":\"Cosette\",\"value\":3}]}'></div>\n</div>"
+  },
+  {
+   "name": "viz-rank",
+   "title": "Bump and slope",
+   "group": "Visualisations",
+   "kind": "chart",
+   "classes": [
+    "efx-viz-rank"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-mode",
+     "def": "bump",
+     "desc": "bump (ranks over periods) or slope (first vs last period).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "Items and values (see data format).",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-labels",
+     "def": "",
+     "desc": "Period names: \"2023|2024|2025\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-ranks",
+     "def": "false",
+     "desc": "Values are already ranks (1 = best).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-smooth",
+     "def": "true",
+     "desc": "Curved connectors (false = straight).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "",
+     "desc": "Chart height in px.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Colors \"#f43f5e|#8b5cf6\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-decimals",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-format",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-legend",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content (no axes/tooltip).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name (else aria-label or first heading).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Language popularity</h3>\n  <div class=\"efx-viz-rank\" data-efx-labels=\"2021|2022|2023|2024|2025\" data-efx-data='[{\"name\":\"Python\",\"data\":[90,92,95,97,98]},{\"name\":\"JavaScript\",\"data\":[88,90,91,90,89]},{\"name\":\"Rust\",\"data\":[30,40,55,70,82]},{\"name\":\"Go\",\"data\":[50,55,60,64,66]},{\"name\":\"Java\",\"data\":[85,80,76,72,65]},{\"name\":\"PHP\",\"data\":[60,55,45,38,30]}]'></div>\n</div>"
+  },
+  {
+   "name": "viz-chord",
+   "title": "Chord diagram",
+   "group": "Visualisations",
+   "kind": "chart",
+   "classes": [
+    "efx-viz-chord"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "Matrix JSON (see data format).",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-labels",
+     "def": "",
+     "desc": "Group labels \"A|B|C\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-gap",
+     "def": "0.04",
+     "desc": "Gap between groups in radians.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "380",
+     "desc": "Chart height in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Group colors.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Migration between regions</h3>\n  <div class=\"efx-viz-chord\" data-efx-suffix=\"k\" data-efx-data='{\"labels\":[\"Europe\",\"Asia\",\"Americas\",\"Africa\"],\"matrix\":[[0,12,18,4],[9,0,15,6],[22,11,0,3],[7,10,2,0]]}'></div>\n</div>"
+  },
+  {
+   "name": "viz-pack",
+   "title": "Circle packing",
+   "group": "Visualisations",
+   "kind": "chart",
+   "classes": [
+    "efx-viz-pack"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "Hierarchy JSON (see data format).",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-padding",
+     "def": "0.15",
+     "desc": "Gap between circles, as a fraction of the average leaf radius.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "420",
+     "desc": "Chart height in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Colors for top-level branches.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off (animate off = instant zoom).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off (animate off = instant zoom).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Bundle size by package</h3>\n  <div class=\"efx-viz-pack\" data-efx-suffix=\" kB\" data-efx-data='{\"name\":\"app\",\"children\":[{\"name\":\"ui\",\"children\":[{\"name\":\"button\",\"value\":12},{\"name\":\"modal\",\"value\":22},{\"name\":\"table\",\"value\":40},{\"name\":\"form\",\"value\":31}]},{\"name\":\"data\",\"children\":[{\"name\":\"store\",\"value\":28},{\"name\":\"cache\",\"value\":17},{\"name\":\"api\",\"value\":24}]},{\"name\":\"charts\",\"children\":[{\"name\":\"bar\",\"value\":9},{\"name\":\"line\",\"value\":11},{\"name\":\"pie\",\"value\":8},{\"name\":\"map\",\"value\":35},{\"name\":\"axes\",\"value\":14}]},{\"name\":\"utils\",\"children\":[{\"name\":\"dates\",\"value\":19},{\"name\":\"i18n\",\"value\":26}]}]}'></div>\n</div>"
+  },
+  {
+   "name": "viz-distribution",
+   "title": "Distribution",
+   "group": "Visualisations",
+   "kind": "chart",
+   "classes": [
+    "efx-viz-distribution"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-mode",
+     "def": "density",
+     "desc": "density (overlaid curves) · violin · ridgeline · beeswarm.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "Samples as JSON (see data format).",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-labels",
+     "def": "",
+     "desc": "Group names: \"Fri|Sat|Sun\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-names",
+     "def": "",
+     "desc": "Series names.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-bandwidth",
+     "def": "auto",
+     "desc": "KDE bandwidth in value units (default: Silverman rule of thumb).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-overlap",
+     "def": "0.8",
+     "desc": "Ridgeline: how far peaks rise into the row above (0 = none).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-grid",
+     "def": "true",
+     "desc": "Gridlines.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "",
+     "desc": "Chart height in px.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Colors \"#f43f5e|#8b5cf6\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-decimals",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-format",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-legend",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content (no axes/tooltip).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name (else aria-label or first heading).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Response time by region (ms)</h3>\n  <div class=\"efx-viz-distribution\" data-efx-mode=\"violin\" data-efx-suffix=\"ms\" data-efx-title=\"Response times\"><script type=\"application/json\">{\"labels\":[\"EU\",\"US\",\"Asia\"],\"series\":[{\"data\":[[88,92,95,99,101,104,108,110,112,118,125,131,140,150],[60,64,66,70,72,73,75,79,80,84,90,96,120,180],[110,125,130,140,150,155,160,170,190,210,240,260,310,400]]}]}</script></div>\n</div>"
+  },
+  {
+   "name": "viz-map",
+   "title": "Map",
+   "group": "Visualisations",
+   "kind": "chart",
+   "classes": [
+    "efx-viz-map"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-geo",
+     "def": "",
+     "desc": "GeoJSON inline, or a URL to fetch (also inline script JSON).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-data-efx-geo-url",
+     "def": "",
+     "desc": "GeoJSON inline, or a URL to fetch (also inline script JSON).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-projection",
+     "def": "mercator",
+     "desc": "mercator, equirectangular or natural (natural earth).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "Choropleth values [{id|name, value}] matched to feature.id / properties.name.",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-points",
+     "def": "",
+     "desc": "Bubbles [{lat, lon, value, label}], radius by sqrt(value).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-routes",
+     "def": "",
+     "desc": "Curved animated arcs [{from:[lat,lon], to:[lat,lon]}].",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-steps",
+     "def": "6",
+     "desc": "Colour steps in the ramp.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-zoom",
+     "def": "false",
+     "desc": "Wheel to zoom, drag to pan, double-click to reset.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "First colour = choropleth ramp, second = bubbles and routes.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-decimals",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-format",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "auto",
+     "desc": "px; default follows the map aspect ratio.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-legend",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Sales by region</h3>\n  <div class=\"efx-viz-map\" data-efx-zoom data-efx-geo=\"{&quot;type&quot;:&quot;FeatureCollection&quot;,&quot;features&quot;:[{&quot;type&quot;:&quot;Feature&quot;,&quot;id&quot;:&quot;N&quot;,&quot;properties&quot;:{&quot;name&quot;:&quot;North&quot;},&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[-9,49],[-6,52.5],[-1,54],[4,53],[9,50.5],[4,49.5],[-3,50],[-9,49]]]}},{&quot;type&quot;:&quot;Feature&quot;,&quot;id&quot;:&quot;E&quot;,&quot;properties&quot;:{&quot;name&quot;:&quot;East&quot;},&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[4,49.5],[9,50.5],[12,47],[11,43],[7,42],[5,45.5],[4,49.5]]]}},{&quot;type&quot;:&quot;Feature&quot;,&quot;id&quot;:&quot;S&quot;,&quot;properties&quot;:{&quot;name&quot;:&quot;South&quot;},&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[-8,38],[-2,36.5],[7,38],[7,42],[1,43.5],[-6,42],[-8,38]]]}},{&quot;type&quot;:&quot;Feature&quot;,&quot;id&quot;:&quot;W&quot;,&quot;properties&quot;:{&quot;name&quot;:&quot;West&quot;},&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[-9,49],[-3,50],[1,46],[1,43.5],[-6,42],[-10,44.5],[-9,49]]]}},{&quot;type&quot;:&quot;Feature&quot;,&quot;id&quot;:&quot;C&quot;,&quot;properties&quot;:{&quot;name&quot;:&quot;Centre&quot;},&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[-3,50],[4,49.5],[5,45.5],[7,42],[1,43.5],[1,46],[-3,50]]]}}]}\" data-efx-data=\"[{&quot;id&quot;:&quot;N&quot;,&quot;value&quot;:42},{&quot;id&quot;:&quot;E&quot;,&quot;value&quot;:77},{&quot;id&quot;:&quot;S&quot;,&quot;value&quot;:25},{&quot;id&quot;:&quot;W&quot;,&quot;value&quot;:58},{&quot;id&quot;:&quot;C&quot;,&quot;value&quot;:91}]\" data-efx-points=\"[{&quot;lat&quot;:51.5,&quot;lon&quot;:-2,&quot;value&quot;:120,&quot;label&quot;:&quot;Harbour&quot;},{&quot;lat&quot;:47,&quot;lon&quot;:8,&quot;value&quot;:60,&quot;label&quot;:&quot;Mill&quot;},{&quot;lat&quot;:40,&quot;lon&quot;:0,&quot;value&quot;:85,&quot;label&quot;:&quot;Port&quot;},{&quot;lat&quot;:45,&quot;lon&quot;:-5,&quot;value&quot;:30,&quot;label&quot;:&quot;Farm&quot;}]\" data-efx-routes=\"[{&quot;from&quot;:[51.5,-2],&quot;to&quot;:[40,0]},{&quot;from&quot;:[47,8],&quot;to&quot;:[45,-5]},{&quot;from&quot;:[51.5,-2],&quot;to&quot;:[47,8]}]\" data-efx-suffix=\" units\" data-efx-title=\"Sales by region\"></div>\n</div>"
+  },
+  {
+   "name": "viz-marimekko",
+   "title": "Marimekko",
+   "group": "Visualisations",
+   "kind": "chart",
+   "classes": [
+    "efx-viz-marimekko"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "Segments per column (see data format).",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-labels",
+     "def": "",
+     "desc": "Column names: \"Asia|Europe|US\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-names",
+     "def": "",
+     "desc": "Segment names.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-inside",
+     "def": "percent",
+     "desc": "Cell labels: percent, value or none (shown only where they fit).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-gap",
+     "def": "2",
+     "desc": "Pixels between columns.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "",
+     "desc": "Chart height in px.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Colors \"#f43f5e|#8b5cf6\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-decimals",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-format",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-legend",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content (no axes/tooltip).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name (else aria-label or first heading).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Sales by region and channel</h3>\n  <div class=\"efx-viz-marimekko\" data-efx-prefix=\"$\" data-efx-suffix=\"m\" data-efx-labels=\"North America|Europe|Asia|Africa\" data-efx-data='[{\"name\":\"Retail\",\"data\":[40,25,30,5]},{\"name\":\"Online\",\"data\":[35,30,25,3]},{\"name\":\"Wholesale\",\"data\":[15,20,35,6]}]'></div>\n</div>"
+  },
+  {
+   "name": "viz-network",
+   "title": "Network graph",
+   "group": "Visualisations",
+   "kind": "chart",
+   "classes": [
+    "efx-viz-network"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "Graph JSON (see data format).",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-label",
+     "def": "false",
+     "desc": "Print node labels (label or id).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-zoom",
+     "def": "true",
+     "desc": "Wheel zoom and background pan.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-link-distance",
+     "def": "70",
+     "desc": "Preferred link length in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-charge",
+     "def": "60",
+     "desc": "Repulsion strength between nodes.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-radius",
+     "def": "5",
+     "desc": "Average node radius.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "420",
+     "desc": "Chart height in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Group colors \"#f43f5e|#8b5cf6\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off (animate off = static layout).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off (animate off = static layout).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Team collaboration</h3>\n  <div class=\"efx-viz-network\" data-efx-label data-efx-height=\"360\" data-efx-data='{\"nodes\":[{\"id\":\"Ana\",\"group\":\"Design\",\"size\":3},{\"id\":\"Ben\",\"group\":\"Design\"},{\"id\":\"Cy\",\"group\":\"Eng\",\"size\":4},{\"id\":\"Dee\",\"group\":\"Eng\"},{\"id\":\"Eli\",\"group\":\"Eng\"},{\"id\":\"Fay\",\"group\":\"Ops\",\"size\":2},{\"id\":\"Gus\",\"group\":\"Ops\"},{\"id\":\"Hal\",\"group\":\"Data\"},{\"id\":\"Ivy\",\"group\":\"Data\"}],\"links\":[{\"source\":\"Ana\",\"target\":\"Ben\",\"value\":4},{\"source\":\"Ana\",\"target\":\"Cy\",\"value\":2},{\"source\":\"Cy\",\"target\":\"Dee\",\"value\":5},{\"source\":\"Cy\",\"target\":\"Eli\",\"value\":3},{\"source\":\"Dee\",\"target\":\"Eli\"},{\"source\":\"Cy\",\"target\":\"Fay\"},{\"source\":\"Fay\",\"target\":\"Gus\",\"value\":3},{\"source\":\"Fay\",\"target\":\"Hal\"},{\"source\":\"Hal\",\"target\":\"Ivy\",\"value\":4},{\"source\":\"Ivy\",\"target\":\"Cy\"},{\"source\":\"Ben\",\"target\":\"Ivy\"}]}'></div>\n</div>"
+  },
+  {
+   "name": "viz-parallel",
+   "title": "Parallel coordinates",
+   "group": "Visualisations",
+   "kind": "chart",
+   "classes": [
+    "efx-viz-parallel"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "Rows (see data format).",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-dims",
+     "def": "all numeric keys",
+     "desc": "Axes to show, in order: \"mpg|hp|weight\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-group",
+     "def": "group",
+     "desc": "Row field used for line color and legend.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-opacity",
+     "def": "0.65",
+     "desc": "Line opacity.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "",
+     "desc": "Chart height in px.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Colors \"#f43f5e|#8b5cf6\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting, e.g. \"$\" or \"%\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-decimals",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-format",
+     "def": "",
+     "desc": "12.3k style, fixed decimals, or a registered formatter name.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-legend",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content (no axes/tooltip).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name (else aria-label or first heading).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Cars compared</h3>\n  <div class=\"efx-viz-parallel\" data-efx-title=\"Cars compared\"><script type=\"application/json\">[\n{\"name\":\"Golf\",\"group\":\"Hatch\",\"mpg\":34,\"hp\":105,\"kg\":1200,\"price\":22},{\"name\":\"Fiesta\",\"group\":\"Hatch\",\"mpg\":38,\"hp\":95,\"kg\":1100,\"price\":18},{\"name\":\"Polo\",\"group\":\"Hatch\",\"mpg\":36,\"hp\":95,\"kg\":1150,\"price\":19},\n{\"name\":\"Civic\",\"group\":\"Sedan\",\"mpg\":32,\"hp\":130,\"kg\":1350,\"price\":26},{\"name\":\"Accord\",\"group\":\"Sedan\",\"mpg\":28,\"hp\":180,\"kg\":1500,\"price\":33},{\"name\":\"Camry\",\"group\":\"Sedan\",\"mpg\":29,\"hp\":190,\"kg\":1520,\"price\":31},\n{\"name\":\"X5\",\"group\":\"SUV\",\"mpg\":20,\"hp\":300,\"kg\":2200,\"price\":65},{\"name\":\"RAV4\",\"group\":\"SUV\",\"mpg\":27,\"hp\":200,\"kg\":1650,\"price\":36},{\"name\":\"Q7\",\"group\":\"SUV\",\"mpg\":19,\"hp\":340,\"kg\":2250,\"price\":70},\n{\"name\":\"Mustang\",\"group\":\"Sport\",\"mpg\":22,\"hp\":450,\"kg\":1700,\"price\":55},{\"name\":\"911\",\"group\":\"Sport\",\"mpg\":23,\"hp\":380,\"kg\":1500,\"price\":110}]</script></div>\n</div>"
+  },
+  {
+   "name": "viz-wordcloud",
+   "title": "Word cloud",
+   "group": "Visualisations",
+   "kind": "chart",
+   "classes": [
+    "efx-viz-wordcloud"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "\"word:weight|word:weight\" or JSON [{text,value}].",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-text",
+     "def": "",
+     "desc": "Raw text; words are counted, stop words removed.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-min-size",
+     "def": "12 / 56",
+     "desc": "Font size range in px.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-max-size",
+     "def": "12 / 56",
+     "desc": "Font size range in px.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-rotate",
+     "def": "0",
+     "desc": "Angles to pick from, e.g. \"0|90\" or \"0|-30|30\". The biggest word stays at the first angle.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-max",
+     "def": "80",
+     "desc": "Maximum words shown.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-padding",
+     "def": "2",
+     "desc": "Gap between words in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "auto",
+     "desc": "Chart height in px (default half the width, min 200).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Palette \"#f43f5e|#8b5cf6\", cycled by rank.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">What people talk about</h3>\n  <div class=\"efx-viz-wordcloud\" data-efx-rotate=\"0|90\" data-efx-data=\"[{&quot;text&quot;:&quot;design&quot;,&quot;value&quot;:46},{&quot;text&quot;:&quot;motion&quot;,&quot;value&quot;:38},{&quot;text&quot;:&quot;speed&quot;,&quot;value&quot;:31},{&quot;text&quot;:&quot;tiny&quot;,&quot;value&quot;:27},{&quot;text&quot;:&quot;charts&quot;,&quot;value&quot;:24},{&quot;text&quot;:&quot;accessible&quot;,&quot;value&quot;:20},{&quot;text&quot;:&quot;keyboard&quot;,&quot;value&quot;:17},{&quot;text&quot;:&quot;theme&quot;,&quot;value&quot;:15},{&quot;text&quot;:&quot;css&quot;,&quot;value&quot;:14},{&quot;text&quot;:&quot;shine&quot;,&quot;value&quot;:13},{&quot;text&quot;:&quot;svg&quot;,&quot;value&quot;:11},{&quot;text&quot;:&quot;zero-dependency&quot;,&quot;value&quot;:9},{&quot;text&quot;:&quot;tooltip&quot;,&quot;value&quot;:8},{&quot;text&quot;:&quot;legend&quot;,&quot;value&quot;:7},{&quot;text&quot;:&quot;dark&quot;,&quot;value&quot;:7},{&quot;text&quot;:&quot;resize&quot;,&quot;value&quot;:6},{&quot;text&quot;:&quot;lazy&quot;,&quot;value&quot;:5}]\"></div>\n</div>"
   }
  ]
 };

@@ -1,4 +1,4 @@
-/*! Effix v0.2.0 | MIT | https://github.com/asticore/effix */
+/*! Effix v0.3.0 | MIT | https://github.com/asticore/effix */
 @layer shine, effix;
 @layer effix {
 /* Effix base — shared knobs. Colors fall back to Shine tokens when Shine is loaded.

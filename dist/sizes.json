@@ -1,23 +1,25 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "core": 2688,
   "chartLib": 5286,
   "bundles": {
     "effix.min.js": 55313,
     "effix.min.css": 12067,
-    "effix-charts.min.js": 31283,
+    "effix-charts.min.js": 32499,
     "effix-charts.min.css": 2547,
     "effix-diagrams.min.js": 19528,
-    "effix-diagrams.min.css": 3944,
+    "effix-diagrams.min.css": 3945,
+    "effix-viz.min.js": 21359,
+    "effix-viz.min.css": 1719,
     "effix.core.min.js": 2738,
     "effix.core.min.css": 252,
-    "effix.auto.min.js": 4631,
-    "effix.all.min.js": 100230,
-    "effix.all.min.css": 16678
+    "effix.auto.min.js": 4957,
+    "effix.all.min.js": 117776,
+    "effix.all.min.css": 17072
   },
   "features": {
     "ambient": {
-      "js": 2655,
+      "js": 2656,
       "css": 142,
       "kind": "effect"
     },
@@ -27,7 +29,7 @@
       "kind": "effect"
     },
     "ascii": {
-      "js": 2110,
+      "js": 2111,
       "css": 297,
       "kind": "effect"
     },
@@ -57,7 +59,7 @@
       "kind": "effect"
     },
     "collapse": {
-      "js": 731,
+      "js": 732,
       "css": 0,
       "kind": "effect"
     },
@@ -67,7 +69,7 @@
       "kind": "effect"
     },
     "confetti": {
-      "js": 1328,
+      "js": 1329,
       "css": 0,
       "kind": "effect"
     },
@@ -87,7 +89,7 @@
       "kind": "effect"
     },
     "cursor": {
-      "js": 730,
+      "js": 729,
       "css": 368,
       "kind": "effect"
     },
@@ -122,7 +124,7 @@
       "kind": "effect"
     },
     "draw": {
-      "js": 669,
+      "js": 668,
       "css": 104,
       "kind": "effect"
     },
@@ -157,12 +159,12 @@
       "kind": "effect"
     },
     "kinetic": {
-      "js": 762,
+      "js": 761,
       "css": 643,
       "kind": "effect"
     },
     "layout": {
-      "js": 1826,
+      "js": 1827,
       "css": 280,
       "kind": "effect"
     },
@@ -187,7 +189,7 @@
       "kind": "effect"
     },
     "marquee": {
-      "js": 590,
+      "js": 589,
       "css": 293,
       "kind": "effect"
     },
@@ -202,12 +204,12 @@
       "kind": "effect"
     },
     "morph": {
-      "js": 700,
+      "js": 701,
       "css": 262,
       "kind": "effect"
     },
     "mouse": {
-      "js": 788,
+      "js": 789,
       "css": 0,
       "kind": "effect"
     },
@@ -332,7 +334,7 @@
       "kind": "effect"
     },
     "spotlight": {
-      "js": 317,
+      "js": 319,
       "css": 423,
       "kind": "effect"
     },
@@ -352,7 +354,7 @@
       "kind": "effect"
     },
     "tilt": {
-      "js": 687,
+      "js": 686,
       "css": 307,
       "kind": "effect"
     },
@@ -377,7 +379,7 @@
       "kind": "effect"
     },
     "typed": {
-      "js": 568,
+      "js": 569,
       "css": 400,
       "kind": "effect"
     },
@@ -387,7 +389,7 @@
       "kind": "effect"
     },
     "chart-bar": {
-      "js": 1708,
+      "js": 2737,
       "css": 0,
       "kind": "chart"
     },
@@ -437,7 +439,7 @@
       "kind": "chart"
     },
     "chart-line": {
-      "js": 1926,
+      "js": 2117,
       "css": 207,
       "kind": "chart"
     },
@@ -467,7 +469,7 @@
       "kind": "chart"
     },
     "chart-scatter": {
-      "js": 2023,
+      "js": 2275,
       "css": 0,
       "kind": "chart"
     },
@@ -524,6 +526,56 @@
     "diagram-tree": {
       "js": 4078,
       "css": 950,
+      "kind": "chart"
+    },
+    "viz-arc": {
+      "js": 2023,
+      "css": 223,
+      "kind": "chart"
+    },
+    "viz-chord": {
+      "js": 2097,
+      "css": 159,
+      "kind": "chart"
+    },
+    "viz-distribution": {
+      "js": 3298,
+      "css": 0,
+      "kind": "chart"
+    },
+    "viz-map": {
+      "js": 3824,
+      "css": 280,
+      "kind": "chart"
+    },
+    "viz-marimekko": {
+      "js": 1739,
+      "css": 0,
+      "kind": "chart"
+    },
+    "viz-network": {
+      "js": 2951,
+      "css": 279,
+      "kind": "chart"
+    },
+    "viz-pack": {
+      "js": 3205,
+      "css": 244,
+      "kind": "chart"
+    },
+    "viz-parallel": {
+      "js": 2554,
+      "css": 213,
+      "kind": "chart"
+    },
+    "viz-rank": {
+      "js": 2268,
+      "css": 132,
+      "kind": "chart"
+    },
+    "viz-wordcloud": {
+      "js": 2325,
+      "css": 0,
       "kind": "chart"
     }
   }

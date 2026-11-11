@@ -1,4 +1,4 @@
-/*! Effix Diagrams v0.2.0 | MIT | https://github.com/asticore/effix */
+/*! Effix Diagrams v0.3.0 | MIT | https://github.com/asticore/effix */
 (() => {
   var __defProp = Object.defineProperty;
   var __export = (target, all) => {
