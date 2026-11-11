@@ -1,5 +1,6 @@
 /* chart-scatter — scatter / bubble chart.
    <div class="efx-chart-scatter" data-efx-data='[{"x":1,"y":4},{"x":3,"y":7,"r":5,"label":"A"}]' data-efx-bubble></div>
+   data-efx-connected joins points in data order with an arrow at the end (paths, trajectories).
    Series: [[{x,y}…],[…]] or [{"name":"A","points":[…]}] */
 import { COMMON, chart, palette, nice, linear, axes, s, esc } from './_lib.js';
 import { on } from '../core.js';
@@ -21,7 +22,7 @@ export default {
   name: 'chart-scatter',
   selector: '.efx-chart-scatter',
   lazy: true,
-  defaults: { ...COMMON, xLabel: '', yLabel: '', bubble: false },
+  defaults: { ...COMMON, xLabel: '', yLabel: '', bubble: false, connected: false },
   init(el, o) {
     // Scatter owns its points: the lib only gets series names (via o.data) so legend/hidden work.
     // efx:data > inline <script> > data-efx-data. The inline script is parked so the lib's parseData can't read it.
@@ -57,6 +58,14 @@ export default {
         if (o.xLabel) s('text', { x: (pad.l + w - pad.r) / 2, y: h - 4, 'text-anchor': 'middle' }, ax).textContent = o.xLabel;
         if (o.yLabel) s('text', { x: 12, y: (pad.t + h - pad.b) / 2, 'text-anchor': 'middle', transform: `rotate(-90 12 ${(pad.t + h - pad.b) / 2})` }, ax).textContent = o.yLabel;
       }
+      if (o.connected) visible.forEach((v, k) => {
+        const q = (sets[v.index] ? sets[v.index].p : []).map(p => [x(p.x), y(p.y)]);
+        if (q.length < 2) return;
+        const c = colors[v.index], e = q[q.length - 1], f = q[q.length - 2], a = Math.atan2(e[1] - f[1], e[0] - f[0]), lp = sets[v.index].p[q.length - 1];
+        const back = (R(lp) + 2) * (Math.hypot(e[0] - f[0], e[1] - f[1]) > R(lp) + 12 ? 1 : 0);
+        s('path', { d: 'M' + q.map(p => p.join(',')).join('L'), pathLength: 1, fill: 'none', stroke: c, 'stroke-width': 1.5, 'stroke-opacity': .6, 'stroke-linejoin': 'round', class: 'efx-chart__draw' }, g);
+        s('path', { d: 'M0,0L-9,-4.5L-9,4.5Z', transform: `translate(${e[0] - back * Math.cos(a)} ${e[1] - back * Math.sin(a)}) rotate(${a * 180 / Math.PI})`, fill: c, class: 'efx-chart__fade', style: `--i:${k + 6}` }, g);
+      });
       const multi = sets.length > 1, items = [];
       visible.forEach(v => (sets[v.index] ? sets[v.index].p : []).forEach(p => items.push({ p, v, cx: x(p.x), cy: y(p.y), r: R(p) })));
       const step = Math.min(1, 24 / items.length);

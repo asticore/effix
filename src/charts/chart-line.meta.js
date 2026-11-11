@@ -15,6 +15,7 @@ Labels: <code>data-efx-labels="Mon|Tue|Wed"</code> or <code>{"labels":[…],"ser
     ['data-efx-source', '', 'CSS selector of a Shine table to read (first column = labels).'],
     ['data-efx-area', 'false', 'Gradient fill under each line (35% → 0 of the series color).'],
     ['data-efx-stacked', 'false', 'Stacked area (implies area).'],
+    ['data-efx-stream', 'false', 'Streamgraph: stacked areas around a centred wiggle baseline (no y axis), smooth. Tooltip still shows real values.'],
     ['data-efx-smooth', 'true', 'Monotone curve; false = straight segments.'],
     ['data-efx-dots', 'true', 'Always-visible dots; false shows them only under the crosshair.'],
     ['data-efx-grid', 'true', 'Horizontal gridlines.'],
@@ -44,5 +45,9 @@ Labels: <code>data-efx-labels="Mon|Tue|Wed"</code> or <code>{"labels":[…],"ser
   <div class="card p-6"><div class="efx-chart-line" data-efx-stacked data-efx-height="200" data-efx-dots="false" data-efx-data="[[4,6,5,8,7],[3,4,6,5,9],[2,3,3,4,5]]" data-efx-names="Free|Pro|Team" data-efx-labels="Jan|Feb|Mar|Apr|May" data-efx-title="Signups by plan"></div></div>
   <div class="card p-6 efx-chart-line" style="min-height:160px" data-efx-background data-efx-area data-efx-data="12,18,14,22,19,28,26,34"><h3 class="m-0">Revenue</h3><p class="m-0">$34k this week</p></div>
 </div>`, label: 'Stacked area with hover-only dots, and a card with a line chart behind its content' },
+    { html: `<div class="card p-6">
+  <h3 class="m-0 mb-3">Listening by genre</h3>
+  <div class="efx-chart-line" data-efx-stream data-efx-height="220" data-efx-dots="false" data-efx-data="[[3,5,9,12,8,5,3,2],[2,4,6,9,11,9,6,4],[5,5,4,4,6,8,9,10],[1,2,2,4,5,6,5,4]]" data-efx-names="Rock|Jazz|Pop|Folk" data-efx-labels="2018|2019|2020|2021|2022|2023|2024|2025"></div>
+</div>`, label: 'Streamgraph' },
   ],
 };

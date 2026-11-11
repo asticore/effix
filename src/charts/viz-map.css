@@ -1,0 +1,7 @@
+/* viz-map — region outlines, hover, animated route dashes. */
+.efx-viz-map__f { stroke: var(--sh-surface, #fff); stroke-width: 1; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.efx-viz-map__f.is-active { stroke: var(--sh-text, #0f172a); stroke-width: 1.5; filter: none; }
+.efx-viz-map__route { stroke-dasharray: 5 6; animation: efx-viz-map-dash 1.4s linear infinite; }
+.efx-viz-map[data-efx-zoom] .efx-chart__svg { cursor: grab; }
+@keyframes efx-viz-map-dash { to { stroke-dashoffset: -22; } }
+@media (prefers-reduced-motion: reduce) { .efx-viz-map__route { animation: none; } }

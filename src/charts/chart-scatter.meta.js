@@ -11,6 +11,7 @@ Also <code>{"series":[…]}</code> or an inline <code>&lt;script type="applicati
     ['data-efx-data', '', 'JSON points [{"x":1,"y":4,"r":3,"label":"A"}] · several series [[{…}],[{…}]] or [{"name":"A","points":[…]}].'],
     ['data-efx-names', '', 'Series names: "2025|2026".'],
     ['data-efx-x-label / y-label', '', 'Axis titles (also used in the tooltip).'],
+    ['data-efx-connected', 'false', 'Join each series\' points in data order with a line and an arrow at the end (trajectories, paths over time).'],
     ['data-efx-bubble', 'false', 'Size points by r (radius scales with the square root, up to 24px).'],
     ['data-efx-height', '260', 'Chart height in px (0 = element CSS height).'],
     ['data-efx-colors', 'Shine tones', 'Series colors "#f43f5e|#8b5cf6".'],
@@ -36,5 +37,9 @@ Also <code>{"series":[…]}</code> or an inline <code>&lt;script type="applicati
   <div class="card p-6"><div class="efx-chart-scatter" data-efx-bubble data-efx-height="220" data-efx-x-label="Users" data-efx-y-label="Revenue" data-efx-prefix="$" data-efx-suffix="k" data-efx-data='[{"x":10,"y":20,"r":4,"label":"Alpha"},{"x":25,"y":45,"r":12,"label":"Beta"},{"x":40,"y":30,"r":8,"label":"Gamma"},{"x":55,"y":70,"r":20,"label":"Delta"},{"x":70,"y":55,"r":6,"label":"Epsilon"}]'></div></div>
   <div class="card p-6 efx-chart-scatter" style="min-height:180px" data-efx-background data-efx-bubble data-efx-data='[{"x":1,"y":3,"r":3},{"x":2,"y":6,"r":8},{"x":3,"y":2,"r":5},{"x":4,"y":7,"r":12},{"x":5,"y":4,"r":4},{"x":6,"y":8,"r":9}]'><h3 class="m-0">Customers</h3><p class="m-0">Clusters by size</p></div>
 </div>`, label: 'Bubble chart, and bubbles as a card background' },
+    { html: `<div class="card p-6">
+  <h3 class="m-0 mb-3">Unemployment vs inflation, 2015-2024</h3>
+  <div class="efx-chart-scatter" data-efx-connected data-efx-height="240" data-efx-x-label="Unemployment %" data-efx-y-label="Inflation %" data-efx-data='[{"x":5.3,"y":0.1,"label":"2015"},{"x":4.9,"y":1.3,"label":"2016"},{"x":4.4,"y":2.1,"label":"2017"},{"x":3.9,"y":2.4,"label":"2018"},{"x":3.7,"y":1.8,"label":"2019"},{"x":8.1,"y":1.2,"label":"2020"},{"x":5.4,"y":4.7,"label":"2021"},{"x":3.6,"y":8,"label":"2022"},{"x":3.6,"y":4.1,"label":"2023"},{"x":4,"y":2.9,"label":"2024"}]'></div>
+</div>`, label: 'Connected scatter (path with arrow)' },
   ],
 };

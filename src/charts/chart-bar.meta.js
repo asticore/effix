@@ -15,6 +15,10 @@ Per-series color: <code>{"name":"A","data":[…],"color":"#f43f5e"}</code>.`,
     ['data-efx-source', '', 'CSS selector of a Shine table to read (first column = labels).'],
     ['data-efx-horizontal', 'false', 'Horizontal bars.'],
     ['data-efx-stacked', 'false', 'Stack series instead of grouping.'],
+    ['data-efx-style', 'bar', '<code>lollipop</code> draws a stick and a dot instead of a bar.'],
+    ['data-efx-radial', 'false', 'Circular barplot: bars radiate from an inner circle, labels around the ring (works stacked or grouped).'],
+    ['data-efx-normalize', 'false', '100% stacked: every category is scaled to 100% (tooltip shows % and raw value).'],
+    ['data-efx-diverging', 'false', 'Negative values extend left/down from a centred zero line; with one series negatives use the danger colour.'],
     ['data-efx-values', 'false', 'Print values on the bars.'],
     ['data-efx-radius', '4', 'Bar corner radius.'],
     ['data-efx-height', '260', 'Chart height in px (0 = element CSS height).'],
@@ -45,5 +49,11 @@ Per-series color: <code>{"name":"A","data":[…],"color":"#f43f5e"}</code>.`,
   <div class="card p-6"><div class="efx-chart-bar" data-efx-horizontal data-efx-values data-efx-data="82,64,51,33" data-efx-labels="Chrome|Safari|Edge|Firefox" data-efx-suffix="%" data-efx-height="200" data-efx-title="Browser share"></div></div>
   <a class="btn btn-lg tone-accent efx-chart-bar" href="#" style="min-height:120px" data-efx-background data-efx-data="3,5,4,7,6,9,8,12">Sales up 24%</a>
 </div>`, label: 'Horizontal with values, and a chart as a button background' },
+    { html: `<div class="grid md:grid-cols-2 gap-4">
+  <div class="card p-6"><h4 class="m-0 mb-2">Lollipop</h4><div class="efx-chart-bar" data-efx-style="lollipop" data-efx-values data-efx-height="200" data-efx-data="42,68,35,81,56" data-efx-labels="Mon|Tue|Wed|Thu|Fri"></div></div>
+  <div class="card p-6"><h4 class="m-0 mb-2">Radial</h4><div class="efx-chart-bar" data-efx-radial data-efx-height="240" data-efx-data="12,19,7,24,15,9,21,17" data-efx-labels="Jan|Feb|Mar|Apr|May|Jun|Jul|Aug"></div></div>
+  <div class="card p-6"><h4 class="m-0 mb-2">100% stacked</h4><div class="efx-chart-bar" data-efx-normalize data-efx-height="220" data-efx-data="[[30,20,50],[50,45,30],[20,35,20]]" data-efx-names="Free|Pro|Team" data-efx-labels="Q1|Q2|Q3"></div></div>
+  <div class="card p-6"><h4 class="m-0 mb-2">Diverging</h4><div class="efx-chart-bar" data-efx-diverging data-efx-horizontal data-efx-values data-efx-height="220" data-efx-data="35,-18,12,-42,27" data-efx-labels="North|East|South|West|Centre"></div></div>
+</div>`, label: 'Lollipop, radial, 100% stacked and diverging variants' },
   ],
 };
