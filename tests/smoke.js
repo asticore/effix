@@ -99,7 +99,8 @@ async function run(name, reducedMotion = 'no-preference') {
   return fails;
 }
 
-// Auto-loader: a plain page with effix.auto.min.js must fetch only the files it uses.
+// Auto-loader: a plain page with effix.auto.min.js must fetch only the files it uses
+// (charts fetch the shared chart toolkit once, then their own small file).
 async function autoCheck(name) {
   const file = path.join(root, 'dist', '_auto.html');
   fs.writeFileSync(file, `<!doctype html><html><head><meta charset="utf-8"><script src="effix.auto.min.js" defer></script></head><body>
@@ -111,7 +112,7 @@ async function autoCheck(name) {
   p.on('request', r => reqs.push(r.url()));
   await p.goto('file://' + file);
   await p.waitForFunction(() => document.querySelectorAll('[data-efx-ready]').length >= 3, null, { timeout: 5000 }).catch(() => fails.push('auto-loader: features did not start'));
-  const extra = reqs.filter(u => /features\//.test(u) && !/(particles|confetti)\.min\./.test(u));
+  const extra = reqs.filter(u => /features\//.test(u) && !/(particles|confetti|chart-bar|_chartkit)\.min\./.test(u));
   if (extra.length) fails.push('auto-loader fetched unused files: ' + extra.join(', '));
   await browser.close();
   fs.rmSync(file, { force: true });

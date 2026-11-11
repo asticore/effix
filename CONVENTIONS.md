@@ -11,6 +11,9 @@ Rules every feature follows. Read this before adding one.
 3. **Budget.** Effects bundle ≤ 60 KB gzip JS + 14 KB CSS (the auto-loader is the recommended path; the full bundle is for sites using many features), charts + diagrams add-on ≤ 36 KB JS + 5 KB CSS (`build.js` fails above). Core ≈ 2 KB. Aim for ≤ 1 KB gzip per feature.
 4. **Zero runtime dependencies.** esbuild + Playwright are dev-only.
 
+## Loading model
+Pages load `effix.auto.min.js` (core + loader). It fetches one small file per feature found on the page from `dist/features/`; chart, diagram and viz types first fetch the shared `features/_chartkit.min.js` once. `build.js` fails if any single feature file exceeds 8 KB gzip — keep each file small. The all-in-one bundles are optional extras.
+
 ## Files
 ```
 src/core.js                 registry, auto-boot, options, shared observers/loops

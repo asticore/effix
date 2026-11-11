@@ -57,7 +57,7 @@ Without Shine, Effix uses its own indigo default.
 
 <button class="btn efx-confetti">Party</button>          <!-- fetches features/confetti.min.js -->
 <section class="efx-particles">…</section>               <!-- fetches features/particles.min.js + .css -->
-<div class="efx-chart-funnel" data-efx-data="…"></div>   <!-- fetches the charts add-on once -->
+<div class="efx-chart-funnel" data-efx-data="…"></div>   <!-- fetches the chart toolkit once + chart-funnel.min.js -->
 ```
 
 The loader is 3.6 KB. It looks for `efx-*` classes and fetches only the matching files from the same folder it was loaded from, including each file's CSS. With `<html data-efx-observe>` it also loads files for elements added later. You can load a file by hand with `Effix.load('confetti')`, and `data-efx-base="…/dist/"` on the script tag points it at another folder.

@@ -23,6 +23,7 @@ const BUDGET = { // gzip bytes
   'effix.min.js': 60 * 1024, 'effix.min.css': 14 * 1024,
   'effix-charts.min.js': 36 * 1024, 'effix-charts.min.css': 5 * 1024,
   'effix-diagrams.min.js': 24 * 1024, 'effix-diagrams.min.css': 5 * 1024,
+  'effix-viz.min.js': 32 * 1024, 'effix-viz.min.css': 4 * 1024,
 };
 
 const args = Object.fromEntries(process.argv.slice(2).map(a => {
@@ -41,9 +42,11 @@ const scanDir = dir => fs.readdirSync(path.join(SRC, dir))
 const EFFECTS = scanDir('features');
 const CHART_DIR = scanDir('charts');
 // diagram-* ship as their own add-on so chart-only pages don't download them
-const CHARTS = CHART_DIR.filter(f => !f.name.startsWith('diagram-'));
+const CHARTS = CHART_DIR.filter(f => !f.name.startsWith('diagram-') && !f.name.startsWith('viz-'));
+// viz-* = advanced d3-style visualisations (network, chord, map, …) in their own add-on
+const VIZ = CHART_DIR.filter(f => f.name.startsWith('viz-'));
 const DIAGRAMS = CHART_DIR.filter(f => f.name.startsWith('diagram-'));
-const ALL = [...EFFECTS, ...CHARTS, ...DIAGRAMS];
+const ALL = [...EFFECTS, ...CHARTS, ...DIAGRAMS, ...VIZ];
 const unknown = [...(only || []), ...(exclude || [])].filter(n => !ALL.some(f => f.name === n));
 if (unknown.length) { console.error(`Unknown feature(s): ${unknown.join(', ')}\nAvailable: ${ALL.map(f => f.name).join(', ')}`); process.exit(1); }
 const pick = fs0 => fs0.filter(f => (!only || only.includes(f.name)) && (!exclude || !exclude.includes(f.name)));
@@ -86,6 +89,22 @@ const useHostCore = {
     }));
   },
 };
+
+/* Per-chart files: './_lib.js' resolves to the page's shared chart toolkit (features/_chartkit.min.js),
+   loaded once by the auto-loader before the first chart file. */
+const KIT_EXPORTS = [...fs.readFileSync(path.join(SRC, 'charts', '_lib.js'), 'utf8')
+  .matchAll(/^export (?:function|const) (\w+)|^export \{ (?:\w+ as )?(\w+) \}/gm)].map(m => m[1] || m[2]);
+const useHostKit = {
+  name: 'effix-host-kit',
+  setup(b) {
+    b.onResolve({ filter: /(^|\/)_lib\.js$/ }, () => ({ path: 'effix-kit', namespace: 'effix-kit' }));
+    b.onLoad({ filter: /.*/, namespace: 'effix-kit' }, () => ({
+      contents: 'const K = window.EffixChartKit;\n' + KIT_EXPORTS.map(n => `export const ${n} = K.${n};`).join('\n'),
+      loader: 'js',
+    }));
+  },
+};
+const FILE_BUDGET = 8 * 1024; // gzip bytes per individual feature file (what pages actually download)
 
 const bundle = (contents, { format = 'iife', minify = true, plugins = [] } = {}) => esbuild.build({
   stdin: { contents, resolveDir: SRC, sourcefile: 'effix-entry.js', loader: 'js' },
@@ -140,12 +159,20 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
     const cssD = wrapCss(bD, [CHART_CSS, ...cssFor(DIAGRAMS)]);
     write('effix-diagrams.css', cssD);
     write('effix-diagrams.min.css', bD + minCss(cssD));
+    if (VIZ.length) {
+      const bV = banner(' Viz', VIZ);
+      write('effix-viz.js', bV + await bundle(addonEntry(VIZ), { minify: false, plugins: [useHostCore] }));
+      write('effix-viz.min.js', bV + await bundle(addonEntry(VIZ), { plugins: [useHostCore] }));
+      const cssV = wrapCss(bV, [CHART_CSS, ...cssFor(VIZ)]);
+      write('effix-viz.css', cssV);
+      write('effix-viz.min.css', bV + minCss(cssV));
+    }
     // core only + auto-loader (plain pages: load just the feature files the page uses)
     const bK = banner(' core', []);
     write('effix.core.min.js', bK + await bundle(entry([])));
     write('effix.core.min.css', bK + minCss(wrapCss(bK, [BASE_CSS])));
     const manifest = {
-      effects: Object.fromEntries(EFFECTS.map(f => {
+      effects: Object.fromEntries([...EFFECTS, ...CHARTS, ...DIAGRAMS, ...VIZ].map(f => {
         const sel = (fs.readFileSync(path.join(SRC, f.dir, f.name + '.js'), 'utf8').match(/selector:\s*(['"`])([\s\S]*?)\1/) || [])[2] || `.efx-${f.name}`;
         // Also match every documented class (CSS-only ones like efx-bounce efx-hover), so their CSS loads too.
         const metaFile = path.join(SRC, f.dir, f.name + '.meta.js');
@@ -153,18 +180,21 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
           .map(c => String(Array.isArray(c) ? c[0] : c.name || '').trim()).filter(c => /^efx-[\w-]+$/.test(c)).map(c => '.' + c) : [];
         // plus every top-level efx-* class the feature's CSS styles (not injected __parts or -pending states)
         for (const m of cssOf(path.join(SRC, f.dir, f.name + '.css')).matchAll(/\.(efx-[a-z0-9-]+)(?![\w-])/g))
-          if (!m[1].includes('__') && !/-(pending|on|active)$/.test(m[1])) extra.push('.' + m[1]);
-        return [f.name, [[...new Set([...sel.split(',').map(x => x.trim()), ...extra])].join(','), !!cssOf(path.join(SRC, f.dir, f.name + '.css'))]];
+          if (!m[1].includes('__') && !/-(pending|on|active)$/.test(m[1]) && m[1] !== 'efx-chart') extra.push('.' + m[1]);
+        return [f.name, [[...new Set([...sel.split(',').map(x => x.trim()), ...extra])].join(','), !!cssOf(path.join(SRC, f.dir, f.name + '.css')), f.dir === 'charts' ? 1 : 0]];
       })),
-      charts: CHARTS.map(f => `.efx-${f.name}`).join(','),
-      diagrams: DIAGRAMS.map(f => `.efx-${f.name}`).join(','),
     };
     const autoEntry = `import api, { autoBoot } from './core.js';\nimport { autoload } from './loader.js';\nwindow.Effix = api;\nautoload(api, ${JSON.stringify(manifest)});\nautoBoot();\nexport default api;`;
     write('effix.auto.min.js', banner(' auto-loader', []) + await bundle(autoEntry));
-    // one file per effect, for <script> tags or the auto-loader (registers into window.Effix)
-    for (const f of EFFECTS) {
+    // one file per feature, for <script> tags or the auto-loader (registers into window.Effix).
+    // Charts, diagrams and viz share the chart toolkit file instead of each bundling it.
+    const bK2 = banner(' chart toolkit', []);
+    write('features/_chartkit.min.js', bK2 + await bundle(`import * as kit from './charts/_lib.js';\nwindow.EffixChartKit = kit;\nif (window.Effix) window.Effix.charts = kit;`, { plugins: [useHostCore] }));
+    write('features/_chartkit.min.css', bK2 + minCss(wrapCss(bK2, [CHART_CSS])));
+    for (const f of ALL) {
       const b = banner(` ${f.name}`, []);
-      write(`features/${f.name}.min.js`, b + await bundle(addonEntry([f], false), { plugins: [useHostCore] }));
+      const kit = f.dir === 'charts';
+      write(`features/${f.name}.min.js`, b + await bundle(addonEntry([f], false), { plugins: kit ? [useHostCore, useHostKit] : [useHostCore] }));
       const c = cssOf(path.join(SRC, f.dir, f.name + '.css'));
       if (c) write(`features/${f.name}.min.css`, b + minCss(wrapCss(b, [c])));
     }
@@ -196,6 +226,7 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
   console.log(`Effix v${pkg.version}  ${feats.length} feature(s)  -> ${path.relative(ROOT, OUT) || '.'}`);
   let over = false;
   for (const [f, s] of Object.entries(written)) {
+    if (f.startsWith('features/') && f.endsWith('.js') && gz(s) > FILE_BUDGET) { console.error(`  ${f} ${kb(gz(s))} gzip is over the per-file budget of ${kb(FILE_BUDGET)}`); over = true; }
     if (!f.includes('.min.') || f.startsWith('features/')) continue;
     const z = gz(s);
     const limit = !custom && BUDGET[f];

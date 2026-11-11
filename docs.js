@@ -20,7 +20,7 @@ const B = n => sizes.bundles[n] || 0;
 const effectsKB = B('effix.min.js') + B('effix.min.css');
 const chartsKB = B('effix-charts.min.js') + B('effix-charts.min.css');
 
-const GROUPS = ['Animations', 'Images', 'Scroll', 'Text', 'Buttons & borders', 'Background', 'Pointer', 'Sections', 'Components', 'Page', 'Time', 'Charts', 'Diagrams'];
+const GROUPS = ['Animations', 'Images', 'Scroll', 'Text', 'Buttons & borders', 'Background', 'Pointer', 'Sections', 'Components', 'Page', 'Time', 'Charts', 'Diagrams', 'Visualisations'];
 const found = DIRS.flatMap(dir => fs.readdirSync(dir).filter(f => /^[a-z][\w-]*\.js$/.test(f) && !f.endsWith('.meta.js')).map(f => ({ name: f.slice(0, -3), dir })));
 const names = found.map(f => f.name).sort();
 const dirOf = n => found.find(f => f.name === n).dir;
@@ -317,7 +317,7 @@ ${EXTEND_DEMO}
   <div class="container mx-auto max-w-7xl stack gap-6">
     <header class="stack gap-2 max-w-3xl"><p class="label m-0 text-primary">Quick start</p><h2 id="h-start" class="text-3xl md:text-4xl font-bold tracking-tight m-0">Four ways in</h2></header>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">1 · Auto-loader <span class="badge tone-success">easiest</span></h3><p class="text-sm m-0">One tag. It looks for <code>efx-*</code> classes and fetches only those features' files (and the charts add-on only if a chart is on the page). Add <code>class="efx-confetti"</code> to a button and the confetti file loads by itself. With <code>&lt;html data-efx-observe&gt;</code> it also loads files for elements added later.</p>${code('q-cdn', install)}</div></div>
+      <div class="card"><div class="card-body stack"><h3 class="card-title m-0">1 · Auto-loader <span class="badge tone-success">easiest</span></h3><p class="text-sm m-0">One tag. It looks for <code>efx-*</code> classes and fetches only those features' small files; charts, diagrams and visualisations add one shared chart toolkit file the first time one appears. Add <code>class="efx-confetti"</code> to a button and the confetti file loads by itself. With <code>&lt;html data-efx-observe&gt;</code> it also loads files for elements added later.</p>${code('q-cdn', install)}</div></div>
       <div class="card"><div class="card-body stack"><h3 class="card-title m-0">2 · Pick files yourself</h3><p class="text-sm m-0">The core plus one tag per feature, from <code>dist/features/</code>. Tag order doesn't matter.</p>${code('q-pick', installPick)}</div></div>
       <div class="card"><div class="card-body stack"><h3 class="card-title m-0">3 · Everything bundled</h3><p class="text-sm m-0">All effects in one file, plus the optional charts add-on. Best when a site uses many features on every page.</p>${code('q-bundle', installBundle)}</div></div>
       <div class="card"><div class="card-body stack"><h3 class="card-title m-0">4 · npm / bundlers</h3><p class="text-sm m-0">Import the bundle, or only the features you use from the ES sources.</p>${code('q-esm', `npm i effix shine-css\n\nimport 'shine-css';\nimport 'effix/css';\nimport Effix from 'effix';            // all effects\n\n// or pick features:\nimport { define, init } from 'effix/core';\nimport reveal from 'effix/features/reveal';\nimport funnel from 'effix/charts/chart-funnel';\ndefine(reveal, funnel);\ninit();`)}</div></div>
