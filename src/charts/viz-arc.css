@@ -1,0 +1,4 @@
+/* viz-arc — hover states and label halo. */
+.efx-viz-arc:has(.is-active) .efx-viz__arc:not(.is-dim) { stroke-opacity: .85; }
+.efx-viz-arc .efx-viz__label { fill: var(--efx-chart-text, #64748b); font-size: 11px; paint-order: stroke; stroke: var(--sh-surface, #fff); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+.efx-viz-arc .efx-chart__plot .efx-chart__mark.is-dim { opacity: .3; }

@@ -1,0 +1,8 @@
+/* viz-network — links, labels, drag cursors. */
+.efx-viz-network .efx-chart__svg { cursor: grab; }
+.efx-viz-network .efx-chart__svg:active { cursor: grabbing; }
+.efx-viz__node { stroke: var(--sh-surface, #fff); stroke-width: 1.5; touch-action: none; }
+.efx-viz__link { stroke: var(--efx-chart-text, #64748b); stroke-opacity: .4; transition: stroke-opacity .2s; }
+.efx-viz__link.is-dim { stroke-opacity: .07; }
+.efx-viz__label { fill: var(--sh-text, #0f172a); font-size: 11px; pointer-events: none; paint-order: stroke; stroke: var(--sh-surface, #fff); stroke-width: 3px; stroke-linejoin: round; }
+.efx-viz-network .efx-chart__plot .efx-chart__mark.is-dim { opacity: .3; }
