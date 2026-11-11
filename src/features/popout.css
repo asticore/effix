@@ -1,0 +1,7 @@
+/* popout — background stays in the frame, the cut-out breaks out of it. Depth only applies while .is-popout (JS-added). */
+.efx-popout__bg{position:absolute;inset:0;border-radius:inherit;background:center/cover no-repeat;object-fit:cover}
+.efx-popout__fg{position:absolute;inset-inline:0;bottom:0;margin-inline:auto;width:100%;height:150%;max-width:none;object-fit:contain;object-position:bottom;background:center bottom/contain no-repeat;pointer-events:none;z-index:2}
+.efx-popout__clip{position:absolute;inset:0;border-radius:inherit;overflow:hidden;z-index:0}
+.is-popout{transform-style:preserve-3d;transform:perspective(900px) rotateX(calc(var(--efx-py,0)*var(--efx-tilt,0deg)*-1)) rotateY(calc(var(--efx-px,0)*var(--efx-tilt,0deg)));transition:transform .25s ease-out}
+.is-popout .efx-popout__clip>.efx-popout__bg{inset:calc(var(--efx-depth,20px)*-1);border-radius:0;translate:calc(var(--efx-px,0)*var(--efx-depth,20px)*-.4) calc((var(--efx-py,0) + var(--efx-sy,0)*-1)*var(--efx-depth,20px)*-.4);transition:translate .25s ease-out}
+.is-popout>.efx-popout__fg{translate:calc(var(--efx-px,0)*var(--efx-depth,20px)) calc((var(--efx-py,0) + var(--efx-sy,0)*-1.2)*var(--efx-depth,20px));transition:translate .25s ease-out}
