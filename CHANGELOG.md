@@ -12,7 +12,8 @@ Data widgets for the Engage builder (issues #1–#8). 119 features in total.
 - **`efx-steps`** — stepper with progress, validation hook, URL hash sync.
 - **`efx-lottie`** — lazy dotLottie player: the player library is fetched only when an element nears the viewport; autoplay, loop, visible / hover / click / scroll triggers, reduced-motion still frame.
 - **`efx-timeline`** — vertical, alternating and horizontal content timeline with icons and reveal on scroll.
-- Effects bundle budget raised to 66 KB JS / 16 KB CSS gzip to fit the new widgets.
+- The data widgets (table, rating, calendar, steps, timeline, lottie) ship as their own **`effix-ui`** add-on (`src/ui/`, `effix-ui.min.js` + `.css`, budget 24 KB JS / 8 KB CSS) so the effects bundle stays within 60 / 14 KB. The auto-loader is unchanged.
+- When Shine's optional widgets stylesheet (`shine-widgets.css`) is on the page, these widgets emit Shine's markup and ARIA hooks (`.dt`, `.stepper`/`.step`, `.timeline*`, `.calendar*`, `.rating`/`.rating-input`; `aria-sort`, `aria-selected`, `aria-current`) and leave the look to Shine; without it they use their own `efx-*` classes and CSS.
 
 ## v0.3.0
 

@@ -5,7 +5,7 @@ module.exports = {
   classes: [
     ['efx-steps', 'Container. Its direct children with .efx-step are the panels.'],
     ['efx-step', 'A panel. data-efx-title sets its label in the progress list.'],
-    ['efx-steps__list / __item / __btn / __num / __title', 'Injected progress list (item states: is-active, is-done; aria-current="step" on the active button).'],
+    ['efx-steps__list / __item / __btn / __num / __title', 'Injected progress list (item states: is-active, is-done; aria-current="step" on the active button). When Shine\'s widgets CSS is loaded it emits Shine\'s own markup instead: ol.stepper > li.step (.done, aria-current="step") > button.step-marker + span.step-label.'],
     ['efx-steps__bar', 'Injected progress bar, driven by --efx-steps-progress (0–1).'],
     ['efx-steps__nav / __back / __next', 'Injected button row.'],
   ],

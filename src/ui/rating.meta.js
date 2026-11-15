@@ -6,6 +6,7 @@ module.exports = {
     ['efx-rating', 'The rating. Plain text inside (e.g. 4.5) is used as the value without JS.'],
     ['efx-rating__star', 'Injected star; --efx-fill (0–1) says how much of it is filled.'],
     ['is-readonly', 'Set while read-only.'],
+    ['rating / rating-input / rating-half', 'With 5 stars and Shine\'s widgets CSS loaded, Shine\'s own markup is used: a read-only .rating with --sh-rating, or radio inputs and labels in .rating-input (with .rating-half for half stars). The change event still carries detail.value.'],
   ],
   options: [
     ['data-efx-value', '0', 'Current value (0 – count).'],

@@ -3,6 +3,9 @@
    <div class="efx-rating" data-efx-readonly="false" data-efx-half data-efx-name="score"></div>
    Fires `change` (detail.value) on user input; sets a hidden input when data-efx-name is given. */
 import { on, finePointer } from '../core.js';
+import { shineWidgets } from './_shine.js';
+
+let uid = 0;
 
 export default {
   name: 'rating',
@@ -14,6 +17,39 @@ export default {
     const clamp = v => Math.max(0, Math.min(count, Math.round(v / step) * step));
     let value = clamp(o.value >= 0 ? o.value : parseFloat(el.textContent) || 0), preview = null;
     const stars = [], offs = [];
+    if (shineWidgets() && count === 5) { // Shine's .rating (display) / .rating-input (radios) when its widgets CSS is loaded
+      const cls0 = el.getAttribute('class'), style0 = el.getAttribute('style');
+      el.textContent = '';
+      el.setAttribute('aria-label', o.label);
+      if (o.readonly) {
+        el.classList.add('rating', 'is-readonly');
+        el.style.setProperty('--sh-rating', value);
+        el.setAttribute('role', 'img'); el.setAttribute('aria-label', `${o.label}: ${value} of 5`);
+      } else {
+        const id = 'efx-rt' + ++uid, nm = o.name || id;
+        el.classList.add('rating-input'); if (o.half) el.classList.add('rating-half');
+        el.setAttribute('role', 'radiogroup');
+        for (let k = 1; k <= 5 / step; k++) {
+          const v = k * step, r = document.createElement('input'), l = document.createElement('label');
+          r.type = 'radio'; r.name = nm; r.id = `${id}-${k}`; r.value = v; r.checked = v === value;
+          l.htmlFor = r.id; l.textContent = v; l.title = `${v} of 5`;
+          el.append(r, l);
+        }
+        offs.push(on(el, 'change', e => {
+          if (e.target === el) return;
+          e.stopPropagation(); // re-announce as one change event carrying the value
+          value = parseFloat(e.target.value);
+          el.dispatchEvent(new CustomEvent('change', { bubbles: true, detail: { value } }));
+        }));
+      }
+      return () => {
+        offs.forEach(f => f());
+        el.innerHTML = saved;
+        cls0 === null ? el.removeAttribute('class') : el.setAttribute('class', cls0);
+        style0 === null ? el.removeAttribute('style') : el.setAttribute('style', style0);
+        attrs.forEach(([a, v]) => v === null ? el.removeAttribute(a) : el.setAttribute(a, v));
+      };
+    }
     const input = o.name ? Object.assign(document.createElement('input'), { type: 'hidden', name: o.name }) : null;
     el.textContent = '';
     for (let i = 0; i < count; i++) {
@@ -32,7 +68,7 @@ export default {
       if (input) input.value = v;
       if (fire && changed) el.dispatchEvent(new CustomEvent('change', { bubbles: true, detail: { value: v } }));
     };
-    el.classList.toggle('is-readonly', o.readonly);
+    el.classList.add('efx-rating--own'); el.classList.toggle('is-readonly', o.readonly);
     el.setAttribute('aria-label', o.label);
     if (o.readonly) {
       el.setAttribute('role', 'img'); el.setAttribute('aria-label', `${o.label}: ${text(value)}`); paint(value);
@@ -62,7 +98,7 @@ export default {
     }
     return () => {
       offs.forEach(f => f());
-      el.innerHTML = saved; el.classList.remove('is-readonly');
+      el.innerHTML = saved; el.classList.remove('is-readonly', 'efx-rating--own');
       attrs.forEach(([a, v]) => v === null ? el.removeAttribute(a) : el.setAttribute(a, v));
     };
   },

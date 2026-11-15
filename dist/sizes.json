@@ -3,19 +3,21 @@
   "core": 2937,
   "chartLib": 5798,
   "bundles": {
-    "effix.min.js": 64698,
-    "effix.min.css": 14219,
+    "effix.min.js": 55543,
+    "effix.min.css": 12067,
     "effix-charts.min.js": 33465,
     "effix-charts.min.css": 2600,
     "effix-diagrams.min.js": 19897,
     "effix-diagrams.min.css": 3945,
     "effix-viz.min.js": 21699,
     "effix-viz.min.css": 1719,
+    "effix-ui.min.js": 10805,
+    "effix-ui.min.css": 2858,
     "effix.core.min.js": 2986,
     "effix.core.min.css": 252,
-    "effix.auto.min.js": 5355,
-    "effix.all.min.js": 128078,
-    "effix.all.min.css": 19225
+    "effix.auto.min.js": 5370,
+    "effix.all.min.js": 128861,
+    "effix.all.min.css": 19168
   },
   "features": {
     "ambient": {
@@ -46,11 +48,6 @@
     "border": {
       "js": 518,
       "css": 1051,
-      "kind": "effect"
-    },
-    "calendar": {
-      "js": 2877,
-      "css": 812,
       "kind": "effect"
     },
     "carousel": {
@@ -183,11 +180,6 @@
       "css": 524,
       "kind": "effect"
     },
-    "lottie": {
-      "js": 907,
-      "css": 189,
-      "kind": "effect"
-    },
     "lyrics": {
       "js": 1533,
       "css": 540,
@@ -278,11 +270,6 @@
       "css": 283,
       "kind": "effect"
     },
-    "rating": {
-      "js": 941,
-      "css": 444,
-      "kind": "effect"
-    },
     "reel": {
       "js": 1587,
       "css": 1074,
@@ -358,19 +345,9 @@
       "css": 0,
       "kind": "effect"
     },
-    "steps": {
-      "js": 1596,
-      "css": 789,
-      "kind": "effect"
-    },
     "sticky": {
       "js": 398,
       "css": 284,
-      "kind": "effect"
-    },
-    "table": {
-      "js": 3223,
-      "css": 981,
       "kind": "effect"
     },
     "textfill": {
@@ -381,11 +358,6 @@
     "tilt": {
       "js": 689,
       "css": 307,
-      "kind": "effect"
-    },
-    "timeline": {
-      "js": 602,
-      "css": 1039,
       "kind": "effect"
     },
     "toast": {
@@ -416,6 +388,36 @@
     "zoom": {
       "js": 612,
       "css": 259,
+      "kind": "effect"
+    },
+    "calendar": {
+      "js": 3173,
+      "css": 815,
+      "kind": "effect"
+    },
+    "lottie": {
+      "js": 907,
+      "css": 189,
+      "kind": "effect"
+    },
+    "rating": {
+      "js": 1367,
+      "css": 448,
+      "kind": "effect"
+    },
+    "steps": {
+      "js": 1768,
+      "css": 789,
+      "kind": "effect"
+    },
+    "table": {
+      "js": 3554,
+      "css": 998,
+      "kind": "effect"
+    },
+    "timeline": {
+      "js": 818,
+      "css": 1018,
       "kind": "effect"
     },
     "chart-bar": {

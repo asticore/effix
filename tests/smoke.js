@@ -8,7 +8,7 @@ const path = require('path');
 const playwright = require('playwright');
 
 const root = path.join(__dirname, '..');
-const DIRS = ['features', 'charts'].map(d => path.join(root, 'src', d));
+const DIRS = ['features', 'ui', 'charts'].map(d => path.join(root, 'src', d));
 const page = path.join(root, 'dist', '_smoke.html');
 const found = DIRS.flatMap(dir => fs.readdirSync(dir).filter(f => /^[a-z][\w-]*\.js$/.test(f) && !f.endsWith('.meta.js')).map(f => ({ n: f.slice(0, -3), dir })));
 const names = found.map(f => f.n);

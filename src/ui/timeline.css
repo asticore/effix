@@ -1,11 +1,11 @@
 /* timeline — vertical by default; --alternate zig-zags; --horizontal scrolls sideways */
-.efx-timeline { --efx-tl-size: 2rem; --efx-tl-line: var(--sh-border, #d1d5db); list-style: none; margin: 0; padding: 0; position: relative; }
-.efx-timeline__item { position: relative; display: block; }
-.efx-timeline__marker { position: absolute; display: grid; place-items: center; width: var(--efx-tl-size); height: var(--efx-tl-size); border-radius: 50%; background: var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); color: var(--sh-on-tone, var(--sh-on-primary, #fff)); font-size: .9em; line-height: 1; box-shadow: 0 0 0 4px var(--sh-bg, #fff); z-index: 1; }
-.efx-timeline__marker.is-dot { width: .875rem; height: .875rem; }
-.efx-timeline__time { display: block; font-size: .8125em; color: var(--sh-text-muted, #6b7280); margin-bottom: .15rem; }
-.efx-timeline__body > :first-child { margin-top: 0; }
-.efx-timeline__body > :last-child { margin-bottom: 0; }
+.efx-timeline--own { --efx-tl-size: 2rem; --efx-tl-line: var(--sh-border, #d1d5db); list-style: none; margin: 0; padding: 0; position: relative; }
+.efx-timeline--own .efx-timeline__item { position: relative; display: block; }
+.efx-timeline--own .efx-timeline__marker { position: absolute; display: grid; place-items: center; width: var(--efx-tl-size); height: var(--efx-tl-size); border-radius: 50%; background: var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); color: var(--sh-on-tone, var(--sh-on-primary, #fff)); font-size: .9em; line-height: 1; box-shadow: 0 0 0 4px var(--sh-bg, #fff); z-index: 1; }
+.efx-timeline--own .efx-timeline__marker.is-dot { width: .875rem; height: .875rem; }
+.efx-timeline--own .efx-timeline__time { display: block; font-size: .8125em; color: var(--sh-text-muted, #6b7280); margin-bottom: .15rem; }
+.efx-timeline--own .efx-timeline__body > :first-child { margin-top: 0; }
+.efx-timeline--own .efx-timeline__body > :last-child { margin-bottom: 0; }
 
 /* vertical */
 .efx-timeline--vertical, .efx-timeline--alternate { --efx-timeline-progress: 0; }
@@ -13,7 +13,6 @@
 .efx-timeline--vertical .efx-timeline__item { padding: 0 0 1.75rem calc(var(--efx-tl-size) + 1rem); }
 .efx-timeline--vertical .efx-timeline__marker, .efx-timeline--alternate .efx-timeline__marker { left: 0; top: 0; }
 .efx-timeline--vertical .efx-timeline__marker.is-dot, .efx-timeline--alternate .efx-timeline__marker.is-dot { left: calc(var(--efx-tl-size) / 2 - .4375rem); top: .25rem; }
-.efx-timeline--on:not([data-efx-progress])::before { background: var(--efx-tl-line); }
 .efx-timeline--alternate .efx-timeline__item { padding: 0 0 1.75rem calc(var(--efx-tl-size) + 1rem); }
 @media (min-width: 720px) {
   .efx-timeline--alternate::before { left: 50%; margin-left: -1px; }

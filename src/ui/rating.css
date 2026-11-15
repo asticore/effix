@@ -1,0 +1,13 @@
+/* rating */
+.efx-rating--own { display: inline-flex; gap: .1em; font-size: 1.5rem; line-height: 1; vertical-align: middle; user-select: none; }
+.efx-rating--own:not(.is-readonly) { cursor: pointer; }
+.efx-rating--own:focus-visible { outline: 2px solid var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); outline-offset: 3px; border-radius: 4px; }
+.efx-rating__star {
+  --efx-fill: 0;
+  color: transparent;
+  background: linear-gradient(90deg, var(--efx-color, var(--sh-tone, var(--sh-warning, #f59e0b))) calc(var(--efx-fill) * 100%), var(--efx-rating-empty, var(--sh-border, #d1d5db)) calc(var(--efx-fill) * 100%));
+  -webkit-background-clip: text; background-clip: text;
+}
+.efx-rating--own:not(.is-readonly) .efx-rating__star { transition: transform .12s var(--efx-ease, ease-out); }
+.efx-rating--own:not(.is-readonly) .efx-rating__star:hover { transform: scale(1.12); }
+@media (prefers-reduced-motion: reduce) { .efx-rating__star { transition: none !important; transform: none !important; } }
