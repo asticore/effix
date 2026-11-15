@@ -1,0 +1,40 @@
+/* timeline — vertical by default; --alternate zig-zags; --horizontal scrolls sideways */
+.efx-timeline { --efx-tl-size: 2rem; --efx-tl-line: var(--sh-border, #d1d5db); list-style: none; margin: 0; padding: 0; position: relative; }
+.efx-timeline__item { position: relative; display: block; }
+.efx-timeline__marker { position: absolute; display: grid; place-items: center; width: var(--efx-tl-size); height: var(--efx-tl-size); border-radius: 50%; background: var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))); color: var(--sh-on-tone, var(--sh-on-primary, #fff)); font-size: .9em; line-height: 1; box-shadow: 0 0 0 4px var(--sh-bg, #fff); z-index: 1; }
+.efx-timeline__marker.is-dot { width: .875rem; height: .875rem; }
+.efx-timeline__time { display: block; font-size: .8125em; color: var(--sh-text-muted, #6b7280); margin-bottom: .15rem; }
+.efx-timeline__body > :first-child { margin-top: 0; }
+.efx-timeline__body > :last-child { margin-bottom: 0; }
+
+/* vertical */
+.efx-timeline--vertical, .efx-timeline--alternate { --efx-timeline-progress: 0; }
+.efx-timeline--vertical::before, .efx-timeline--alternate::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(var(--efx-tl-size) / 2 - 1px); width: 2px; background: linear-gradient(var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1))) calc(var(--efx-timeline-progress) * 100%), var(--efx-tl-line) 0); }
+.efx-timeline--vertical .efx-timeline__item { padding: 0 0 1.75rem calc(var(--efx-tl-size) + 1rem); }
+.efx-timeline--vertical .efx-timeline__marker, .efx-timeline--alternate .efx-timeline__marker { left: 0; top: 0; }
+.efx-timeline--vertical .efx-timeline__marker.is-dot, .efx-timeline--alternate .efx-timeline__marker.is-dot { left: calc(var(--efx-tl-size) / 2 - .4375rem); top: .25rem; }
+.efx-timeline--on:not([data-efx-progress])::before { background: var(--efx-tl-line); }
+.efx-timeline--alternate .efx-timeline__item { padding: 0 0 1.75rem calc(var(--efx-tl-size) + 1rem); }
+@media (min-width: 720px) {
+  .efx-timeline--alternate::before { left: 50%; margin-left: -1px; }
+  .efx-timeline--alternate .efx-timeline__item { width: 50%; padding: 0 calc(var(--efx-tl-size) / 2 + 1.5rem) 1.75rem 0; text-align: right; }
+  .efx-timeline--alternate .efx-timeline__item:nth-child(even) { margin-left: 50%; padding: 0 0 1.75rem calc(var(--efx-tl-size) / 2 + 1.5rem); text-align: left; }
+  .efx-timeline--alternate .efx-timeline__marker { left: auto; right: calc(var(--efx-tl-size) / -2); }
+  .efx-timeline--alternate .efx-timeline__item:nth-child(even) .efx-timeline__marker { right: auto; left: calc(var(--efx-tl-size) / -2); }
+  .efx-timeline--alternate .efx-timeline__marker.is-dot { right: -.4375rem; left: auto; }
+  .efx-timeline--alternate .efx-timeline__item:nth-child(even) .efx-timeline__marker.is-dot { left: -.4375rem; right: auto; }
+}
+
+/* horizontal */
+.efx-timeline--horizontal { display: flex; gap: 1.5rem; overflow-x: auto; scroll-snap-type: x proximity; padding: 0 0 .5rem; }
+.efx-timeline--horizontal::before { content: ""; position: absolute; left: 0; right: 0; top: calc(var(--efx-tl-size) / 2 - 1px); height: 2px; background: var(--efx-tl-line); min-width: 100%; }
+.efx-timeline--horizontal .efx-timeline__item { flex: 0 0 min(16rem, 80%); scroll-snap-align: start; padding-top: calc(var(--efx-tl-size) + .75rem); }
+.efx-timeline--horizontal .efx-timeline__marker { left: 0; top: 0; }
+.efx-timeline--horizontal .efx-timeline__marker.is-dot { top: calc(var(--efx-tl-size) / 2 - .4375rem); }
+
+/* reveal on scroll (only after JS has claimed the list and motion is allowed) */
+.efx-timeline--reveal .efx-timeline__item { transition: opacity .6s var(--efx-ease, cubic-bezier(.22,1,.36,1)), transform .6s var(--efx-ease, cubic-bezier(.22,1,.36,1)); transition-delay: calc(var(--i, 0) * 60ms); }
+.efx-timeline--reveal .efx-timeline__pending { opacity: 0; transform: translateY(var(--efx-distance, 24px)); }
+.efx-timeline--alternate.efx-timeline--reveal .efx-timeline__pending { transform: translateX(calc(var(--efx-distance, 24px) * -1)); }
+.efx-timeline--alternate.efx-timeline--reveal .efx-timeline__item:nth-child(even).efx-timeline__pending { transform: translateX(var(--efx-distance, 24px)); }
+@media (prefers-reduced-motion: reduce) { .efx-timeline--reveal .efx-timeline__item { transition: none; } .efx-timeline__pending { opacity: 1 !important; transform: none !important; } }

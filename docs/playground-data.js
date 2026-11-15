@@ -501,6 +501,42 @@ window.EFX_PLAYGROUND = {
    "example": "<div class=\"stack\">\n  <div style=\"position:sticky;top:1rem;z-index:2\"><a class=\"efx-chapter\" href=\"#\" data-efx-sections=\"#efx-chap-demo section\"></a></div>\n  <div id=\"efx-chap-demo\" class=\"stack\">\n    <section data-efx-title=\"Discover\" class=\"card p-6\" style=\"min-height:70vh\"><h3>Discover</h3></section>\n    <section data-efx-title=\"Build\" class=\"card p-6\" style=\"min-height:70vh\"><h3>Build</h3></section>\n    <section class=\"card p-6\" style=\"min-height:70vh\"><h3>Ship</h3></section>\n  </div>\n</div>"
   },
   {
+   "name": "timeline",
+   "title": "Content timeline",
+   "group": "Scroll",
+   "kind": "effect",
+   "classes": [
+    "efx-timeline"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-layout",
+     "def": "vertical",
+     "desc": "vertical · alternate (zig-zag from 720px up) · horizontal (scrolls sideways).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-reveal",
+     "def": "true",
+     "desc": "Items fade in as they enter the viewport (skipped for reduced motion).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-progress",
+     "def": "false",
+     "desc": "Vertical line fills with scroll progress (--efx-timeline-progress).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-threshold",
+     "def": "0.2",
+     "desc": "How much of an item must show (0–1) before it reveals.",
+     "type": "number"
+    }
+   ],
+   "example": "<ol class=\"efx-timeline\" data-efx-layout=\"alternate\" data-efx-progress>\n  <li class=\"efx-timeline__item\" data-efx-icon=\"★\"><time class=\"efx-timeline__time\">2023</time><div class=\"efx-timeline__body\"><h4>Founded</h4><p>Two people and an idea.</p></div></li>\n  <li class=\"efx-timeline__item\" data-efx-icon=\"⚑\"><time class=\"efx-timeline__time\">2024</time><div class=\"efx-timeline__body\"><h4>First release</h4><p>Version 1 ships.</p></div></li>\n  <li class=\"efx-timeline__item\"><time class=\"efx-timeline__time\">2025</time><div class=\"efx-timeline__body\"><h4>Growth</h4><p>Ten thousand users.</p></div></li>\n</ol>"
+  },
+  {
    "name": "counter",
    "title": "Counter",
    "group": "Scroll",
@@ -3243,6 +3279,18 @@ window.EFX_PLAYGROUND = {
      "type": "text"
     },
     {
+     "attr": "data-efx-csv",
+     "def": "",
+     "desc": "CSV text or URL (.csv): header row = series names, first column = labels. Or an inline .",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-live",
+     "def": "",
+     "desc": "Name of a live source registered with Effix.chartSource(name, (push, el) => push({ labels, series })).",
+     "type": "text"
+    },
+    {
      "attr": "data-efx-horizontal",
      "def": "false",
      "desc": "Horizontal bars.",
@@ -3753,6 +3801,12 @@ window.EFX_PLAYGROUND = {
      "type": "bool"
     },
     {
+     "attr": "data-efx-stacked",
+     "def": "false",
+     "desc": "Stack the bar series (per axis); lines stay on top.",
+     "type": "bool"
+    },
+    {
      "attr": "data-efx-area",
      "def": "false",
      "desc": "Gradient fill under the lines.",
@@ -4233,6 +4287,18 @@ window.EFX_PLAYGROUND = {
      "type": "text"
     },
     {
+     "attr": "data-efx-csv",
+     "def": "",
+     "desc": "CSV text or URL (.csv): header row = series names, first column = labels. Or an inline .",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-live",
+     "def": "",
+     "desc": "Name of a live source registered with Effix.chartSource(name, (push, el) => push({ labels, series })).",
+     "type": "text"
+    },
+    {
      "attr": "data-efx-calendar",
      "def": "false",
      "desc": "Calendar mode: weeks as columns, 7 rows, month and weekday labels.",
@@ -4458,6 +4524,18 @@ window.EFX_PLAYGROUND = {
      "attr": "data-efx-source",
      "def": "",
      "desc": "CSS selector of a Shine table to read (first column = labels).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-csv",
+     "def": "",
+     "desc": "CSV text or URL (.csv): header row = series names, first column = labels. Or an inline .",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-live",
+     "def": "",
+     "desc": "Name of a live source registered with Effix.chartSource(name, (push, el) => push({ labels, series })).",
      "type": "text"
     },
     {
@@ -4704,6 +4782,114 @@ window.EFX_PLAYGROUND = {
    "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">Traffic sources</h3>\n  <div class=\"efx-chart-pie\" data-efx-data=\"4200,2800,1900,900\" data-efx-labels=\"Organic|Direct|Referral|Social\" data-efx-center=\"{total} visits\"></div>\n</div>"
   },
   {
+   "name": "chart-polar",
+   "title": "Polar area chart",
+   "group": "Charts",
+   "kind": "chart",
+   "classes": [
+    "efx-chart-polar"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "\"12,19,7,15,9\" · JSON.",
+     "type": "json"
+    },
+    {
+     "attr": "data-efx-labels",
+     "def": "",
+     "desc": "Sector names: \"A|B|C|D|E\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-levels",
+     "def": "4",
+     "desc": "Grid rings.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-max",
+     "def": "auto",
+     "desc": "Value at the outer ring.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-pad",
+     "def": "0.02",
+     "desc": "Angular gap between sectors (radians).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-csv",
+     "def": "",
+     "desc": "CSV text or URL: first column labels, second column values.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-live",
+     "def": "",
+     "desc": "Live source name (see Effix.chartSource).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "320",
+     "desc": "Chart height in px.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-colors",
+     "def": "Shine tones",
+     "desc": "Colors \"#f43f5e|#8b5cf6\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-prefix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-suffix",
+     "def": "",
+     "desc": "Value formatting.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-compact",
+     "def": "false",
+     "desc": "12.3k style numbers.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-tooltip",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-animate",
+     "def": "true",
+     "desc": "Turn parts off.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-background",
+     "def": "false",
+     "desc": "Decorative: fills the element behind its content.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-title",
+     "def": "",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\"><h3 class=\"m-0 mb-3\">Visits by channel</h3>\n  <div class=\"efx-chart-polar\" data-efx-data=\"42,28,19,12,31\" data-efx-labels=\"Search|Social|Email|Ads|Direct\"></div></div>"
+  },
+  {
    "name": "chart-progress",
    "title": "Progress bars",
    "group": "Charts",
@@ -4728,6 +4914,18 @@ window.EFX_PLAYGROUND = {
      "attr": "data-efx-source",
      "def": "",
      "desc": "CSS selector of a Shine table (column 1 = labels, 2 = values, 3 = targets).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-csv",
+     "def": "",
+     "desc": "CSV text or URL (.csv): header row = series names, first column = labels. Or an inline .",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-live",
+     "def": "",
+     "desc": "Name of a live source registered with Effix.chartSource(name, (push, el) => push({ labels, series })).",
      "type": "text"
     },
     {
@@ -5370,6 +5568,18 @@ window.EFX_PLAYGROUND = {
      "attr": "data-efx-source",
      "def": "",
      "desc": "CSS selector of a Shine table to read.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-csv",
+     "def": "",
+     "desc": "CSV text or URL (.csv): header row = series names, first column = labels. Or an inline .",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-live",
+     "def": "",
+     "desc": "Name of a live source registered with Effix.chartSource(name, (push, el) => push({ labels, series })).",
      "type": "text"
     },
     {
@@ -7162,6 +7372,355 @@ window.EFX_PLAYGROUND = {
     }
    ],
    "example": "<div class=\"card p-6\">\n  <h3 class=\"m-0 mb-3\">What people talk about</h3>\n  <div class=\"efx-viz-wordcloud\" data-efx-rotate=\"0|90\" data-efx-data=\"[{&quot;text&quot;:&quot;design&quot;,&quot;value&quot;:46},{&quot;text&quot;:&quot;motion&quot;,&quot;value&quot;:38},{&quot;text&quot;:&quot;speed&quot;,&quot;value&quot;:31},{&quot;text&quot;:&quot;tiny&quot;,&quot;value&quot;:27},{&quot;text&quot;:&quot;charts&quot;,&quot;value&quot;:24},{&quot;text&quot;:&quot;accessible&quot;,&quot;value&quot;:20},{&quot;text&quot;:&quot;keyboard&quot;,&quot;value&quot;:17},{&quot;text&quot;:&quot;theme&quot;,&quot;value&quot;:15},{&quot;text&quot;:&quot;css&quot;,&quot;value&quot;:14},{&quot;text&quot;:&quot;shine&quot;,&quot;value&quot;:13},{&quot;text&quot;:&quot;svg&quot;,&quot;value&quot;:11},{&quot;text&quot;:&quot;zero-dependency&quot;,&quot;value&quot;:9},{&quot;text&quot;:&quot;tooltip&quot;,&quot;value&quot;:8},{&quot;text&quot;:&quot;legend&quot;,&quot;value&quot;:7},{&quot;text&quot;:&quot;dark&quot;,&quot;value&quot;:7},{&quot;text&quot;:&quot;resize&quot;,&quot;value&quot;:6},{&quot;text&quot;:&quot;lazy&quot;,&quot;value&quot;:5}]\"></div>\n</div>"
+  },
+  {
+   "name": "calendar",
+   "title": "Calendar & date picker",
+   "group": "Data",
+   "kind": "effect",
+   "classes": [
+    "efx-calendar"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-events",
+     "def": "",
+     "desc": "JSON array [{ date, end?, title, color? }], or a URL to an .ics / .json file. An inline  child also works.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-picker",
+     "def": "true",
+     "desc": "false = view-only (days are not selectable).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-range",
+     "def": "false",
+     "desc": "Pick a start and end date instead of one date.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-value",
+     "def": "",
+     "desc": "\"2026-11-20\" or \"2026-11-20/2026-11-25\".",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-month",
+     "def": "",
+     "desc": "Month to show first, \"2026-11\" (default: value or today).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-first-day",
+     "def": "0",
+     "desc": "First day of the week: 0 = Sunday, 1 = Monday…",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-locale",
+     "def": "",
+     "desc": "BCP 47 locale for month and weekday names (default: the browser).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-min",
+     "def": "",
+     "desc": "Earliest / latest selectable date (YYYY-MM-DD).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-max",
+     "def": "",
+     "desc": "Earliest / latest selectable date (YYYY-MM-DD).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-name",
+     "def": "",
+     "desc": "Writes the picked date (or \"start/end\") to a hidden input for forms.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-label",
+     "def": "Calendar",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"card p-6\"><div class=\"efx-calendar\" data-efx-first-day=\"1\" data-efx-month=\"2026-11\" data-efx-events='[{\"date\":\"2026-11-12\",\"title\":\"Team offsite\",\"end\":\"2026-11-13\"},{\"date\":\"2026-11-20\",\"title\":\"Launch\",\"color\":\"#ef4444\"}]'></div></div>"
+  },
+  {
+   "name": "table",
+   "title": "Data table",
+   "group": "Data",
+   "kind": "effect",
+   "classes": [
+    "efx-table"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-sort",
+     "def": "true",
+     "desc": "Click a header to sort (numbers, then text, natural order). Cells may set data-efx-value for the sort key.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-search",
+     "def": "false",
+     "desc": "Search box above the table.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-filters",
+     "def": "false",
+     "desc": "A filter box under each header.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-page-size",
+     "def": "0",
+     "desc": "Rows per page (0 = no paging).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-sticky",
+     "def": "false",
+     "desc": "Sticky header (to the page scroll).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-height",
+     "def": "",
+     "desc": "Scroll the body inside this height (px or any CSS length); header stays sticky.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-columns",
+     "def": "false",
+     "desc": "Column visibility menu.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-select",
+     "def": "false",
+     "desc": "Row checkboxes with select all; fires a change event.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-stack",
+     "def": "false",
+     "desc": "Stack cells as label/value pairs under 640px.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-csv",
+     "def": "false",
+     "desc": "Download CSV button (filtered rows, visible columns; selected rows if any).",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-filename",
+     "def": "table",
+     "desc": "CSV file name (no extension).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-empty",
+     "def": "No results",
+     "desc": "Text for the empty state.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-placeholder",
+     "def": "Search…",
+     "desc": "Search box placeholder.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-data",
+     "def": "",
+     "desc": "Replace the rows: JSON array of objects or arrays, a CSV string, or a URL (.json / .csv).",
+     "type": "json"
+    }
+   ],
+   "example": "<table class=\"table table-hover efx-table\" data-efx-search data-efx-filters data-efx-page-size=\"3\" data-efx-select data-efx-columns data-efx-csv data-efx-filename=\"plans\">\n  <thead><tr><th>Plan</th><th>Seats</th><th>Price</th></tr></thead>\n  <tbody>\n    <tr><td>Starter</td><td>3</td><td>$9</td></tr>\n    <tr><td>Team</td><td>10</td><td>$49</td></tr>\n    <tr><td>Business</td><td>50</td><td>$199</td></tr>\n    <tr><td>Enterprise</td><td>500</td><td>$999</td></tr>\n    <tr><td>Hobby</td><td>1</td><td>$0</td></tr>\n  </tbody>\n</table>"
+  },
+  {
+   "name": "lottie",
+   "title": "Lottie player",
+   "group": "Media",
+   "kind": "effect",
+   "classes": [
+    "efx-lottie"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-src",
+     "def": "",
+     "desc": ".lottie (dotLottie) or .json animation URL. Required.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-trigger",
+     "def": "auto",
+     "desc": "auto · visible (play in view, pause out) · hover · click · scroll (scrub with scroll position).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-autoplay",
+     "def": "true",
+     "desc": "With trigger=auto: false shows a still frame.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-loop",
+     "def": "true",
+     "desc": "Loop the animation.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-speed",
+     "def": "1",
+     "desc": "Playback speed.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-still",
+     "def": "0",
+     "desc": "Which frame (0–1 through the animation) to show when not playing / reduced motion.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-label",
+     "def": "",
+     "desc": "Accessible name. Empty = decorative (aria-hidden).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-lib",
+     "def": "jsDelivr @lottiefiles/dotlottie-web",
+     "desc": "ES module URL exporting DotLottie (self-host it for privacy / offline).",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"efx-lottie\" data-efx-src=\"https://lottie.host/embed/placeholder.lottie\" data-efx-trigger=\"visible\" data-efx-label=\"Animation\" style=\"width:200px\"><p class=\"m-0 text-sm\">Animation placeholder</p></div>"
+  },
+  {
+   "name": "rating",
+   "title": "Star rating",
+   "group": "Data",
+   "kind": "effect",
+   "classes": [
+    "efx-rating"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-value",
+     "def": "0",
+     "desc": "Current value (0 – count).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-count",
+     "def": "5",
+     "desc": "Number of stars.",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-half",
+     "def": "false",
+     "desc": "Allow half stars.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-readonly",
+     "def": "true",
+     "desc": "false = user can click / use arrow keys, Home, End.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-name",
+     "def": "",
+     "desc": "Writes the value to a hidden input with this name (for forms).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-label",
+     "def": "Rating",
+     "desc": "Accessible name.",
+     "type": "text"
+    }
+   ],
+   "example": "<div class=\"stack gap-3\"><div class=\"efx-rating\" data-efx-value=\"3.5\" data-efx-half data-efx-label=\"Average rating\"></div>\n<div class=\"efx-rating\" data-efx-readonly=\"false\" data-efx-half data-efx-value=\"2\" data-efx-name=\"score\"></div></div>"
+  },
+  {
+   "name": "steps",
+   "title": "Stepper (multi-step)",
+   "group": "Data",
+   "kind": "effect",
+   "classes": [
+    "efx-steps",
+    "efx-step"
+   ],
+   "options": [
+    {
+     "attr": "data-efx-start",
+     "def": "0",
+     "desc": "Step to open first (0-based).",
+     "type": "number"
+    },
+    {
+     "attr": "data-efx-hash",
+     "def": "false",
+     "desc": "Sync the step with the URL hash as #= (id = the container id, else \"step\").",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-linear",
+     "def": "true",
+     "desc": "Progress list buttons only go back or to steps already reached.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-native",
+     "def": "true",
+     "desc": "Check native form validity of the step's fields before moving forward.",
+     "type": "bool"
+    },
+    {
+     "attr": "data-efx-validate",
+     "def": "",
+     "desc": "Name of a validator: Effix.add(\"step-validate\", name, (panel, index) => boolean).",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-back",
+     "def": "Back / Next / Finish",
+     "desc": "Button labels.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-next",
+     "def": "Back / Next / Finish",
+     "desc": "Button labels.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-finish",
+     "def": "Back / Next / Finish",
+     "desc": "Button labels.",
+     "type": "text"
+    },
+    {
+     "attr": "data-efx-label",
+     "def": "Progress",
+     "desc": "Accessible name of the progress list.",
+     "type": "text"
+    }
+   ],
+   "example": "<form class=\"efx-steps card p-6\" onsubmit=\"return false\">\n  <section class=\"efx-step\" data-efx-title=\"Account\"><label class=\"field\">Email <input class=\"input\" type=\"email\" required></label></section>\n  <section class=\"efx-step\" data-efx-title=\"Plan\"><label class=\"field\">Plan <select class=\"select\"><option>Starter</option><option>Team</option></select></label></section>\n  <section class=\"efx-step\" data-efx-title=\"Confirm\"><p class=\"m-0\">All set. Press Finish.</p></section>\n</form>"
   }
  ]
 };

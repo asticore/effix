@@ -28,6 +28,7 @@
 
   // effix-host:effix-core
   var get = (...a) => window.Effix.get(...a);
+  var parseCSV = (...a) => window.Effix.parseCSV(...a);
   var motionOK = (...a) => window.Effix.motionOK(...a);
   var cssVar = (...a) => window.Effix.cssVar(...a);
   var on = (...a) => window.Effix.on(...a);
@@ -63,6 +64,10 @@
     // 12.3k
     format: "",
     // name of a registered formatter: Effix.add('format', 'gbp', v => '£' + v.toFixed(2))
+    csv: "",
+    // CSV text or URL: header row = names, first column = labels (or inline <script type="text/csv">)
+    live: "",
+    // name of a source registered with Effix.chartSource(name, (push, el) => …)
     title: ""
     // accessible name (falls back to aria-label / first heading)
   };
@@ -70,6 +75,14 @@
     const n = parseFloat(String(v).replace(/[^\d.eE+-]/g, ""));
     return Number.isFinite(n) ? n : 0;
   };
+  function fromCSV(text) {
+    const rows = parseCSV(text);
+    if (!rows.length) return null;
+    const head = rows[0].slice(1).some((c) => c.trim() !== "" && Number.isNaN(parseFloat(c)));
+    const body = head ? rows.slice(1) : rows, names = head ? rows[0].slice(1) : [];
+    return { labels: body.map((r) => r[0]), series: Array.from({ length: Math.max(0, Math.max(...rows.map((r) => r.length)) - 1) }, (_, i) => ({ name: names[i] || `Series ${i + 1}`, values: body.map((r) => num(r[i + 1])) })) };
+  }
+  var isUrl = (t) => !/[\n,]/.test(t) && /^(https?:\/\/|\/|\.\.?\/)\S+|\.csv(\?\S*)?$/i.test(t.trim());
   function fromTable(table) {
     const head = [...table.querySelectorAll("thead th")].map((th) => th.textContent.trim());
     const rows = [...table.querySelectorAll("tbody tr")].map((tr) => [...tr.children].map((td) => td.textContent.trim()));
@@ -87,6 +100,9 @@
         const t = document.querySelector(o.source);
         if (t) out = fromTable(t);
       }
+      if (!out && o.csv && !isUrl(o.csv)) out = fromCSV(o.csv);
+      const csvTag = el.querySelector(':scope > script[type="text/csv"]');
+      if (!out && csvTag) out = fromCSV(csvTag.textContent);
       if (!out && o.data) {
         const raw = String(o.data).trim();
         if (raw[0] === "[" || raw[0] === "{") out = JSON.parse(raw);
@@ -389,6 +405,23 @@
     });
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
     if (ro) ro.observe(el);
+    const feed = (d) => el.dispatchEvent(new CustomEvent("efx:data", { detail: d }));
+    let gone = false;
+    if (o.csv && isUrl(o.csv)) fetch(o.csv).then((r) => r.text()).then((t) => {
+      const d = !gone && fromCSV(t);
+      if (d) feed(d);
+    }).catch((e) => console.warn("[effix] chart csv", e));
+    const src = o.live && get("chart-source", o.live);
+    if (typeof src === "function") {
+      try {
+        const c = src((d) => {
+          if (!gone) feed(d);
+        }, el);
+        if (typeof c === "function") offs.push(c);
+      } catch (e) {
+        console.warn("[effix] chart source", e);
+      }
+    }
     renderLegend();
     render(false);
     let stopVis = () => {
@@ -400,6 +433,7 @@
       stopVis();
     }, "0px", [0, 0.01, 0.05, 0.1, 0.25]);
     return () => {
+      gone = true;
       offs.forEach((f) => f());
       stopVis();
       onResize.cancel();
@@ -848,7 +882,7 @@
     name: "chart-combo",
     selector: ".efx-chart-combo",
     lazy: true,
-    defaults: { ...COMMON, types: [], axes: [], smooth: true, dots: true, area: false, grid: true, radius: 4, prefix2: "", suffix2: "" },
+    defaults: { ...COMMON, types: [], axes: [], smooth: true, dots: true, area: false, stacked: false, grid: true, radius: 4, prefix2: "", suffix2: "" },
     init(el, o) {
       let meta = [];
       try {
@@ -876,7 +910,11 @@
         const sc = [0, 1].map((a) => {
           const rr = rows.filter((r) => r.a === a);
           if (!rr.length) return null;
-          const vals = rr.flatMap((r) => r.sr.values.map((v) => v || 0)).concat(rr.some((r) => r.k === "bar") ? 0 : []);
+          let vals = rr.flatMap((r) => r.sr.values.map((v) => v || 0)).concat(rr.some((r) => r.k === "bar") ? 0 : []);
+          if (o.stacked) {
+            const bs = rr.filter((r) => r.k === "bar");
+            vals = rr.filter((r) => r.k === "line").flatMap((r) => r.sr.values.map((v) => v || 0)).concat(0, ...data.labels.flatMap((_, i) => [bs.reduce((t, r) => t + Math.max(0, r.sr.values[i] || 0), 0), bs.reduce((t, r) => t + Math.min(0, r.sr.values[i] || 0), 0)]));
+          }
           const nc = nice(Math.min(...vals), Math.max(...vals), cnt);
           return { ...nc, f: linear([nc.min, nc.max], [h - pad.b, pad.t]) };
         });
@@ -893,13 +931,20 @@
             });
           }
         }
-        const bars = rows.filter((r) => r.k === "bar"), bw = b.bw / Math.max(1, bars.length);
+        const bars = rows.filter((r) => r.k === "bar"), st = o.stacked, bw = st ? b.bw : b.bw / Math.max(1, bars.length);
+        const acc = [0, 1].map(() => data.labels.map(() => [0, 0]));
         bars.forEach((r, k) => {
           const f = Y(r), z = f(0);
           r.sr.values.forEach((v, i) => {
             if (i >= n) return;
-            const y1 = f(v || 0), thick = Math.max(1, bw - (bars.length > 1 ? 2 : 0));
-            s("rect", { x: b.x(i) + k * bw, y: Math.min(z, y1), width: thick, height: Math.abs(y1 - z), rx: Math.min(o.radius, thick / 2), fill: r.c, class: "efx-chart__grow", style: `--i:${i}` }, g);
+            const y1 = f(v || 0), thick = Math.max(1, bw - (!st && bars.length > 1 ? 2 : 0));
+            let y = Math.min(z, y1), hh = Math.abs(y1 - z);
+            if (st) {
+              const t = acc[r.a][i], j = (v || 0) < 0 ? 1 : 0;
+              y = j ? f(t[1]) : f(t[0] + (v || 0));
+              t[j] += v || 0;
+            }
+            s("rect", { x: b.x(i) + (st ? 0 : k * bw), y, width: thick, height: hh, rx: st ? 0 : Math.min(o.radius, thick / 2), fill: r.c, class: "efx-chart__grow", style: `--i:${i}` }, g);
           });
         });
         const base = h - pad.b;
@@ -1698,6 +1743,62 @@
     }
   };
 
+  // src/charts/chart-polar.js
+  var TAU3 = Math.PI * 2;
+  var chart_polar_default = {
+    name: "chart-polar",
+    selector: ".efx-chart-polar",
+    lazy: true,
+    defaults: { ...COMMON, height: 320, levels: 4, pad: 0.02, max: "" },
+    init(el, o) {
+      const draw = ({ g, w, h, data, hidden, fmt, deco }) => {
+        const vals = data.series[0] ? data.series[0].values : [];
+        const idx = data.labels.map((_, i) => i).filter((i) => !hidden.has(i));
+        if (!idx.length) return [];
+        const top = Math.max(0, ...idx.map((i) => vals[i] || 0)), fixed = parseFloat(o.max) > 0;
+        const nt = nice(0, top || 1, o.levels), mx = fixed ? parseFloat(o.max) : nt.max;
+        const R = deco ? Math.min(w, h) / 2 : Math.max(20, Math.min(w, h) / 2 - 14), cx = w / 2, cy = h / 2;
+        const pal = palette(el, o, data.labels.length), span = TAU3 / idx.length, gap2 = Math.min(o.pad, span / 2);
+        if (!deco) {
+          const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+          const lv = fixed ? Math.max(1, o.levels) : nt.ticks.length - 1;
+          for (let j = 1; j <= lv; j++) {
+            const r = R * j / lv;
+            s("circle", { cx, cy, r, class: "efx-chart__grid", fill: "none" }, ax);
+            s("text", { x: cx + 3, y: cy - r + 9, class: "efx-polar-tick" }, ax).textContent = fmt(mx * j / lv);
+          }
+        }
+        const marks = [];
+        idx.forEach((i, k) => {
+          const a0 = k * span, a1 = a0 + span, v = Math.max(0, vals[i] || 0), r = R * Math.min(1, v / mx), m = (a0 + a1) / 2;
+          const [dx, dy] = pt(0, 0, 6, m);
+          const node = s("path", { d: arcPath(cx, cy, 0, Math.max(0.5, r), a0 + gap2 / 2, a1 - gap2 / 2), fill: pal[i], "fill-opacity": 0.85, class: "efx-chart__mark efx-polar-arc", style: `--i:${k};--dx:${dx}px;--dy:${dy}px;transform-origin:${cx}px ${cy}px` }, g);
+          const [mx2, my2] = pt(cx, cy, r * 0.7, m);
+          marks.push({
+            x: mx2,
+            y: my2,
+            label: data.labels[i],
+            value: vals[i] || 0,
+            node,
+            index: i,
+            group: k,
+            html: `<strong>${esc(data.labels[i])}</strong><b>${esc(fmt(vals[i] || 0))}</b>`,
+            hit: (px, py) => {
+              const d = Math.hypot(px - cx, py - cy);
+              if (d > r + 6) return false;
+              const an = (Math.atan2(px - cx, cy - py) % TAU3 + TAU3) % TAU3;
+              return an >= a0 && an <= a1;
+            }
+          });
+        });
+        return marks;
+      };
+      draw.legendByLabel = true;
+      draw.radius = 1;
+      return chart(el, o, draw);
+    }
+  };
+
   // src/charts/chart-progress.js
   var GAP = 12;
   var chart_progress_default = {
@@ -1949,7 +2050,7 @@
   };
 
   // src/charts/chart-radar.js
-  var TAU3 = Math.PI * 2;
+  var TAU4 = Math.PI * 2;
   var chart_radar_default = {
     name: "chart-radar",
     selector: ".efx-chart-radar",
@@ -1963,7 +2064,7 @@
         const nt = nice(0, top || 1, o.levels), fixed = Number.isFinite(parseFloat(o.max)) && parseFloat(o.max) > 0, lv = fixed ? Math.max(1, o.levels) : nt.ticks.length - 1, mx = fixed ? parseFloat(o.max) : nt.max;
         const long = Math.max(...data.labels.map((l) => l.length));
         const R = deco ? Math.min(w, h) / 2 - 2 : Math.max(20, Math.min(w / 2 - Math.min(w * 0.3, long * 6.2 + 16), h / 2 - 24));
-        const cx = w / 2, cy = h / 2, ang = (k) => k * TAU3 / n;
+        const cx = w / 2, cy = h / 2, ang = (k) => k * TAU4 / n;
         const pt2 = (k, r) => [cx + r * Math.sin(ang(k)), cy - r * Math.cos(ang(k))];
         const poly = (r) => "M" + data.labels.map((_, k) => pt2(k, r).join(",")).join("L") + "Z";
         const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
@@ -2149,7 +2250,7 @@
   };
 
   // src/charts/chart-sunburst.js
-  var TAU4 = Math.PI * 2;
+  var TAU5 = Math.PI * 2;
   var build = (raw) => {
     const all = [];
     const mk = (d, parent, depth, br) => {
@@ -2208,7 +2309,7 @@
             a = b;
           });
         };
-        walk(focus, 0, TAU4, 1);
+        walk(focus, 0, TAU5, 1);
         const trail = (n) => {
           const p = [];
           for (; n && n !== focus; n = n.parent) p.unshift(n.name);
@@ -2244,7 +2345,7 @@
             hit: (px, py) => {
               const q = Math.hypot(px - cx, py - cy);
               let a = Math.atan2(px - cx, cy - py);
-              if (a < 0) a += TAU4;
+              if (a < 0) a += TAU5;
               return q >= r0 && q < r1 && a >= a0 && a < a1;
             }
           });
@@ -2722,7 +2823,7 @@
   };
 
   // src/effix-entry.js
-  var defs = [chart_bar_default, chart_box_default, chart_bullet_default, chart_candle_default, chart_combo_default, chart_flow_default, chart_funnel_default, chart_gauge_default, chart_heatmap_default, chart_histogram_default, chart_line_default, chart_pie_default, chart_progress_default, chart_pyramid_default, chart_quadrant_default, chart_radar_default, chart_scatter_default, chart_spark_default, chart_sunburst_default, chart_timeline_default, chart_treemap_default, chart_venn_default, chart_waterfall_default];
+  var defs = [chart_bar_default, chart_box_default, chart_bullet_default, chart_candle_default, chart_combo_default, chart_flow_default, chart_funnel_default, chart_gauge_default, chart_heatmap_default, chart_histogram_default, chart_line_default, chart_pie_default, chart_polar_default, chart_progress_default, chart_pyramid_default, chart_quadrant_default, chart_radar_default, chart_scatter_default, chart_spark_default, chart_sunburst_default, chart_timeline_default, chart_treemap_default, chart_venn_default, chart_waterfall_default];
   if (window.Effix) window.Effix.charts = lib_exports;
   else window.EffixChartKit = lib_exports;
   if (window.Effix) window.Effix.define(defs);

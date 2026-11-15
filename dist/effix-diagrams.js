@@ -28,6 +28,7 @@
 
   // effix-host:effix-core
   var get = (...a) => window.Effix.get(...a);
+  var parseCSV = (...a) => window.Effix.parseCSV(...a);
   var motionOK = (...a) => window.Effix.motionOK(...a);
   var on = (...a) => window.Effix.on(...a);
   var rafThrottle = (...a) => window.Effix.rafThrottle(...a);
@@ -62,6 +63,10 @@
     // 12.3k
     format: "",
     // name of a registered formatter: Effix.add('format', 'gbp', v => '£' + v.toFixed(2))
+    csv: "",
+    // CSV text or URL: header row = names, first column = labels (or inline <script type="text/csv">)
+    live: "",
+    // name of a source registered with Effix.chartSource(name, (push, el) => …)
     title: ""
     // accessible name (falls back to aria-label / first heading)
   };
@@ -69,6 +74,14 @@
     const n = parseFloat(String(v).replace(/[^\d.eE+-]/g, ""));
     return Number.isFinite(n) ? n : 0;
   };
+  function fromCSV(text) {
+    const rows = parseCSV(text);
+    if (!rows.length) return null;
+    const head = rows[0].slice(1).some((c) => c.trim() !== "" && Number.isNaN(parseFloat(c)));
+    const body = head ? rows.slice(1) : rows, names = head ? rows[0].slice(1) : [];
+    return { labels: body.map((r) => r[0]), series: Array.from({ length: Math.max(0, Math.max(...rows.map((r) => r.length)) - 1) }, (_, i) => ({ name: names[i] || `Series ${i + 1}`, values: body.map((r) => num(r[i + 1])) })) };
+  }
+  var isUrl = (t) => !/[\n,]/.test(t) && /^(https?:\/\/|\/|\.\.?\/)\S+|\.csv(\?\S*)?$/i.test(t.trim());
   function fromTable(table) {
     const head = [...table.querySelectorAll("thead th")].map((th) => th.textContent.trim());
     const rows = [...table.querySelectorAll("tbody tr")].map((tr) => [...tr.children].map((td) => td.textContent.trim()));
@@ -86,6 +99,9 @@
         const t = document.querySelector(o.source);
         if (t) out = fromTable(t);
       }
+      if (!out && o.csv && !isUrl(o.csv)) out = fromCSV(o.csv);
+      const csvTag = el.querySelector(':scope > script[type="text/csv"]');
+      if (!out && csvTag) out = fromCSV(csvTag.textContent);
       if (!out && o.data) {
         const raw = String(o.data).trim();
         if (raw[0] === "[" || raw[0] === "{") out = JSON.parse(raw);
@@ -388,6 +404,23 @@
     });
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
     if (ro) ro.observe(el);
+    const feed = (d) => el.dispatchEvent(new CustomEvent("efx:data", { detail: d }));
+    let gone = false;
+    if (o.csv && isUrl(o.csv)) fetch(o.csv).then((r) => r.text()).then((t) => {
+      const d = !gone && fromCSV(t);
+      if (d) feed(d);
+    }).catch((e) => console.warn("[effix] chart csv", e));
+    const src = o.live && get("chart-source", o.live);
+    if (typeof src === "function") {
+      try {
+        const c = src((d) => {
+          if (!gone) feed(d);
+        }, el);
+        if (typeof c === "function") offs.push(c);
+      } catch (e) {
+        console.warn("[effix] chart source", e);
+      }
+    }
     renderLegend();
     render(false);
     let stopVis = () => {
@@ -399,6 +432,7 @@
       stopVis();
     }, "0px", [0, 0.01, 0.05, 0.1, 0.25]);
     return () => {
+      gone = true;
       offs.forEach((f2) => f2());
       stopVis();
       onResize.cancel();

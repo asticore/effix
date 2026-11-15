@@ -12,7 +12,7 @@ export default {
   name: 'chart-combo',
   selector: '.efx-chart-combo',
   lazy: true,
-  defaults: { ...COMMON, types: [], axes: [], smooth: true, dots: true, area: false, grid: true, radius: 4, prefix2: '', suffix2: '' },
+  defaults: { ...COMMON, types: [], axes: [], smooth: true, dots: true, area: false, stacked: false, grid: true, radius: 4, prefix2: '', suffix2: '' },
   init(el, o) {
     // per-series type/axis live in the raw JSON (parseData drops them); keep them in step with efx:data
     let meta = [];
@@ -36,7 +36,11 @@ export default {
       const sc = [0, 1].map(a => {
         const rr = rows.filter(r => r.a === a);
         if (!rr.length) return null;
-        const vals = rr.flatMap(r => r.sr.values.map(v => v || 0)).concat(rr.some(r => r.k === 'bar') ? 0 : []);
+        let vals = rr.flatMap(r => r.sr.values.map(v => v || 0)).concat(rr.some(r => r.k === 'bar') ? 0 : []);
+        if (o.stacked) { // bars stack: the domain must hold the running totals
+          const bs = rr.filter(r => r.k === 'bar');
+          vals = rr.filter(r => r.k === 'line').flatMap(r => r.sr.values.map(v => v || 0)).concat(0, ...data.labels.flatMap((_, i) => [bs.reduce((t, r) => t + Math.max(0, r.sr.values[i] || 0), 0), bs.reduce((t, r) => t + Math.min(0, r.sr.values[i] || 0), 0)]));
+        }
         const nc = nice(Math.min(...vals), Math.max(...vals), cnt);
         return { ...nc, f: linear([nc.min, nc.max], [h - pad.b, pad.t]) };
       });
@@ -51,13 +55,16 @@ export default {
           R.ticks.forEach(t => { s('text', { x: w - pad.r + 8, y: R.f(t), 'dominant-baseline': 'middle' }, ax).textContent = fmt2(t); });
         }
       }
-      const bars = rows.filter(r => r.k === 'bar'), bw = b.bw / Math.max(1, bars.length);
+      const bars = rows.filter(r => r.k === 'bar'), st = o.stacked, bw = st ? b.bw : b.bw / Math.max(1, bars.length);
+      const acc = [0, 1].map(() => data.labels.map(() => [0, 0])); // running [positive, negative] totals per axis
       bars.forEach((r, k) => {
         const f = Y(r), z = f(0);
         r.sr.values.forEach((v, i) => {
           if (i >= n) return;
-          const y1 = f(v || 0), thick = Math.max(1, bw - (bars.length > 1 ? 2 : 0));
-          s('rect', { x: b.x(i) + k * bw, y: Math.min(z, y1), width: thick, height: Math.abs(y1 - z), rx: Math.min(o.radius, thick / 2), fill: r.c, class: 'efx-chart__grow', style: `--i:${i}` }, g);
+          const y1 = f(v || 0), thick = Math.max(1, bw - (!st && bars.length > 1 ? 2 : 0));
+          let y = Math.min(z, y1), hh = Math.abs(y1 - z);
+          if (st) { const t = acc[r.a][i], j = (v || 0) < 0 ? 1 : 0; y = j ? f(t[1]) : f(t[0] + (v || 0)); t[j] += v || 0; }
+          s('rect', { x: b.x(i) + (st ? 0 : k * bw), y, width: thick, height: hh, rx: st ? 0 : Math.min(o.radius, thick / 2), fill: r.c, class: 'efx-chart__grow', style: `--i:${i}` }, g);
         });
       });
       const base = h - pad.b;
