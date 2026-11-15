@@ -7,6 +7,7 @@
    registered with Effix.add('step-validate', name, (panel, index) => bool), and a cancelable `efx:validate` event.
    Fires `efx:step` ({ index, count, previous }) on every change and `efx:done` when the last step is completed. */
 import { on, get } from '../core.js';
+import { shineWidgets } from './_shine.js';
 
 export default {
   name: 'steps',
@@ -15,21 +16,25 @@ export default {
   init(el, o) {
     const panels = [...el.children].filter(c => c.classList.contains('efx-step'));
     if (!panels.length) return;
-    const n = panels.length, key = el.id || 'step', offs = [];
+    const n = panels.length, key = el.id || 'step', offs = [], sh = shineWidgets();
     const saved = panels.map(p => [p.hidden, p.getAttribute('aria-labelledby'), p.getAttribute('role'), p.id]);
     const bits = [];
     const mk = (tag, cls, txt) => { const x = document.createElement(tag); x.className = cls; if (txt != null) x.textContent = txt; return x; };
-    const list = mk('ol', 'efx-steps__list'), bar = mk('div', 'efx-steps__bar'), status = mk('div', 'efx-steps__status');
+    const list = mk('ol', sh ? 'stepper' : 'efx-steps__list'), bar = mk('div', 'efx-steps__bar'), status = mk('div', 'efx-steps__status');
     const nav = mk('div', 'efx-steps__nav'), back = mk('button', 'btn btn-outline efx-steps__back', o.back), next = mk('button', 'btn efx-steps__next', o.next);
     back.type = next.type = 'button';
     status.setAttribute('aria-live', 'polite'); list.setAttribute('aria-label', o.label); bar.setAttribute('aria-hidden', 'true');
     const items = panels.map((p, i) => {
-      const li = mk('li', 'efx-steps__item'), b = mk('button', 'efx-steps__btn'), num = mk('span', 'efx-steps__num', i + 1), t = mk('span', 'efx-steps__title', p.dataset.efxTitle || `Step ${i + 1}`);
-      b.type = 'button'; b.append(num, t); li.append(b); list.append(li);
+      // Shine widgets: <li class="step"><button class="step-marker">1</button><span class="step-label">…</span></li>
+      const li = mk('li', sh ? 'step' : 'efx-steps__item'), b = mk('button', sh ? 'step-marker' : 'efx-steps__btn'), t = mk('span', sh ? 'step-label' : 'efx-steps__title', p.dataset.efxTitle || `Step ${i + 1}`);
+      b.type = 'button';
+      if (sh) { b.textContent = i + 1; li.append(b, t); } else { b.append(mk('span', 'efx-steps__num', i + 1), t); li.append(b); }
+      list.append(li);
       if (!p.id) { p.id = `${key}-panel-${i + 1}`; bits.push(p); }
       p.setAttribute('role', 'group'); b.id = `${key}-tab-${i + 1}`; p.setAttribute('aria-labelledby', b.id);
+      b.setAttribute('aria-label', `Step ${i + 1}: ${t.textContent}`);
       offs.push(on(b, 'click', () => go(i, true)));
-      return { li, b, p };
+      return { li, b, p, t };
     });
     nav.append(back, next);
     el.prepend(list); el.prepend(bar); el.append(status, nav);
@@ -50,8 +55,9 @@ export default {
       const prevI = cur; cur = i;
       items.forEach((it, k) => {
         it.p.hidden = k !== i;
-        it.li.classList.toggle('is-active', k === i); it.li.classList.toggle('is-done', k < i || doneAll);
-        if (k === i) it.b.setAttribute('aria-current', 'step'); else it.b.removeAttribute('aria-current');
+        const d = k < i || doneAll, cur = sh ? it.li : it.b;
+        it.li.classList.toggle('is-active', k === i); it.li.classList.toggle('is-done', d); it.li.classList.toggle('done', sh && d);
+        if (k === i) cur.setAttribute('aria-current', 'step'); else cur.removeAttribute('aria-current');
         it.b.disabled = o.linear && k > i && !(k < reached + 1);
       });
       el.style.setProperty('--efx-steps-progress', n > 1 ? i / (n - 1) : 1);
@@ -59,7 +65,7 @@ export default {
       back.disabled = i === 0;
       next.textContent = i === n - 1 ? o.finish : o.next;
       next.classList.toggle('is-last', i === n - 1);
-      status.textContent = `Step ${i + 1} of ${n}: ${items[i].b.textContent.replace(/^\d+/, '')}`;
+      status.textContent = `Step ${i + 1} of ${n}: ${items[i].t.textContent}`;
       if (o.hash && !quiet) { const h = `#${key}=${i + 1}`; if (location.hash !== h) history.replaceState(null, '', h); }
       if (!quiet || prevI < 0) el.dispatchEvent(new CustomEvent('efx:step', { bubbles: true, detail: { index: i, count: n, previous: prevI } }));
     }
@@ -80,7 +86,7 @@ export default {
     offs.push(on(next, 'click', () => {
       if (cur < n - 1) return go(cur + 1);
       if (!valid(cur)) return;
-      doneAll = true; items.forEach(it => it.li.classList.add('is-done'));
+      doneAll = true; items.forEach(it => { it.li.classList.add('is-done'); if (sh) it.li.classList.add('done'); });
       el.classList.add('is-done');
       el.dispatchEvent(new CustomEvent('efx:done', { bubbles: true }));
     }));

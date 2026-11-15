@@ -6,6 +6,7 @@ module.exports = {
     ['efx-calendar', 'The calendar. Injected parts: __head, __title, __nav, __grid, __row, __dow, __day, __dots, __events.'],
     ['is-selected / is-start / is-end', 'On picked day buttons (the gridcell also gets aria-selected).'],
     ['has-events', 'On a day button that has events.'],
+    ['calendar / calendar-head / calendar-grid / calendar-dow / calendar-day / calendar-dots', 'Used instead of the efx-calendar__* parts when Shine\'s widgets CSS is loaded: aria-selected, aria-current="date", .outside, .in-range, .range-start, .range-end follow Shine\'s hooks.'],
   ],
   options: [
     ['data-efx-events', '', 'JSON array [{ date, end?, title, color? }], or a URL to an .ics / .json file. An inline <script type="application/json"> child also works.'],

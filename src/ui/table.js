@@ -4,6 +4,7 @@
    Data comes from the markup, `data-efx-data` (JSON array of objects/arrays, or CSV text / a URL ending .csv/.json),
    or `efx:data` (detail: array | { columns, rows }). Fires `change` (detail.selected) when the selection changes. */
 import { on, parseCSV } from '../core.js';
+import { shineWidgets } from './_shine.js';
 
 const num = v => { const t = String(v).replace(/[\s,$£€%]/g, ''); return t !== '' && /^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(t) ? parseFloat(t) : NaN; };
 const mk = (tag, cls, txt) => { const n = document.createElement(tag); n.className = cls; if (txt != null) n.textContent = txt; return n; };
@@ -40,7 +41,9 @@ export default {
     const table = el.tagName === 'TABLE' ? el : el.querySelector('table');
     if (!table) return;
     const saved = table.innerHTML, parent = table.parentNode;
-    const cls0 = table.className, bar = mk('div', 'efx-table__bar'), pager = mk('div', 'efx-table__pager');
+    const sh = shineWidgets(); // Shine's .dt / .dt-toolbar / .dt-pagebar / .dt-empty / .table-sticky-head markup when its widgets CSS is loaded
+    const cls0 = table.className, bar = mk('div', sh ? 'dt-toolbar' : 'efx-table__bar'), pager = mk('div', sh ? 'dt-pagebar' : 'efx-table__pager');
+    const mark = (tr, on_) => { tr.classList.toggle('is-selected', on_); if (sh) tr.setAttribute('aria-selected', String(on_)); };
     const live = mk('span', 'efx-table__live'); live.setAttribute('aria-live', 'polite');
     const offs = [];
     let dead = false, rows = [], cols = [], wrap = null, order = [], view = [], page = 0;
@@ -93,15 +96,16 @@ export default {
       if (empty) { empty.remove(); empty = null; }
       if (!shown.length) {
         empty = mk('tr', 'efx-table__empty');
-        const td = mk('td', '', o.empty); td.colSpan = Math.max(1, cols.length + (o.select ? 1 : 0));
+        const td = mk('td', '', sh ? null : o.empty); td.colSpan = Math.max(1, cols.length + (o.select ? 1 : 0));
+        if (sh) td.append(mk('div', 'dt-empty', o.empty));
         empty.append(td); tb.append(empty);
       }
-      table.querySelectorAll('thead tr:first-child th[aria-sort]').forEach(th => th.removeAttribute('aria-sort'));
+      table.querySelectorAll('thead tr:first-child th[aria-sort]').forEach(th => th.setAttribute('aria-sort', 'none'));
       if (sortCol >= 0) { const th = headCell(sortCol); if (th) th.setAttribute('aria-sort', sortDir > 0 ? 'ascending' : 'descending'); }
       if (all) { all.checked = !!shown.length && shown.every(r => selected.has(r)); all.indeterminate = !all.checked && shown.some(r => selected.has(r)); }
       if (o.pageSize > 0) {
         pager.hidden = pages < 2;
-        pager.querySelector('.efx-table__info').textContent = view.length ? `${page * size + 1}–${page * size + shown.length} of ${view.length}` : '0 of 0';
+        pager.querySelector('.dt-info, .efx-table__info').textContent = view.length ? `${page * size + 1}–${page * size + shown.length} of ${view.length}` : '0 of 0';
         pager.querySelector('[data-p="prev"]').disabled = page <= 0;
         pager.querySelector('[data-p="next"]').disabled = page >= pages - 1;
       }
@@ -119,7 +123,7 @@ export default {
         th.append(all); row0.prepend(th);
         offs.push(on(all, 'change', () => {
           const shown = [...tbody().children].map(tr => rows.find(r => r.tr === tr)).filter(Boolean);
-          shown.forEach(r => { all.checked ? selected.add(r) : selected.delete(r); r.box.checked = all.checked; r.tr.classList.toggle('is-selected', all.checked); });
+          shown.forEach(r => { all.checked ? selected.add(r) : selected.delete(r); r.box.checked = all.checked; mark(r.tr, all.checked); });
           render(); fire();
         }));
       }
@@ -127,14 +131,14 @@ export default {
         if (o.select) {
           const td = mk('td', 'efx-table__sel'), b = mk('input', 'checkbox'); b.type = 'checkbox'; b.setAttribute('aria-label', 'Select row');
           td.append(b); r.tr.prepend(td); r.box = b;
-          offs.push(on(b, 'change', () => { b.checked ? selected.add(r) : selected.delete(r); r.tr.classList.toggle('is-selected', b.checked); render(); fire(); }));
+          offs.push(on(b, 'change', () => { b.checked ? selected.add(r) : selected.delete(r); mark(r.tr, b.checked); render(); fire(); }));
         }
         if (o.stack) [...r.tr.children].forEach((td, i) => { const k = i - (o.select ? 1 : 0); if (k >= 0 && cols[k]) td.dataset.label = cols[k]; });
       });
       cols.forEach((c, i) => {
         const th = headCell(i);
         if (!th || !o.sort) return;
-        const b = mk('button', 'efx-table__sort'); b.type = 'button';
+        const b = mk('button', sh ? '' : 'efx-table__sort'); b.type = 'button'; th.setAttribute('aria-sort', 'none');
         while (th.firstChild) b.append(th.firstChild);
         th.append(b);
         offs.push(on(b, 'click', () => { sortDir = sortCol === i ? -sortDir : 1; sortCol = i; render(true); }));
@@ -153,7 +157,7 @@ export default {
 
     const buildBar = () => {
       if (o.search) {
-        const inp = mk('input', 'input input-sm efx-table__search'); inp.type = 'search'; inp.placeholder = o.placeholder; inp.setAttribute('aria-label', 'Search table');
+        const inp = mk('input', sh ? 'input input-sm dt-search' : 'input input-sm efx-table__search'); inp.type = 'search'; inp.placeholder = o.placeholder; inp.setAttribute('aria-label', 'Search table');
         bar.append(inp);
         offs.push(on(inp, 'input', () => { query = inp.value.trim().toLowerCase(); page = 0; render(true); }));
       }
@@ -184,7 +188,7 @@ export default {
         }));
       }
       if (o.pageSize > 0) {
-        pager.append(mk('span', 'efx-table__info'));
+        pager.append(mk('span', sh ? 'dt-info' : 'efx-table__info'));
         ['prev', 'next'].forEach(k => {
           const b = mk('button', 'btn btn-sm btn-outline', k === 'prev' ? 'Previous' : 'Next'); b.type = 'button'; b.dataset.p = k;
           pager.append(b);
@@ -221,13 +225,20 @@ export default {
 
     table.classList.add('efx-table--on');
     if (o.stack) table.classList.add('efx-table--stack');
-    if (o.height) {
-      wrap = mk('div', 'efx-table__wrap'); wrap.style.maxHeight = /^\d+$/.test(o.height) ? o.height + 'px' : o.height;
-      parent.insertBefore(wrap, table); wrap.append(table);
+    const size = /^\d+$/.test(o.height) ? o.height + 'px' : o.height;
+    let unit = table, tw = null, dt = null, unitStyle = null;
+    if (sh) {
+      if (parent.classList.contains('table-wrap')) unit = parent;
+      else { tw = mk('div', 'table-wrap'); parent.insertBefore(tw, table); tw.append(table); unit = tw; }
+      unitStyle = unit.getAttribute('style');
+      if (o.height) unit.style.maxHeight = size;
+      if (o.sticky || o.height) table.classList.add('table-sticky-head');
+      dt = mk('div', 'dt'); unit.before(dt); dt.append(bar, unit, pager); dt.after(live);
+    } else {
+      if (o.height) { wrap = mk('div', 'efx-table__wrap'); wrap.style.maxHeight = size; parent.insertBefore(wrap, table); wrap.append(table); unit = wrap; }
+      if (o.sticky || o.height) table.classList.add('efx-table--sticky');
+      unit.before(bar); unit.after(pager, live);
     }
-    if (o.sticky || o.height) table.classList.add('efx-table--sticky');
-    (wrap || table).before(bar);
-    (wrap || table).after(pager, live);
     bar.hidden = pager.hidden = true;
     const stat = [on(el, 'efx:data', e => start(e.detail))];
     load();
@@ -237,6 +248,11 @@ export default {
       table.innerHTML = saved; table.className = cls0;
       bar.remove(); pager.remove(); live.remove();
       if (wrap) { wrap.before(table); wrap.remove(); }
+      if (dt) {
+        dt.before(unit); dt.remove();
+        unitStyle === null ? unit.removeAttribute('style') : unit.setAttribute('style', unitStyle);
+        if (tw) { tw.before(table); tw.remove(); }
+      }
       el.removeAttribute('data-efx-rows');
     };
   },

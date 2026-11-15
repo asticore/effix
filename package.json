@@ -17,6 +17,9 @@
       "default": "./dist/effix.all.min.js"
     },
     "./charts": "./dist/effix-charts.min.js",
+    "./ui": "./dist/effix-ui.min.js",
+    "./ui.css": "./dist/effix-ui.min.css",
+    "./ui/*": "./src/ui/*.js",
     "./css": "./dist/effix.min.css",
     "./charts.css": "./dist/effix-charts.min.css",
     "./all.css": "./dist/effix.all.min.css",

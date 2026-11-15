@@ -20,7 +20,8 @@ const ROOT = __dirname;
 const SRC = path.join(ROOT, 'src');
 const pkg = require('./package.json');
 const BUDGET = { // gzip bytes
-  'effix.min.js': 66 * 1024, 'effix.min.css': 16 * 1024,
+  'effix.min.js': 60 * 1024, 'effix.min.css': 14 * 1024,
+  'effix-ui.min.js': 24 * 1024, 'effix-ui.min.css': 8 * 1024,
   'effix-charts.min.js': 36 * 1024, 'effix-charts.min.css': 5 * 1024,
   'effix-diagrams.min.js': 24 * 1024, 'effix-diagrams.min.css': 5 * 1024,
   'effix-viz.min.js': 32 * 1024, 'effix-viz.min.css': 4 * 1024,
@@ -40,13 +41,15 @@ const scanDir = dir => fs.readdirSync(path.join(SRC, dir))
   .filter(f => /^[a-z][\w-]*\.js$/.test(f) && !f.endsWith('.meta.js'))
   .map(f => ({ name: f.slice(0, -3), dir })).sort((a, b) => a.name.localeCompare(b.name));
 const EFFECTS = scanDir('features');
+// ui/* = data widgets (table, rating, calendar, steps, timeline, lottie) in their own add-on
+const UI = scanDir('ui');
 const CHART_DIR = scanDir('charts');
 // diagram-* ship as their own add-on so chart-only pages don't download them
 const CHARTS = CHART_DIR.filter(f => !f.name.startsWith('diagram-') && !f.name.startsWith('viz-'));
 // viz-* = advanced d3-style visualisations (network, chord, map, …) in their own add-on
 const VIZ = CHART_DIR.filter(f => f.name.startsWith('viz-'));
 const DIAGRAMS = CHART_DIR.filter(f => f.name.startsWith('diagram-'));
-const ALL = [...EFFECTS, ...CHARTS, ...DIAGRAMS, ...VIZ];
+const ALL = [...EFFECTS, ...UI, ...CHARTS, ...DIAGRAMS, ...VIZ];
 const unknown = [...(only || []), ...(exclude || [])].filter(n => !ALL.some(f => f.name === n));
 if (unknown.length) { console.error(`Unknown feature(s): ${unknown.join(', ')}\nAvailable: ${ALL.map(f => f.name).join(', ')}`); process.exit(1); }
 const pick = fs0 => fs0.filter(f => (!only || only.includes(f.name)) && (!exclude || !exclude.includes(f.name)));
@@ -167,12 +170,19 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
       write('effix-viz.css', cssV);
       write('effix-viz.min.css', bV + minCss(cssV));
     }
+    // ui add-on (table, rating, calendar, steps, timeline, lottie)
+    const bU = banner(' UI', UI);
+    write('effix-ui.js', bU + await bundle(addonEntry(UI, false), { minify: false, plugins: [useHostCore] }));
+    write('effix-ui.min.js', bU + await bundle(addonEntry(UI, false), { plugins: [useHostCore] }));
+    const cssU = wrapCss(bU, cssFor(UI));
+    write('effix-ui.css', cssU);
+    write('effix-ui.min.css', bU + minCss(cssU));
     // core only + auto-loader (plain pages: load just the feature files the page uses)
     const bK = banner(' core', []);
     write('effix.core.min.js', bK + await bundle(entry([])));
     write('effix.core.min.css', bK + minCss(wrapCss(bK, [BASE_CSS])));
     const manifest = {
-      effects: Object.fromEntries([...EFFECTS, ...CHARTS, ...DIAGRAMS, ...VIZ].map(f => {
+      effects: Object.fromEntries([...EFFECTS, ...UI, ...CHARTS, ...DIAGRAMS, ...VIZ].map(f => {
         const sel = (fs.readFileSync(path.join(SRC, f.dir, f.name + '.js'), 'utf8').match(/selector:\s*(['"`])([\s\S]*?)\1/) || [])[2] || `.efx-${f.name}`;
         // Also match every documented class (CSS-only ones like efx-bounce efx-hover), so their CSS loads too.
         const metaFile = path.join(SRC, f.dir, f.name + '.meta.js');

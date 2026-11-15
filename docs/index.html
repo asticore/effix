@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Effix — JavaScript effects for Shine CSS</title>
-<meta name="description" content="Effix adds particles, parallax, scroll reveals, tilt, magnetic buttons, rotating borders, shape dividers, carousels, popups and more with plain classes. Pairs with Shine CSS. 77.1 KB gzipped, only features on the page start. Interactive SVG charts and funnels as a 35.2 KB add-on.">
+<meta name="description" content="Effix adds particles, parallax, scroll reveals, tilt, magnetic buttons, rotating borders, shape dividers, carousels, popups and more with plain classes. Pairs with Shine CSS. 66.0 KB gzipped, only features on the page start. Interactive SVG charts and funnels as a 35.2 KB add-on.">
 <link rel="canonical" href="https://asticore.github.io/effix/docs/">
 <link rel="icon" href="logo.svg">
 <link rel="stylesheet" href="vendor/shine.min.css">
@@ -106,7 +106,7 @@ document.addEventListener('efx:ready', ({ detail: E }) => {
   <div class="container mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
     <div class="lg:col-span-7 stack gap-6">
       <p class="cluster gap-2">
-        <span class="badge badge-solid">effects 77.1 KB gzip</span>
+        <span class="badge badge-solid">effects 66.0 KB gzip</span>
         <span class="badge tone-accent">charts add-on 35.2 KB</span>
         <span class="badge tone-success">core 2.9 KB</span>
         <span class="badge tone-neutral">MIT · 0 dependencies</span>
@@ -154,7 +154,11 @@ document.addEventListener('efx:ready', ({ detail: E }) => {
 
 &lt;!-- optional: diagrams add-on (tree, flow, sequence, cycle, fishbone) --&gt;
 &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-diagrams.min.css&quot;&gt;
-&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-diagrams.min.js&quot; defer&gt;&lt;/script&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-bundle">Copy</button></div></div></div>
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-diagrams.min.js&quot; defer&gt;&lt;/script&gt;
+
+&lt;!-- optional: UI widgets add-on (table, rating, calendar, steps, timeline, lottie) --&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-ui.min.css&quot;&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/gh/asticore/effix@main/dist/effix-ui.min.js&quot; defer&gt;&lt;/script&gt;</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#q-bundle">Copy</button></div></div></div>
       <div class="card"><div class="card-body stack"><h3 class="card-title m-0">4 · npm / bundlers</h3><p class="text-sm m-0">Import the bundle, or only the features you use from the ES sources.</p><div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="q-esm" tabindex="0"><code>npm i effix shine-css
 
 import 'shine-css';
@@ -221,7 +225,7 @@ init();</code></pre><button class="btn btn-outline btn-sm flex-none self-start e
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="mask" data-kind="effect" data-size="1050" checked> Spotlight mask <span class="text-muted ml-auto">1.0 KB</span></label>
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="totop" data-kind="effect" data-size="568" checked> Back to top <span class="text-muted ml-auto">0.6 KB</span></label>
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="chapter" data-kind="effect" data-size="1519" checked> Chapter indicator <span class="text-muted ml-auto">1.5 KB</span></label>
-<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="timeline" data-kind="effect" data-size="1641" checked> Content timeline <span class="text-muted ml-auto">1.6 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="timeline" data-kind="effect" data-size="1836" checked> Content timeline <span class="text-muted ml-auto">1.8 KB</span></label>
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="counter" data-kind="effect" data-size="858" checked> Counter <span class="text-muted ml-auto">0.8 KB</span></label>
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="hscroll" data-kind="effect" data-size="1038" checked> Horizontal scroll <span class="text-muted ml-auto">1.0 KB</span></label>
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="marquee" data-kind="effect" data-size="884" checked> Marquee <span class="text-muted ml-auto">0.9 KB</span></label>
@@ -323,14 +327,14 @@ init();</code></pre><button class="btn btn-outline btn-sm flex-none self-start e
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="viz-network" data-kind="chart" data-size="3077" checked> Network graph <span class="text-muted ml-auto">3.0 KB</span></label>
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="viz-parallel" data-kind="chart" data-size="2617" checked> Parallel coordinates <span class="text-muted ml-auto">2.6 KB</span></label>
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="viz-wordcloud" data-kind="chart" data-size="2181" checked> Word cloud <span class="text-muted ml-auto">2.1 KB</span></label>
-<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="calendar" data-kind="effect" data-size="3689" checked> Calendar &amp; date picker <span class="text-muted ml-auto">3.6 KB</span></label>
-<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="table" data-kind="effect" data-size="4204" checked> Data table <span class="text-muted ml-auto">4.1 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="calendar" data-kind="effect" data-size="3988" checked> Calendar &amp; date picker <span class="text-muted ml-auto">3.9 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="table" data-kind="effect" data-size="4552" checked> Data table <span class="text-muted ml-auto">4.4 KB</span></label>
 <label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="lottie" data-kind="effect" data-size="1096" checked> Lottie player <span class="text-muted ml-auto">1.1 KB</span></label>
-<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="rating" data-kind="effect" data-size="1385" checked> Star rating <span class="text-muted ml-auto">1.4 KB</span></label>
-<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="steps" data-kind="effect" data-size="2385" checked> Stepper (multi-step) <span class="text-muted ml-auto">2.3 KB</span></label></div>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="rating" data-kind="effect" data-size="1815" checked> Star rating <span class="text-muted ml-auto">1.8 KB</span></label>
+<label class="flex items-center gap-2 text-sm"><input type="checkbox" class="checkbox" name="feat" value="steps" data-kind="effect" data-size="2557" checked> Stepper (multi-step) <span class="text-muted ml-auto">2.5 KB</span></label></div>
       </div></fieldset>
       <div class="card"><div class="card-body stack">
-        <p class="m-0">Estimated: <strong id="pick-size" data-core="2937" data-chartlib="5798">112.3 KB</strong> gzip</p>
+        <p class="m-0">Estimated: <strong id="pick-size" data-core="2937" data-chartlib="5798">101.2 KB</strong> gzip</p>
         <div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="pick-cmd" tabindex="0"><code>node build.js</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#pick-cmd">Copy</button></div>
         <div class="flex items-stretch gap-2"><pre class="flex-1 min-w-0 m-0 bg-surface-2 border rounded-lg p-3 text-sm overflow-x-auto" id="pick-esm" tabindex="0"><code>import { define, init } from 'effix/core';</code></pre><button class="btn btn-outline btn-sm flex-none self-start efx-copy" type="button" data-efx-target="#pick-esm">Copy</button></div>
       </div></div>
@@ -1105,7 +1109,7 @@ document.addEventListener('efx:ready', ({ detail: E }) =&gt; {
   <header class="stack gap-1">
     <div class="cluster gap-2"><h3 id="h-timeline" class="text-2xl font-bold m-0">Content timeline</h3>
       <span class="badge tone-neutral"><code>timeline</code></span>
-      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.6 KB</span></div>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.8 KB</span></div>
     <p class="m-0 text-muted">A vertical, alternating or horizontal timeline for content (not the timeline chart): dated items with icons that reveal as they scroll in. Content is visible without JS.</p>
   </header>
   <div class="card card-flat overflow-hidden">
@@ -1145,7 +1149,7 @@ document.addEventListener('efx:ready', ({ detail: E }) =&gt; {
 <tr><td><code>efx-timeline__time</code></td><td>Optional date / label above the content.</td></tr>
 <tr><td><code>efx-timeline__body</code></td><td>Optional content wrapper.</td></tr>
 <tr><td><code>efx-timeline__marker</code></td><td>Injected marker (dot or icon).</td></tr>
-<tr><td><code>efx-timeline--vertical / --alternate / --horizontal</code></td><td>Set from data-efx-layout.</td></tr></tbody></table></div>
+<tr><td><code>efx-timeline--vertical / --alternate / --horizontal</code></td><td>Set from data-efx-layout (own look). When Shine's widgets CSS is loaded the list gets Shine's .timeline (+ .timeline-alt / .timeline-horizontal), items .timeline-item, markers .timeline-marker, and __time / __body also get .timeline-date / .timeline-body; Shine draws the layout.</td></tr></tbody></table></div>
   <div class="overflow-x-auto"><table class="table table-sm">
 <thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
 <tbody><tr><td><code>data-efx-layout</code></td><td><code>vertical</code></td><td>vertical · alternate (zig-zag from 720px up) · horizontal (scrolls sideways).</td></tr>
@@ -7277,7 +7281,7 @@ Also an inline <code>&lt;script type="application/json"&gt;</code>, or live: <co
   <header class="stack gap-1">
     <div class="cluster gap-2"><h3 id="h-calendar" class="text-2xl font-bold m-0">Calendar &amp; date picker</h3>
       <span class="badge tone-neutral"><code>calendar</code></span>
-      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">3.6 KB</span></div>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">3.9 KB</span></div>
     <p class="m-0 text-muted">Month view with events from JSON or an ICS feed, plus an optional single-date or range picker. First day of week and locale are options. Keyboard: arrows, Home/End, PageUp/PageDown (Shift = year).</p>
   </header>
   <div class="card card-flat overflow-hidden">
@@ -7306,7 +7310,8 @@ Also an inline <code>&lt;script type="application/json"&gt;</code>, or live: <co
 <thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
 <tbody><tr><td><code>efx-calendar</code></td><td>The calendar. Injected parts: __head, __title, __nav, __grid, __row, __dow, __day, __dots, __events.</td></tr>
 <tr><td><code>is-selected / is-start / is-end</code></td><td>On picked day buttons (the gridcell also gets aria-selected).</td></tr>
-<tr><td><code>has-events</code></td><td>On a day button that has events.</td></tr></tbody></table></div>
+<tr><td><code>has-events</code></td><td>On a day button that has events.</td></tr>
+<tr><td><code>calendar / calendar-head / calendar-grid / calendar-dow / calendar-day / calendar-dots</code></td><td>Used instead of the efx-calendar__* parts when Shine's widgets CSS is loaded: aria-selected, aria-current=&quot;date&quot;, .outside, .in-range, .range-start, .range-end follow Shine's hooks.</td></tr></tbody></table></div>
   <div class="overflow-x-auto"><table class="table table-sm">
 <thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
 <tbody><tr><td><code>data-efx-events</code></td><td></td><td>JSON array [{ date, end?, title, color? }], or a URL to an .ics / .json file. An inline &lt;script type=&quot;application/json&quot;&gt; child also works.</td></tr>
@@ -7333,7 +7338,7 @@ Also an inline <code>&lt;script type="application/json"&gt;</code>, or live: <co
   <header class="stack gap-1">
     <div class="cluster gap-2"><h3 id="h-table" class="text-2xl font-bold m-0">Data table</h3>
       <span class="badge tone-neutral"><code>table</code></span>
-      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">4.1 KB</span></div>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">4.4 KB</span></div>
     <p class="m-0 text-muted">Behaviour layer for a plain Shine table: sort, search, per-column filter, paging, sticky header, column visibility, row selection, responsive stack, CSV download and an empty state. Zero dependencies.</p>
   </header>
   <div class="card card-flat overflow-hidden">
@@ -7384,7 +7389,8 @@ Also an inline <code>&lt;script type="application/json"&gt;</code>, or live: <co
 <tr><td><code>efx-table__sort</code></td><td>Injected button inside a sortable header cell; the cell carries aria-sort.</td></tr>
 <tr><td><code>efx-table__filters</code></td><td>Injected per-column filter row.</td></tr>
 <tr><td><code>efx-table__empty</code></td><td>Row shown when nothing matches.</td></tr>
-<tr><td><code>is-selected</code></td><td>On a selected row.</td></tr></tbody></table></div>
+<tr><td><code>is-selected</code></td><td>On a selected row.</td></tr>
+<tr><td><code>dt / dt-toolbar / dt-search / dt-pagebar / dt-info / dt-empty / table-wrap / table-sticky-head</code></td><td>Used instead of the efx-table__* parts when Shine's widgets CSS is loaded. Sortable headers carry aria-sort (none / ascending / descending) around a plain button; selected rows also get aria-selected=&quot;true&quot;.</td></tr></tbody></table></div>
   <div class="overflow-x-auto"><table class="table table-sm">
 <thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
 <tbody><tr><td><code>data-efx-sort</code></td><td><code>true</code></td><td>Click a header to sort (numbers, then text, natural order). Cells may set data-efx-value for the sort key.</td></tr>
@@ -7458,7 +7464,7 @@ Also an inline <code>&lt;script type="application/json"&gt;</code>, or live: <co
   <header class="stack gap-1">
     <div class="cluster gap-2"><h3 id="h-rating" class="text-2xl font-bold m-0">Star rating</h3>
       <span class="badge tone-neutral"><code>rating</code></span>
-      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.4 KB</span></div>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">1.8 KB</span></div>
     <p class="m-0 text-muted">Star rating: read-only display or an input with half stars, a slider-style keyboard model, a change event and an optional hidden form field.</p>
   </header>
   <div class="card card-flat overflow-hidden">
@@ -7479,7 +7485,8 @@ Also an inline <code>&lt;script type="application/json"&gt;</code>, or live: <co
 <thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
 <tbody><tr><td><code>efx-rating</code></td><td>The rating. Plain text inside (e.g. 4.5) is used as the value without JS.</td></tr>
 <tr><td><code>efx-rating__star</code></td><td>Injected star; --efx-fill (0–1) says how much of it is filled.</td></tr>
-<tr><td><code>is-readonly</code></td><td>Set while read-only.</td></tr></tbody></table></div>
+<tr><td><code>is-readonly</code></td><td>Set while read-only.</td></tr>
+<tr><td><code>rating / rating-input / rating-half</code></td><td>With 5 stars and Shine's widgets CSS loaded, Shine's own markup is used: a read-only .rating with --sh-rating, or radio inputs and labels in .rating-input (with .rating-half for half stars). The change event still carries detail.value.</td></tr></tbody></table></div>
   <div class="overflow-x-auto"><table class="table table-sm">
 <thead><tr><th scope="col">Attribute</th><th scope="col">Default</th><th scope="col">Values</th></tr></thead>
 <tbody><tr><td><code>data-efx-value</code></td><td><code>0</code></td><td>Current value (0 – count).</td></tr>
@@ -7502,7 +7509,7 @@ Also an inline <code>&lt;script type="application/json"&gt;</code>, or live: <co
   <header class="stack gap-1">
     <div class="cluster gap-2"><h3 id="h-steps" class="text-2xl font-bold m-0">Stepper (multi-step)</h3>
       <span class="badge tone-neutral"><code>steps</code></span>
-      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">2.3 KB</span></div>
+      <span class="badge tone-success" title="gzip, JS + CSS, on top of the core">2.5 KB</span></div>
     <p class="m-0 text-muted">Multi-step helper: shows one .efx-step at a time with a numbered progress list, a progress bar, Back / Next / Finish, validation before moving on and optional URL hash sync.</p>
   </header>
   <div class="card card-flat overflow-hidden">
@@ -7529,7 +7536,7 @@ Also an inline <code>&lt;script type="application/json"&gt;</code>, or live: <co
 <thead><tr><th scope="col">Class</th><th scope="col">What it does</th></tr></thead>
 <tbody><tr><td><code>efx-steps</code></td><td>Container. Its direct children with .efx-step are the panels.</td></tr>
 <tr><td><code>efx-step</code></td><td>A panel. data-efx-title sets its label in the progress list.</td></tr>
-<tr><td><code>efx-steps__list / __item / __btn / __num / __title</code></td><td>Injected progress list (item states: is-active, is-done; aria-current=&quot;step&quot; on the active button).</td></tr>
+<tr><td><code>efx-steps__list / __item / __btn / __num / __title</code></td><td>Injected progress list (item states: is-active, is-done; aria-current=&quot;step&quot; on the active button). When Shine's widgets CSS is loaded it emits Shine's own markup instead: ol.stepper &gt; li.step (.done, aria-current=&quot;step&quot;) &gt; button.step-marker + span.step-label.</td></tr>
 <tr><td><code>efx-steps__bar</code></td><td>Injected progress bar, driven by --efx-steps-progress (0–1).</td></tr>
 <tr><td><code>efx-steps__nav / __back / __next</code></td><td>Injected button row.</td></tr></tbody></table></div>
   <div class="overflow-x-auto"><table class="table table-sm">

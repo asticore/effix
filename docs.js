@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = __dirname;
-const DIRS = ['features', 'charts'].map(d => path.join(ROOT, 'src', d));
+const DIRS = ['features', 'ui', 'charts'].map(d => path.join(ROOT, 'src', d));
 const pkg = require('./package.json');
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const kb = n => (n / 1024).toFixed(1) + ' KB';
@@ -110,7 +110,11 @@ const installBundle = `<link rel="stylesheet" href="${CDN}/shine@main/dist/shine
 
 <!-- optional: diagrams add-on (tree, flow, sequence, cycle, fishbone) -->
 <link rel="stylesheet" href="${CDN}/effix@main/dist/effix-diagrams.min.css">
-<script src="${CDN}/effix@main/dist/effix-diagrams.min.js" defer></script>`;
+<script src="${CDN}/effix@main/dist/effix-diagrams.min.js" defer></script>
+
+<!-- optional: UI widgets add-on (table, rating, calendar, steps, timeline, lottie) -->
+<link rel="stylesheet" href="${CDN}/effix@main/dist/effix-ui.min.css">
+<script src="${CDN}/effix@main/dist/effix-ui.min.js" defer></script>`;
 const installPick = `<script src="${CDN}/effix@main/dist/effix.core.min.js" defer></script>
 <link rel="stylesheet" href="${CDN}/effix@main/dist/effix.core.min.css">
 <!-- then one tag per feature you use -->

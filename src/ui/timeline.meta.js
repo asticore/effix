@@ -8,7 +8,7 @@ module.exports = {
     ['efx-timeline__time', 'Optional date / label above the content.'],
     ['efx-timeline__body', 'Optional content wrapper.'],
     ['efx-timeline__marker', 'Injected marker (dot or icon).'],
-    ['efx-timeline--vertical / --alternate / --horizontal', 'Set from data-efx-layout.'],
+    ['efx-timeline--vertical / --alternate / --horizontal', 'Set from data-efx-layout (own look). When Shine\'s widgets CSS is loaded the list gets Shine\'s .timeline (+ .timeline-alt / .timeline-horizontal), items .timeline-item, markers .timeline-marker, and __time / __body also get .timeline-date / .timeline-body; Shine draws the layout.'],
   ],
   options: [
     ['data-efx-layout', 'vertical', 'vertical · alternate (zig-zag from 720px up) · horizontal (scrolls sideways).'],

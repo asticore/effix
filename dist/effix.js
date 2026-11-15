@@ -13,19 +13,19 @@
   var camelKey = (k) => "efx" + k[0].toUpperCase() + k.slice(1);
   function options(el, defaults = {}) {
     const out = {};
-    for (const key2 in defaults) {
-      const def = defaults[key2];
-      const raw = el.dataset[camelKey(key2)];
+    for (const key in defaults) {
+      const def = defaults[key];
+      const raw = el.dataset[camelKey(key)];
       if (raw === void 0) {
-        out[key2] = Array.isArray(def) ? def.slice() : def;
+        out[key] = Array.isArray(def) ? def.slice() : def;
         continue;
       }
       if (typeof def === "number") {
         const n = parseFloat(raw);
-        out[key2] = Number.isFinite(n) ? n : def;
-      } else if (typeof def === "boolean") out[key2] = raw === "" || raw === "true" || raw === "1" || raw === "on";
-      else if (Array.isArray(def)) out[key2] = raw.split(raw.includes("|") ? "|" : ",").map((s) => s.trim()).filter(Boolean);
-      else out[key2] = raw;
+        out[key] = Number.isFinite(n) ? n : def;
+      } else if (typeof def === "boolean") out[key] = raw === "" || raw === "true" || raw === "1" || raw === "on";
+      else if (Array.isArray(def)) out[key] = raw.split(raw.includes("|") ? "|" : ",").map((s) => s.trim()).filter(Boolean);
+      else out[key] = raw;
     }
     return out;
   }
@@ -68,8 +68,8 @@
       return () => {
       };
     }
-    const key2 = rootMargin + "|" + threshold;
-    let v = visIOs.get(key2);
+    const key = rootMargin + "|" + threshold;
+    let v = visIOs.get(key);
     if (!v) {
       const cbs = /* @__PURE__ */ new WeakMap();
       const io2 = new IntersectionObserver((es) => es.forEach((e) => {
@@ -77,7 +77,7 @@
         if (s) [...s].forEach((f2) => f2(e.isIntersecting, e));
       }), { rootMargin, threshold });
       v = { io: io2, cbs };
-      visIOs.set(key2, v);
+      visIOs.set(key, v);
     }
     let set = v.cbs.get(el);
     if (!set) {
@@ -1487,257 +1487,6 @@
     }
   };
 
-  // src/features/calendar.js
-  var pad = (n) => String(n).padStart(2, "0");
-  var key = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  var parse = (v) => {
-    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v || ""));
-    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
-  };
-  var addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
-  function parseICS(text) {
-    const lines = String(text).replace(/\r?\n[ \t]/g, "").split(/\r?\n/), out = [];
-    let ev = null;
-    const day = (v, p) => {
-      const m = /^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})(Z)?)?/.exec(v);
-      if (!m) return null;
-      if (m[7]) return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]));
-      return new Date(+m[1], +m[2] - 1, +m[3]);
-    };
-    for (const l of lines) {
-      if (l === "BEGIN:VEVENT") ev = {};
-      else if (l === "END:VEVENT") {
-        if (ev && ev.s) {
-          const s = ev.s, allDay = ev.allDay, e = ev.e ? allDay ? addDays(ev.e, -1) : ev.e : s;
-          out.push({ date: key(s), end: key(e < s ? s : e), title: ev.title || "" });
-        }
-        ev = null;
-      } else if (ev) {
-        const i = l.indexOf(":");
-        if (i < 0) continue;
-        const name = l.slice(0, i).split(";")[0], val = l.slice(i + 1);
-        if (name === "SUMMARY") ev.title = val.replace(/\\([,;nN\\])/g, (_, c) => c === "n" || c === "N" ? " " : c);
-        else if (name === "DTSTART") {
-          ev.s = day(val);
-          ev.allDay = !/T/.test(val);
-        } else if (name === "DTEND") ev.e = day(val);
-      }
-    }
-    return out;
-  }
-  var calendar_default = {
-    name: "calendar",
-    selector: ".efx-calendar",
-    defaults: { events: "", range: false, picker: true, firstDay: 0, locale: "", month: "", value: "", min: "", max: "", name: "", label: "Calendar" },
-    init(el, o) {
-      const saved = el.innerHTML, offs = [];
-      const jsonTag = el.querySelector(':scope > script[type="application/json"]');
-      let dead = false, events = [], sel = [null, null], view, focus;
-      const loc = o.locale || void 0;
-      const mn = parse(o.min), mx = parse(o.max), fd = (Math.round(o.firstDay) % 7 + 7) % 7;
-      const [v0, v1] = String(o.value).split("/").map(parse);
-      if (v0) sel = [v0, o.range ? v1 || null : null];
-      const m0 = parse(o.month + "-01") || v0 || /* @__PURE__ */ new Date();
-      view = new Date(m0.getFullYear(), m0.getMonth(), 1);
-      focus = v0 || (view.getMonth() === (/* @__PURE__ */ new Date()).getMonth() && view.getFullYear() === (/* @__PURE__ */ new Date()).getFullYear() ? /* @__PURE__ */ new Date() : view);
-      el.textContent = "";
-      const head = document.createElement("div"), title = document.createElement("div"), grid = document.createElement("div"), list2 = document.createElement("ul");
-      const mkBtn = (cls, txt, label) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = cls;
-        b.textContent = txt;
-        b.setAttribute("aria-label", label);
-        return b;
-      };
-      const prev = mkBtn("efx-calendar__nav", "\u2039", "Previous month"), nextB = mkBtn("efx-calendar__nav", "\u203A", "Next month");
-      head.className = "efx-calendar__head";
-      title.className = "efx-calendar__title";
-      title.setAttribute("aria-live", "polite");
-      grid.className = "efx-calendar__grid";
-      grid.setAttribute("role", "grid");
-      list2.className = "efx-calendar__events";
-      head.append(prev, title, nextB);
-      el.append(head, grid, list2);
-      el.setAttribute("aria-label", o.label);
-      const input = o.name ? Object.assign(document.createElement("input"), { type: "hidden", name: o.name }) : null;
-      if (input) el.append(input);
-      const fmtM = new Intl.DateTimeFormat(loc, { month: "long", year: "numeric" }), fmtD = new Intl.DateTimeFormat(loc, { dateStyle: "full" });
-      const wk = new Intl.DateTimeFormat(loc, { weekday: "short" }), wkL = new Intl.DateTimeFormat(loc, { weekday: "long" });
-      const eventsOn = (k) => events.filter((e) => k >= e.date && k <= (e.end || e.date));
-      const disabled = (d) => mn && d < mn || mx && d > mx;
-      const same = (a, b) => a && b && key(a) === key(b);
-      const render = () => {
-        title.textContent = fmtM.format(view);
-        grid.textContent = "";
-        const hr = document.createElement("div");
-        hr.setAttribute("role", "row");
-        hr.className = "efx-calendar__row";
-        for (let i = 0; i < 7; i++) {
-          const d = new Date(2023, 0, 1 + (fd + i) % 7), c = document.createElement("div");
-          c.setAttribute("role", "columnheader");
-          c.className = "efx-calendar__dow";
-          c.textContent = wk.format(d);
-          c.setAttribute("aria-label", wkL.format(d));
-          hr.append(c);
-        }
-        grid.append(hr);
-        const first = new Date(view.getFullYear(), view.getMonth(), 1), lead = (first.getDay() - fd + 7) % 7;
-        const dim = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate(), weeks = Math.ceil((lead + dim) / 7);
-        const fk = key(focus), inView = focus.getMonth() === view.getMonth() && focus.getFullYear() === view.getFullYear();
-        const lo = sel[0] && sel[1] ? sel[0] < sel[1] ? sel[0] : sel[1] : sel[0], hi = sel[0] && sel[1] ? sel[0] < sel[1] ? sel[1] : sel[0] : sel[0];
-        for (let w = 0; w < weeks; w++) {
-          const row = document.createElement("div");
-          row.setAttribute("role", "row");
-          row.className = "efx-calendar__row";
-          for (let i = 0; i < 7; i++) {
-            const d = addDays(first, w * 7 + i - lead), k = key(d), out = d.getMonth() !== view.getMonth();
-            const cell2 = document.createElement("div");
-            cell2.setAttribute("role", "gridcell");
-            const b = document.createElement("button");
-            b.type = "button";
-            b.className = "efx-calendar__day";
-            b.dataset.date = k;
-            b.textContent = d.getDate();
-            b.tabIndex = k === fk && inView || !inView && !out && d.getDate() === 1 ? 0 : -1;
-            const ev = eventsOn(k);
-            b.setAttribute("aria-label", fmtD.format(d) + (ev.length ? `, ${ev.length} event${ev.length > 1 ? "s" : ""}` : ""));
-            if (out) b.classList.add("is-outside");
-            if (same(d, /* @__PURE__ */ new Date())) b.setAttribute("aria-current", "date");
-            if (disabled(d)) b.disabled = true;
-            const picked = o.picker && lo && d >= lo && d <= hi;
-            if (picked) {
-              cell2.setAttribute("aria-selected", "true");
-              b.classList.add("is-selected");
-              if (same(d, lo)) b.classList.add("is-start");
-              if (same(d, hi)) b.classList.add("is-end");
-            }
-            if (ev.length) {
-              b.classList.add("has-events");
-              const dots = document.createElement("span");
-              dots.className = "efx-calendar__dots";
-              dots.setAttribute("aria-hidden", "true");
-              ev.slice(0, 3).forEach((e) => {
-                const dot2 = document.createElement("i");
-                if (e.color && /^[\w#(),.% -]+$/.test(e.color)) dot2.style.background = e.color;
-                dots.append(dot2);
-              });
-              b.append(dots);
-            }
-            cell2.append(b);
-            row.append(cell2);
-          }
-          grid.append(row);
-        }
-        renderList();
-      };
-      const renderList = () => {
-        list2.textContent = "";
-        const ref = sel[0] || focus, hi = sel[1] && sel[1] > ref ? sel[1] : ref;
-        const shown2 = events.filter((e) => e.date <= key(hi) && (e.end || e.date) >= key(ref));
-        const items = sel[0] ? shown2 : events.filter((e) => {
-          const a = parse(e.date), b = parse(e.end || e.date);
-          return a < new Date(view.getFullYear(), view.getMonth() + 1, 1) && b >= view;
-        });
-        items.sort((a, b) => a.date.localeCompare(b.date)).slice(0, 50).forEach((e) => {
-          const li = document.createElement("li"), t = document.createElement("time"), s = document.createElement("span");
-          t.dateTime = e.date;
-          t.textContent = e.end && e.end !== e.date ? `${e.date} \u2013 ${e.end}` : e.date;
-          s.textContent = e.title;
-          li.append(t, " ", s);
-          list2.append(li);
-        });
-        list2.hidden = !list2.children.length;
-      };
-      const go = (d, keep) => {
-        focus = d;
-        if (d.getMonth() !== view.getMonth() || d.getFullYear() !== view.getFullYear()) view = new Date(d.getFullYear(), d.getMonth(), 1);
-        render();
-        if (keep) {
-          const b = grid.querySelector(`[data-date="${key(d)}"]`);
-          if (b) b.focus();
-        }
-      };
-      const pick2 = (d) => {
-        if (!o.picker || disabled(d)) return;
-        if (o.range) {
-          if (!sel[0] || sel[1]) sel = [d, null];
-          else sel = d < sel[0] ? [d, sel[0]] : [sel[0], d];
-        } else sel = [d, null];
-        const done = !o.range || !!sel[1];
-        if (input) input.value = sel[0] ? key(sel[0]) + (sel[1] ? "/" + key(sel[1]) : "") : "";
-        focus = d;
-        render();
-        const b = grid.querySelector(`[data-date="${key(d)}"]`);
-        if (b) b.focus();
-        if (done) {
-          const a = sel[0], z = sel[1];
-          el.dispatchEvent(new CustomEvent("change", { bubbles: true, detail: { value: key(a), end: z ? key(z) : "", events: events.filter((e) => e.date <= key(z || a) && (e.end || e.date) >= key(a)) } }));
-        }
-      };
-      offs.push(on(prev, "click", () => {
-        view = new Date(view.getFullYear(), view.getMonth() - 1, 1);
-        focus = new Date(view);
-        render();
-      }));
-      offs.push(on(nextB, "click", () => {
-        view = new Date(view.getFullYear(), view.getMonth() + 1, 1);
-        focus = new Date(view);
-        render();
-      }));
-      offs.push(on(grid, "click", (e) => {
-        const b = e.target.closest(".efx-calendar__day");
-        if (b) pick2(parse(b.dataset.date));
-      }));
-      offs.push(on(grid, "keydown", (e) => {
-        const b = e.target.closest(".efx-calendar__day");
-        if (!b) return;
-        const d = parse(b.dataset.date), k = e.key;
-        const mv = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[k];
-        if (mv) go(addDays(d, mv), true);
-        else if (k === "Home") go(addDays(d, -((d.getDay() - fd + 7) % 7)), true);
-        else if (k === "End") go(addDays(d, 6 - (d.getDay() - fd + 7) % 7), true);
-        else if (k === "PageUp" || k === "PageDown") {
-          const n = k === "PageUp" ? -1 : 1, t = new Date(d.getFullYear(), d.getMonth() + n + (e.shiftKey ? 11 * n : 0), 1);
-          t.setDate(Math.min(d.getDate(), new Date(t.getFullYear(), t.getMonth() + 1, 0).getDate()));
-          go(t, true);
-        } else return;
-        e.preventDefault();
-      }));
-      const setEvents = (raw) => {
-        let a = raw;
-        if (typeof a === "string") a = a.trim()[0] === "[" || a.trim()[0] === "{" ? JSON.parse(a) : parseICS(a);
-        if (a && !Array.isArray(a)) a = a.events;
-        events = (Array.isArray(a) ? a : []).filter((e) => e && parse(e.date)).map((e) => ({ date: String(e.date).slice(0, 10), end: e.end ? String(e.end).slice(0, 10) : "", title: String(e.title || e.name || ""), color: e.color }));
-        if (!dead) render();
-      };
-      offs.push(on(el, "efx:data", (e) => {
-        try {
-          setEvents(e.detail);
-        } catch (err) {
-          console.warn("[effix] calendar data", err);
-        }
-      }));
-      const src = (o.events || "").trim();
-      try {
-        if (!src && jsonTag) setEvents(jsonTag.textContent);
-        else if (src && /^(\[|\{|BEGIN:VCALENDAR)/.test(src)) setEvents(src);
-        else if (src) fetch(src).then((r) => r.text()).then((t) => {
-          if (!dead) setEvents(t);
-        }).catch((err) => console.warn("[effix] calendar events", err));
-      } catch (err) {
-        console.warn("[effix] calendar events", err);
-      }
-      render();
-      return () => {
-        dead = true;
-        offs.forEach((f2) => f2());
-        el.innerHTML = saved;
-        el.removeAttribute("aria-label");
-      };
-    }
-  };
-
   // src/features/carousel.js
   var carousel_default = {
     name: "carousel",
@@ -2075,12 +1824,12 @@
     init(el, o) {
       const after = el.querySelectorAll(":scope > img")[1];
       if (!after) return;
-      const mk3 = (tag, cls) => {
+      const mk2 = (tag, cls) => {
         const n = document.createElement(tag);
         n.className = "efx-compare__" + cls;
         return n;
       };
-      const clip = mk3("div", "clip"), handle = mk3("div", "handle"), knob = mk3("span", "knob"), input = mk3("input", "range");
+      const clip = mk2("div", "clip"), handle = mk2("div", "handle"), knob = mk2("span", "knob"), input = mk2("input", "range");
       handle.setAttribute("aria-hidden", "true");
       handle.appendChild(knob);
       Object.assign(input, { type: "range", min: 0, max: 100, step: 1 });
@@ -2523,7 +2272,7 @@
       } catch {
         hoverSel = "a,button,[role=button],input,select,textarea,label,summary,.efx-cursor-hover";
       }
-      const mk3 = (k) => {
+      const mk2 = (k) => {
         const d = document.createElement("div");
         d.className = "efx-cursor__" + k;
         d.setAttribute("aria-hidden", "true");
@@ -2534,8 +2283,8 @@
         document.body.appendChild(d);
         return d;
       };
-      const ring = o.style !== "dot" ? mk3("ring") : null;
-      const dot2 = o.style !== "ring" ? mk3("dot") : null;
+      const ring = o.style !== "dot" ? mk2("ring") : null;
+      const dot2 = o.style !== "ring" ? mk2("dot") : null;
       const parts = [ring, dot2].filter(Boolean);
       if (o.hideNative) el.classList.add("efx-cursor-hide");
       let tx = 0, ty = 0, rx = 0, ry = 0, raf2 = 0, seen = false;
@@ -2899,7 +2648,7 @@
       el.setAttribute("aria-hidden", "true");
       el.setAttribute("data-efx-mode", move ? mode : "none");
       st.setProperty("--efx-dv-dir", side === "t" ? 1 : -1);
-      const mk3 = (k, op) => {
+      const mk2 = (k, op) => {
         let body = "";
         layers.forEach(([y0, s2, tile], li) => {
           if (custom) {
@@ -2915,7 +2664,7 @@
         return s;
       };
       const copies = mode === "layers" && move ? [0, 1, 2] : [0];
-      el.innerHTML = copies.map((k) => mk3(k, copies.length > 1 ? [0.35, 0.6, 1][k] : 1)).join("");
+      el.innerHTML = copies.map((k) => mk2(k, copies.length > 1 ? [0.35, 0.6, 1][k] : 1)).join("");
       el.classList.add("is-ready");
       const kind = drift ? "drift" : move ? "float" : "";
       if (kind) el.classList.add("efx-divider--" + kind);
@@ -3968,8 +3717,8 @@
           }
         });
       };
-      const sortBy = (key2, dir) => {
-        const val = (c) => c.getAttribute("data-efx-key-" + key2) || "";
+      const sortBy = (key, dir) => {
+        const val = (c) => c.getAttribute("data-efx-key-" + key) || "";
         const list2 = items();
         if (!list2.length) return;
         const end = list2[list2.length - 1].nextSibling;
@@ -4210,110 +3959,9 @@
     }
   };
 
-  // src/features/lottie.js
-  var LIB = "https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web@0/+esm";
-  var libP = null;
-  var loadLib = (url) => libP || (libP = (async () => {
-    if (window.DotLottie) return window.DotLottie;
-    const custom = get("lottie-lib", "default");
-    const mod = custom ? await custom() : await import(
-      /* @vite-ignore */
-      url
-    );
-    return mod.DotLottie || mod.default && mod.default.DotLottie || mod.default;
-  })().catch((e) => {
-    libP = null;
-    throw e;
-  }));
-  var lottie_default = {
-    name: "lottie",
-    selector: ".efx-lottie",
-    lazy: true,
-    defaults: { src: "", autoplay: true, loop: true, speed: 1, trigger: "auto", still: 0, lib: LIB, label: "" },
-    init(el, o) {
-      if (!o.src) return;
-      const canvas = document.createElement("canvas");
-      canvas.className = "efx-lottie__canvas";
-      el.append(canvas);
-      const a0 = ["role", "aria-label"].map((a) => [a, el.getAttribute(a)]);
-      if (o.label) {
-        el.setAttribute("role", "img");
-        el.setAttribute("aria-label", o.label);
-      } else canvas.setAttribute("aria-hidden", "true");
-      const offs = [];
-      let dead = false, player = null, ready = false, inView = true;
-      const reduced = !motionOK(), trig = ["auto", "visible", "hover", "click", "scroll"].includes(o.trigger) ? o.trigger : "auto";
-      const total = () => Math.max(1, player.totalFrames || 1);
-      const start = () => {
-        if (dead || !ready) return;
-        const still = Math.min(1, Math.max(0, o.still));
-        if (reduced) {
-          player.setFrame(Math.round(still * (total() - 1)));
-          return;
-        }
-        if (trig === "auto") {
-          if (o.autoplay) player.play();
-          else player.setFrame(Math.round(still * (total() - 1)));
-        } else if (trig === "visible") {
-          offs.push(onVisible(el, (v) => {
-            inView = v;
-            if (v) player.play();
-            else player.pause();
-          }, "0px", 0.25));
-        } else if (trig === "hover") {
-          player.setFrame(Math.round(still * (total() - 1)));
-          offs.push(on(el, "pointerenter", () => player.play()), on(el, "pointerleave", () => player.pause()));
-        } else if (trig === "click") {
-          player.setFrame(Math.round(still * (total() - 1)));
-          offs.push(on(el, "click", () => {
-            if (player.isPlaying) player.pause();
-            else player.play();
-          }));
-        } else if (trig === "scroll") {
-          offs.push(onScroll((y, h) => {
-            const r = el.getBoundingClientRect(), p = Math.min(1, Math.max(0, (h - r.top) / (h + r.height)));
-            return () => player.setFrame(p * (total() - 1));
-          }));
-        }
-      };
-      loadLib(o.lib).then((DotLottie) => {
-        if (dead) return;
-        player = new DotLottie({ canvas, src: o.src, autoplay: false, loop: o.loop && !reduced, speed: o.speed, renderConfig: { autoResize: true } });
-        const done = () => {
-          if (dead || ready) return;
-          ready = true;
-          el.classList.add("is-ready");
-          el.dispatchEvent(new CustomEvent("efx:ready", { bubbles: true }));
-          start();
-        };
-        player.addEventListener("load", done);
-        player.addEventListener("loadError", () => {
-          if (!dead) el.classList.add("is-error");
-        });
-        player.addEventListener("complete", () => el.dispatchEvent(new CustomEvent("efx:done", { bubbles: true })));
-      }).catch((e) => {
-        if (!dead) {
-          el.classList.add("is-error");
-          console.warn("[effix] lottie player failed to load", e);
-        }
-      });
-      return () => {
-        dead = true;
-        offs.forEach((f2) => f2());
-        try {
-          player && player.destroy();
-        } catch (e) {
-        }
-        canvas.remove();
-        el.classList.remove("is-ready", "is-error");
-        a0.forEach(([a, v]) => v === null ? el.removeAttribute(a) : el.setAttribute(a, v));
-      };
-    }
-  };
-
   // src/features/lyrics.js
   var ts = (s) => s.split(":").reduce((a, v) => a * 60 + parseFloat(v), 0);
-  var parse2 = (a) => (Array.isArray(a) ? a : []).map((c) => ({ t: +c.t || 0, end: c.end, text: String(c.text == null ? "" : c.text), words: c.words })).sort((a2, b) => a2.t - b.t);
+  var parse = (a) => (Array.isArray(a) ? a : []).map((c) => ({ t: +c.t || 0, end: c.end, text: String(c.text == null ? "" : c.text), words: c.words })).sort((a2, b) => a2.t - b.t);
   var lyrics_default = {
     name: "lyrics",
     selector: ".efx-lyrics",
@@ -4327,7 +3975,7 @@
       const reduce = !motionOK();
       const sc = el.querySelector('script[type="application/json"]');
       try {
-        cues = parse2(JSON.parse(el.dataset.efxCues || sc && sc.textContent || "[]"));
+        cues = parse(JSON.parse(el.dataset.efxCues || sc && sc.textContent || "[]"));
       } catch (e) {
         console.warn("[effix] lyrics: bad cue JSON", e);
       }
@@ -4422,7 +4070,7 @@
             tt.mode = "hidden";
           }
           if (!tt.cues || !tt.cues.length || tt.cues.length === cues.length) return;
-          cues = parse2([...tt.cues].map((c) => {
+          cues = parse([...tt.cues].map((c) => {
             const text = c.text || "", parts = text.split(/<((?:\d+:)?\d+:\d+\.\d+)>/);
             let tm = c.startTime;
             const words = parts.length > 1 ? parts.reduce((a, p, k) => {
@@ -5703,20 +5351,20 @@
     selector: ".efx-popup",
     defaults: { delay: -1, scroll: 0, exit: false, frequency: "always", days: 7, id: "" },
     init(el, o) {
-      const id = o.id || el.id, key2 = "efx-popup:" + id, offs = [];
+      const id = o.id || el.id, key = "efx-popup:" + id, offs = [];
       let timer = 0, opener = null;
       const canAuto = () => {
-        if (o.frequency === "session") return !store("sessionStorage", (s) => s.getItem(key2));
-        if (o.frequency === "once") return !store("localStorage", (s) => s.getItem(key2));
+        if (o.frequency === "session") return !store("sessionStorage", (s) => s.getItem(key));
+        if (o.frequency === "once") return !store("localStorage", (s) => s.getItem(key));
         if (o.frequency === "days") {
-          const t = +store("localStorage", (s) => s.getItem(key2));
+          const t = +store("localStorage", (s) => s.getItem(key));
           return !t || Date.now() - t > o.days * 864e5;
         }
         return true;
       };
       const mark = () => {
-        if (o.frequency === "session") store("sessionStorage", (s) => s.setItem(key2, "1"));
-        else if (o.frequency === "once" || o.frequency === "days") store("localStorage", (s) => s.setItem(key2, Date.now()));
+        if (o.frequency === "session") store("sessionStorage", (s) => s.setItem(key, "1"));
+        else if (o.frequency === "once" || o.frequency === "days") store("localStorage", (s) => s.setItem(key, Date.now()));
       };
       const open = (by) => {
         if (el.open || !el.showModal) return;
@@ -6075,97 +5723,6 @@
         });
         el.style.removeProperty("--efx-pcolor");
         el.classList.remove("has-pcolor", "is-proximity");
-      };
-    }
-  };
-
-  // src/features/rating.js
-  var rating_default = {
-    name: "rating",
-    selector: ".efx-rating",
-    defaults: { value: -1, count: 5, half: false, readonly: true, name: "", label: "Rating" },
-    init(el, o) {
-      const saved = el.innerHTML, attrs = ["role", "tabindex", "aria-label", "aria-valuemin", "aria-valuemax", "aria-valuenow", "aria-valuetext", "aria-readonly"].map((a) => [a, el.getAttribute(a)]);
-      const count = Math.max(1, Math.min(20, Math.round(o.count))), step = o.half ? 0.5 : 1;
-      const clamp4 = (v) => Math.max(0, Math.min(count, Math.round(v / step) * step));
-      let value = clamp4(o.value >= 0 ? o.value : parseFloat(el.textContent) || 0), preview = null;
-      const stars = [], offs = [];
-      const input = o.name ? Object.assign(document.createElement("input"), { type: "hidden", name: o.name }) : null;
-      el.textContent = "";
-      for (let i = 0; i < count; i++) {
-        const st = document.createElement("span");
-        st.className = "efx-rating__star";
-        st.setAttribute("aria-hidden", "true");
-        st.textContent = "\u2605";
-        el.append(st);
-        stars.push(st);
-      }
-      if (input) el.append(input);
-      const text = (v) => `${v} of ${count}`;
-      const paint = (v) => stars.forEach((st, i) => st.style.setProperty("--efx-fill", Math.max(0, Math.min(1, v - i))));
-      const set = (v, fire2) => {
-        v = clamp4(v);
-        const changed = v !== value;
-        value = v;
-        preview = null;
-        paint(v);
-        el.setAttribute("aria-valuenow", v);
-        el.setAttribute("aria-valuetext", text(v));
-        if (input) input.value = v;
-        if (fire2 && changed) el.dispatchEvent(new CustomEvent("change", { bubbles: true, detail: { value: v } }));
-      };
-      el.classList.toggle("is-readonly", o.readonly);
-      el.setAttribute("aria-label", o.label);
-      if (o.readonly) {
-        el.setAttribute("role", "img");
-        el.setAttribute("aria-label", `${o.label}: ${text(value)}`);
-        paint(value);
-        if (input) input.value = value;
-      } else {
-        el.setAttribute("role", "slider");
-        el.tabIndex = 0;
-        el.setAttribute("aria-valuemin", 0);
-        el.setAttribute("aria-valuemax", count);
-        set(value);
-        const at = (e) => {
-          const i = Math.max(0, Math.min(count - 1, stars.findIndex((s) => s.contains(e.target))));
-          if (!stars.some((s) => s.contains(e.target))) return null;
-          if (!o.half) return i + 1;
-          const r = stars[i].getBoundingClientRect(), rtl = getComputedStyle(el).direction === "rtl";
-          const left = rtl ? e.clientX > r.left + r.width / 2 : e.clientX < r.left + r.width / 2;
-          return i + (left ? 0.5 : 1);
-        };
-        if (finePointer()) {
-          offs.push(on(el, "pointermove", (e) => {
-            const v = at(e);
-            if (v != null && v !== preview) {
-              preview = v;
-              paint(v);
-            }
-          }));
-          offs.push(on(el, "pointerleave", () => {
-            preview = null;
-            paint(value);
-          }));
-        }
-        offs.push(on(el, "click", (e) => {
-          const v = at(e);
-          if (v != null) set(v === value ? 0 : v, true);
-        }));
-        offs.push(on(el, "keydown", (e) => {
-          const k = e.key, d = { ArrowRight: step, ArrowUp: step, ArrowLeft: -step, ArrowDown: -step }[k];
-          if (d != null) set(value + d, true);
-          else if (k === "Home") set(0, true);
-          else if (k === "End") set(count, true);
-          else return;
-          e.preventDefault();
-        }));
-      }
-      return () => {
-        offs.forEach((f2) => f2());
-        el.innerHTML = saved;
-        el.classList.remove("is-readonly");
-        attrs.forEach(([a, v]) => v === null ? el.removeAttribute(a) : el.setAttribute(a, v));
       };
     }
   };
@@ -6542,12 +6099,12 @@
           el.innerHTML = saved;
         };
       }
-      const mk3 = (c) => {
+      const mk2 = (c) => {
         const s = document.createElement("span");
         s.className = c;
         return s;
       };
-      const sr = mk3("efx-scramble__sr"), vis = mk3("efx-scramble__v");
+      const sr = mk2("efx-scramble__sr"), vis = mk2("efx-scramble__v");
       vis.setAttribute("aria-hidden", "true");
       el.textContent = "";
       el.append(sr, vis);
@@ -6699,7 +6256,7 @@
 
   // src/features/scrub.js
   var NEUTRAL = { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1, blur: 0 };
-  var parse3 = (s) => {
+  var parse2 = (s) => {
     const o = {};
     String(s).split(/[\s;,]+/).forEach((t) => {
       const [k, v] = t.split(":"), n = parseFloat(v);
@@ -6713,8 +6270,8 @@
     defaults: { from: "", to: "", start: 0, end: 1, ease: "linear", peak: "none", x: 0, y: 0, rotate: 0, scale: 1, opacity: -1, blur: 0 },
     init(el, o) {
       if (!motionOK()) return;
-      const A = { ...NEUTRAL, ...parse3(o.from) };
-      const B = { ...NEUTRAL, x: o.x, y: o.y, rotate: o.rotate, scale: o.scale, blur: o.blur, ...o.opacity >= 0 ? { opacity: o.opacity } : {}, ...parse3(o.to) };
+      const A = { ...NEUTRAL, ...parse2(o.from) };
+      const B = { ...NEUTRAL, x: o.x, y: o.y, rotate: o.rotate, scale: o.scale, blur: o.blur, ...o.opacity >= 0 ? { opacity: o.opacity } : {}, ...parse2(o.to) };
       const ease3 = ease(o.ease), span2 = o.end - o.start || 1;
       const s = el.style, saved = [s.translate, s.rotate, s.scale, s.opacity, s.filter, s.transition, s.willChange, s.getPropertyValue("--efx-p")];
       const use = (k) => A[k] !== B[k];
@@ -7339,154 +6896,6 @@
     }
   };
 
-  // src/features/steps.js
-  var steps_default = {
-    name: "steps",
-    selector: ".efx-steps",
-    defaults: { start: 0, hash: false, linear: true, native: true, validate: "", back: "Back", next: "Next", finish: "Finish", label: "Progress" },
-    init(el, o) {
-      const panels = [...el.children].filter((c) => c.classList.contains("efx-step"));
-      if (!panels.length) return;
-      const n = panels.length, key2 = el.id || "step", offs = [];
-      const saved = panels.map((p) => [p.hidden, p.getAttribute("aria-labelledby"), p.getAttribute("role"), p.id]);
-      const bits = [];
-      const mk3 = (tag, cls, txt) => {
-        const x = document.createElement(tag);
-        x.className = cls;
-        if (txt != null) x.textContent = txt;
-        return x;
-      };
-      const list2 = mk3("ol", "efx-steps__list"), bar = mk3("div", "efx-steps__bar"), status = mk3("div", "efx-steps__status");
-      const nav = mk3("div", "efx-steps__nav"), back = mk3("button", "btn btn-outline efx-steps__back", o.back), next = mk3("button", "btn efx-steps__next", o.next);
-      back.type = next.type = "button";
-      status.setAttribute("aria-live", "polite");
-      list2.setAttribute("aria-label", o.label);
-      bar.setAttribute("aria-hidden", "true");
-      const items = panels.map((p, i) => {
-        const li = mk3("li", "efx-steps__item"), b = mk3("button", "efx-steps__btn"), num3 = mk3("span", "efx-steps__num", i + 1), t = mk3("span", "efx-steps__title", p.dataset.efxTitle || `Step ${i + 1}`);
-        b.type = "button";
-        b.append(num3, t);
-        li.append(b);
-        list2.append(li);
-        if (!p.id) {
-          p.id = `${key2}-panel-${i + 1}`;
-          bits.push(p);
-        }
-        p.setAttribute("role", "group");
-        b.id = `${key2}-tab-${i + 1}`;
-        p.setAttribute("aria-labelledby", b.id);
-        offs.push(on(b, "click", () => go(i, true)));
-        return { li, b, p };
-      });
-      nav.append(back, next);
-      el.prepend(list2);
-      el.prepend(bar);
-      el.append(status, nav);
-      el.classList.add("efx-steps--on");
-      let cur = -1, doneAll = false;
-      const valid = (i) => {
-        const p = panels[i];
-        if (o.native) {
-          const bad = [...p.querySelectorAll("input,select,textarea")].find((f2) => !f2.disabled && f2.willValidate && !f2.checkValidity());
-          if (bad) {
-            bad.reportValidity();
-            return false;
-          }
-        }
-        const fn = o.validate && get("step-validate", o.validate);
-        if (typeof fn === "function") {
-          try {
-            if (fn(p, i) === false) return false;
-          } catch (e) {
-            console.warn("[effix] steps validate", e);
-          }
-        }
-        return p.dispatchEvent(new CustomEvent("efx:validate", { bubbles: true, cancelable: true, detail: { index: i } }));
-      };
-      function show3(i, quiet) {
-        const prevI = cur;
-        cur = i;
-        items.forEach((it, k) => {
-          it.p.hidden = k !== i;
-          it.li.classList.toggle("is-active", k === i);
-          it.li.classList.toggle("is-done", k < i || doneAll);
-          if (k === i) it.b.setAttribute("aria-current", "step");
-          else it.b.removeAttribute("aria-current");
-          it.b.disabled = o.linear && k > i && !(k < reached + 1);
-        });
-        el.style.setProperty("--efx-steps-progress", n > 1 ? i / (n - 1) : 1);
-        el.setAttribute("data-efx-step", i);
-        back.disabled = i === 0;
-        next.textContent = i === n - 1 ? o.finish : o.next;
-        next.classList.toggle("is-last", i === n - 1);
-        status.textContent = `Step ${i + 1} of ${n}: ${items[i].b.textContent.replace(/^\d+/, "")}`;
-        if (o.hash && !quiet) {
-          const h = `#${key2}=${i + 1}`;
-          if (location.hash !== h) history.replaceState(null, "", h);
-        }
-        if (!quiet || prevI < 0) el.dispatchEvent(new CustomEvent("efx:step", { bubbles: true, detail: { index: i, count: n, previous: prevI } }));
-      }
-      let reached = 0;
-      function go(i, userNav) {
-        i = Math.max(0, Math.min(n - 1, i));
-        if (i === cur) return;
-        if (i > cur) {
-          if (o.linear && userNav && i > reached) return;
-          for (let k = cur; k < i; k++) if (!valid(k)) return;
-        }
-        reached = Math.max(reached, i);
-        show3(i);
-        const focus = panels[i].querySelector("[autofocus],input,select,textarea,button,a[href]");
-        if (userNav !== "quiet" && focus) try {
-          focus.focus({ preventScroll: true });
-        } catch (e) {
-        }
-      }
-      offs.push(on(back, "click", () => go(cur - 1)));
-      offs.push(on(next, "click", () => {
-        if (cur < n - 1) return go(cur + 1);
-        if (!valid(cur)) return;
-        doneAll = true;
-        items.forEach((it) => it.li.classList.add("is-done"));
-        el.classList.add("is-done");
-        el.dispatchEvent(new CustomEvent("efx:done", { bubbles: true }));
-      }));
-      offs.push(on(el, "efx:goto", (e) => {
-        const i = Math.round(e.detail && e.detail.index);
-        if (Number.isFinite(i)) {
-          reached = Math.max(reached, i);
-          go(i, "quiet");
-        }
-      }));
-      const fromHash = () => {
-        const m = new RegExp(`[#&]${key2.replace(/[^\w-]/g, "")}=(\\d+)`).exec(location.hash);
-        return m ? +m[1] - 1 : null;
-      };
-      if (o.hash) offs.push(on(window, "hashchange", () => {
-        const i = fromHash();
-        if (i != null && i >= 0 && i < n && i !== cur) {
-          reached = Math.max(reached, i);
-          show3(i, true);
-        }
-      }));
-      const h0 = o.hash ? fromHash() : null, s0 = Math.max(0, Math.min(n - 1, Math.round(h0 != null ? h0 : o.start)));
-      reached = s0;
-      show3(s0, true);
-      return () => {
-        offs.forEach((f2) => f2());
-        [list2, bar, status, nav].forEach((x) => x.remove());
-        panels.forEach((p, i) => {
-          p.hidden = saved[i][0];
-          [["aria-labelledby", saved[i][1]], ["role", saved[i][2]]].forEach(([a, v]) => v === null ? p.removeAttribute(a) : p.setAttribute(a, v));
-          if (bits.includes(p)) p.removeAttribute("id");
-        });
-        el.classList.remove("efx-steps--on", "is-done");
-        el.style.removeProperty("--efx-steps-progress");
-        el.removeAttribute("data-efx-step");
-      };
-    }
-  };
-
   // src/features/sticky.js
   var sticky_default = {
     name: "sticky",
@@ -7523,366 +6932,6 @@
         offF && offF();
         el.classList.remove("is-stuck", "is-hidden", "is-shrunk", "efx-sticky-anim");
         el.style.top = top;
-      };
-    }
-  };
-
-  // src/features/table.js
-  var num2 = (v) => {
-    const t = String(v).replace(/[\s,$£€%]/g, "");
-    return t !== "" && /^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(t) ? parseFloat(t) : NaN;
-  };
-  var mk2 = (tag, cls, txt) => {
-    const n = document.createElement(tag);
-    n.className = cls;
-    if (txt != null) n.textContent = txt;
-    return n;
-  };
-  var csvCell = (v) => {
-    let t = String(v);
-    if (/^[=+\-@\t\r]/.test(t) && Number.isNaN(num2(t))) t = "'" + t;
-    return /[",\n\r]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
-  };
-  function normalise(d) {
-    if (typeof d === "string") d = parseCSV(d);
-    if (d && !Array.isArray(d) && typeof d === "object") {
-      const cols = d.columns || (d.rows && d.rows[0] && !Array.isArray(d.rows[0]) ? Object.keys(d.rows[0]) : null);
-      return normalise(cols ? [cols, ...(d.rows || []).map((r) => Array.isArray(r) ? r : cols.map((c) => r[c]))] : d.rows || []);
-    }
-    if (!Array.isArray(d) || !d.length) return { columns: [], rows: [] };
-    if (!Array.isArray(d[0]) && typeof d[0] === "object") {
-      const columns = [...new Set(d.flatMap((r) => Object.keys(r)))];
-      return { columns, rows: d.map((r) => columns.map((c) => r[c] == null ? "" : String(r[c]))) };
-    }
-    return { columns: d[0].map(String), rows: d.slice(1).map((r) => r.map((c) => c == null ? "" : String(c))) };
-  }
-  var table_default = {
-    name: "table",
-    selector: ".efx-table",
-    defaults: {
-      data: "",
-      sort: true,
-      search: false,
-      filters: false,
-      pageSize: 0,
-      sticky: false,
-      height: "",
-      columns: false,
-      select: false,
-      stack: false,
-      csv: false,
-      filename: "table",
-      empty: "No results",
-      placeholder: "Search\u2026"
-    },
-    init(el, o) {
-      const table = el.tagName === "TABLE" ? el : el.querySelector("table");
-      if (!table) return;
-      const saved = table.innerHTML, parent = table.parentNode;
-      const cls0 = table.className, bar = mk2("div", "efx-table__bar"), pager = mk2("div", "efx-table__pager");
-      const live = mk2("span", "efx-table__live");
-      live.setAttribute("aria-live", "polite");
-      const offs = [];
-      let dead = false, rows = [], cols = [], wrap = null, order = [], view = [], page = 0;
-      let sortCol = -1, sortDir = 1, query = "", hiddenCols = /* @__PURE__ */ new Set(), selected = /* @__PURE__ */ new Set();
-      const colF = [];
-      const fromMarkup = () => {
-        const ths = [...table.querySelectorAll("thead tr:first-child > *")];
-        cols = ths.map((th) => th.textContent.trim());
-        rows = [...table.querySelectorAll(":scope > tbody > tr")].map((tr) => {
-          const tds = [...tr.children];
-          return { tr, cells: tds.map((td) => td.textContent.trim()), vals: tds.map((td) => {
-            var _a;
-            return (_a = td.dataset.efxValue) != null ? _a : td.textContent.trim();
-          }) };
-        });
-        if (!cols.length && rows[0]) cols = rows[0].cells.map((_, i) => "Column " + (i + 1));
-      };
-      const fromData = (d) => {
-        const n = normalise(d);
-        cols = n.columns;
-        rows = n.rows.map((r) => ({ cells: cols.map((_, i) => {
-          var _a;
-          return (_a = r[i]) != null ? _a : "";
-        }), vals: cols.map((_, i) => {
-          var _a;
-          return (_a = r[i]) != null ? _a : "";
-        }) }));
-        table.textContent = "";
-        const th = table.createTHead().insertRow();
-        cols.forEach((c) => th.appendChild(mk2("th", "", c)).setAttribute("scope", "col"));
-        const tb = table.createTBody();
-        rows.forEach((r) => {
-          r.tr = tb.insertRow();
-          r.cells.forEach((c) => r.tr.insertCell().textContent = c);
-        });
-      };
-      const pass = (r) => {
-        if (query && !r.cells.some((c, i) => !hiddenCols.has(i) && c.toLowerCase().includes(query))) return false;
-        return colF.every((f2, i) => !f2 || r.cells[i].toLowerCase().includes(f2));
-      };
-      const cmp = (a, b) => {
-        const x = a.vals[sortCol], y = b.vals[sortCol], nx = num2(x), ny = num2(y);
-        return (Number.isNaN(nx) || Number.isNaN(ny) ? String(x).localeCompare(String(y), void 0, { numeric: true, sensitivity: "base" }) : nx - ny) * sortDir;
-      };
-      const selectedRows = () => rows.filter((r) => selected.has(r)).map((r) => r.cells);
-      const fire2 = () => el.dispatchEvent(new CustomEvent("change", { bubbles: true, detail: { selected: selectedRows(), count: selected.size } }));
-      const tbody = () => table.tBodies[0];
-      let empty = null, all = null;
-      function render(announce) {
-        view = rows.filter(pass);
-        if (sortCol >= 0) view = view.map((r, i) => [r, i]).sort((a, b) => cmp(a[0], b[0]) || a[1] - b[1]).map((x) => x[0]);
-        const size = o.pageSize > 0 ? Math.floor(o.pageSize) : view.length || 1, pages = Math.max(1, Math.ceil(view.length / size));
-        page = Math.min(page, pages - 1);
-        const shown2 = view.slice(page * size, page * size + size);
-        const tb = tbody();
-        tb.replaceChildren(...shown2.map((r) => r.tr));
-        if (empty) {
-          empty.remove();
-          empty = null;
-        }
-        if (!shown2.length) {
-          empty = mk2("tr", "efx-table__empty");
-          const td = mk2("td", "", o.empty);
-          td.colSpan = Math.max(1, cols.length + (o.select ? 1 : 0));
-          empty.append(td);
-          tb.append(empty);
-        }
-        table.querySelectorAll("thead tr:first-child th[aria-sort]").forEach((th) => th.removeAttribute("aria-sort"));
-        if (sortCol >= 0) {
-          const th = headCell(sortCol);
-          if (th) th.setAttribute("aria-sort", sortDir > 0 ? "ascending" : "descending");
-        }
-        if (all) {
-          all.checked = !!shown2.length && shown2.every((r) => selected.has(r));
-          all.indeterminate = !all.checked && shown2.some((r) => selected.has(r));
-        }
-        if (o.pageSize > 0) {
-          pager.hidden = pages < 2;
-          pager.querySelector(".efx-table__info").textContent = view.length ? `${page * size + 1}\u2013${page * size + shown2.length} of ${view.length}` : "0 of 0";
-          pager.querySelector('[data-p="prev"]').disabled = page <= 0;
-          pager.querySelector('[data-p="next"]').disabled = page >= pages - 1;
-        }
-        if (announce) live.textContent = `${view.length} row${view.length === 1 ? "" : "s"}`;
-      }
-      const headCell = (i) => table.querySelector(`thead tr:first-child > :nth-child(${i + 1 + (o.select ? 1 : 0)})`);
-      const prep = () => {
-        const row0 = table.querySelector("thead tr:first-child");
-        if (!row0) return;
-        if (o.select) {
-          const th = mk2("th", "efx-table__sel");
-          th.scope = "col";
-          all = mk2("input", "checkbox");
-          all.type = "checkbox";
-          all.setAttribute("aria-label", "Select all rows");
-          th.append(all);
-          row0.prepend(th);
-          offs.push(on(all, "change", () => {
-            const shown2 = [...tbody().children].map((tr) => rows.find((r) => r.tr === tr)).filter(Boolean);
-            shown2.forEach((r) => {
-              all.checked ? selected.add(r) : selected.delete(r);
-              r.box.checked = all.checked;
-              r.tr.classList.toggle("is-selected", all.checked);
-            });
-            render();
-            fire2();
-          }));
-        }
-        rows.forEach((r) => {
-          if (o.select) {
-            const td = mk2("td", "efx-table__sel"), b = mk2("input", "checkbox");
-            b.type = "checkbox";
-            b.setAttribute("aria-label", "Select row");
-            td.append(b);
-            r.tr.prepend(td);
-            r.box = b;
-            offs.push(on(b, "change", () => {
-              b.checked ? selected.add(r) : selected.delete(r);
-              r.tr.classList.toggle("is-selected", b.checked);
-              render();
-              fire2();
-            }));
-          }
-          if (o.stack) [...r.tr.children].forEach((td, i) => {
-            const k = i - (o.select ? 1 : 0);
-            if (k >= 0 && cols[k]) td.dataset.label = cols[k];
-          });
-        });
-        cols.forEach((c, i) => {
-          const th = headCell(i);
-          if (!th || !o.sort) return;
-          const b = mk2("button", "efx-table__sort");
-          b.type = "button";
-          while (th.firstChild) b.append(th.firstChild);
-          th.append(b);
-          offs.push(on(b, "click", () => {
-            sortDir = sortCol === i ? -sortDir : 1;
-            sortCol = i;
-            render(true);
-          }));
-        });
-        if (o.filters) {
-          const fr = mk2("tr", "efx-table__filters");
-          if (o.select) fr.append(mk2("th", ""));
-          cols.forEach((c, i) => {
-            const th = mk2("th", ""), inp = mk2("input", "input input-sm");
-            inp.type = "search";
-            inp.placeholder = "Filter";
-            inp.setAttribute("aria-label", "Filter " + c);
-            colF[i] = "";
-            th.append(inp);
-            fr.append(th);
-            offs.push(on(inp, "input", () => {
-              colF[i] = inp.value.trim().toLowerCase();
-              page = 0;
-              render(true);
-            }));
-          });
-          row0.after(fr);
-        }
-      };
-      const buildBar = () => {
-        if (o.search) {
-          const inp = mk2("input", "input input-sm efx-table__search");
-          inp.type = "search";
-          inp.placeholder = o.placeholder;
-          inp.setAttribute("aria-label", "Search table");
-          bar.append(inp);
-          offs.push(on(inp, "input", () => {
-            query = inp.value.trim().toLowerCase();
-            page = 0;
-            render(true);
-          }));
-        }
-        if (o.columns && cols.length) {
-          const d = mk2("details", "efx-table__cols"), sm = mk2("summary", "btn btn-sm btn-outline", "Columns"), list2 = mk2("div", "efx-table__colist");
-          cols.forEach((c, i) => {
-            const lab = mk2("label", ""), cb = mk2("input", "checkbox");
-            cb.type = "checkbox";
-            cb.checked = true;
-            lab.append(cb, document.createTextNode(" " + c));
-            list2.append(lab);
-            offs.push(on(cb, "change", () => {
-              cb.checked ? hiddenCols.delete(i) : hiddenCols.add(i);
-              if (hiddenCols.size >= cols.length) {
-                hiddenCols.delete(i);
-                cb.checked = true;
-              }
-              applyCols();
-              render(true);
-            }));
-          });
-          d.append(sm, list2);
-          bar.append(d);
-        }
-        if (o.csv) {
-          const b = mk2("button", "btn btn-sm btn-outline efx-table__csv", "Download CSV");
-          b.type = "button";
-          bar.append(b);
-          offs.push(on(b, "click", () => {
-            const keep = cols.map((_, i) => i).filter((i) => !hiddenCols.has(i));
-            const src = selected.size ? view.filter((r) => selected.has(r)) : view;
-            const text = [keep.map((i) => cols[i]), ...src.map((r) => keep.map((i) => r.cells[i]))].map((r) => r.map(csvCell).join(",")).join("\r\n");
-            const a = document.createElement("a"), url = URL.createObjectURL(new Blob(["\uFEFF" + text], { type: "text/csv;charset=utf-8" }));
-            a.href = url;
-            a.download = (o.filename || "table").replace(/[^\w.-]+/g, "_") + ".csv";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 1e3);
-          }));
-        }
-        if (o.pageSize > 0) {
-          pager.append(mk2("span", "efx-table__info"));
-          ["prev", "next"].forEach((k) => {
-            const b = mk2("button", "btn btn-sm btn-outline", k === "prev" ? "Previous" : "Next");
-            b.type = "button";
-            b.dataset.p = k;
-            pager.append(b);
-            offs.push(on(b, "click", () => {
-              page += k === "prev" ? -1 : 1;
-              render(true);
-            }));
-          });
-        }
-      };
-      const applyCols = () => {
-        const off = o.select ? 1 : 0;
-        table.querySelectorAll("tr").forEach((tr) => {
-          if (!tr.classList.contains("efx-table__empty")) [...tr.children].forEach((c, i) => {
-            c.hidden = i >= off && hiddenCols.has(i - off);
-          });
-        });
-      };
-      const start = (d) => {
-        if (dead) return;
-        offs.splice(0).forEach((f2) => f2());
-        table.innerHTML = saved;
-        bar.textContent = "";
-        pager.textContent = "";
-        sortCol = -1;
-        query = "";
-        page = 0;
-        selected = /* @__PURE__ */ new Set();
-        hiddenCols = /* @__PURE__ */ new Set();
-        colF.length = 0;
-        all = null;
-        if (d === void 0) fromMarkup();
-        else fromData(d);
-        buildBar();
-        prep();
-        render();
-        bar.hidden = !bar.children.length;
-        el.setAttribute("data-efx-rows", rows.length);
-      };
-      const parse4 = (src) => /^\s*[[{]/.test(src) ? JSON.parse(src) : src;
-      const load = async () => {
-        const d = o.data.trim();
-        if (!d) return start();
-        let src = d;
-        if (/^(https?:\/\/|\/|\.\.?\/)\S+$|^[^\s,{[]+\.(csv|json)(\?\S*)?$/i.test(d)) {
-          try {
-            src = await (await fetch(d)).text();
-          } catch (e) {
-            console.warn("[effix] table data", e);
-            return start();
-          }
-        }
-        try {
-          start(parse4(src));
-        } catch (e) {
-          console.warn("[effix] table data", e);
-          start();
-        }
-      };
-      table.classList.add("efx-table--on");
-      if (o.stack) table.classList.add("efx-table--stack");
-      if (o.height) {
-        wrap = mk2("div", "efx-table__wrap");
-        wrap.style.maxHeight = /^\d+$/.test(o.height) ? o.height + "px" : o.height;
-        parent.insertBefore(wrap, table);
-        wrap.append(table);
-      }
-      if (o.sticky || o.height) table.classList.add("efx-table--sticky");
-      (wrap || table).before(bar);
-      (wrap || table).after(pager, live);
-      bar.hidden = pager.hidden = true;
-      const stat = [on(el, "efx:data", (e) => start(e.detail))];
-      load();
-      return () => {
-        dead = true;
-        offs.forEach((f2) => f2());
-        stat.forEach((f2) => f2());
-        table.innerHTML = saved;
-        table.className = cls0;
-        bar.remove();
-        pager.remove();
-        live.remove();
-        if (wrap) {
-          wrap.before(table);
-          wrap.remove();
-        }
-        el.removeAttribute("data-efx-rows");
       };
     }
   };
@@ -8040,63 +7089,6 @@
         el.classList.remove("is-tilting", "is-tilt-active");
         if (restorePos) el.style.position = "";
         g && g.remove();
-      };
-    }
-  };
-
-  // src/features/timeline.js
-  var LAYOUTS = ["vertical", "alternate", "horizontal"];
-  var timeline_default = {
-    name: "timeline",
-    selector: ".efx-timeline",
-    defaults: { layout: "vertical", reveal: true, progress: false, threshold: 0.2 },
-    init(el, o) {
-      const items = [...el.querySelectorAll(":scope > .efx-timeline__item")];
-      if (!items.length) return;
-      const layout = LAYOUTS.includes(o.layout) ? o.layout : "vertical";
-      const cls0 = el.getAttribute("class"), role0 = el.getAttribute("role");
-      const added = [], offs = [], saved = items.map((i) => i.getAttribute("role"));
-      el.classList.add("efx-timeline--on", "efx-timeline--" + layout);
-      if (el.tagName !== "OL" && el.tagName !== "UL") el.setAttribute("role", "list");
-      items.forEach((it) => {
-        if (it.tagName !== "LI") it.setAttribute("role", "listitem");
-        const m = document.createElement("span");
-        m.className = "efx-timeline__marker";
-        m.setAttribute("aria-hidden", "true");
-        if (it.dataset.efxIcon) m.textContent = it.dataset.efxIcon;
-        else m.classList.add("is-dot");
-        it.prepend(m);
-        added.push(m);
-      });
-      if (o.reveal && motionOK()) {
-        el.classList.add("efx-timeline--reveal");
-        items.forEach((it, i) => {
-          it.style.setProperty("--i", i % 6);
-          it.classList.add("efx-timeline__pending");
-          offs.push(onVisible(it, (v, e) => {
-            if (!v) return;
-            it.classList.remove("efx-timeline__pending");
-            it.classList.add("is-in");
-          }, "0px 0px -8% 0px", o.threshold));
-        });
-      }
-      if (o.progress && layout !== "horizontal") {
-        offs.push(onScroll((y, h) => {
-          const r = el.getBoundingClientRect(), p = Math.max(0, Math.min(1, (h / 2 - r.top) / (r.height || 1)));
-          return () => el.style.setProperty("--efx-timeline-progress", p.toFixed(3));
-        }));
-      }
-      return () => {
-        offs.forEach((f2) => f2());
-        added.forEach((m) => m.remove());
-        items.forEach((it, i) => {
-          it.classList.remove("efx-timeline__pending", "is-in");
-          it.style.removeProperty("--i");
-          saved[i] === null ? it.removeAttribute("role") : it.setAttribute("role", saved[i]);
-        });
-        el.style.removeProperty("--efx-timeline-progress");
-        cls0 === null ? el.removeAttribute("class") : el.setAttribute("class", cls0);
-        role0 === null ? el.removeAttribute("role") : el.setAttribute("role", role0);
       };
     }
   };
@@ -8546,16 +7538,16 @@
           el.innerHTML = saved;
         };
       }
-      const mk3 = (c, t) => {
+      const mk2 = (c, t) => {
         const s = document.createElement("span");
         s.className = c;
         if (t) s.textContent = t;
         return s;
       };
-      const sr = mk3("efx-typed__sr", words[0]), vis = mk3("efx-typed__v"), txt = mk3("efx-typed__t"), type = o.mode === "type";
+      const sr = mk2("efx-typed__sr", words[0]), vis = mk2("efx-typed__v"), txt = mk2("efx-typed__t"), type = o.mode === "type";
       vis.setAttribute("aria-hidden", "true");
       vis.append(txt);
-      if (o.cursor) vis.append(mk3("efx-typed__cursor"));
+      if (o.cursor) vis.append(mk2("efx-typed__cursor"));
       el.textContent = "";
       el.append(sr, vis);
       el.setAttribute("data-efx-mode", o.mode);
@@ -8684,7 +7676,7 @@
   };
 
   // src/effix-entry.js
-  define(ambient_default, animate_default, ascii_default, audio_default, beam_default, border_default, calendar_default, carousel_default, chapter_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, dim_default, direction_default, distort_default, divider_default, drag_default, draggable_default, draw_default, feed_default, flip_default, glitch_default, globe_default, hscroll_default, kenburns_default, kinetic_default, layout_default, lazyimg_default, lightbox_default, lottie_default, lyrics_default, magnetic_default, marquee_default, mask_default, media_default, morph_default, mouse_default, nudge_default, odometer_default, parallax_default, particles_default, path_default, pixelate_default, popout_default, popup_default, pricing_default, progress_default, proximity_default, rating_default, reel_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, shape_default, shimmer_default, sparkles_default, spinner_default, split_default, spotlight_default, stack_default, steps_default, sticky_default, table_default, textfill_default, tilt_default, timeline_default, toast_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
+  define(ambient_default, animate_default, ascii_default, audio_default, beam_default, border_default, carousel_default, chapter_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, dim_default, direction_default, distort_default, divider_default, drag_default, draggable_default, draw_default, feed_default, flip_default, glitch_default, globe_default, hscroll_default, kenburns_default, kinetic_default, layout_default, lazyimg_default, lightbox_default, lyrics_default, magnetic_default, marquee_default, mask_default, media_default, morph_default, mouse_default, nudge_default, odometer_default, parallax_default, particles_default, path_default, pixelate_default, popout_default, popup_default, pricing_default, progress_default, proximity_default, reel_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, shape_default, shimmer_default, sparkles_default, spinner_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, toast_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
   if (typeof window !== "undefined") window.Effix = core_default;
   autoBoot();
   var effix_entry_default = core_default;

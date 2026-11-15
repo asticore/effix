@@ -10,6 +10,7 @@ module.exports = {
     ['efx-table__filters', 'Injected per-column filter row.'],
     ['efx-table__empty', 'Row shown when nothing matches.'],
     ['is-selected', 'On a selected row.'],
+    ['dt / dt-toolbar / dt-search / dt-pagebar / dt-info / dt-empty / table-wrap / table-sticky-head', 'Used instead of the efx-table__* parts when Shine\'s widgets CSS is loaded. Sortable headers carry aria-sort (none / ascending / descending) around a plain button; selected rows also get aria-selected="true".'],
   ],
   options: [
     ['data-efx-sort', 'true', 'Click a header to sort (numbers, then text, natural order). Cells may set data-efx-value for the sort key.'],

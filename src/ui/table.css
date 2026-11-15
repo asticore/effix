@@ -29,3 +29,6 @@
   .efx-table--stack td { display: flex; justify-content: space-between; gap: 1rem; border: 0; text-align: right; }
   .efx-table--stack td[data-label]::before { content: attr(data-label); font-weight: 600; text-align: left; }
 }
+
+/* Shine's .dt-toolbar / .dt-pagebar set display:flex, which would defeat [hidden] */
+.dt-toolbar[hidden], .dt-pagebar[hidden] { display: none; }

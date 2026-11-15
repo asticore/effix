@@ -1,5 +1,5 @@
 /* calendar */
-.efx-calendar { display: block; max-width: 22rem; font-size: .9375rem; color: var(--sh-text, inherit); }
+.efx-calendar--own { display: block; max-width: 22rem; font-size: .9375rem; color: var(--sh-text, inherit); }
 .efx-calendar__head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .5rem; }
 .efx-calendar__title { font-weight: 600; }
 .efx-calendar__nav { all: unset; box-sizing: border-box; width: 2rem; height: 2rem; display: grid; place-items: center; cursor: pointer; border-radius: var(--sh-radius, .5rem); font-size: 1.25rem; line-height: 1; }

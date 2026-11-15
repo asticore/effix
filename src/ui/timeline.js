@@ -3,7 +3,8 @@
      <li class="efx-timeline__item" data-efx-icon="★"><time class="efx-timeline__time">2024</time><div class="efx-timeline__body"><h4>Launch</h4><p>…</p></div></li>
    </ol>
    Content is visible without JS; items are only hidden after JS claims the list (and never when motion is reduced). */
-import { on, onVisible, onScroll, motionOK } from '../core.js';
+import { onVisible, onScroll, motionOK } from '../core.js';
+import { shineWidgets } from './_shine.js';
 
 const LAYOUTS = ['vertical', 'alternate', 'horizontal'];
 
@@ -16,14 +17,21 @@ export default {
     if (!items.length) return;
     const layout = LAYOUTS.includes(o.layout) ? o.layout : 'vertical';
     const cls0 = el.getAttribute('class'), role0 = el.getAttribute('role');
-    const added = [], offs = [], saved = items.map(i => i.getAttribute('role'));
-    el.classList.add('efx-timeline--on', 'efx-timeline--' + layout);
+    const added = [], shClass = [], offs = [], saved = items.map(i => i.getAttribute('role'));
+    const sh = shineWidgets(); // Shine's .timeline / .timeline-alt / .timeline-horizontal do the layout
+    el.classList.add('efx-timeline--on');
+    if (sh) el.classList.add('timeline', ...(layout === 'alternate' ? ['timeline-alt'] : layout === 'horizontal' ? ['timeline-horizontal'] : [])); else el.classList.add('efx-timeline--own', 'efx-timeline--' + layout);
     if (el.tagName !== 'OL' && el.tagName !== 'UL') el.setAttribute('role', 'list');
     items.forEach(it => {
       if (it.tagName !== 'LI') it.setAttribute('role', 'listitem');
       const m = document.createElement('span');
-      m.className = 'efx-timeline__marker'; m.setAttribute('aria-hidden', 'true');
+      m.className = 'efx-timeline__marker' + (sh ? ' timeline-marker' : ''); m.setAttribute('aria-hidden', 'true');
       if (it.dataset.efxIcon) m.textContent = it.dataset.efxIcon; else m.classList.add('is-dot');
+      if (sh) {
+        it.classList.add('timeline-item'); shClass.push(it);
+        it.querySelectorAll(':scope > .efx-timeline__time').forEach(x => { x.classList.add('timeline-date'); shClass.push(x); });
+        it.querySelectorAll(':scope > .efx-timeline__body').forEach(x => { x.classList.add('timeline-body'); shClass.push(x); });
+      }
       it.prepend(m); added.push(m);
     });
     if (o.reveal && motionOK()) {
@@ -34,7 +42,7 @@ export default {
         offs.push(onVisible(it, (v, e) => { if (!v) return; it.classList.remove('efx-timeline__pending'); it.classList.add('is-in'); }, '0px 0px -8% 0px', o.threshold));
       });
     }
-    if (o.progress && layout !== 'horizontal') {
+    if (o.progress && !sh && layout !== 'horizontal') {
       // the line fills from the first marker to the viewport middle
       offs.push(onScroll((y, h) => {
         const r = el.getBoundingClientRect(), p = Math.max(0, Math.min(1, (h / 2 - r.top) / (r.height || 1)));
@@ -49,6 +57,7 @@ export default {
         saved[i] === null ? it.removeAttribute('role') : it.setAttribute('role', saved[i]);
       });
       el.style.removeProperty('--efx-timeline-progress');
+      shClass.forEach(x => x.classList.remove('timeline-item', 'timeline-date', 'timeline-body'));
       cls0 === null ? el.removeAttribute('class') : el.setAttribute('class', cls0);
       role0 === null ? el.removeAttribute('role') : el.setAttribute('role', role0);
     };

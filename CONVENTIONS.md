@@ -8,7 +8,7 @@ Rules every feature follows. Read this before adding one.
    Never re-implement something Shine already does with CSS (buttons, modals, carousel track, tooltips, colors, spacing).
 2. **Only pay for what is on the page.** On boot the core runs one `querySelectorAll` per registered feature. Absent features
    cost nothing. Heavy features set `lazy: true` (initialised when first near the viewport) and pause their loops off-screen.
-3. **Budget.** Effects bundle ≤ 66 KB gzip JS + 16 KB CSS (the auto-loader is the recommended path; the full bundle is for sites using many features), charts + diagrams add-on ≤ 36 KB JS + 5 KB CSS (`build.js` fails above). Core ≈ 2 KB. Aim for ≤ 1 KB gzip per feature.
+3. **Budget.** Effects bundle ≤ 60 KB gzip JS + 14 KB CSS (the auto-loader is the recommended path; the full bundle is for sites using many features), UI widgets add-on (`src/ui/`) ≤ 24 KB JS + 8 KB CSS, charts + diagrams add-on ≤ 36 KB JS + 5 KB CSS (`build.js` fails above). Core ≈ 2 KB. Aim for ≤ 1 KB gzip per feature.
 4. **Zero runtime dependencies.** esbuild + Playwright are dev-only.
 
 ## Loading model
@@ -21,6 +21,7 @@ src/css/base.css            shared knobs (--efx-duration, --efx-ease, --efx-dist
 src/features/<name>.js      the feature (ES module, default export = definition)
 src/features/<name>.css     optional CSS (build wraps everything in @layer effix)
 src/features/<name>.meta.js docs data (CommonJS, never bundled) -> docs/index.html
+src/ui/<name>.*             same shape, but for data widgets (table, rating, calendar, steps, timeline, lottie): they ship as the effix-ui add-on
 ```
 Adding a file to `src/features/` is enough; `build.js` and `docs.js` discover it.
 
