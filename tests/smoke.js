@@ -24,7 +24,7 @@ const feats = found.map(({ n, dir }) => {
 const html = `<!doctype html><html><head><meta charset="utf-8">
 <link rel="stylesheet" href="../docs/vendor/shine.min.css"><link rel="stylesheet" href="effix.all.min.css">
 <style>.box{min-height:320px;position:relative}</style></head><body>
-${feats.map(f => `<section class="box" id="s-${f.n}">${f.html}</section><div style="height:200px"></div>`).join('\n')}
+${feats.filter(f => !f.skip).map(f => `<section class="box" id="s-${f.n}">${f.html}</section><div style="height:200px"></div>`).join('\n')}
 <script src="effix.all.min.js"></script></body></html>`;
 fs.writeFileSync(page, html);
 
