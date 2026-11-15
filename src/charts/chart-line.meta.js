@@ -13,6 +13,8 @@ Labels: <code>data-efx-labels="Mon|Tue|Wed"</code> or <code>{"labels":[…],"ser
     ['data-efx-labels', '', 'X labels: "Mon|Tue|Wed".'],
     ['data-efx-names', '', 'Series names: "2025|2026".'],
     ['data-efx-source', '', 'CSS selector of a Shine table to read (first column = labels).'],
+    ['data-efx-csv', '', 'CSV text or URL (.csv): header row = series names, first column = labels. Or an inline <script type="text/csv">.'],
+    ['data-efx-live', '', 'Name of a live source registered with Effix.chartSource(name, (push, el) => push({ labels, series })).'],
     ['data-efx-area', 'false', 'Gradient fill under each line (35% → 0 of the series color).'],
     ['data-efx-stacked', 'false', 'Stacked area (implies area).'],
     ['data-efx-stream', 'false', 'Streamgraph: stacked areas around a centred wiggle baseline (no y axis), smooth. Tooltip still shows real values.'],

@@ -288,13 +288,37 @@ export function setData(el, data) {
   return api;
 }
 
+/** Parse CSV text (quotes, escaped quotes, CRLF) into an array of rows of strings. */
+export function parseCSV(text) {
+  const rows = [], s = String(text).replace(/^\uFEFF/, '');
+  let row = [], cell = '', q = false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (q) { if (c === '"') { if (s[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"' && !cell) q = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && s[i + 1] === '\n') i++; row.push(cell); cell = ''; rows.push(row); row = []; }
+    else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.length > 1 || r[0] !== '');
+}
+
+/** Register a live chart data source: `<div class="efx-chart-bar" data-efx-live="name">` calls
+    fn(push, el) once; call push({ labels, series }) whenever data changes. fn may return a cleanup function. */
+export function chartSource(name, fn) {
+  add('chart-source', name, fn);
+  if (doc) doc.querySelectorAll('[data-efx-live]').forEach(el => { if (el.dataset.efxLive === name && el.hasAttribute('data-efx-ready')) refresh(el); });
+  return api;
+}
+
 /** Instance check / feature list helpers. */
 export const isMounted = (el, name) => !!mounted.get(el)?.has(name);
 export const features = () => [...registry.keys()];
 
 export const api = {
   version: '__VERSION__',
-  define, init, destroy, refresh, observe, disconnect, options, isMounted, features, add, get, list, setData,
+  define, init, destroy, refresh, observe, disconnect, options, isMounted, features, add, get, list, setData, parseCSV, chartSource,
   motionOK, finePointer, cssVar, themeColor, on, rafThrottle, onVisible, onScroll,
 };
 

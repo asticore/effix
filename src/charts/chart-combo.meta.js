@@ -16,6 +16,7 @@ with <code>data-efx-types="bar|line"</code> and <code>data-efx-axes="left|right"
     ['data-efx-axes', '', 'Per-series fallback: "left|right".'],
     ['data-efx-smooth', 'true', 'Smooth (monotone) lines.'],
     ['data-efx-dots', 'true', 'Dots on line points (false = only on hover).'],
+    ['data-efx-stacked', 'false', 'Stack the bar series (per axis); lines stay on top.'],
     ['data-efx-area', 'false', 'Gradient fill under the lines.'],
     ['data-efx-radius', '4', 'Bar corner radius.'],
     ['data-efx-prefix / suffix', '', 'Left axis and tooltip value formatting, e.g. "$" / "k".'],

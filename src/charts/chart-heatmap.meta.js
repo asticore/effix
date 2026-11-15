@@ -13,6 +13,8 @@ Calendar (<code>data-efx-calendar</code>): day values for up to the last 53 week
     ['data-efx-data', '', 'Grid: "1,4,2|3,0,5" or JSON [[1,4,2],[3,0,5]]. Calendar: JSON [{"date":"2026-01-03","value":4}].'],
     ['data-efx-labels / names', '', 'Grid column labels "Mon|Tue" / row names "Morning|Evening".'],
     ['data-efx-source', '', 'CSS selector of a Shine table to read (first column = labels).'],
+    ['data-efx-csv', '', 'CSV text or URL (.csv): header row = series names, first column = labels. Or an inline <script type="text/csv">.'],
+    ['data-efx-live', '', 'Name of a live source registered with Effix.chartSource(name, (push, el) => push({ labels, series })).'],
     ['data-efx-calendar', 'false', 'Calendar mode: weeks as columns, 7 rows, month and weekday labels.'],
     ['data-efx-scheme', '', '"" = single color ramp · "diverging" = colors[0] for positive, danger (or colors[1]) for negative.'],
     ['data-efx-gap', '2', 'Space between cells in px.'],

@@ -11,6 +11,8 @@ A table via <code>data-efx-source</code> also works. One <code>data-efx-colors</
     ['data-efx-data', '', '"40,25,15,10" or JSON {"data":[{"label":"A","value":40}]} or {labels, series}. Only the first series is used.'],
     ['data-efx-labels', '', 'Tile labels: "Rent|Food|Travel".'],
     ['data-efx-source', '', 'CSS selector of a Shine table to read.'],
+    ['data-efx-csv', '', 'CSV text or URL (.csv): header row = series names, first column = labels. Or an inline <script type="text/csv">.'],
+    ['data-efx-live', '', 'Name of a live source registered with Effix.chartSource(name, (push, el) => push({ labels, series })).'],
     ['data-efx-gap', '2', 'Gap between tiles in px.'],
     ['data-efx-radius', '4', 'Tile corner radius.'],
     ['data-efx-captions', 'true', 'Print label and value inside tiles that are big enough.'],

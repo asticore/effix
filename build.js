@@ -20,7 +20,7 @@ const ROOT = __dirname;
 const SRC = path.join(ROOT, 'src');
 const pkg = require('./package.json');
 const BUDGET = { // gzip bytes
-  'effix.min.js': 60 * 1024, 'effix.min.css': 14 * 1024,
+  'effix.min.js': 66 * 1024, 'effix.min.css': 16 * 1024,
   'effix-charts.min.js': 36 * 1024, 'effix-charts.min.css': 5 * 1024,
   'effix-diagrams.min.js': 24 * 1024, 'effix-diagrams.min.css': 5 * 1024,
   'effix-viz.min.js': 32 * 1024, 'effix-viz.min.css': 4 * 1024,
@@ -77,7 +77,7 @@ const addonEntry = (feats, kit = true) => [
   `if (window.Effix) window.Effix.define(defs);`,
   `else (window.EffixPending = window.EffixPending || []).push(...defs);`,
 ].join('\n');
-const CORE_API = ['define', 'init', 'destroy', 'refresh', 'observe', 'disconnect', 'options', 'isMounted', 'features', 'add', 'get', 'list', 'setData',
+const CORE_API = ['define', 'init', 'destroy', 'refresh', 'observe', 'disconnect', 'options', 'isMounted', 'features', 'add', 'get', 'list', 'setData', 'parseCSV', 'chartSource',
   'motionOK', 'finePointer', 'cssVar', 'themeColor', 'on', 'rafThrottle', 'onVisible', 'onScroll'];
 const useHostCore = {
   name: 'effix-host-core',

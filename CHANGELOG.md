@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+Data widgets for the Engage builder (issues #1–#8). 119 features in total.
+
+- **`efx-table`** — sort, search, per-column filter, paging, sticky header / scroll height, column visibility, row selection (`change` event), responsive stack, CSV download, empty state; data from markup, `data-efx-data` (JSON/CSV/URL) or `efx:data`.
+- **Charts** — `data-efx-csv` (inline, `<script type="text/csv">` or URL) and `Effix.chartSource(name, (push, el) => …)` with `data-efx-live` for live data on every chart; `data-efx-stacked` on `chart-combo`. `Effix.parseCSV` added to the core.
+- **`efx-chart-polar`** — polar area chart (`chart-pie` `data-efx-rose` stays the donut/rose variant).
+- **`efx-rating`** — read-only or input, half stars, `change` event, hidden form field.
+- **`efx-calendar`** — month view, JSON / ICS events, single-date or range picker, locale and first day of week.
+- **`efx-steps`** — stepper with progress, validation hook, URL hash sync.
+- **`efx-lottie`** — lazy dotLottie player: the player library is fetched only when an element nears the viewport; autoplay, loop, visible / hover / click / scroll triggers, reduced-motion still frame.
+- **`efx-timeline`** — vertical, alternating and horizontal content timeline with icons and reveal on scroll.
+- Effects bundle budget raised to 66 KB JS / 16 KB CSS gzip to fit the new widgets.
+
 ## v0.3.0
 
 d3-gallery visualisations and a leaner loading model. 112 features in total.

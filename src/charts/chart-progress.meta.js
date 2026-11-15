@@ -11,6 +11,8 @@ JSON: <code>[{"name":"Value","data":[820,64]},{"name":"Target","data":[1000,80]}
     ['data-efx-data', '', 'Values "820,64,45" or two series "820,64|1000,80" (second series = targets). JSON works too.'],
     ['data-efx-labels', '', 'Row labels: "Signups|Revenue|NPS".'],
     ['data-efx-source', '', 'CSS selector of a Shine table (column 1 = labels, 2 = values, 3 = targets).'],
+    ['data-efx-csv', '', 'CSV text or URL (.csv): header row = series names, first column = labels. Or an inline <script type="text/csv">.'],
+    ['data-efx-live', '', 'Name of a live source registered with Effix.chartSource(name, (push, el) => push({ labels, series })).'],
     ['data-efx-max', 'auto', 'Common scale for every row. Auto: each row with a target scales to max(target, value); otherwise the largest value.'],
     ['data-efx-values', 'true', 'Show "value / target" on the right.'],
     ['data-efx-percent', 'true', 'Show the percentage (value / target, else value / scale).'],
