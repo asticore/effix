@@ -1,5 +1,5 @@
 /* chart-candle */
-.efx-cd__pt { cursor: crosshair; }
-.efx-cd__pt.is-active { filter: none; }
-.efx-cd__band { fill: var(--efx-chart-text); opacity: 0; transition: opacity .15s; }
-.efx-cd__pt.is-active .efx-cd__band { opacity: .08; }
+.spark-cd__pt { cursor: crosshair; }
+.spark-cd__pt.is-active { filter: none; }
+.spark-cd__band { fill: var(--spark-chart-text); opacity: 0; transition: opacity .15s; }
+.spark-cd__pt.is-active .spark-cd__band { opacity: .08; }

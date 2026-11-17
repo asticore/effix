@@ -1,18 +1,18 @@
 /* distort — liquid/ripple warp via an inline SVG filter (feTurbulence + feDisplacementMap).
-   <img class="efx-distort" src="…"> or any element. trigger: hover | always | view. */
+   <img class="spark-distort" src="…"> or any element. trigger: hover | always | view. */
 import { on, onVisible, motionOK, finePointer } from '../core.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 let uid = 0;
 export default {
   name: 'distort',
-  selector: '.efx-distort',
+  selector: '.spark-distort',
   defaults: { scale: 30, frequency: 0.02, speed: 1, trigger: 'hover' },
   init(el, o) {
     if (!motionOK() || (o.trigger === 'hover' && !finePointer())) return;
-    const id = 'efx-distort-' + ++uid;
+    const id = 'spark-distort-' + ++uid;
     const svg = document.createElementNS(NS, 'svg');
-    svg.setAttribute('class', 'efx-distort__svg');
+    svg.setAttribute('class', 'spark-distort__svg');
     svg.setAttribute('aria-hidden', 'true');
     svg.innerHTML = `<filter id="${id}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="${o.frequency}" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter>`;
     document.body.appendChild(svg);

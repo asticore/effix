@@ -1,5 +1,5 @@
 /* scrollspy — highlight the nav link whose section is in view.
-   <nav class="efx-scrollspy"><a href="#intro">Intro</a><a href="#usage">Usage</a></nav> */
+   <nav class="spark-scrollspy"><a href="#intro">Intro</a><a href="#usage">Usage</a></nav> */
 import { onVisible, motionOK, on } from '../core.js';
 
 const byHash = h => {
@@ -10,7 +10,7 @@ const byHash = h => {
 
 export default {
   name: 'scrollspy',
-  selector: '.efx-scrollspy',
+  selector: '.spark-scrollspy',
   defaults: { offset: 80, activeClass: 'is-active', smooth: true },
   init(el, o) {
     const links = [...el.querySelectorAll('a[href^="#"]')];

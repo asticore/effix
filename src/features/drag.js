@@ -1,10 +1,10 @@
 /* drag — mouse drag-to-scroll with inertia for any overflowing container (works with Shine .carousel).
-   <div class="efx-drag" style="overflow-x:auto">…</div>   axis: x | y | both. Touch keeps scrolling natively. */
+   <div class="spark-drag" style="overflow-x:auto">…</div>   axis: x | y | both. Touch keeps scrolling natively. */
 import { on, motionOK } from '../core.js';
 
 export default {
   name: 'drag',
-  selector: '.efx-drag',
+  selector: '.spark-drag',
   defaults: { inertia: true, axis: 'x' },
   init(el, o) {
     const ax = o.axis === 'y' || o.axis === 'both' ? o.axis : 'x';
@@ -51,10 +51,10 @@ export default {
       on(el, 'click', e => { if (block) { e.preventDefault(); e.stopPropagation(); } }, true),
       on(el, 'dragstart', e => e.preventDefault()),
     ];
-    el.classList.add('efx-drag-on');
+    el.classList.add('spark-drag-on');
     return () => {
       stopInertia(); offs.forEach(f => f()); offsMove.forEach(f => f());
-      restore(); el.classList.remove('efx-drag-on');
+      restore(); el.classList.remove('spark-drag-on');
     };
   },
 };

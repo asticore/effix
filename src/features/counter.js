@@ -1,11 +1,11 @@
 /* counter — count up to the number in the element's text when it scrolls into view.
-   <span class="efx-counter" data-efx-suffix="+">12840</span> */
+   <span class="spark-counter" data-spark-suffix="+">12840</span> */
 import { onVisible, motionOK } from '../core.js';
 import { ease } from './_easing.js';
 
 export default {
   name: 'counter',
-  selector: '.efx-counter',
+  selector: '.spark-counter',
   defaults: { from: 0, to: NaN, duration: 1600, decimals: -1, separator: ',', ease: 'ease-out-cubic', prefix: '', suffix: '', once: true },
   init(el, o) {
     const orig = el.textContent, hadHidden = el.getAttribute('aria-hidden');
@@ -32,7 +32,7 @@ export default {
     if (!motionOK()) { final(); return () => { el.textContent = orig; }; }
     // aria-label on a span is ignored: expose the final value in an sr-only sibling, hide the animated text
     const sr = document.createElement('span');
-    sr.className = 'efx-counter__sr';
+    sr.className = 'spark-counter__sr';
     sr.textContent = fmt(to);
     el.after(sr);
     el.setAttribute('aria-hidden', 'true');

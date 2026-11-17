@@ -1,9 +1,9 @@
 /* diagram-tree — tree / org chart / mind map from a nested list. HTML-first: the list stays real
    (and readable without JS); JS lays the nodes out and draws SVG connectors.
-   <ul class="efx-diagram-tree" data-efx-direction="down" data-efx-links="elbow">
-     <li data-efx-tone="primary"><span>CEO</span><ul><li>CTO</li><li>CFO</li></ul></li>
+   <ul class="spark-diagram-tree" data-spark-direction="down" data-spark-links="elbow">
+     <li data-spark-tone="primary"><span>CEO</span><ul><li>CTO</li><li>CFO</li></ul></li>
    </ul>
-   data-efx-layout="mindmap" centres the root and splits children left/right.
+   data-spark-layout="mindmap" centres the root and splits children left/right.
    Click / Enter / Space toggles a branch; arrows move (↑↓ siblings, ←→ parent/child). */
 import { s } from './_lib.js';
 import { onVisible, motionOK, on, rafThrottle } from '../core.js';
@@ -13,7 +13,7 @@ const EASE = 'cubic-bezier(.22,1,.36,1)';
 
 export default {
   name: 'diagram-tree',
-  selector: '.efx-diagram-tree',
+  selector: '.spark-diagram-tree',
   lazy: true,
   defaults: { direction: 'down', layout: 'tree', links: 'elbow', collapsible: true, collapse: 0, gap: 16, levelGap: 44, animate: true, tone: '', title: '' },
   init(el, o) {
@@ -42,23 +42,23 @@ export default {
         nodes.push(n); byChip.set(chip, n);
         if (parent) parent.kids.push(n);
         undo.push([chip, 'style', chip.getAttribute('style')], [chip, 'class', chip.getAttribute('class')]);
-        chip.classList.add('efx-tree__node');
+        chip.classList.add('spark-tree__node');
         attr(li, 'role', 'none');
         attr(chip, 'role', 'treeitem');
         attr(chip, 'tabindex', '-1');
         attr(chip, 'aria-level', depth + 1);
         attr(chip, 'aria-setsize', lis.length);
         attr(chip, 'aria-posinset', i + 1);
-        const tone = li.getAttribute('data-efx-tone') || o.tone;
-        if (tone) chip.style.setProperty('--efx-tone', `var(--sh-${tone}, ${tone})`);
+        const tone = li.getAttribute('data-spark-tone') || o.tone;
+        if (tone) chip.style.setProperty('--spark-tone', `var(--sh-${tone}, ${tone})`);
         if (sub) {
-          if (!sub.id) { attr(sub, 'id', 'efx-t' + ++uid); }
+          if (!sub.id) { attr(sub, 'id', 'spark-t' + ++uid); }
           attr(sub, 'role', 'group');
           attr(chip, 'aria-owns', sub.id);
           walk(sub, depth + 1, n);
         }
         if (n.kids.length && o.collapsible) {
-          n.collapsed = li.hasAttribute('data-efx-collapsed') || (o.collapse > 0 && depth >= o.collapse);
+          n.collapsed = li.hasAttribute('data-spark-collapsed') || (o.collapse > 0 && depth >= o.collapse);
           attr(chip, 'aria-expanded', String(!n.collapsed));
           chip.classList.add('is-branch');
         }
@@ -72,13 +72,13 @@ export default {
     if (!nodes.length) { undo.reverse().forEach(u => u.length === 1 ? u[0]() : null); return; }
     const top = nodes[0];
     top.chip.tabIndex = 0;
-    root.classList.add('efx-tree-on', 'efx-tree--' + (mind ? 'mind' : dir));
-    if (play) root.classList.add('efx-tree--pending');
+    root.classList.add('spark-tree-on', 'spark-tree--' + (mind ? 'mind' : dir));
+    if (play) root.classList.add('spark-tree--pending');
 
-    const svg = s('svg', { class: 'efx-tree__links', 'aria-hidden': 'true', focusable: 'false' });
+    const svg = s('svg', { class: 'spark-tree__links', 'aria-hidden': 'true', focusable: 'false' });
     root.prepend(svg);
-    nodes.forEach(n => { if (n.parent) n.link = s('path', { class: 'efx-tree__link', fill: 'none' }, svg); });
-    nodes.forEach(n => { const t = n.chip.style.getPropertyValue('--efx-tone'); if (n.link && t) n.link.style.setProperty('--efx-tone', t); });
+    nodes.forEach(n => { if (n.parent) n.link = s('path', { class: 'spark-tree__link', fill: 'none' }, svg); });
+    nodes.forEach(n => { const t = n.chip.style.getPropertyValue('--spark-tone'); if (n.link && t) n.link.style.setProperty('--spark-tone', t); });
 
     /* ---------------------------------------------------------- layout */
     const down = dir === 'down', gB = o.gap, gD = o.levelGap;
@@ -200,7 +200,7 @@ export default {
       stopVis = onVisible(root, vis => {
         if (!vis) return;
         stopVis();
-        root.classList.remove('efx-tree--pending');
+        root.classList.remove('spark-tree--pending');
         nodes.forEach(n => {
           n.chip.animate([{ opacity: 0, transform: `translate(${top.x}px,${top.y}px) scale(.8)` }, { opacity: 1, transform: `translate(${n.x}px,${n.y}px)` }], { duration: 520, delay: n.depth * 90, easing: EASE, fill: 'backwards' });
           if (n.link) n.link.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, delay: n.depth * 90 + 120, fill: 'backwards' });
@@ -221,18 +221,18 @@ export default {
       n.collapsed = c;
       n.chip.setAttribute('aria-expanded', String(!c));
       layout(true);
-      el.dispatchEvent(new CustomEvent('efx:toggle', { bubbles: true, detail: { label: n.chip.textContent.trim(), expanded: !c } }));
+      el.dispatchEvent(new CustomEvent('spark:toggle', { bubbles: true, detail: { label: n.chip.textContent.trim(), expanded: !c } }));
     }
     const text = n => n.chip.textContent.trim();
     const offs = [
       on(root, 'click', e => {
-        const chip = e.target.closest('.efx-tree__node'), n = chip && byChip.get(chip);
+        const chip = e.target.closest('.spark-tree__node'), n = chip && byChip.get(chip);
         if (!n) return;
-        el.dispatchEvent(new CustomEvent('efx:select', { bubbles: true, detail: { label: text(n), depth: n.depth } }));
+        el.dispatchEvent(new CustomEvent('spark:select', { bubbles: true, detail: { label: text(n), depth: n.depth } }));
         if (!e.target.closest('a,button,input')) { n.chip.focus(); toggle(n); }
       }),
       on(root, 'keydown', e => {
-        const chip = e.target.closest('.efx-tree__node'), n = chip && byChip.get(chip);
+        const chip = e.target.closest('.spark-tree__node'), n = chip && byChip.get(chip);
         if (!n || e.altKey || e.ctrlKey || e.metaKey) return;
         const k = e.key, sibs = n.parent ? n.parent.kids : [n], i = sibs.indexOf(n);
         let t = null;
@@ -246,14 +246,14 @@ export default {
           else t = n.parent;
         } else if (k === 'Home') t = top;
         else if (k === 'End') { t = nodes.filter(x => x.vis).pop(); }
-        else if (k === 'Enter' || k === ' ') { if (!e.target.closest('a')) { toggle(n); el.dispatchEvent(new CustomEvent('efx:select', { bubbles: true, detail: { label: text(n), depth: n.depth } })); } }
+        else if (k === 'Enter' || k === ' ') { if (!e.target.closest('a')) { toggle(n); el.dispatchEvent(new CustomEvent('spark:select', { bubbles: true, detail: { label: text(n), depth: n.depth } })); } }
         else return;
         e.preventDefault();
         if (t) focus(t);
       }),
-      on(root, 'focusin', e => { const n = byChip.get(e.target.closest('.efx-tree__node')); if (n) hot(n); }),
+      on(root, 'focusin', e => { const n = byChip.get(e.target.closest('.spark-tree__node')); if (n) hot(n); }),
       on(root, 'focusout', () => hot(null)),
-      on(root, 'pointerover', e => { const n = byChip.get(e.target.closest('.efx-tree__node')); if (n) hot(n); }),
+      on(root, 'pointerover', e => { const n = byChip.get(e.target.closest('.spark-tree__node')); if (n) hot(n); }),
       on(root, 'pointerleave', () => hot(null)),
     ];
     const rs = rafThrottle(() => { if (Math.abs(root.clientWidth - cw) > 1) layout(false); });
@@ -267,7 +267,7 @@ export default {
       stopVis(); rs.cancel(); if (ro) ro.disconnect();
       nodes.forEach(n => n.chip.getAnimations().forEach(a => a.cancel()));
       svg.remove();
-      root.classList.remove('efx-tree-on', 'efx-tree--mind', 'efx-tree--down', 'efx-tree--right', 'efx-tree--pending');
+      root.classList.remove('spark-tree-on', 'spark-tree--mind', 'spark-tree--down', 'spark-tree--right', 'spark-tree--pending');
       undo.reverse().forEach(([n, k, v]) => {
         if (typeof n === 'function') return n();
         if (k === 0) return n.remove();

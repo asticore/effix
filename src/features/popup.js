@@ -1,7 +1,7 @@
 /* popup — auto-open triggers for a Shine modal (native <dialog>).
-   <dialog class="modal efx-popup" id="promo" data-efx-delay="5" data-efx-frequency="session">…
-     <button class="btn-close" data-efx-close aria-label="Close"></button></dialog>
-   Manual openers: <button data-efx-open="promo"> or <a href="#promo">. One auto popup per page view. */
+   <dialog class="modal spark-popup" id="promo" data-spark-delay="5" data-spark-frequency="session">…
+     <button class="btn-close" data-spark-close aria-label="Close"></button></dialog>
+   Manual openers: <button data-spark-open="promo"> or <a href="#promo">. One auto popup per page view. */
 import { on, onScroll } from '../core.js';
 
 let shown = false; // only one auto popup per page view
@@ -10,10 +10,10 @@ const store = (s, fn) => { try { return fn(window[s]); } catch (e) {} };
 
 export default {
   name: 'popup',
-  selector: '.efx-popup',
+  selector: '.spark-popup',
   defaults: { delay: -1, scroll: 0, exit: false, frequency: 'always', days: 7, id: '' },
   init(el, o) {
-    const id = o.id || el.id, key = 'efx-popup:' + id, offs = [];
+    const id = o.id || el.id, key = 'spark-popup:' + id, offs = [];
     let timer = 0, opener = null;
     const canAuto = () => {
       if (o.frequency === 'session') return !store('sessionStorage', s => s.getItem(key));
@@ -40,15 +40,15 @@ export default {
 
     offs.push(on(el, 'close', () => { if (opener && opener.focus) opener.focus(); opener = null; }));
     offs.push(on(el, 'click', e => {
-      if (e.target.closest('[data-efx-close]')) return close();
+      if (e.target.closest('[data-spark-close]')) return close();
       if (e.target !== el) return;
       const r = el.getBoundingClientRect();
       if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) close();
     }));
     offs.push(on(document, 'click', e => {
-      const t = e.target.closest && e.target.closest('[data-efx-open],a[href^="#"]');
+      const t = e.target.closest && e.target.closest('[data-spark-open],a[href^="#"]');
       if (!t || !id) return;
-      if ((t.dataset.efxOpen || t.getAttribute('href').slice(1)) !== id) return;
+      if ((t.dataset.sparkOpen || t.getAttribute('href').slice(1)) !== id) return;
       e.preventDefault(); open(t);
     }));
 

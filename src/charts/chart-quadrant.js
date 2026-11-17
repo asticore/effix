@@ -1,6 +1,6 @@
 /* chart-quadrant — 2×2 priority matrix with labelled dots.
-   <div class="efx-chart-quadrant" data-efx-quadrants="Quick wins|Big bets|Fill-ins|Money pits" data-efx-x-label="Effort →" data-efx-y-label="Impact →"
-        data-efx-data='[{"label":"Search","x":20,"y":80},{"label":"Rewrite","x":85,"y":70,"r":8,"group":"Core"}]'></div> */
+   <div class="spark-chart-quadrant" data-spark-quadrants="Quick wins|Big bets|Fill-ins|Money pits" data-spark-x-label="Effort →" data-spark-y-label="Impact →"
+        data-spark-data='[{"label":"Search","x":20,"y":80},{"label":"Rewrite","x":85,"y":70,"r":8,"group":"Core"}]'></div> */
 import { COMMON, chart, palette, linear, s, esc } from './_lib.js';
 import { on } from '../core.js';
 
@@ -12,21 +12,21 @@ const hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b
 
 export default {
   name: 'chart-quadrant',
-  selector: '.efx-chart-quadrant',
+  selector: '.spark-chart-quadrant',
   lazy: true,
   defaults: { ...COMMON, height: 360, legend: false, quadrants: [], xLabel: '', yLabel: '', xDomain: [], yDomain: [] },
   init(el, o) {
-    // The component owns its items (the lib only sees a name-less series). efx:data > inline <script> > data-efx-data.
+    // The component owns its items (the lib only sees a name-less series). spark:data > inline <script> > data-spark-data.
     const read = d => { try { return norm(d); } catch (e) { return []; } };
     const j = el.querySelector(':scope > script[type="application/json"]');
     let items = [];
-    try { items = read(JSON.parse((o.data || '').trim() || (j ? j.textContent : '[]'))); } catch (e) { console.warn('[effix] chart data', e); }
+    try { items = read(JSON.parse((o.data || '').trim() || (j ? j.textContent : '[]'))); } catch (e) { console.warn('[spark] chart data', e); }
     const jt = j && j.getAttribute('type');
-    if (j) j.setAttribute('type', 'application/x-efx-json');
+    if (j) j.setAttribute('type', 'application/x-spark-json');
     o.source = '';
     o.data = '[]';
-    // registered before chart() so it runs before the lib's own efx:data handler
-    const off = on(el, 'efx:data', e => { items = read(e.detail); });
+    // registered before chart() so it runs before the lib's own spark:data handler
+    const off = on(el, 'spark:data', e => { items = read(e.detail); });
     const draw = ({ g, w, h, deco }) => {
       if (!items.length) return [];
       const pal = palette(el, o, 7), Q = o.quadrants;
@@ -37,13 +37,13 @@ export default {
       // quadrant order: TL, TR, BL, BR
       [[X0, Y0, 2], [mx, Y0, 0], [X0, my, 4], [mx, my, 5]].forEach(([qx, qy, c], k) => {
         const l = qx === X0 ? 0 : 1, t = qy === Y0 ? 0 : 1;
-        s('rect', { x: qx + (l ? gp : 0), y: qy + (t ? gp : 0), width: mx - X0 - gp, height: my - Y0 - gp, rx: deco ? 0 : 8, fill: pal[c], 'fill-opacity': deco ? .14 : .09, class: 'efx-chart__fade', style: `--i:${k}` }, g);
-        if (!deco && Q[k]) s('text', { x: l ? X1 - 12 : X0 + 12, y: t ? Y1 - 12 : Y0 + 18, 'text-anchor': l ? 'end' : 'start', class: 'efx-quad__q efx-chart__fade' }, g).textContent = Q[k];
+        s('rect', { x: qx + (l ? gp : 0), y: qy + (t ? gp : 0), width: mx - X0 - gp, height: my - Y0 - gp, rx: deco ? 0 : 8, fill: pal[c], 'fill-opacity': deco ? .14 : .09, class: 'spark-chart__fade', style: `--i:${k}` }, g);
+        if (!deco && Q[k]) s('text', { x: l ? X1 - 12 : X0 + 12, y: t ? Y1 - 12 : Y0 + 18, 'text-anchor': l ? 'end' : 'start', class: 'spark-quad__q spark-chart__fade' }, g).textContent = Q[k];
       });
       if (!deco) {
-        const ax = s('g', { class: 'efx-chart__axis', 'aria-hidden': 'true' }, g);
-        s('line', { x1: mx, x2: mx, y1: Y0, y2: Y1, class: 'efx-chart__grid' }, ax);
-        s('line', { x1: X0, x2: X1, y1: my, y2: my, class: 'efx-chart__grid' }, ax);
+        const ax = s('g', { class: 'spark-chart__axis', 'aria-hidden': 'true' }, g);
+        s('line', { x1: mx, x2: mx, y1: Y0, y2: Y1, class: 'spark-chart__grid' }, ax);
+        s('line', { x1: X0, x2: X1, y1: my, y2: my, class: 'spark-chart__grid' }, ax);
         if (o.xLabel) s('text', { x: mx, y: h - 8, 'text-anchor': 'middle' }, ax).textContent = o.xLabel;
         if (o.yLabel) s('text', { x: 10, y: my, 'text-anchor': 'middle', transform: `rotate(-90 10 ${my})` }, ax).textContent = o.yLabel;
       }
@@ -55,7 +55,7 @@ export default {
         return { q, r, cx, cy, col: pal[q.group == null ? 0 : groups.indexOf(q.group) % 7] };
       });
       dots.forEach((d, i) => {
-        d.node = s('circle', { cx: d.cx, cy: d.cy, r: d.r, fill: d.col, 'fill-opacity': rmax ? .8 : 1, stroke: 'var(--sh-surface,#fff)', 'stroke-width': 2, class: 'efx-chart__mark efx-chart__fade', style: `--i:${i + 4}` }, g);
+        d.node = s('circle', { cx: d.cx, cy: d.cy, r: d.r, fill: d.col, 'fill-opacity': rmax ? .8 : 1, stroke: 'var(--sh-surface,#fff)', 'stroke-width': 2, class: 'spark-chart__mark spark-chart__fade', style: `--i:${i + 4}` }, g);
       });
       // labels: first free of 12 candidate spots around the dot (right, left, above, below, corners, shifted right)
       if (!deco) {
@@ -71,7 +71,7 @@ export default {
             if (!sc) break;
           }
           placed.push(best.b);
-          s('text', { x: d.cx + best.dx, y: d.cy + best.dy, 'text-anchor': ['start', 'end', 'middle'][best.a], 'dominant-baseline': 'middle', class: 'efx-quad__l efx-chart__fade', style: `--i:${i + 6}` }, g).textContent = t;
+          s('text', { x: d.cx + best.dx, y: d.cy + best.dy, 'text-anchor': ['start', 'end', 'middle'][best.a], 'dominant-baseline': 'middle', class: 'spark-quad__l spark-chart__fade', style: `--i:${i + 6}` }, g).textContent = t;
         });
       }
       return dots.map((d, i) => {

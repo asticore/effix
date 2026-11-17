@@ -1,12 +1,12 @@
-/* Effix base — shared knobs. Colors fall back to Shine tokens when Shine is loaded.
+/* Spark base — shared knobs. Colors fall back to Shine tokens when Shine is loaded.
    Override any knob on :root, a section, or a single element:
-     style="--efx-color:#e11d48; --efx-duration:900ms" */
+     style="--spark-color:#e11d48; --spark-duration:900ms" */
 :root {
-  --efx-duration: 700ms;
-  --efx-ease: cubic-bezier(.22, 1, .36, 1);
-  --efx-distance: 24px;
+  --spark-duration: 700ms;
+  --spark-ease: cubic-bezier(.22, 1, .36, 1);
+  --spark-distance: 24px;
 }
-/* <html data-efx-reduce>: freeze Effix animations only (not Shine spinners etc.) */
-[data-efx-reduce] [class*="efx-"],
-[data-efx-reduce] [class*="efx-"]::before,
-[data-efx-reduce] [class*="efx-"]::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+/* <html data-spark-reduce>: freeze Spark animations only (not Shine spinners etc.) */
+[data-spark-reduce] [class*="spark-"],
+[data-spark-reduce] [class*="spark-"]::before,
+[data-spark-reduce] [class*="spark-"]::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }

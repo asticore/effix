@@ -6,19 +6,19 @@ module.exports = {
   group: 'Images',
   summary: 'A circular spotlight follows the pointer and reveals the colour image over a greyscale base. Tap or press Enter to toggle the full reveal on touch and keyboard.',
   classes: [
-    ['efx-mask', 'Wrapper containing the base <img>.'],
-    ['efx-mask__reveal', 'Optional second <img> shown inside the spotlight. Without it a colour copy of the base is used.'],
+    ['spark-mask', 'Wrapper containing the base <img>.'],
+    ['spark-mask__reveal', 'Optional second <img> shown inside the spotlight. Without it a colour copy of the base is used.'],
   ],
   options: [
-    ['data-efx-radius', '120', 'Spotlight radius in px (grows in on enter).'],
-    ['data-efx-soft', '0.4', 'Edge softness 0–1.'],
-    ['data-efx-gray', 'true', 'false = leave the base image in colour (use with a different reveal image).'],
+    ['data-spark-radius', '120', 'Spotlight radius in px (grows in on enter).'],
+    ['data-spark-soft', '0.4', 'Edge softness 0–1.'],
+    ['data-spark-gray', 'true', 'false = leave the base image in colour (use with a different reveal image).'],
   ],
-  vars: [['--efx-x / --efx-y / --efx-r', 'set by JS', 'Spotlight position and radius, readable for custom styling.']],
+  vars: [['--spark-x / --spark-y / --spark-r', 'set by JS', 'Spotlight position and radius, readable for custom styling.']],
   examples: [
     { html: `<div class="grid md:grid-cols-2 gap-4">
-  <div class="efx-mask rounded-lg overflow-hidden" style="height:240px"><img src="${A}" alt="Mountain at sunrise"></div>
-  <div class="efx-mask rounded-lg overflow-hidden" data-efx-gray="false" data-efx-radius="90" style="height:240px"><img src="${C}" alt="City by day"><img class="efx-mask__reveal" src="${B}" alt=""></div>
+  <div class="spark-mask rounded-lg overflow-hidden" style="height:240px"><img src="${A}" alt="Mountain at sunrise"></div>
+  <div class="spark-mask rounded-lg overflow-hidden" data-spark-gray="false" data-spark-radius="90" style="height:240px"><img src="${C}" alt="City by day"><img class="spark-mask__reveal" src="${B}" alt=""></div>
 </div>` },
   ],
 };

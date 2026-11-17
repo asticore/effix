@@ -6,20 +6,20 @@ module.exports = {
   group: 'Images',
   summary: 'A background image stays clipped to the card while a transparent cut-out bursts out of the frame. Pointer movement and scroll shift the layers at different depths with a slight 3D tilt. Static overflow look with reduced motion.',
   classes: [
-    ['efx-popout', 'The card (give it a size and a radius).'],
-    ['efx-popout__bg', 'Background layer, clipped to the card. A div with background-image, or an img.'],
-    ['efx-popout__fg', 'Foreground cut-out (transparent PNG/SVG img) that overflows the top and sides.'],
+    ['spark-popout', 'The card (give it a size and a radius).'],
+    ['spark-popout__bg', 'Background layer, clipped to the card. A div with background-image, or an img.'],
+    ['spark-popout__fg', 'Foreground cut-out (transparent PNG/SVG img) that overflows the top and sides.'],
   ],
   options: [
-    ['data-efx-depth', '20', 'Layer travel in px (foreground moves most, background least).'],
-    ['data-efx-tilt', '8', 'Maximum 3D tilt in degrees (pointer).'],
-    ['data-efx-mode', 'both', 'pointer · scroll · both (pointer needs a fine pointer; scroll works on touch).'],
+    ['data-spark-depth', '20', 'Layer travel in px (foreground moves most, background least).'],
+    ['data-spark-tilt', '8', 'Maximum 3D tilt in degrees (pointer).'],
+    ['data-spark-mode', 'both', 'pointer · scroll · both (pointer needs a fine pointer; scroll works on touch).'],
   ],
   vars: [],
   examples: [
-    { html: `<div class="p-6" style="padding-top:5rem"><div class="efx-popout rounded-xl" style="max-width:360px;margin-inline:auto;aspect-ratio:4/3" data-efx-depth="26" data-efx-tilt="9">
-  <div class="efx-popout__bg" style="background-image:url('${bg}')"></div>
-  <img class="efx-popout__fg" src="${fg}" alt="A ringed planet bursting out of the frame">
+    { html: `<div class="p-6" style="padding-top:5rem"><div class="spark-popout rounded-xl" style="max-width:360px;margin-inline:auto;aspect-ratio:4/3" data-spark-depth="26" data-spark-tilt="9">
+  <div class="spark-popout__bg" style="background-image:url('${bg}')"></div>
+  <img class="spark-popout__fg" src="${fg}" alt="A ringed planet bursting out of the frame">
 </div></div>` },
   ],
 };

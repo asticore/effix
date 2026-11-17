@@ -1,6 +1,6 @@
 /* mouse — layered depth parallax that follows the pointer (Elementor-style mouse track).
-   <section class="efx-mouse" data-efx-strength="30"><img data-efx-depth="0.3"><h2 data-efx-depth="0.8">Hi</h2></section>
-   Layers = descendants with [data-efx-depth]; with none, the container itself moves. scope: self | page. */
+   <section class="spark-mouse" data-spark-strength="30"><img data-spark-depth="0.3"><h2 data-spark-depth="0.8">Hi</h2></section>
+   Layers = descendants with [data-spark-depth]; with none, the container itself moves. scope: self | page. */
 import { on, onVisible, motionOK, finePointer } from '../core.js';
 
 /* One shared document pointermove listener for every visible instance. */
@@ -14,14 +14,14 @@ const subscribe = fn => {
 
 export default {
   name: 'mouse',
-  selector: '.efx-mouse',
+  selector: '.spark-mouse',
   defaults: { strength: 20, scope: 'self', invert: false, rotate: 0, ease: 0.12, gyro: false },
   init(el, o) {
     const fine = finePointer(), gy = o.gyro && !fine && 'DeviceOrientationEvent' in window;
     if (!(fine || gy) || !motionOK()) return;
-    const found = [...el.querySelectorAll('[data-efx-depth]')];
+    const found = [...el.querySelectorAll('[data-spark-depth]')];
     const layers = (found.length ? found : [el]).map(n => ({
-      n, d: found.length ? parseFloat(n.dataset.efxDepth) || 0 : 1, x: 0, y: 0, r: 0,
+      n, d: found.length ? parseFloat(n.dataset.sparkDepth) || 0 : 1, x: 0, y: 0, r: 0,
       pt: n.style.translate, pr: n.style.rotate,
     }));
     const sign = o.invert ? 1 : -1, page = o.scope === 'page', ease = Math.min(1, Math.max(0.01, o.ease));

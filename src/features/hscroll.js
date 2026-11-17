@@ -1,18 +1,18 @@
 /* hscroll — vertical scroll drives a pinned horizontal track.
-   <section class="efx-hscroll"><div class="efx-hscroll__track"><div>panel</div><div>panel</div></div></section>
+   <section class="spark-hscroll"><div class="spark-hscroll__track"><div>panel</div><div>panel</div></div></section>
    Small screens / reduced motion: plain horizontal overflow scroll with snap, no pinning. */
 import { onScroll, motionOK, on } from '../core.js';
 
 export default {
   name: 'hscroll',
-  selector: '.efx-hscroll',
+  selector: '.spark-hscroll',
   defaults: { offset: 0, snap: false },
   init(el, o) {
     const made = [];
-    let track = [...el.children].find(c => c.classList.contains('efx-hscroll__track'));
+    let track = [...el.children].find(c => c.classList.contains('spark-hscroll__track'));
     if (!track) {
       track = document.createElement('div');
-      track.className = 'efx-hscroll__track';
+      track.className = 'spark-hscroll__track';
       while (el.firstChild) track.appendChild(el.firstChild);
       el.appendChild(track);
       made.push(track);
@@ -26,7 +26,7 @@ export default {
       clearTimeout(timer);
       track.style.transform = track.style.willChange = '';
       if (pin) { el.style.height = saveH; if (pin.parentNode === el) el.insertBefore(track, pin); else el.appendChild(track); pin.remove(); pin = null; }
-      el.classList.remove('efx-hscroll-on', 'efx-hscroll-native');
+      el.classList.remove('spark-hscroll-on', 'spark-hscroll-native');
     };
     const measure = () => { // read phase: returns the write
       const vw = innerWidth, vh = innerHeight - o.offset;
@@ -36,14 +36,14 @@ export default {
       return () => { el.style.height = h; };
     };
     const setup = () => {
-      if (!pinned()) { el.classList.add('efx-hscroll-native'); return; }
+      if (!pinned()) { el.classList.add('spark-hscroll-native'); return; }
       pin = document.createElement('div');
-      pin.className = 'efx-hscroll__pin';
+      pin.className = 'spark-hscroll__pin';
       pin.style.top = o.offset + 'px';
       pin.style.height = `calc(100vh - ${o.offset}px)`;
       el.insertBefore(pin, track);
       pin.appendChild(track);
-      el.classList.add('efx-hscroll-on');
+      el.classList.add('spark-hscroll-on');
       track.style.willChange = 'transform';
       saveH = el.style.height;
       measure()();

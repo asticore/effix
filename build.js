@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-/* Effix build. Runtime has zero dependencies; esbuild is used only to bundle/minify.
+/* Spark build. Runtime has zero dependencies; esbuild is used only to bundle/minify.
    Three bundles, so pages only download what they use:
-     effix.min.js / .css          core + effects            (window.Effix, auto-boots)
-     effix-charts.min.js / .css   chart add-on              (needs effix.min.js on the page, any order)
-     effix.all.min.js / .css      core + effects + charts   (one file)
-   Plus readable (non-.min) versions, ES modules (effix.esm.js, effix.all.esm.js) and
+     spark.min.js / .css          core + effects            (window.Spark, auto-boots)
+     spark-charts.min.js / .css   chart add-on              (needs spark.min.js on the page, any order)
+     spark.all.min.js / .css      core + effects + charts   (one file)
+   Plus readable (non-.min) versions, ES modules (spark.esm.js, spark.all.esm.js) and
    dist/sizes.json (gzip bytes per feature) used by the docs.
    Usage:
      node build.js                               full build -> dist/
-     node build.js --only=reveal,chart-bar       custom single bundle -> dist/custom/effix.min.js
+     node build.js --only=reveal,chart-bar       custom single bundle -> dist/custom/spark.min.js
      node build.js --exclude=cursor,popup        custom single bundle
      node build.js --only=reveal --out=public/js  choose output folder */
 const fs = require('fs');
@@ -20,11 +20,11 @@ const ROOT = __dirname;
 const SRC = path.join(ROOT, 'src');
 const pkg = require('./package.json');
 const BUDGET = { // gzip bytes
-  'effix.min.js': 60 * 1024, 'effix.min.css': 14 * 1024,
-  'effix-ui.min.js': 24 * 1024, 'effix-ui.min.css': 8 * 1024,
-  'effix-charts.min.js': 36 * 1024, 'effix-charts.min.css': 5 * 1024,
-  'effix-diagrams.min.js': 24 * 1024, 'effix-diagrams.min.css': 5 * 1024,
-  'effix-viz.min.js': 32 * 1024, 'effix-viz.min.css': 4 * 1024,
+  'spark.min.js': 60 * 1024, 'spark.min.css': 14 * 1024,
+  'spark-ui.min.js': 24 * 1024, 'spark-ui.min.css': 8 * 1024,
+  'spark-charts.min.js': 36 * 1024, 'spark-charts.min.css': 5 * 1024,
+  'spark-diagrams.min.js': 24 * 1024, 'spark-diagrams.min.css': 5 * 1024,
+  'spark-viz.min.js': 32 * 1024, 'spark-viz.min.css': 4 * 1024,
 };
 
 const args = Object.fromEntries(process.argv.slice(2).map(a => {
@@ -65,29 +65,29 @@ const entry = (feats, boot = true) => [
   ...feats.map(f => `import ${ident(f)} from './${f.dir}/${f.name}.js';`),
   feats.length ? `define(${feats.map(ident).join(', ')});` : '',
   feats.some(f => f.dir === 'charts') ? `import * as chartKit from './charts/_lib.js'; api.charts = chartKit;` : '',
-  `if (typeof window !== 'undefined') window.Effix = api;`,
+  `if (typeof window !== 'undefined') window.Spark = api;`,
   boot ? `autoBoot();` : '',
   `export default api;`,
 ].join('\n');
 
 /* Entry for an add-on bundle: core is NOT included. Features import '../core.js',
-   which the plugin below maps to thin wrappers around the page's window.Effix. */
+   which the plugin below maps to thin wrappers around the page's window.Spark. */
 const addonEntry = (feats, kit = true) => [
   ...feats.map(f => `import ${ident(f)} from './${f.dir}/${f.name}.js';`),
   kit ? `import * as chartKit from './charts/_lib.js';` : '',
   `const defs = [${feats.map(ident).join(', ')}];`,
-  kit ? `if (window.Effix) window.Effix.charts = chartKit; else window.EffixChartKit = chartKit;` : '',
-  `if (window.Effix) window.Effix.define(defs);`,
-  `else (window.EffixPending = window.EffixPending || []).push(...defs);`,
+  kit ? `if (window.Spark) window.Spark.charts = chartKit; else window.SparkChartKit = chartKit;` : '',
+  `if (window.Spark) window.Spark.define(defs);`,
+  `else (window.SparkPending = window.SparkPending || []).push(...defs);`,
 ].join('\n');
 const CORE_API = ['define', 'init', 'destroy', 'refresh', 'observe', 'disconnect', 'options', 'isMounted', 'features', 'add', 'get', 'list', 'setData', 'parseCSV', 'chartSource',
   'motionOK', 'finePointer', 'cssVar', 'themeColor', 'on', 'rafThrottle', 'onVisible', 'onScroll'];
 const useHostCore = {
-  name: 'effix-host-core',
+  name: 'spark-host-core',
   setup(b) {
-    b.onResolve({ filter: /(^|\/)core\.js$/ }, () => ({ path: 'effix-core', namespace: 'effix-host' }));
-    b.onLoad({ filter: /.*/, namespace: 'effix-host' }, () => ({
-      contents: CORE_API.map(n => `export const ${n} = (...a) => window.Effix.${n}(...a);`).join('\n') + '\nexport default window.Effix;',
+    b.onResolve({ filter: /(^|\/)core\.js$/ }, () => ({ path: 'spark-core', namespace: 'spark-host' }));
+    b.onLoad({ filter: /.*/, namespace: 'spark-host' }, () => ({
+      contents: CORE_API.map(n => `export const ${n} = (...a) => window.Spark.${n}(...a);`).join('\n') + '\nexport default window.Spark;',
       loader: 'js',
     }));
   },
@@ -98,11 +98,11 @@ const useHostCore = {
 const KIT_EXPORTS = [...fs.readFileSync(path.join(SRC, 'charts', '_lib.js'), 'utf8')
   .matchAll(/^export (?:function|const) (\w+)|^export \{ (?:\w+ as )?(\w+) \}/gm)].map(m => m[1] || m[2]);
 const useHostKit = {
-  name: 'effix-host-kit',
+  name: 'spark-host-kit',
   setup(b) {
-    b.onResolve({ filter: /(^|\/)_lib\.js$/ }, () => ({ path: 'effix-kit', namespace: 'effix-kit' }));
-    b.onLoad({ filter: /.*/, namespace: 'effix-kit' }, () => ({
-      contents: 'const K = window.EffixChartKit;\n' + KIT_EXPORTS.map(n => `export const ${n} = K.${n};`).join('\n'),
+    b.onResolve({ filter: /(^|\/)_lib\.js$/ }, () => ({ path: 'spark-kit', namespace: 'spark-kit' }));
+    b.onLoad({ filter: /.*/, namespace: 'spark-kit' }, () => ({
+      contents: 'const K = window.SparkChartKit;\n' + KIT_EXPORTS.map(n => `export const ${n} = K.${n};`).join('\n'),
       loader: 'js',
     }));
   },
@@ -110,19 +110,19 @@ const useHostKit = {
 const FILE_BUDGET = 8 * 1024; // gzip bytes per individual feature file (what pages actually download)
 
 const bundle = (contents, { format = 'iife', minify = true, plugins = [] } = {}) => esbuild.build({
-  stdin: { contents, resolveDir: SRC, sourcefile: 'effix-entry.js', loader: 'js' },
+  stdin: { contents, resolveDir: SRC, sourcefile: 'spark-entry.js', loader: 'js' },
   bundle: true, write: false, format, minify, target: TARGET, plugins, legalComments: 'none',
 }).then(r => r.outputFiles[0].text.replace(/__VERSION__/g, pkg.version));
 
 const cssOf = f => (fs.existsSync(f) ? fs.readFileSync(f, 'utf8').trim() : '');
 const cssFor = feats => feats.map(f => cssOf(path.join(SRC, f.dir, f.name + '.css'))).filter(Boolean);
-// `@layer shine, effix;` pins effix above Shine whatever order the stylesheets load in.
-const wrapCss = (banner, parts) => `${banner}@layer shine, effix;\n@layer effix {\n${parts.join('\n\n')}\n}\n`;
+// `@layer shine, spark;` pins spark above Shine whatever order the stylesheets load in.
+const wrapCss = (banner, parts) => `${banner}@layer shine, spark;\n@layer spark {\n${parts.join('\n\n')}\n}\n`;
 const minCss = css => esbuild.transformSync(css, { loader: 'css', minify: true, target: ['chrome90', 'firefox88', 'safari14'] }).code;
 
 const BASE_CSS = cssOf(path.join(SRC, 'css', 'base.css'));
 const CHART_CSS = cssOf(path.join(SRC, 'charts', '_lib.css'));
-const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https://github.com/asticore/effix${custom ? ` | ${feats.map(f => f.name).join(',')}` : ''} */\n`;
+const banner = (what, feats) => `/*! Spark${what} v${pkg.version} | MIT | https://github.com/asticore/spark${custom ? ` | ${feats.map(f => f.name).join(',')}` : ''} */\n`;
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
@@ -133,73 +133,73 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
     const feats = pick(ALL);
     const hasCharts = feats.some(f => f.dir === 'charts');
     const b = banner('', feats);
-    write('effix.js', b + await bundle(entry(feats), { minify: false }));
-    write('effix.min.js', b + await bundle(entry(feats)));
-    write('effix.esm.js', b + await bundle(entry(feats), { format: 'esm' }));
+    write('spark.js', b + await bundle(entry(feats), { minify: false }));
+    write('spark.min.js', b + await bundle(entry(feats)));
+    write('spark.esm.js', b + await bundle(entry(feats), { format: 'esm' }));
     const css = wrapCss(b, [BASE_CSS, ...(hasCharts ? [CHART_CSS] : []), ...cssFor(feats)]);
-    write('effix.css', css);
-    write('effix.min.css', b + minCss(css));
+    write('spark.css', css);
+    write('spark.min.css', b + minCss(css));
   } else {
     // effects
     const bE = banner('', EFFECTS);
-    write('effix.js', bE + await bundle(entry(EFFECTS), { minify: false }));
-    write('effix.min.js', bE + await bundle(entry(EFFECTS)));
-    write('effix.esm.js', bE + await bundle(entry(EFFECTS), { format: 'esm' }));
+    write('spark.js', bE + await bundle(entry(EFFECTS), { minify: false }));
+    write('spark.min.js', bE + await bundle(entry(EFFECTS)));
+    write('spark.esm.js', bE + await bundle(entry(EFFECTS), { format: 'esm' }));
     const cssE = wrapCss(bE, [BASE_CSS, ...cssFor(EFFECTS)]);
-    write('effix.css', cssE);
-    write('effix.min.css', bE + minCss(cssE));
+    write('spark.css', cssE);
+    write('spark.min.css', bE + minCss(cssE));
     // charts add-on
     const bC = banner(' Charts', CHARTS);
-    write('effix-charts.js', bC + await bundle(addonEntry(CHARTS), { minify: false, plugins: [useHostCore] }));
-    write('effix-charts.min.js', bC + await bundle(addonEntry(CHARTS), { plugins: [useHostCore] }));
+    write('spark-charts.js', bC + await bundle(addonEntry(CHARTS), { minify: false, plugins: [useHostCore] }));
+    write('spark-charts.min.js', bC + await bundle(addonEntry(CHARTS), { plugins: [useHostCore] }));
     const cssC = wrapCss(bC, [CHART_CSS, ...cssFor(CHARTS)]);
-    write('effix-charts.css', cssC);
-    write('effix-charts.min.css', bC + minCss(cssC));
+    write('spark-charts.css', cssC);
+    write('spark-charts.min.css', bC + minCss(cssC));
     // diagrams add-on (tree, flow, sequence, cycle, fishbone)
     const bD = banner(' Diagrams', DIAGRAMS);
-    write('effix-diagrams.js', bD + await bundle(addonEntry(DIAGRAMS), { minify: false, plugins: [useHostCore] }));
-    write('effix-diagrams.min.js', bD + await bundle(addonEntry(DIAGRAMS), { plugins: [useHostCore] }));
+    write('spark-diagrams.js', bD + await bundle(addonEntry(DIAGRAMS), { minify: false, plugins: [useHostCore] }));
+    write('spark-diagrams.min.js', bD + await bundle(addonEntry(DIAGRAMS), { plugins: [useHostCore] }));
     const cssD = wrapCss(bD, [CHART_CSS, ...cssFor(DIAGRAMS)]);
-    write('effix-diagrams.css', cssD);
-    write('effix-diagrams.min.css', bD + minCss(cssD));
+    write('spark-diagrams.css', cssD);
+    write('spark-diagrams.min.css', bD + minCss(cssD));
     if (VIZ.length) {
       const bV = banner(' Viz', VIZ);
-      write('effix-viz.js', bV + await bundle(addonEntry(VIZ), { minify: false, plugins: [useHostCore] }));
-      write('effix-viz.min.js', bV + await bundle(addonEntry(VIZ), { plugins: [useHostCore] }));
+      write('spark-viz.js', bV + await bundle(addonEntry(VIZ), { minify: false, plugins: [useHostCore] }));
+      write('spark-viz.min.js', bV + await bundle(addonEntry(VIZ), { plugins: [useHostCore] }));
       const cssV = wrapCss(bV, [CHART_CSS, ...cssFor(VIZ)]);
-      write('effix-viz.css', cssV);
-      write('effix-viz.min.css', bV + minCss(cssV));
+      write('spark-viz.css', cssV);
+      write('spark-viz.min.css', bV + minCss(cssV));
     }
     // ui add-on (table, rating, calendar, steps, timeline, lottie)
     const bU = banner(' UI', UI);
-    write('effix-ui.js', bU + await bundle(addonEntry(UI, false), { minify: false, plugins: [useHostCore] }));
-    write('effix-ui.min.js', bU + await bundle(addonEntry(UI, false), { plugins: [useHostCore] }));
+    write('spark-ui.js', bU + await bundle(addonEntry(UI, false), { minify: false, plugins: [useHostCore] }));
+    write('spark-ui.min.js', bU + await bundle(addonEntry(UI, false), { plugins: [useHostCore] }));
     const cssU = wrapCss(bU, cssFor(UI));
-    write('effix-ui.css', cssU);
-    write('effix-ui.min.css', bU + minCss(cssU));
+    write('spark-ui.css', cssU);
+    write('spark-ui.min.css', bU + minCss(cssU));
     // core only + auto-loader (plain pages: load just the feature files the page uses)
     const bK = banner(' core', []);
-    write('effix.core.min.js', bK + await bundle(entry([])));
-    write('effix.core.min.css', bK + minCss(wrapCss(bK, [BASE_CSS])));
+    write('spark.core.min.js', bK + await bundle(entry([])));
+    write('spark.core.min.css', bK + minCss(wrapCss(bK, [BASE_CSS])));
     const manifest = {
       effects: Object.fromEntries([...EFFECTS, ...UI, ...CHARTS, ...DIAGRAMS, ...VIZ].map(f => {
-        const sel = (fs.readFileSync(path.join(SRC, f.dir, f.name + '.js'), 'utf8').match(/selector:\s*(['"`])([\s\S]*?)\1/) || [])[2] || `.efx-${f.name}`;
-        // Also match every documented class (CSS-only ones like efx-bounce efx-hover), so their CSS loads too.
+        const sel = (fs.readFileSync(path.join(SRC, f.dir, f.name + '.js'), 'utf8').match(/selector:\s*(['"`])([\s\S]*?)\1/) || [])[2] || `.spark-${f.name}`;
+        // Also match every documented class (CSS-only ones like spark-bounce spark-hover), so their CSS loads too.
         const metaFile = path.join(SRC, f.dir, f.name + '.meta.js');
         const extra = fs.existsSync(metaFile) ? (require(metaFile).classes || [])
-          .map(c => String(Array.isArray(c) ? c[0] : c.name || '').trim()).filter(c => /^efx-[\w-]+$/.test(c)).map(c => '.' + c) : [];
-        // plus every top-level efx-* class the feature's CSS styles (not injected __parts or -pending states)
-        for (const m of cssOf(path.join(SRC, f.dir, f.name + '.css')).matchAll(/\.(efx-[a-z0-9-]+)(?![\w-])/g))
-          if (!m[1].includes('__') && !/-(pending|on|active)$/.test(m[1]) && m[1] !== 'efx-chart') extra.push('.' + m[1]);
+          .map(c => String(Array.isArray(c) ? c[0] : c.name || '').trim()).filter(c => /^spark-[\w-]+$/.test(c)).map(c => '.' + c) : [];
+        // plus every top-level spark-* class the feature's CSS styles (not injected __parts or -pending states)
+        for (const m of cssOf(path.join(SRC, f.dir, f.name + '.css')).matchAll(/\.(spark-[a-z0-9-]+)(?![\w-])/g))
+          if (!m[1].includes('__') && !/-(pending|on|active)$/.test(m[1]) && m[1] !== 'spark-chart') extra.push('.' + m[1]);
         return [f.name, [[...new Set([...sel.split(',').map(x => x.trim()), ...extra])].join(','), !!cssOf(path.join(SRC, f.dir, f.name + '.css')), f.dir === 'charts' ? 1 : 0]];
       })),
     };
-    const autoEntry = `import api, { autoBoot } from './core.js';\nimport { autoload } from './loader.js';\nwindow.Effix = api;\nautoload(api, ${JSON.stringify(manifest)});\nautoBoot();\nexport default api;`;
-    write('effix.auto.min.js', banner(' auto-loader', []) + await bundle(autoEntry));
-    // one file per feature, for <script> tags or the auto-loader (registers into window.Effix).
+    const autoEntry = `import api, { autoBoot } from './core.js';\nimport { autoload } from './loader.js';\nwindow.Spark = api;\nautoload(api, ${JSON.stringify(manifest)});\nautoBoot();\nexport default api;`;
+    write('spark.auto.min.js', banner(' auto-loader', []) + await bundle(autoEntry));
+    // one file per feature, for <script> tags or the auto-loader (registers into window.Spark).
     // Charts, diagrams and viz share the chart toolkit file instead of each bundling it.
     const bK2 = banner(' chart toolkit', []);
-    write('features/_chartkit.min.js', bK2 + await bundle(`import * as kit from './charts/_lib.js';\nwindow.EffixChartKit = kit;\nif (window.Effix) window.Effix.charts = kit;`, { plugins: [useHostCore] }));
+    write('features/_chartkit.min.js', bK2 + await bundle(`import * as kit from './charts/_lib.js';\nwindow.SparkChartKit = kit;\nif (window.Spark) window.Spark.charts = kit;`, { plugins: [useHostCore] }));
     write('features/_chartkit.min.css', bK2 + minCss(wrapCss(bK2, [CHART_CSS])));
     for (const f of ALL) {
       const b = banner(` ${f.name}`, []);
@@ -210,9 +210,9 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
     }
     // everything
     const bA = banner(' (all)', ALL);
-    write('effix.all.min.js', bA + await bundle(entry(ALL)));
-    write('effix.all.esm.js', bA + await bundle(entry(ALL), { format: 'esm' }));
-    write('effix.all.min.css', bA + minCss(wrapCss(bA, [BASE_CSS, CHART_CSS, ...cssFor(ALL)])));
+    write('spark.all.min.js', bA + await bundle(entry(ALL)));
+    write('spark.all.esm.js', bA + await bundle(entry(ALL), { format: 'esm' }));
+    write('spark.all.min.css', bA + minCss(wrapCss(bA, [BASE_CSS, CHART_CSS, ...cssFor(ALL)])));
 
     // per-feature sizes (JS on top of core; charts include their share of the chart toolkit once)
     const core = gz(await bundle(entry([])));
@@ -233,7 +233,7 @@ const banner = (what, feats) => `/*! Effix${what} v${pkg.version} | MIT | https:
   }
 
   const feats = custom ? pick(ALL) : ALL;
-  console.log(`Effix v${pkg.version}  ${feats.length} feature(s)  -> ${path.relative(ROOT, OUT) || '.'}`);
+  console.log(`Spark v${pkg.version}  ${feats.length} feature(s)  -> ${path.relative(ROOT, OUT) || '.'}`);
   let over = false;
   for (const [f, s] of Object.entries(written)) {
     if (f.startsWith('features/') && f.endsWith('.js') && gz(s) > FILE_BUDGET) { console.error(`  ${f} ${kb(gz(s))} gzip is over the per-file budget of ${kb(FILE_BUDGET)}`); over = true; }

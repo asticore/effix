@@ -1,5 +1,5 @@
 /* collapse — smooth open/close for native <details> (Shine accordions).
-   <details class="efx-collapse">…</details>   or a container: every <details> inside is animated.
+   <details class="spark-collapse">…</details>   or a container: every <details> inside is animated.
    Exclusive groups (name="x") animate the closing panel too. Reduced motion = native instant toggle. */
 import { on, motionOK } from '../core.js';
 
@@ -7,7 +7,7 @@ const names = new Map(); // details -> name attribute removed during an exclusiv
 
 export default {
   name: 'collapse',
-  selector: '.efx-collapse',
+  selector: '.spark-collapse',
   defaults: { duration: 300, easing: 'ease' },
   init(el, o) {
     const list = el.matches('details') ? [el] : [...el.querySelectorAll('details')];

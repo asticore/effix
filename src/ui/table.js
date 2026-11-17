@@ -1,8 +1,8 @@
 /* table — behaviour layer for a plain (Shine) table: sort, search, per-column filter, paging,
    sticky header, column visibility, row selection, responsive stack, CSV download, empty state.
-   <table class="table efx-table" data-efx-search data-efx-page-size="10" data-efx-csv>…</table>
-   Data comes from the markup, `data-efx-data` (JSON array of objects/arrays, or CSV text / a URL ending .csv/.json),
-   or `efx:data` (detail: array | { columns, rows }). Fires `change` (detail.selected) when the selection changes. */
+   <table class="table spark-table" data-spark-search data-spark-page-size="10" data-spark-csv>…</table>
+   Data comes from the markup, `data-spark-data` (JSON array of objects/arrays, or CSV text / a URL ending .csv/.json),
+   or `spark:data` (detail: array | { columns, rows }). Fires `change` (detail.selected) when the selection changes. */
 import { on, parseCSV } from '../core.js';
 import { shineWidgets } from './_shine.js';
 
@@ -32,7 +32,7 @@ function normalise(d) {
 
 export default {
   name: 'table',
-  selector: '.efx-table',
+  selector: '.spark-table',
   defaults: {
     data: '', sort: true, search: false, filters: false, pageSize: 0, sticky: false, height: '', columns: false,
     select: false, stack: false, csv: false, filename: 'table', empty: 'No results', placeholder: 'Search…',
@@ -42,9 +42,9 @@ export default {
     if (!table) return;
     const saved = table.innerHTML, parent = table.parentNode;
     const sh = shineWidgets(); // Shine's .dt / .dt-toolbar / .dt-pagebar / .dt-empty / .table-sticky-head markup when its widgets CSS is loaded
-    const cls0 = table.className, bar = mk('div', sh ? 'dt-toolbar' : 'efx-table__bar'), pager = mk('div', sh ? 'dt-pagebar' : 'efx-table__pager');
+    const cls0 = table.className, bar = mk('div', sh ? 'dt-toolbar' : 'spark-table__bar'), pager = mk('div', sh ? 'dt-pagebar' : 'spark-table__pager');
     const mark = (tr, on_) => { tr.classList.toggle('is-selected', on_); if (sh) tr.setAttribute('aria-selected', String(on_)); };
-    const live = mk('span', 'efx-table__live'); live.setAttribute('aria-live', 'polite');
+    const live = mk('span', 'spark-table__live'); live.setAttribute('aria-live', 'polite');
     const offs = [];
     let dead = false, rows = [], cols = [], wrap = null, order = [], view = [], page = 0;
     let sortCol = -1, sortDir = 1, query = '', hiddenCols = new Set(), selected = new Set();
@@ -56,7 +56,7 @@ export default {
       cols = ths.map(th => th.textContent.trim());
       rows = [...table.querySelectorAll(':scope > tbody > tr')].map(tr => {
         const tds = [...tr.children];
-        return { tr, cells: tds.map(td => td.textContent.trim()), vals: tds.map(td => td.dataset.efxValue ?? td.textContent.trim()) };
+        return { tr, cells: tds.map(td => td.textContent.trim()), vals: tds.map(td => td.dataset.sparkValue ?? td.textContent.trim()) };
       });
       if (!cols.length && rows[0]) cols = rows[0].cells.map((_, i) => 'Column ' + (i + 1));
     };
@@ -95,7 +95,7 @@ export default {
       tb.replaceChildren(...shown.map(r => r.tr));
       if (empty) { empty.remove(); empty = null; }
       if (!shown.length) {
-        empty = mk('tr', 'efx-table__empty');
+        empty = mk('tr', 'spark-table__empty');
         const td = mk('td', '', sh ? null : o.empty); td.colSpan = Math.max(1, cols.length + (o.select ? 1 : 0));
         if (sh) td.append(mk('div', 'dt-empty', o.empty));
         empty.append(td); tb.append(empty);
@@ -105,7 +105,7 @@ export default {
       if (all) { all.checked = !!shown.length && shown.every(r => selected.has(r)); all.indeterminate = !all.checked && shown.some(r => selected.has(r)); }
       if (o.pageSize > 0) {
         pager.hidden = pages < 2;
-        pager.querySelector('.dt-info, .efx-table__info').textContent = view.length ? `${page * size + 1}–${page * size + shown.length} of ${view.length}` : '0 of 0';
+        pager.querySelector('.dt-info, .spark-table__info').textContent = view.length ? `${page * size + 1}–${page * size + shown.length} of ${view.length}` : '0 of 0';
         pager.querySelector('[data-p="prev"]').disabled = page <= 0;
         pager.querySelector('[data-p="next"]').disabled = page >= pages - 1;
       }
@@ -118,7 +118,7 @@ export default {
       const row0 = table.querySelector('thead tr:first-child');
       if (!row0) return;
       if (o.select) {
-        const th = mk('th', 'efx-table__sel'); th.scope = 'col';
+        const th = mk('th', 'spark-table__sel'); th.scope = 'col';
         all = mk('input', 'checkbox'); all.type = 'checkbox'; all.setAttribute('aria-label', 'Select all rows');
         th.append(all); row0.prepend(th);
         offs.push(on(all, 'change', () => {
@@ -129,7 +129,7 @@ export default {
       }
       rows.forEach(r => {
         if (o.select) {
-          const td = mk('td', 'efx-table__sel'), b = mk('input', 'checkbox'); b.type = 'checkbox'; b.setAttribute('aria-label', 'Select row');
+          const td = mk('td', 'spark-table__sel'), b = mk('input', 'checkbox'); b.type = 'checkbox'; b.setAttribute('aria-label', 'Select row');
           td.append(b); r.tr.prepend(td); r.box = b;
           offs.push(on(b, 'change', () => { b.checked ? selected.add(r) : selected.delete(r); mark(r.tr, b.checked); render(); fire(); }));
         }
@@ -138,13 +138,13 @@ export default {
       cols.forEach((c, i) => {
         const th = headCell(i);
         if (!th || !o.sort) return;
-        const b = mk('button', sh ? '' : 'efx-table__sort'); b.type = 'button'; th.setAttribute('aria-sort', 'none');
+        const b = mk('button', sh ? '' : 'spark-table__sort'); b.type = 'button'; th.setAttribute('aria-sort', 'none');
         while (th.firstChild) b.append(th.firstChild);
         th.append(b);
         offs.push(on(b, 'click', () => { sortDir = sortCol === i ? -sortDir : 1; sortCol = i; render(true); }));
       });
       if (o.filters) {
-        const fr = mk('tr', 'efx-table__filters');
+        const fr = mk('tr', 'spark-table__filters');
         if (o.select) fr.append(mk('th', ''));
         cols.forEach((c, i) => {
           const th = mk('th', ''), inp = mk('input', 'input input-sm'); inp.type = 'search'; inp.placeholder = 'Filter'; inp.setAttribute('aria-label', 'Filter ' + c);
@@ -157,12 +157,12 @@ export default {
 
     const buildBar = () => {
       if (o.search) {
-        const inp = mk('input', sh ? 'input input-sm dt-search' : 'input input-sm efx-table__search'); inp.type = 'search'; inp.placeholder = o.placeholder; inp.setAttribute('aria-label', 'Search table');
+        const inp = mk('input', sh ? 'input input-sm dt-search' : 'input input-sm spark-table__search'); inp.type = 'search'; inp.placeholder = o.placeholder; inp.setAttribute('aria-label', 'Search table');
         bar.append(inp);
         offs.push(on(inp, 'input', () => { query = inp.value.trim().toLowerCase(); page = 0; render(true); }));
       }
       if (o.columns && cols.length) {
-        const d = mk('details', 'efx-table__cols'), sm = mk('summary', 'btn btn-sm btn-outline', 'Columns'), list = mk('div', 'efx-table__colist');
+        const d = mk('details', 'spark-table__cols'), sm = mk('summary', 'btn btn-sm btn-outline', 'Columns'), list = mk('div', 'spark-table__colist');
         cols.forEach((c, i) => {
           const lab = mk('label', ''), cb = mk('input', 'checkbox'); cb.type = 'checkbox'; cb.checked = true;
           lab.append(cb, document.createTextNode(' ' + c)); list.append(lab);
@@ -175,7 +175,7 @@ export default {
         d.append(sm, list); bar.append(d);
       }
       if (o.csv) {
-        const b = mk('button', 'btn btn-sm btn-outline efx-table__csv', 'Download CSV'); b.type = 'button';
+        const b = mk('button', 'btn btn-sm btn-outline spark-table__csv', 'Download CSV'); b.type = 'button';
         bar.append(b);
         offs.push(on(b, 'click', () => {
           const keep = cols.map((_, i) => i).filter(i => !hiddenCols.has(i));
@@ -188,7 +188,7 @@ export default {
         }));
       }
       if (o.pageSize > 0) {
-        pager.append(mk('span', sh ? 'dt-info' : 'efx-table__info'));
+        pager.append(mk('span', sh ? 'dt-info' : 'spark-table__info'));
         ['prev', 'next'].forEach(k => {
           const b = mk('button', 'btn btn-sm btn-outline', k === 'prev' ? 'Previous' : 'Next'); b.type = 'button'; b.dataset.p = k;
           pager.append(b);
@@ -198,7 +198,7 @@ export default {
     };
     const applyCols = () => {
       const off = o.select ? 1 : 0;
-      table.querySelectorAll('tr').forEach(tr => { if (!tr.classList.contains('efx-table__empty')) [...tr.children].forEach((c, i) => { c.hidden = i >= off && hiddenCols.has(i - off); }); });
+      table.querySelectorAll('tr').forEach(tr => { if (!tr.classList.contains('spark-table__empty')) [...tr.children].forEach((c, i) => { c.hidden = i >= off && hiddenCols.has(i - off); }); });
     };
 
     const start = d => {
@@ -210,7 +210,7 @@ export default {
       if (d === undefined) fromMarkup(); else fromData(d);
       buildBar(); prep(); render();
       bar.hidden = !bar.children.length;
-      el.setAttribute('data-efx-rows', rows.length);
+      el.setAttribute('data-spark-rows', rows.length);
     };
     const parse = src => /^\s*[[{]/.test(src) ? JSON.parse(src) : src;
     const load = async () => {
@@ -218,13 +218,13 @@ export default {
       if (!d) return start();
       let src = d;
       if (/^(https?:\/\/|\/|\.\.?\/)\S+$|^[^\s,{[]+\.(csv|json)(\?\S*)?$/i.test(d)) {
-        try { src = await (await fetch(d)).text(); } catch (e) { console.warn('[effix] table data', e); return start(); }
+        try { src = await (await fetch(d)).text(); } catch (e) { console.warn('[spark] table data', e); return start(); }
       }
-      try { start(parse(src)); } catch (e) { console.warn('[effix] table data', e); start(); }
+      try { start(parse(src)); } catch (e) { console.warn('[spark] table data', e); start(); }
     };
 
-    table.classList.add('efx-table--on');
-    if (o.stack) table.classList.add('efx-table--stack');
+    table.classList.add('spark-table--on');
+    if (o.stack) table.classList.add('spark-table--stack');
     const size = /^\d+$/.test(o.height) ? o.height + 'px' : o.height;
     let unit = table, tw = null, dt = null, unitStyle = null;
     if (sh) {
@@ -235,12 +235,12 @@ export default {
       if (o.sticky || o.height) table.classList.add('table-sticky-head');
       dt = mk('div', 'dt'); unit.before(dt); dt.append(bar, unit, pager); dt.after(live);
     } else {
-      if (o.height) { wrap = mk('div', 'efx-table__wrap'); wrap.style.maxHeight = size; parent.insertBefore(wrap, table); wrap.append(table); unit = wrap; }
-      if (o.sticky || o.height) table.classList.add('efx-table--sticky');
+      if (o.height) { wrap = mk('div', 'spark-table__wrap'); wrap.style.maxHeight = size; parent.insertBefore(wrap, table); wrap.append(table); unit = wrap; }
+      if (o.sticky || o.height) table.classList.add('spark-table--sticky');
       unit.before(bar); unit.after(pager, live);
     }
     bar.hidden = pager.hidden = true;
-    const stat = [on(el, 'efx:data', e => start(e.detail))];
+    const stat = [on(el, 'spark:data', e => start(e.detail))];
     load();
 
     return () => {
@@ -253,7 +253,7 @@ export default {
         unitStyle === null ? unit.removeAttribute('style') : unit.setAttribute('style', unitStyle);
         if (tw) { tw.before(table); tw.remove(); }
       }
-      el.removeAttribute('data-efx-rows');
+      el.removeAttribute('data-spark-rows');
     };
   },
 };

@@ -1,8 +1,8 @@
 /* audio — audio-reactive visualizer for an <audio>/<video>. Canvas + AnalyserNode, created lazily on the first 'play'.
    <audio id="song" controls src="song.mp3"></audio>
-   <div class="efx-audio" data-efx-for="#song" data-efx-type="bars" style="height:160px"></div>
-   Also writes --efx-level (0..1, smoothed) on the visualizer and on any [data-efx-level-for="#song"] element.
-   Types: bars · wave · circle · scope · dots, or any Effix.add('audio-viz', name, (ctx, {freq, time, level, count}, w, h, colors) => …).
+   <div class="spark-audio" data-spark-for="#song" data-spark-type="bars" style="height:160px"></div>
+   Also writes --spark-level (0..1, smoothed) on the visualizer and on any [data-spark-level-for="#song"] element.
+   Types: bars · wave · circle · scope · dots, or any Spark.add('audio-viz', name, (ctx, {freq, time, level, count}, w, h, colors) => …).
    Media must be same-origin, blob:/data: or carry crossOrigin + CORS headers: otherwise the analyser is skipped (the page would go silent). */
 import { on, onVisible, motionOK, themeColor, cssVar, add } from '../core.js';
 
@@ -80,7 +80,7 @@ function tap(m) {
   if (had !== undefined) return had;
   const AX = window.AudioContext || window.webkitAudioContext;
   if (!AX) return null;
-  if (!sameOK(m)) { graphs.set(m, null); console.warn('[effix] audio: cross-origin media without crossorigin attribute, visualizer skipped', m.currentSrc); return null; }
+  if (!sameOK(m)) { graphs.set(m, null); console.warn('[spark] audio: cross-origin media without crossorigin attribute, visualizer skipped', m.currentSrc); return null; }
   if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null; // autoplay: tapping now could mute the page
   try {
     AC = AC || new AX();
@@ -91,27 +91,27 @@ function tap(m) {
     const g = { a, f: new Uint8Array(a.frequencyBinCount), t: new Uint8Array(a.fftSize) };
     graphs.set(m, g);
     return g;
-  } catch (e) { graphs.set(m, null); console.warn('[effix] audio: analyser unavailable', e); return null; }
+  } catch (e) { graphs.set(m, null); console.warn('[spark] audio: analyser unavailable', e); return null; }
 }
 
 export default {
   name: 'audio',
-  selector: '.efx-audio',
+  selector: '.spark-audio',
   lazy: true,
   defaults: { for: '', type: 'bars', color: '', count: 48, gain: 1 },
-  init(el, o, Effix) {
+  init(el, o, Spark) {
     const m = o.for ? document.querySelector(o.for) : el.querySelector('audio,video');
-    if (!m || el === m) return console.warn('[effix] audio: media not found', o.for);
-    const fn = Effix.get('audio-viz', o.type) || Effix.get('audio-viz', 'bars');
+    if (!m || el === m) return console.warn('[spark] audio: media not found', o.for);
+    const fn = Spark.get('audio-viz', o.type) || Spark.get('audio-viz', 'bars');
     let restore = false;
     if (getComputedStyle(el).position === 'static') { el.style.position = 'relative'; restore = true; }
     const cv = document.createElement('canvas');
-    cv.className = 'efx-audio__canvas';
+    cv.className = 'spark-audio__canvas';
     cv.setAttribute('aria-hidden', 'true');
     el.appendChild(cv);
     const cx = cv.getContext('2d');
     let colors = split(o.color);
-    if (!colors.length) for (let i = 1; i < 5; i++) { const v = cssVar(el, '--efx-chart-' + i); if (v) colors.push(v); }
+    if (!colors.length) for (let i = 1; i < 5; i++) { const v = cssVar(el, '--spark-chart-' + i); if (v) colors.push(v); }
     if (!colors.length) colors = [themeColor(el)];
     const count = Math.max(4, o.count | 0);
     const offs = [], reduce = !motionOK();
@@ -119,7 +119,7 @@ export default {
     const idle = { freq: new Uint8Array(256), time: new Uint8Array(512).fill(128), level: 0, count };
     const calm = { freq: idle.freq.map((_, i) => 70 + 40 * Math.cos(i / 40)), time: idle.time.map((_, i) => 128 + 22 * Math.sin(i / 14)), level: .2, count };
     const paint = d => { cx.clearRect(0, 0, w, h); cx.save(); cx.fillStyle = cx.strokeStyle = colors[0]; fn(cx, d, w, h, colors); cx.restore(); };
-    const setLv = v => { const s = v.toFixed(3); [el, ...linked].forEach(n => n.style.setProperty('--efx-level', s)); };
+    const setLv = v => { const s = v.toFixed(3); [el, ...linked].forEach(n => n.style.setProperty('--spark-level', s)); };
     const rest = () => paint(reduce ? calm : idle);
 
     const tick = () => {
@@ -149,7 +149,7 @@ export default {
 
     if (!reduce) {
       const onPlay = () => {
-        linked = [...document.querySelectorAll('[data-efx-level-for]')].filter(n => document.querySelector(n.dataset.efxLevelFor) === m);
+        linked = [...document.querySelectorAll('[data-spark-level-for]')].filter(n => document.querySelector(n.dataset.sparkLevelFor) === m);
         g = tap(m);
         if (!g) return;
         if (AC.state === 'suspended') AC.resume();
@@ -164,7 +164,7 @@ export default {
     return () => {
       cancelAnimationFrame(raf); raf = 0; playing = false;
       offs.forEach(f => f());
-      [el, ...linked].forEach(n => n.style.removeProperty('--efx-level'));
+      [el, ...linked].forEach(n => n.style.removeProperty('--spark-level'));
       cv.remove();
       if (restore) el.style.position = '';
     };

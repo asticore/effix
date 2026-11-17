@@ -1,5 +1,5 @@
 /* morph — gooey text morphing between words.
-   <h1>We <span class="efx-morph" data-efx-words="Design|Build|Ship"></span></h1>
+   <h1>We <span class="spark-morph" data-spark-words="Design|Build|Ship"></span></h1>
    Visual text is aria-hidden; screen readers get the current word. */
 import { onVisible, motionOK } from '../core.js';
 
@@ -7,18 +7,18 @@ let defs = null, refs = 0;
 const needFilter = () => {
   if (!refs++) {
     defs = document.createElement('div');
-    defs.className = 'efx-morph__defs';
+    defs.className = 'spark-morph__defs';
     defs.setAttribute('aria-hidden', 'true');
-    defs.innerHTML = '<svg width="0" height="0"><filter id="efx-morph-f"><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 255 -140"/></filter></svg>';
+    defs.innerHTML = '<svg width="0" height="0"><filter id="spark-morph-f"><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 255 -140"/></filter></svg>';
     document.body.appendChild(defs);
   }
   return () => { if (!--refs) defs.remove(); };
 };
-const span = (c, t) => { const s = document.createElement('span'); s.className = 'efx-morph__' + c; if (t != null) s.textContent = t; return s; };
+const span = (c, t) => { const s = document.createElement('span'); s.className = 'spark-morph__' + c; if (t != null) s.textContent = t; return s; };
 
 export default {
   name: 'morph',
-  selector: '.efx-morph',
+  selector: '.spark-morph',
   defaults: { words: [], duration: 1200, pause: 1800 },
   init(el, o) {
     const W = o.words.length ? o.words : [el.textContent.trim()];

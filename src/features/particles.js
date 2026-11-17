@@ -1,5 +1,5 @@
 /* particles — drifting canvas particles behind an element's content.
-   <section class="efx-particles" data-efx-links data-efx-interact="connect">…</section>
+   <section class="spark-particles" data-spark-links data-spark-interact="connect">…</section>
    color accepts one color or a list separated by '|' (or commas outside parentheses, so rgb()/hsl() work); interact: none | repel | attract | connect. */
 import { onVisible, motionOK, finePointer, themeColor, on, add, get } from '../core.js';
 
@@ -34,7 +34,7 @@ const subVis = fn => {
 
 export default {
   name: 'particles',
-  selector: '.efx-particles',
+  selector: '.spark-particles',
   lazy: true,
   defaults: {
     count: 50, color: '', sizeMin: 1, sizeMax: 2.8, speed: 100, opacity: 1, links: false,
@@ -44,7 +44,7 @@ export default {
     let restorePos = false;
     if (getComputedStyle(el).position === 'static') { el.style.position = 'relative'; restorePos = true; }
     const cv = document.createElement('canvas');
-    cv.className = 'efx-particles__canvas';
+    cv.className = 'spark-particles__canvas';
     cv.setAttribute('aria-hidden', 'true');
     el.insertBefore(cv, el.firstChild);
     const ctx = cv.getContext('2d');

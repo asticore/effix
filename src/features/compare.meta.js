@@ -4,18 +4,18 @@ module.exports = {
   title: 'Before / after compare',
   group: 'Components',
   summary: 'Drag a handle to reveal the second image over the first. Keyboard and screen reader friendly via a hidden range input.',
-  classes: [['efx-compare', 'Container with exactly two <img> children: before, then after. Gets .is-dragging while dragging.']],
+  classes: [['spark-compare', 'Container with exactly two <img> children: before, then after. Gets .is-dragging while dragging.']],
   options: [
-    ['data-efx-start', '50', 'Starting position, percent.'],
-    ['data-efx-vertical', 'false', 'Split top/bottom instead of left/right.'],
-    ['data-efx-hover', 'false', 'Follow the mouse without dragging (fine pointers only).'],
+    ['data-spark-start', '50', 'Starting position, percent.'],
+    ['data-spark-vertical', 'false', 'Split top/bottom instead of left/right.'],
+    ['data-spark-hover', 'false', 'Follow the mouse without dragging (fine pointers only).'],
   ],
   vars: [
-    ['--efx-pos', '50%', 'Current split position (set by JS).'],
-    ['--efx-handle', 'var(--sh-bg)', 'Handle line color.'],
+    ['--spark-pos', '50%', 'Current split position (set by JS).'],
+    ['--spark-handle', 'var(--sh-bg)', 'Handle line color.'],
   ],
   examples: [
-    { html: `<div class="efx-compare rounded-lg" style="max-width:480px">
+    { html: `<div class="spark-compare rounded-lg" style="max-width:480px">
   <img src="${svg('#64748b', 'Before')}" alt="Before">
   <img src="${svg('#6366f1', 'After')}" alt="After">
 </div>` },

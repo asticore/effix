@@ -1,5 +1,5 @@
 /* chart-flow — lightweight Sankey for funnels and journeys.
-   <div class="efx-chart-flow" data-efx-data='{"nodes":[{"name":"Visit"},{"name":"Signup"}],"links":[{"source":0,"target":1,"value":120}]}'></div> */
+   <div class="spark-chart-flow" data-spark-data='{"nodes":[{"name":"Visit"},{"name":"Signup"}],"links":[{"source":0,"target":1,"value":120}]}'></div> */
 import { COMMON, chart, palette, s, esc } from './_lib.js';
 import { on } from '../core.js';
 
@@ -16,13 +16,13 @@ const read = (el, o) => {
 
 export default {
   name: 'chart-flow',
-  selector: '.efx-chart-flow',
+  selector: '.spark-chart-flow',
   lazy: true,
   defaults: { ...COMMON, nodeWidth: 12, nodePad: 12, align: 'justify', legend: false },
   init(el, o) {
     let d = read(el, o);
-    // registered before chart() so it runs before the lib's own efx:data handler
-    const off = on(el, 'efx:data', e => { d = e.detail ? safe(e.detail) : d; });
+    // registered before chart() so it runs before the lib's own spark:data handler
+    const off = on(el, 'spark:data', e => { d = e.detail ? safe(e.detail) : d; });
     const draw = ({ g, w, h, deco, fmt }) => {
       const names = (d.nodes || []).map(n => String(n && n.name != null ? n.name : n == null ? '' : n));
       const id = v => { if (typeof v === 'number' && names[v] != null) return v; const k = String(v), i = names.indexOf(k); return i < 0 ? names.push(k) - 1 : i; };
@@ -51,7 +51,7 @@ export default {
       const pal = palette(el, o, names.length), marks = [];
       L.forEach((l, i) => {
         const A = all[l.s], B = all[l.t], x0 = A.x + nw, x1 = B.x, xm = (x0 + x1) / 2, lw = l.v * ky;
-        const node = s('path', { d: `M${x0},${l.sy}C${xm},${l.sy} ${xm},${l.ty} ${x1},${l.ty}`, fill: 'none', stroke: pal[A.i], 'stroke-opacity': .35, 'stroke-width': lw, pathLength: 1, class: 'efx-chart__mark efx-chart__draw', style: `--i:${i}` }, g);
+        const node = s('path', { d: `M${x0},${l.sy}C${xm},${l.sy} ${xm},${l.ty} ${x1},${l.ty}`, fill: 'none', stroke: pal[A.i], 'stroke-opacity': .35, 'stroke-width': lw, pathLength: 1, class: 'spark-chart__mark spark-chart__draw', style: `--i:${i}` }, g);
         marks.push({ x: xm, y: (l.sy + l.ty) / 2, label: `${A.name} → ${B.name}`, value: l.v, node, index: i, rel: [A.mi, B.mi],
           html: `<strong>${esc(A.name)} → ${esc(B.name)}</strong><b>${esc(fmt(l.v))} (${Math.round(l.v / A.v * 100)}% of ${esc(A.name)})</b>`,
           hit(px, py) {
@@ -62,13 +62,13 @@ export default {
           } });
       });
       N.forEach((n, i) => {
-        const node = s('rect', { x: n.x, y: n.y, width: nw, height: n.h, rx: 2, fill: pal[n.i], class: 'efx-chart__mark efx-chart__fade', style: `--i:${i}` }, g);
+        const node = s('rect', { x: n.x, y: n.y, width: nw, height: n.h, rx: 2, fill: pal[n.i], class: 'spark-chart__mark spark-chart__fade', style: `--i:${i}` }, g);
         marks.push({ x: n.x + nw / 2, y: n.y + n.h / 2, label: n.name, value: n.v, node, index: L.length + i, rel: n.a.concat(n.b).map(l => L.indexOf(l)),
           hit: (px, py) => px >= n.x - 2 && px <= n.x + nw + 2 && py >= n.y && py <= n.y + n.h });
       });
       if (!deco) N.forEach((n, i) => {
         const right = n.x < w / 2;
-        s('text', { x: right ? n.x + nw + 6 : n.x - 6, y: n.y + n.h / 2, 'text-anchor': right ? 'start' : 'end', 'dominant-baseline': 'middle', class: 'efx-chart__value efx-flow__label efx-chart__fade', style: `--i:${i}` }, g).textContent = n.name;
+        s('text', { x: right ? n.x + nw + 6 : n.x - 6, y: n.y + n.h / 2, 'text-anchor': right ? 'start' : 'end', 'dominant-baseline': 'middle', class: 'spark-chart__value spark-flow__label spark-chart__fade', style: `--i:${i}` }, g).textContent = n.name;
       });
       return marks;
     };

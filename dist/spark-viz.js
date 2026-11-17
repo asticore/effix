@@ -1,4 +1,4 @@
-/*! Effix Viz v0.3.0 | MIT | https://github.com/asticore/effix */
+/*! Spark Viz v0.4.0 | MIT | https://github.com/asticore/spark */
 (() => {
   var __defProp = Object.defineProperty;
   var __export = (target, all) => {
@@ -26,14 +26,14 @@
     tickStep: () => tickStep
   });
 
-  // effix-host:effix-core
-  var get = (...a) => window.Effix.get(...a);
-  var parseCSV = (...a) => window.Effix.parseCSV(...a);
-  var motionOK = (...a) => window.Effix.motionOK(...a);
-  var on = (...a) => window.Effix.on(...a);
-  var rafThrottle = (...a) => window.Effix.rafThrottle(...a);
-  var onVisible = (...a) => window.Effix.onVisible(...a);
-  var effix_core_default = window.Effix;
+  // spark-host:spark-core
+  var get = (...a) => window.Spark.get(...a);
+  var parseCSV = (...a) => window.Spark.parseCSV(...a);
+  var motionOK = (...a) => window.Spark.motionOK(...a);
+  var on = (...a) => window.Spark.on(...a);
+  var rafThrottle = (...a) => window.Spark.rafThrottle(...a);
+  var onVisible = (...a) => window.Spark.onVisible(...a);
+  var spark_core_default = window.Spark;
 
   // src/charts/_lib.js
   var NS = "http://www.w3.org/2000/svg";
@@ -62,11 +62,11 @@
     compact: false,
     // 12.3k
     format: "",
-    // name of a registered formatter: Effix.add('format', 'gbp', v => '£' + v.toFixed(2))
+    // name of a registered formatter: Spark.add('format', 'gbp', v => '£' + v.toFixed(2))
     csv: "",
     // CSV text or URL: header row = names, first column = labels (or inline <script type="text/csv">)
     live: "",
-    // name of a source registered with Effix.chartSource(name, (push, el) => …)
+    // name of a source registered with Spark.chartSource(name, (push, el) => …)
     title: ""
     // accessible name (falls back to aria-label / first heading)
   };
@@ -109,7 +109,7 @@
       }
       if (!out && json2) out = JSON.parse(json2.textContent);
     } catch (err) {
-      console.warn("[effix] chart data", err);
+      console.warn("[spark] chart data", err);
     }
     if (!out || typeof out !== "object") out = {};
     const arr5 = (v) => Array.isArray(v) ? v : [];
@@ -134,7 +134,7 @@
   var FALLBACK = ["#6366f1", "#ec4899", "#10b981", "#f59e0b", "#0ea5e9", "#ef4444", "#8b5cf6"];
   function palette(el, o, n) {
     const cs = getComputedStyle(el);
-    const base = o.colors.length ? o.colors : TOKENS.map((t, i) => cs.getPropertyValue(`--efx-chart-${i + 1}`).trim() || cs.getPropertyValue(t).trim() || FALLBACK[i]);
+    const base = o.colors.length ? o.colors : TOKENS.map((t, i) => cs.getPropertyValue(`--spark-chart-${i + 1}`).trim() || cs.getPropertyValue(t).trim() || FALLBACK[i]);
     return Array.from({ length: Math.max(n, 1) }, (_, i) => base[i % base.length]);
   }
   function tickStep(start, stop, count) {
@@ -223,10 +223,10 @@
   }
   var esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   function axes(g, { w, h, pad, y, ticks, labels, x, fmt, grid = true, rotate = false }) {
-    const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+    const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
     for (const t of ticks) {
       const yy = y(t);
-      if (grid) s("line", { x1: pad.l, x2: w - pad.r, y1: yy, y2: yy, class: "efx-chart__grid" }, ax);
+      if (grid) s("line", { x1: pad.l, x2: w - pad.r, y1: yy, y2: yy, class: "spark-chart__grid" }, ax);
       s("text", { x: pad.l - 8, y: yy, "text-anchor": "end", "dominant-baseline": "middle" }, ax).textContent = fmt(t);
     }
     if (labels && x) {
@@ -241,28 +241,28 @@
   }
   var uid = 0;
   function chart(el, o, draw) {
-    const id = "efx-c" + ++uid;
+    const id = "spark-c" + ++uid;
     const restore = { pos: el.style.position, iso: el.style.isolation };
     const deco = o.background;
     if (getComputedStyle(el).position === "static") el.style.position = "relative";
     if (deco) el.style.isolation = "isolate";
     const wrap = document.createElement("div");
-    wrap.className = "efx-chart__wrap" + (deco ? " efx-chart__wrap--bg" : "");
+    wrap.className = "spark-chart__wrap" + (deco ? " spark-chart__wrap--bg" : "");
     if (deco) wrap.setAttribute("aria-hidden", "true");
-    const svg = s("svg", { class: "efx-chart__svg", role: deco ? null : "img", "aria-labelledby": deco ? null : id + "-t", focusable: "false" });
+    const svg = s("svg", { class: "spark-chart__svg", role: deco ? null : "img", "aria-labelledby": deco ? null : id + "-t", focusable: "false" });
     const title = s("title", { id: id + "-t" }, svg);
     wrap.appendChild(svg);
     const tip = document.createElement("div");
-    tip.className = "efx-chart__tip";
+    tip.className = "spark-chart__tip";
     tip.setAttribute("role", "status");
     tip.hidden = true;
     const legend = document.createElement("div");
-    legend.className = "efx-chart__legend";
+    legend.className = "spark-chart__legend";
     const sr = document.createElement("ul");
-    sr.className = "efx-chart__sr";
+    sr.className = "spark-chart__sr";
     if (deco) el.prepend(wrap);
     else el.append(wrap, tip, legend, sr);
-    el.classList.add("efx-chart");
+    el.classList.add("spark-chart");
     let data = parseData(el, o);
     const hidden = /* @__PURE__ */ new Set();
     let marks = [], active = -1, w = 0, h = 0, played = !o.animate || !motionOK();
@@ -278,7 +278,7 @@
       title.textContent = name();
       const visible = draw.legendByLabel ? data.series.map((s0, i) => ({ ...s0, index: i })) : data.series.map((s0, i) => ({ ...s0, index: i })).filter((x) => !hidden.has(x.index));
       const colors = palette(el, o, data.series.length).map((c, i) => data.series[i] && data.series[i].color || c);
-      const g = s("g", { class: "efx-chart__plot" + (played ? " is-in" : "") }, svg);
+      const g = s("g", { class: "spark-chart__plot" + (played ? " is-in" : "") }, svg);
       marks = draw({ el, svg, g, w, h, o, data, visible, hidden, colors, fmt, deco, again }) || [];
       if (!deco) {
         sr.innerHTML = marks.slice(0, 200).map((m) => {
@@ -296,9 +296,9 @@
       items.forEach((label, i) => {
         const b = document.createElement("button");
         b.type = "button";
-        b.className = "efx-chart__key";
+        b.className = "spark-chart__key";
         b.setAttribute("aria-pressed", String(!hidden.has(i)));
-        b.style.setProperty("--efx-key", data.series[i] && data.series[i].color || colors[i]);
+        b.style.setProperty("--spark-key", data.series[i] && data.series[i].color || colors[i]);
         b.textContent = label;
         b.addEventListener("click", () => {
           hidden.has(i) ? hidden.delete(i) : hidden.add(i);
@@ -390,9 +390,9 @@
     function select(i) {
       var _a;
       const m = marks[i];
-      el.dispatchEvent(new CustomEvent("efx:select", { bubbles: true, detail: { index: (_a = m.index) != null ? _a : i, label: m.label, value: m.value, series: m.series } }));
+      el.dispatchEvent(new CustomEvent("spark:select", { bubbles: true, detail: { index: (_a = m.index) != null ? _a : i, label: m.label, value: m.value, series: m.series } }));
     }
-    offs.push(on(el, "efx:data", (e) => {
+    offs.push(on(el, "spark:data", (e) => {
       const d = e.detail || {};
       data = parseData(el, { ...o, update: d, labels: Array.isArray(d.labels) ? d.labels : [] });
       hidden.clear();
@@ -404,12 +404,12 @@
     });
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
     if (ro) ro.observe(el);
-    const feed = (d) => el.dispatchEvent(new CustomEvent("efx:data", { detail: d }));
+    const feed = (d) => el.dispatchEvent(new CustomEvent("spark:data", { detail: d }));
     let gone = false;
     if (o.csv && isUrl(o.csv)) fetch(o.csv).then((r) => r.text()).then((t) => {
       const d = !gone && fromCSV(t);
       if (d) feed(d);
-    }).catch((e) => console.warn("[effix] chart csv", e));
+    }).catch((e) => console.warn("[spark] chart csv", e));
     const src = o.live && get("chart-source", o.live);
     if (typeof src === "function") {
       try {
@@ -418,7 +418,7 @@
         }, el);
         if (typeof c === "function") offs.push(c);
       } catch (e) {
-        console.warn("[effix] chart source", e);
+        console.warn("[spark] chart source", e);
       }
     }
     renderLegend();
@@ -428,7 +428,7 @@
     if (!played) stopVis = onVisible(el, (vis, e) => {
       if (!vis || e.intersectionRatio < 0.25 && e.intersectionRect.height < innerHeight * 0.25) return;
       played = true;
-      svg.querySelectorAll(".efx-chart__plot").forEach((p) => p.classList.add("is-in"));
+      svg.querySelectorAll(".spark-chart__plot").forEach((p) => p.classList.add("is-in"));
       stopVis();
     }, "0px", [0, 0.01, 0.05, 0.1, 0.25]);
     return () => {
@@ -441,7 +441,7 @@
       tip.remove();
       legend.remove();
       sr.remove();
-      el.classList.remove("efx-chart");
+      el.classList.remove("spark-chart");
       el.style.position = restore.pos;
       el.style.isolation = restore.iso;
     };
@@ -463,7 +463,7 @@
   };
   var viz_arc_default = {
     name: "viz-arc",
-    selector: ".efx-viz-arc",
+    selector: ".spark-viz-arc",
     lazy: true,
     defaults: { ...COMMON, height: 280, legend: false, sort: "", radius: 5 },
     init(el, o) {
@@ -476,7 +476,7 @@
       };
       const j = el.querySelector(':scope > script[type="application/json"]');
       let d = read((o.data || "").trim() || j && j.textContent);
-      const offData = on(el, "efx:data", (e) => {
+      const offData = on(el, "spark:data", (e) => {
         d = e.detail ? read(e.detail) : d;
       });
       const draw = ({ g, w, h, deco }) => {
@@ -497,7 +497,7 @@
         L.forEach((l, k) => {
           var _a, _b;
           const a = ix.get(l.s), b = ix.get(l.t), x1 = X(Math.min(a, b)), x2 = X(Math.max(a, b)), rx = (x2 - x1) / 2;
-          const node = s("path", { d: `M${x1},${y0}A${rx},${rx * ratio} 0 0 1 ${x2},${y0}`, fill: "none", stroke: col(N[a]), "stroke-opacity": 0.4, "stroke-width": +(1 + 4 * Math.sqrt(l.v / maxV)).toFixed(2), pathLength: 1, class: "efx-chart__mark efx-chart__draw efx-viz__arc", style: `--i:${k % 20}` }, g);
+          const node = s("path", { d: `M${x1},${y0}A${rx},${rx * ratio} 0 0 1 ${x2},${y0}`, fill: "none", stroke: col(N[a]), "stroke-opacity": 0.4, "stroke-width": +(1 + 4 * Math.sqrt(l.v / maxV)).toFixed(2), pathLength: 1, class: "spark-chart__mark spark-chart__draw spark-viz__arc", style: `--i:${k % 20}` }, g);
           const m = marks.length;
           marks[a].rel.push(m);
           marks[b].rel.push(m);
@@ -506,10 +506,10 @@
         N.forEach((x, i) => {
           var _a;
           const r = o.radius * (1 + Math.min(1, x.deg / 8)) * (deco ? 0.7 : 1);
-          marks[i].node = s("circle", { cx: X(i), cy: y0, r, fill: col(x), class: "efx-chart__mark efx-chart__fade", style: `--i:${i % 20}` }, g);
+          marks[i].node = s("circle", { cx: X(i), cy: y0, r, fill: col(x), class: "spark-chart__mark spark-chart__fade", style: `--i:${i % 20}` }, g);
           marks[i].hit = (px, py) => Math.hypot(px - X(i), py - y0) <= r + 4;
           if (!deco && step > 11) {
-            const t = s("text", { x: X(i), y: y0 + r + 8, class: "efx-viz__label efx-chart__fade", "text-anchor": step < 40 ? "end" : "middle", "dominant-baseline": "hanging", style: `--i:${i % 20}` }, g);
+            const t = s("text", { x: X(i), y: y0 + r + 8, class: "spark-viz__label spark-chart__fade", "text-anchor": step < 40 ? "end" : "middle", "dominant-baseline": "hanging", style: `--i:${i % 20}` }, g);
             if (step < 40) t.setAttribute("transform", `rotate(-60 ${X(i)} ${y0 + r + 8})`);
             t.textContent = (_a = x.label) != null ? _a : x.id;
           }
@@ -539,7 +539,7 @@
   };
   var viz_chord_default = {
     name: "viz-chord",
-    selector: ".efx-viz-chord",
+    selector: ".spark-viz-chord",
     lazy: true,
     defaults: { ...COMMON, height: 380, legend: false, gap: 0.04 },
     init(el, o) {
@@ -552,7 +552,7 @@
       };
       const j = el.querySelector(':scope > script[type="application/json"]');
       let d = read((o.data || "").trim() || j && j.textContent);
-      const offData = on(el, "efx:data", (e) => {
+      const offData = on(el, "spark:data", (e) => {
         d = e.detail ? read(e.detail) : d;
       });
       const draw = ({ g, w, h, colors, fmt, deco }) => {
@@ -584,7 +584,7 @@
         const marks = [];
         M.forEach((_, i) => {
           const [a0, a1] = A[i], m = (a0 + a1) / 2, e = Math.min(a1, a0 + TAU - 1e-4), c = pt(cx, cy, (R + ri) / 2, m);
-          const node = s("path", { d: `M${P(R, a0)}${arc(R, a0, e)}L${P(ri, e)}${arc(ri, e, a0, 0)}Z`, fill: pal[i], class: "efx-chart__mark efx-chart__fade", style: `--i:${i}` }, g);
+          const node = s("path", { d: `M${P(R, a0)}${arc(R, a0, e)}L${P(ri, e)}${arc(ri, e, a0, 0)}Z`, fill: pal[i], class: "spark-chart__mark spark-chart__fade", style: `--i:${i}` }, g);
           marks.push({
             x: c[0],
             y: c[1],
@@ -598,7 +598,7 @@
           });
           if (!deco) {
             const [x, y] = pt(cx, cy, R + 8, m), sn = Math.sin(m), cs = Math.cos(m);
-            s("text", { x, y, "text-anchor": sn > 0.1 ? "start" : sn < -0.1 ? "end" : "middle", "dominant-baseline": cs > 0.3 ? "auto" : cs < -0.3 ? "hanging" : "middle", class: "efx-chart__value efx-viz__label efx-chart__fade", style: `--i:${i}` }, g).textContent = L[i];
+            s("text", { x, y, "text-anchor": sn > 0.1 ? "start" : sn < -0.1 ? "end" : "middle", "dominant-baseline": cs > 0.3 ? "auto" : cs < -0.3 ? "hanging" : "middle", class: "spark-chart__value spark-viz__label spark-chart__fade", style: `--i:${i}` }, g).textContent = L[i];
           }
         });
         M.forEach((_, i) => M.forEach((__, j2) => {
@@ -608,7 +608,7 @@
             d: `M${P(ri, s0)}${arc(ri, s0, s1)}` + (same ? "" : `Q${cx},${cy} ${P(ri, t0)}${arc(ri, t0, t1)}`) + `Q${cx},${cy} ${P(ri, s0)}Z`,
             fill: pal[M[i][j2] >= M[j2][i] ? i : j2],
             "fill-opacity": 0.6,
-            class: "efx-chart__mark efx-chart__fade",
+            class: "spark-chart__mark spark-chart__fade",
             style: `--i:${rib}`
           }, g);
           const c = pt(cx, cy, ri * 0.6, same ? (s0 + s1) / 2 : (s0 + s1 + t0 + t1) / 4), f = (v) => esc(fmt(v));
@@ -677,7 +677,7 @@
   var dummy = (N) => JSON.stringify({ labels: N.glabels, series: N.series.map((x) => ({ name: x.name, values: N.glabels.map((_, i) => (x.groups[i] || []).length) })) });
   var viz_distribution_default = {
     name: "viz-distribution",
-    selector: ".efx-viz-distribution",
+    selector: ".spark-viz-distribution",
     lazy: true,
     defaults: { ...COMMON, mode: "density", bandwidth: 0, overlap: 0.8, grid: true, height: 0 },
     init(el, o) {
@@ -685,7 +685,7 @@
       let N = norm3(o.data || j && j.textContent, o);
       const byG = () => N.series.length < 2 && N.glabels.length > 1;
       const o2 = { ...o, data: dummy(N), labels: N.glabels, source: "" };
-      const offData = on(el, "efx:data", (e) => {
+      const offData = on(el, "spark:data", (e) => {
         N = norm3(e.detail, o);
         draw.legendByLabel = byG();
       });
@@ -722,9 +722,9 @@
         const b = band(gIdx.length, [pad.l, w - pad.r], 0.2), sw = b.bw / sIdx.length;
         if (!deco) {
           if (hz) {
-            const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+            const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
             sc.ticks.forEach((t) => {
-              if (o.grid) s("line", { x1: v(t), x2: v(t), y1: pad.t, y2: h - pad.b, class: "efx-chart__grid" }, ax);
+              if (o.grid) s("line", { x1: v(t), x2: v(t), y1: pad.t, y2: h - pad.b, class: "spark-chart__grid" }, ax);
               s("text", { x: v(t), y: h - pad.b + 16, "text-anchor": "middle" }, ax).textContent = fmt(t);
             });
           } else axes(g, { w, h, pad, y: v, ticks: sc.ticks, labels: gIdx.map((i) => N.glabels[i]), x: (i) => b.x(i) + b.bw / 2, fmt, grid: o.grid });
@@ -737,16 +737,16 @@
           return `<strong>${esc(t.name)}</strong><span>n <b>${n}</b> \xB7 median <b>${esc(fmt(q(t.a, 0.5)))}</b></span><span>Q1\u2013Q3 <b>${esc(fmt(q(t.a, 0.25)))} \u2013 ${esc(fmt(q(t.a, 0.75)))}</b></span><span>min\u2013max <b>${esc(fmt(t.a[0]))} \u2013 ${esc(fmt(t.a[n - 1]))}</b></span>`;
         };
         items.forEach((t, k) => {
-          const f = s("g", { class: "efx-chart__fade", style: `--i:${k}` }, g);
+          const f = s("g", { class: "spark-chart__fade", style: `--i:${k}` }, g);
           const med = q(t.a, 0.5), n = t.a.length;
           if (hz) {
             const y0 = ridge ? pad.t + amp + k * rh : base, sy = ridge ? rh * (1 + o.overlap) / dmax : (base - pad.t) / dmax;
             const pts = t.xs.map((x, i) => [v(x), y0 - t.ys[i] * sy]), d = linePath(pts, false);
             if (ridge) {
-              s("line", { x1: pad.l, x2: w - pad.r, y1: y0, y2: y0, class: "efx-chart__grid" }, f);
-              if (!deco) s("text", { x: pad.l - 8, y: y0 - 3, "text-anchor": "end", class: "efx-chart__axis", "aria-hidden": "true", style: "fill:var(--efx-chart-text)" }, f).textContent = t.name;
+              s("line", { x1: pad.l, x2: w - pad.r, y1: y0, y2: y0, class: "spark-chart__grid" }, f);
+              if (!deco) s("text", { x: pad.l - 8, y: y0 - 3, "text-anchor": "end", class: "spark-chart__axis", "aria-hidden": "true", style: "fill:var(--spark-chart-text)" }, f).textContent = t.name;
             }
-            const node = s("g", { class: "efx-chart__mark" }, f);
+            const node = s("g", { class: "spark-chart__mark" }, f);
             s("path", { d: d + `L${pts[NP - 1][0]},${y0}L${pts[0][0]},${y0}Z`, fill: t.color, "fill-opacity": ridge ? 0.7 : 0.22, stroke: "none" }, node);
             s("path", { d, fill: "none", stroke: t.color, "stroke-width": 2, "stroke-linejoin": "round" }, node);
             const pk = t.ys.indexOf(Math.max(...t.ys));
@@ -767,7 +767,7 @@
           const cx = b.x(t.gx) + sw * (t.sx + 0.5);
           if (mode === "violin") {
             const hw = sw / 2 * 0.95, R = t.xs.map((x, i) => [cx + t.ys[i] / dmax * hw, v(x)]), L = t.xs.map((x, i) => [cx - t.ys[i] / dmax * hw, v(x)]).reverse();
-            const node = s("g", { class: "efx-chart__mark" }, f);
+            const node = s("g", { class: "spark-chart__mark" }, f);
             s("path", { d: linePath(R.concat(L), false) + "Z", fill: t.color, "fill-opacity": 0.35, stroke: t.color, "stroke-width": 1.5, "stroke-linejoin": "round" }, node);
             s("line", { x1: cx, x2: cx, y1: v(q(t.a, 0.25)), y2: v(q(t.a, 0.75)), stroke: t.color, "stroke-width": 5, "stroke-linecap": "round" }, node);
             s("circle", { cx, cy: v(med), r: 3, style: "fill:var(--sh-surface,#fff)" }, node);
@@ -788,7 +788,7 @@
           const mx = Math.max(...dots.map((p) => Math.abs(p[0]))), kx = mx > lim && lim > 0 ? lim / mx : 1;
           s("line", { x1: cx - sw * 0.35, x2: cx + sw * 0.35, y1: v(med), y2: v(med), stroke: t.color, "stroke-width": 2 }, f);
           dots.forEach(([dx, y, val], i) => {
-            const node = s("circle", { cx: cx + dx * kx, cy: y, r, fill: t.color, "fill-opacity": 0.8, class: "efx-chart__mark" }, f);
+            const node = s("circle", { cx: cx + dx * kx, cy: y, r, fill: t.color, "fill-opacity": 0.8, class: "spark-chart__mark" }, f);
             marks.push({
               x: cx + dx * kx,
               y,
@@ -856,7 +856,7 @@
   };
   var viz_map_default = {
     name: "viz-map",
-    selector: ".efx-viz-map",
+    selector: ".spark-viz-map",
     lazy: true,
     defaults: { ...COMMON, geo: "", geoUrl: "", projection: "mercator", points: "", routes: "", zoom: false, steps: 6, legend: true, height: 0 },
     init(el, o) {
@@ -871,10 +871,10 @@
         if (d.points != null) pts = rowsOf(d.points);
         if (d.routes != null) routes = rowsOf(d.routes);
       };
-      const offData = on(el, "efx:data", (e) => set(e.detail || {}));
+      const offData = on(el, "spark:data", (e) => set(e.detail || {}));
       if (o.geoUrl) fetch(o.geoUrl).then((r) => r.json()).then((g) => {
-        if (alive) el.dispatchEvent(new CustomEvent("efx:data", { detail: { geo: g } }));
-      }).catch((e) => console.warn("[effix] map geo", e));
+        if (alive) el.dispatchEvent(new CustomEvent("spark:data", { detail: { geo: g } }));
+      }).catch((e) => console.warn("[spark] map geo", e));
       const fit = (w, h, pad) => {
         let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
         const add = (lon, lat) => {
@@ -901,7 +901,7 @@
         });
       };
       const svgPos = (e) => {
-        const sv = el.querySelector(".efx-chart__svg"), r = sv.getBoundingClientRect();
+        const sv = el.querySelector(".spark-chart__svg"), r = sv.getBoundingClientRect();
         return [(e.clientX - r.left) * (cur.w / r.width), (e.clientY - r.top) * (cur.h / r.height)];
       };
       const offs = [];
@@ -985,7 +985,7 @@
           const rings = f.polys.map((pl) => pl.map((r) => r.map((c) => P(c[0], c[1]))));
           const d = rings.map((pl) => pl.map((r) => "M" + r.map((c) => c[0].toFixed(1) + "," + c[1].toFixed(1)).join("L") + "Z").join("")).join("");
           const fill = v != null ? ramp(bin(v)) : vv.length ? "color-mix(in oklab, var(--sh-border, #e2e8f0) 55%, var(--sh-surface, #fff))" : ramp(0);
-          const node = s("path", { d, "fill-rule": "evenodd", style: `fill:${fill};--i:${i}`, class: "efx-chart__mark efx-viz-map__f efx-chart__fade" }, g);
+          const node = s("path", { d, "fill-rule": "evenodd", style: `fill:${fill};--i:${i}`, class: "spark-chart__mark spark-viz-map__f spark-chart__fade" }, g);
           let best = null, ba = -1;
           rings.forEach((pl) => {
             const r = pl[0] || [];
@@ -1018,7 +1018,7 @@
           if (a.length < 2 || b.length < 2) return;
           const [x0, y0] = P(+a[1], +a[0]), [x1, y1] = P(+b[1], +b[0]), dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy) || 1;
           const nx = -dy / len, ny = dx / len, f = (ny > 0 ? -1 : 1) * len * 0.2, cx = (x0 + x1) / 2 + nx * f, cy = (y0 + y1) / 2 + ny * f;
-          s("path", { d: `M${x0},${y0}Q${cx},${cy} ${x1},${y1}`, fill: "none", stroke: pt2, "stroke-width": 1.6, "stroke-linecap": "round", "vector-effect": "non-scaling-stroke", class: "efx-viz-map__route efx-chart__fade", style: `--i:${i + 4}` }, g);
+          s("path", { d: `M${x0},${y0}Q${cx},${cy} ${x1},${y1}`, fill: "none", stroke: pt2, "stroke-width": 1.6, "stroke-linecap": "round", "vector-effect": "non-scaling-stroke", class: "spark-viz-map__route spark-chart__fade", style: `--i:${i + 4}` }, g);
         });
         const bv = pts.map((q2) => +q2.value || 0), bmax = Math.max(...bv, 1), R = Math.max(8, Math.min(30, Math.min(w, h) * 0.06));
         const bm = [];
@@ -1026,11 +1026,11 @@
           var _a;
           if (!isFinite(+q2.lat) || !isFinite(+q2.lon)) return;
           const [x, y] = P(+q2.lon, +q2.lat), r = Math.max(3, R * Math.sqrt(bv[i] / bmax));
-          const node = s("circle", { cx: x, cy: y, r, fill: pt2, "fill-opacity": 0.6, stroke: pt2, "stroke-width": 1.5, "vector-effect": "non-scaling-stroke", class: "efx-chart__mark efx-chart__fade", style: `--i:${i + 6}` }, g);
+          const node = s("circle", { cx: x, cy: y, r, fill: pt2, "fill-opacity": 0.6, stroke: pt2, "stroke-width": 1.5, "vector-effect": "non-scaling-stroke", class: "spark-chart__mark spark-chart__fade", style: `--i:${i + 6}` }, g);
           bm.push({ x, y, bx: x, by: y, label: String((_a = q2.label) != null ? _a : `${q2.lat}, ${q2.lon}`), value: bv[i], node, index: i, group: 0, hit: (px, py) => Math.hypot((px - T.x) / T.k - x, (py - T.y) / T.k - y) <= r + 3 / T.k });
         });
         if (!deco && o.legend && vv.length) {
-          const lg = s("g", { "aria-hidden": "true", class: "efx-chart__axis", transform: `translate(${pad + 4} ${h - pad - 22})` }, root), sw = 18;
+          const lg = s("g", { "aria-hidden": "true", class: "spark-chart__axis", transform: `translate(${pad + 4} ${h - pad - 22})` }, root), sw = 18;
           for (let i = 0; i < N; i++) s("rect", { x: i * sw, y: 0, width: sw, height: 8, style: `fill:${ramp(i)}` }, lg);
           s("text", { x: 0, y: 20 }, lg).textContent = fmt(lo);
           s("text", { x: N * sw, y: 20, "text-anchor": "end" }, lg).textContent = fmt(hi);
@@ -1060,7 +1060,7 @@
   // src/charts/viz-marimekko.js
   var viz_marimekko_default = {
     name: "viz-marimekko",
-    selector: ".efx-viz-marimekko",
+    selector: ".spark-viz-marimekko",
     lazy: true,
     defaults: { ...COMMON, gap: 2, inside: "percent", height: 320 },
     init(el, o) {
@@ -1071,7 +1071,7 @@
         if (!n || !all) return [];
         const pad = deco ? { t: 0, r: 0, b: 0, l: 0 } : { t: 8, r: 4, b: 40, l: 36 };
         const pw = w - pad.l - pad.r - o.gap * (n - 1), ph = h - pad.t - pad.b, pct = (v) => (v / all * 100).toFixed(1).replace(/\.0$/, "") + "%";
-        const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+        const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
         if (!deco) [0, 25, 50, 75, 100].forEach((t) => {
           s("text", { x: pad.l - 6, y: pad.t + ph * (1 - t / 100), "text-anchor": "end", "dominant-baseline": "middle" }, ax).textContent = t + "%";
         });
@@ -1093,11 +1093,11 @@
             if (!v) return;
             const sh = v / tot[i] * ph;
             y -= sh;
-            const node = s("rect", { x, y: y + 0, width: cw, height: sh, fill: colors[sr.index], class: "efx-chart__mark efx-chart__grow", style: `--i:${i};stroke:var(--sh-surface,#fff);stroke-width:1.5` }, g);
+            const node = s("rect", { x, y: y + 0, width: cw, height: sh, fill: colors[sr.index], class: "spark-chart__mark spark-chart__grow", style: `--i:${i};stroke:var(--sh-surface,#fff);stroke-width:1.5` }, g);
             if (!deco && o.inside !== "none" && cw > 34 && sh > 16) {
-              const big = cw > 70 && sh > 34, t = s("text", { x: x + cw / 2, y: y + sh / 2 + (big ? -6 : 0), "text-anchor": "middle", "dominant-baseline": "middle", class: "efx-chart__fade", style: `--i:${i};fill:#fff;stroke:rgb(0 0 0/.3);stroke-width:2.5px;paint-order:stroke;font-weight:600;font-size:11px` }, txt);
+              const big = cw > 70 && sh > 34, t = s("text", { x: x + cw / 2, y: y + sh / 2 + (big ? -6 : 0), "text-anchor": "middle", "dominant-baseline": "middle", class: "spark-chart__fade", style: `--i:${i};fill:#fff;stroke:rgb(0 0 0/.3);stroke-width:2.5px;paint-order:stroke;font-weight:600;font-size:11px` }, txt);
               t.textContent = o.inside === "value" ? fmt(v) : (v / tot[i] * 100).toFixed(0) + "%";
-              if (big) s("text", { x: x + cw / 2, y: y + sh / 2 + 8, "text-anchor": "middle", "dominant-baseline": "middle", class: "efx-chart__fade", style: `--i:${i};fill:#fff;stroke:rgb(0 0 0/.3);stroke-width:2.5px;paint-order:stroke;font-size:10px` }, txt).textContent = cw / 6 > sr.name.length ? sr.name : sr.name.slice(0, Math.floor(cw / 6) - 1) + "\u2026";
+              if (big) s("text", { x: x + cw / 2, y: y + sh / 2 + 8, "text-anchor": "middle", "dominant-baseline": "middle", class: "spark-chart__fade", style: `--i:${i};fill:#fff;stroke:rgb(0 0 0/.3);stroke-width:2.5px;paint-order:stroke;font-size:10px` }, txt).textContent = cw / 6 > sr.name.length ? sr.name : sr.name.slice(0, Math.floor(cw / 6) - 1) + "\u2026";
             }
             const cy = y, sy = x, sw = cw, shh = sh;
             marks.push({
@@ -1133,7 +1133,7 @@
   };
   var viz_network_default = {
     name: "viz-network",
-    selector: ".efx-viz-network",
+    selector: ".spark-viz-network",
     lazy: true,
     defaults: { ...COMMON, height: 420, legend: false, label: false, zoom: true, linkDistance: 70, charge: 60, radius: 5 },
     init(el, o) {
@@ -1146,7 +1146,7 @@
       };
       const j = el.querySelector(':scope > script[type="application/json"]');
       let d = read((o.data || "").trim() || j && j.textContent);
-      const offData = on(el, "efx:data", (e) => {
+      const offData = on(el, "spark:data", (e) => {
         d = e.detail ? norm4(e.detail) : d;
       });
       let S, raf = 0, view = { k: 1, x: 0, y: 0 }, bound = 0, cur;
@@ -1234,12 +1234,12 @@
           Object.assign(S, { cx: w / 2, cy: h / 2, a: Math.max(S.a, 0.3) });
         }
         const groups = [...new Set(N.map((n) => n.group))], pal = palette(el, o, groups.length);
-        const zg = s("g", { class: "efx-viz__zoom", transform: `translate(${view.x} ${view.y}) scale(${view.k})` }, g);
-        const lines = L.map((l) => s("line", { class: "efx-viz__link", "stroke-width": Math.min(4, 0.6 + Math.sqrt(l.v)) }, zg));
-        const circles = N.map((n, i) => s("circle", { r: n.r, fill: pal[groups.indexOf(n.group)], class: "efx-chart__mark efx-chart__fade efx-viz__node", "data-i": i, style: `--i:${i % 20}` }, zg));
+        const zg = s("g", { class: "spark-viz__zoom", transform: `translate(${view.x} ${view.y}) scale(${view.k})` }, g);
+        const lines = L.map((l) => s("line", { class: "spark-viz__link", "stroke-width": Math.min(4, 0.6 + Math.sqrt(l.v)) }, zg));
+        const circles = N.map((n, i) => s("circle", { r: n.r, fill: pal[groups.indexOf(n.group)], class: "spark-chart__mark spark-chart__fade spark-viz__node", "data-i": i, style: `--i:${i % 20}` }, zg));
         const texts = o.label && !deco ? N.map((n) => {
           var _a;
-          const t = s("text", { class: "efx-viz__label", "text-anchor": "middle" }, zg);
+          const t = s("text", { class: "spark-viz__label", "text-anchor": "middle" }, zg);
           t.textContent = (_a = n.label) != null ? _a : n.id;
           return t;
         }) : [];
@@ -1514,7 +1514,7 @@
   };
   var viz_pack_default = {
     name: "viz-pack",
-    selector: ".efx-viz-pack",
+    selector: ".spark-viz-pack",
     lazy: true,
     defaults: { ...COMMON, height: 420, legend: false, padding: 0.15 },
     init(el, o) {
@@ -1527,7 +1527,7 @@
       };
       const j = el.querySelector(':scope > script[type="application/json"]');
       let src = read((o.data || "").trim() || j && j.textContent), T, focus, raf = 0;
-      const offData = on(el, "efx:data", (e) => {
+      const offData = on(el, "spark:data", (e) => {
         src = e.detail || src;
         T = focus = null;
       });
@@ -1544,10 +1544,10 @@
           while (n.depth > 1) n = n.parent;
           return pal[top.indexOf(n)] || pal[0];
         };
-        const zg = s("g", {}, g), lg = s("g", { class: "efx-viz__labels" }, g);
+        const zg = s("g", {}, g), lg = s("g", { class: "spark-viz__labels" }, g);
         const marks = nodes.map((n, i) => {
           const leaf = !n.kids.length, root0 = !n.depth, c = colorOf(n);
-          const node = s("circle", { cx: n.x, cy: n.y, r: n.r, fill: root0 ? "none" : c, "fill-opacity": leaf ? 0.8 : 0.06 + 0.05 * n.depth, stroke: root0 ? "var(--efx-chart-grid)" : c, "stroke-opacity": 0.55, "vector-effect": "non-scaling-stroke", class: "efx-chart__mark efx-chart__fade", style: `--i:${Math.min(n.depth * 4 + i % 8, 30)}` }, zg);
+          const node = s("circle", { cx: n.x, cy: n.y, r: n.r, fill: root0 ? "none" : c, "fill-opacity": leaf ? 0.8 : 0.06 + 0.05 * n.depth, stroke: root0 ? "var(--spark-chart-grid)" : c, "stroke-opacity": 0.55, "vector-effect": "non-scaling-stroke", class: "spark-chart__mark spark-chart__fade", style: `--i:${Math.min(n.depth * 4 + i % 8, 30)}` }, zg);
           const path = [];
           for (let q2 = n; q2; q2 = q2.parent) path.unshift(q2.name);
           return {
@@ -1565,7 +1565,7 @@
           };
         });
         const labels = deco ? [] : marks.filter((m) => !m.n.kids.length).map((m) => {
-          const t = s("text", { class: "efx-viz__label", "text-anchor": "middle", "dominant-baseline": "middle" }, lg);
+          const t = s("text", { class: "spark-viz__label", "text-anchor": "middle", "dominant-baseline": "middle" }, lg);
           t.textContent = m.label;
           return [m, t];
         });
@@ -1577,7 +1577,7 @@
           marks.forEach((m) => {
             m.x = m.n.x * k + tx;
             m.y = m.n.y * k + ty;
-            m.node.classList.toggle("efx-viz__out", !!focus && !inside(m.n));
+            m.node.classList.toggle("spark-viz__out", !!focus && !inside(m.n));
           });
           labels.forEach(([m, t]) => {
             const show = m.n.r * k * 1.7 > m.label.length * 6 + 6 && m.n.r * k > 9 && inside(m.n);
@@ -1627,11 +1627,11 @@
         if (svgClick || n) draw.zoom(cur.parent || root);
       };
       let nodesOf = () => T ? T.nodes : [];
-      const offSel = on(el, "efx:select", (e) => pick(nodesOf()[e.detail.index]));
+      const offSel = on(el, "spark:select", (e) => pick(nodesOf()[e.detail.index]));
       const stop = chart(el, o, draw);
-      const svg = el.querySelector(".efx-chart__svg");
+      const svg = el.querySelector(".spark-chart__svg");
       const offBg = !o.background && svg ? on(svg, "click", (e) => {
-        if (!e.target.closest(".efx-chart__mark")) pick(null, true);
+        if (!e.target.closest(".spark-chart__mark")) pick(null, true);
       }) : () => {
       };
       return () => {
@@ -1674,7 +1674,7 @@
   var stub = (P) => ({ labels: P.groups, series: [{ name: "", values: P.groups.map(() => 0) }] });
   var viz_parallel_default = {
     name: "viz-parallel",
-    selector: ".efx-viz-parallel",
+    selector: ".spark-viz-parallel",
     lazy: true,
     defaults: { ...COMMON, dims: [], group: "group", height: 340, opacity: 0.65 },
     init(el, o) {
@@ -1688,14 +1688,14 @@
       mk();
       const o2 = { ...o, source: "", data: P ? JSON.stringify(stub(P)) : o.data };
       const brush = {};
-      const offData = on(el, "efx:data", (e) => {
+      const offData = on(el, "spark:data", (e) => {
         const r = rowsOf2(e.detail);
         if (r && Array.isArray(e.detail)) {
           e.stopImmediatePropagation();
           P = prep(r, o);
           R = r;
           draw.legendByLabel = P.groups.length > 1;
-          el.dispatchEvent(new CustomEvent("efx:data", { detail: { ...stub(P), rows: r } }));
+          el.dispatchEvent(new CustomEvent("spark:data", { detail: { ...stub(P), rows: r } }));
           return;
         }
         R = r;
@@ -1719,19 +1719,19 @@
           const a = rows.map((r) => r.vals[i]).filter(Number.isFinite), sc = nice(Math.min(...a), Math.max(...a), 4);
           return { sc, y: linear([sc.min, sc.max], [h - pad.b, pad.t]) };
         });
-        const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+        const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
         if (!deco) D2.forEach((d, i) => {
-          s("line", { x1: X(i), x2: X(i), y1: pad.t, y2: h - pad.b, stroke: "var(--efx-chart-text)", "stroke-opacity": 0.5 }, ax);
+          s("line", { x1: X(i), x2: X(i), y1: pad.t, y2: h - pad.b, stroke: "var(--spark-chart-text)", "stroke-opacity": 0.5 }, ax);
           s("text", { x: X(i), y: pad.t - 12, "text-anchor": i === 0 && nd > 1 ? "start" : i === nd - 1 && nd > 1 ? "end" : "middle", style: "font-weight:600" }, ax).textContent = d;
           ys[i].sc.ticks.forEach((t) => {
-            s("line", { x1: X(i) - 3, x2: X(i), y1: ys[i].y(t), y2: ys[i].y(t), stroke: "var(--efx-chart-text)", "stroke-opacity": 0.5 }, ax);
+            s("line", { x1: X(i) - 3, x2: X(i), y1: ys[i].y(t), y2: ys[i].y(t), stroke: "var(--spark-chart-text)", "stroke-opacity": 0.5 }, ax);
             s("text", { x: X(i) - 6, y: ys[i].y(t), "text-anchor": "end", "dominant-baseline": "middle", style: "font-size:10px" }, ax).textContent = fmt(t);
           });
         });
         const marks = [];
         const nodes = rows.map((r, k) => {
           const pts = r.vals.map((v, i) => [X(i), ys[i].y(Number.isFinite(v) ? v : ys[i].sc.min)]);
-          const node = s("path", { d: "M" + pts.map((p) => p.join(",")).join("L"), fill: "none", stroke: r.color, "stroke-width": deco ? 1.5 : 1.6, "stroke-opacity": o.opacity, "stroke-linejoin": "round", pathLength: 1, class: "efx-chart__mark efx-chart__draw efx-pc__line", style: `--i:${k * Math.min(1, 12 / rows.length)}` }, g);
+          const node = s("path", { d: "M" + pts.map((p) => p.join(",")).join("L"), fill: "none", stroke: r.color, "stroke-width": deco ? 1.5 : 1.6, "stroke-opacity": o.opacity, "stroke-linejoin": "round", pathLength: 1, class: "spark-chart__mark spark-chart__draw spark-pc__line", style: `--i:${k * Math.min(1, 12 / rows.length)}` }, g);
           const mid = Math.floor((nd - 1) / 2);
           marks.push({
             x: pts[mid][0],
@@ -1762,9 +1762,9 @@
           });
         };
         if (!deco) D2.forEach((d, i) => {
-          const sel = s("rect", { x: X(i) - 5, width: 10, rx: 2, class: "efx-pc__sel", visibility: "hidden" }, g);
+          const sel = s("rect", { x: X(i) - 5, width: 10, rx: 2, class: "spark-pc__sel", visibility: "hidden" }, g);
           sels.push(sel);
-          const ov = s("rect", { x: X(i) - 12, y: pad.t, width: 24, height: h - pad.t - pad.b, fill: "transparent", class: "efx-pc__ov" }, g);
+          const ov = s("rect", { x: X(i) - 12, y: pad.t, width: 24, height: h - pad.t - pad.b, fill: "transparent", class: "spark-pc__ov" }, g);
           on(ov, "click", (e) => e.stopPropagation());
           on(ov, "dblclick", () => {
             delete brush[d];
@@ -1823,7 +1823,7 @@
   };
   var viz_rank_default = {
     name: "viz-rank",
-    selector: ".efx-viz-rank",
+    selector: ".spark-viz-rank",
     lazy: true,
     defaults: { ...COMMON, mode: "bump", ranks: false, smooth: true, legend: false, height: 0 },
     init(el, o) {
@@ -1851,23 +1851,23 @@
         const Y = sc.max === sc.min ? () => (top + bot) / 2 : linear(flip ? [sc.min, sc.max] : [sc.min, sc.max], flip ? [bot, top] : [top, bot]);
         const mc = Math.max(4, Math.floor(lw / 6.4) - 2);
         if (!deco) {
-          const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+          const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
           ps.forEach((p, j) => {
-            s("line", { x1: X(j), x2: X(j), y1: pad.t - 6, y2: h - pad.b, class: "efx-chart__grid" }, ax);
+            s("line", { x1: X(j), x2: X(j), y1: pad.t - 6, y2: h - pad.b, class: "spark-chart__grid" }, ax);
             s("text", { x: X(j), y: 12, "text-anchor": slope ? j ? "end" : "start" : "middle", style: "font-weight:600" }, ax).textContent = P[p];
           });
         }
         const ly = slope && !deco ? [0, 1].map((j) => spread(items.map((_, k) => Y(val(k, j))), 14, top, bot)) : null;
         return items.map((it, k) => {
           const pts = ps.map((_, j) => [X(j), Y(val(k, j))]);
-          const f = s("g", { class: "efx-chart__mark efx-vr__item" }, g);
+          const f = s("g", { class: "spark-chart__mark spark-vr__item" }, g);
           const d = pts.reduce((a, [x, y], i) => a + (i ? o.smooth ? `C${(pts[i - 1][0] + x) / 2},${pts[i - 1][1]} ${(pts[i - 1][0] + x) / 2},${y} ${x},${y}` : `L${x},${y}` : `M${x},${y}`), "");
-          s("path", { d, fill: "none", stroke: colors[it.index], "stroke-width": 3, "stroke-linecap": "round", pathLength: 1, class: "efx-chart__draw", style: `--i:${k}` }, f);
-          const fd = s("g", { class: "efx-chart__fade", style: `--i:${k}` }, f);
+          s("path", { d, fill: "none", stroke: colors[it.index], "stroke-width": 3, "stroke-linecap": "round", pathLength: 1, class: "spark-chart__draw", style: `--i:${k}` }, f);
+          const fd = s("g", { class: "spark-chart__fade", style: `--i:${k}` }, f);
           pts.forEach((p) => s("circle", { cx: p[0], cy: p[1], r: deco ? 3 : 4.5, fill: colors[it.index], style: "stroke:var(--sh-surface,#fff);stroke-width:2" }, fd));
           if (!deco) [0, n - 1].forEach((j, e) => {
             if (n < 2 && e) return;
-            s("text", { x: X(j) + (e ? 10 : -10), y: ly ? ly[e][k] : pts[j][1], "text-anchor": e ? "start" : "end", "dominant-baseline": "middle", class: "efx-chart__value" }, fd).textContent = cut(txt[k][e], mc);
+            s("text", { x: X(j) + (e ? 10 : -10), y: ly ? ly[e][k] : pts[j][1], "text-anchor": e ? "start" : "end", "dominant-baseline": "middle", class: "spark-chart__value" }, fd).textContent = cut(txt[k][e], mc);
           });
           const dl = slope ? it.values[ps[1]] - it.values[ps[0]] : 0;
           return {
@@ -1924,14 +1924,14 @@
   };
   var viz_wordcloud_default = {
     name: "viz-wordcloud",
-    selector: ".efx-viz-wordcloud",
+    selector: ".spark-viz-wordcloud",
     lazy: true,
     defaults: { ...COMMON, text: "", minSize: 12, maxSize: 56, rotate: [], max: 80, padding: 2, legend: false, height: 0 },
     init(el, o) {
       const j = el.querySelector(':scope > script[type="application/json"]');
       let words = norm5(o.update || o.text || o.data || j && j.textContent || "");
       if (o.text) words = norm5(o.text);
-      const off = on(el, "efx:data", (e) => {
+      const off = on(el, "spark:data", (e) => {
         const d = e.detail;
         if (d && (d.words || d.text || Array.isArray(d))) words = norm5(Array.isArray(d) ? d : d.words || d.text);
       });
@@ -1963,7 +1963,7 @@
           }
           if (!box) return;
           placed.push(box);
-          const node = s("text", { x: 0, y: 0, transform: `translate(${box.x} ${box.y})${a ? ` rotate(${a})` : ""}`, "text-anchor": "middle", "dominant-baseline": "central", "font-size": size / 0.85, fill: cols[i % cols.length], "font-weight": 600, "font-family": ff, class: "efx-chart__mark efx-chart__fade", style: `--i:${Math.min(i, 30) / 2}` }, g);
+          const node = s("text", { x: 0, y: 0, transform: `translate(${box.x} ${box.y})${a ? ` rotate(${a})` : ""}`, "text-anchor": "middle", "dominant-baseline": "central", "font-size": size / 0.85, fill: cols[i % cols.length], "font-weight": 600, "font-family": ff, class: "spark-chart__mark spark-chart__fade", style: `--i:${Math.min(i, 30) / 2}` }, g);
           node.textContent = d.text;
           marks.push({ x: box.x, y: box.y - box.h / 2, label: d.text, value: d.value, node, index: i, hit: (px, py) => Math.abs(px - box.x) <= box.w / 2 && Math.abs(py - box.y) <= box.h / 2 });
         });
@@ -1979,10 +1979,10 @@
     }
   };
 
-  // src/effix-entry.js
+  // src/spark-entry.js
   var defs = [viz_arc_default, viz_chord_default, viz_distribution_default, viz_map_default, viz_marimekko_default, viz_network_default, viz_pack_default, viz_parallel_default, viz_rank_default, viz_wordcloud_default];
-  if (window.Effix) window.Effix.charts = lib_exports;
-  else window.EffixChartKit = lib_exports;
-  if (window.Effix) window.Effix.define(defs);
-  else (window.EffixPending = window.EffixPending || []).push(...defs);
+  if (window.Spark) window.Spark.charts = lib_exports;
+  else window.SparkChartKit = lib_exports;
+  if (window.Spark) window.Spark.define(defs);
+  else (window.SparkPending = window.SparkPending || []).push(...defs);
 })();

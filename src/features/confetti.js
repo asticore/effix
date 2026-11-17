@@ -1,7 +1,7 @@
 /* confetti — burst of confetti from an element (shared full-viewport canvas, created lazily).
-   <button class="btn efx-confetti">Celebrate</button>
-   trigger: click | view | done (listens for efx:done). Any element can dispatch a bubbling
-   new CustomEvent('efx:confetti', {bubbles:true, detail:{count:120}}) to burst from itself. */
+   <button class="btn spark-confetti">Celebrate</button>
+   trigger: click | view | done (listens for spark:done). Any element can dispatch a bubbling
+   new CustomEvent('spark:confetti', {bubbles:true, detail:{count:120}}) to burst from itself. */
 import { on, onVisible, motionOK, themeColor, cssVar, add, get } from '../core.js';
 
 /* shapes: fn(ctx, size, piece) paints centered on 0,0 with fillStyle set (feature translates/rotates). Extend: add('confetti-shape', name, fn) */
@@ -36,7 +36,7 @@ const draw = () => {
 const burst = (x, y, o, colors) => {
   if (!cv) {
     cv = document.createElement('canvas');
-    cv.className = 'efx-confetti__canvas';
+    cv.className = 'spark-confetti__canvas';
     cv.setAttribute('aria-hidden', 'true');
     cv.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:2147483000';
     dpr = Math.min(devicePixelRatio || 1, 2);
@@ -54,7 +54,7 @@ const burst = (x, y, o, colors) => {
   }
   if (!raf) raf = requestAnimationFrame(draw);
 };
-/* one shared document listener for efx:confetti (any element, event must bubble) */
+/* one shared document listener for spark:confetti (any element, event must bubble) */
 let refs = 0, docOff = null;
 const DEF = { count: 80, spread: 70, velocity: 45, gravity: 1, colors: [], shapes: ['square', 'circle', 'strip'], origin: '' };
 const palette = (el, o) => {
@@ -81,13 +81,13 @@ const onEvt = e => {
 
 export default {
   name: 'confetti',
-  selector: '.efx-confetti',
+  selector: '.spark-confetti',
   defaults: { trigger: 'click', count: 80, spread: 70, velocity: 45, gravity: 1, colors: [], shapes: ['square', 'circle', 'strip'], origin: '' },
   init(el, o) {
-    if (!refs++) docOff = on(document, 'efx:confetti', onEvt);
+    if (!refs++) docOff = on(document, 'spark:confetti', onEvt);
     const offs = [() => { if (!--refs && docOff) { docOff(); docOff = null; } }];
     let stopVis = () => {};
-    if (o.trigger === 'done') offs.push(on(el, 'efx:done', () => fire(el, o)));
+    if (o.trigger === 'done') offs.push(on(el, 'spark:done', () => fire(el, o)));
     else if (o.trigger === 'view') {
       stopVis = onVisible(el, v => { if (v) { fire(el, o); stopVis(); } }, '0px', 0.5);
     } else offs.push(on(el, 'click', e => fire(el, o, e)));

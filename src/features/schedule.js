@@ -1,5 +1,5 @@
 /* schedule — show/hide content by date window, weekday and hours (local time).
-   <div class="efx-schedule" hidden data-efx-from="2026-12-01" data-efx-until="2026-12-26T00:00">…</div>
+   <div class="spark-schedule" hidden data-spark-from="2026-12-01" data-spark-until="2026-12-26T00:00">…</div>
    Add `hidden` in the HTML for mode="show" items to avoid a flash; JS removes it inside the window. */
 const DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const date = s => { if (!s) return 0; s = String(s); const d = new Date(/^\d{4}-\d\d-\d\d$/.test(s) ? s + 'T00:00' : s); return isNaN(d) ? 0 : +d; };
@@ -20,7 +20,7 @@ const parseHours = s => { const r = s.split('-').map(mins); return r.length === 
 
 export default {
   name: 'schedule',
-  selector: '.efx-schedule',
+  selector: '.spark-schedule',
   defaults: { from: '', until: '', days: '', hours: '', mode: 'show' },
   init(el, o) {
     const from = date(o.from), until = date(o.until);
@@ -35,7 +35,7 @@ export default {
       const on = o.mode === 'hide' ? !inside : inside;
       el.hidden = !on;
       el.classList.toggle('is-scheduled-off', !on);
-      if (on !== last) { last = on; el.dispatchEvent(new CustomEvent('efx:change', { bubbles: true, detail: { on } })); }
+      if (on !== last) { last = on; el.dispatchEvent(new CustomEvent('spark:change', { bubbles: true, detail: { on } })); }
       // next boundary: date edges, next midnight (days), hour edges today/tomorrow (hours)
       const at = (d, mm) => { const x = new Date(now); x.setDate(x.getDate() + d); x.setHours(0, mm, 0, 0); return +x; };
       const c = [from, until, days && at(1, 0), hr && at(0, hr[0]), hr && at(0, hr[1]), hr && at(1, hr[0]), hr && at(1, hr[1])].filter(x => x > t);

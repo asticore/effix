@@ -1,8 +1,8 @@
 /* ascii — ASCII art from an <img>, <video>, <canvas> or big text. Samples luminance per cell into a <pre> (or canvas).
-   <img class="efx-ascii" src="face.jpg" alt="Face" data-efx-cols="80">
-   <video class="efx-ascii" autoplay muted loop playsinline src="clip.mp4" data-efx-color="source"></video>
-   <div class="efx-ascii" data-efx-text="EFFIX" data-efx-cols="60"></div>
-   Bright pixels map to the last character of data-efx-chars (data-efx-invert flips it). Sources must be same-origin or CORS-enabled
+   <img class="spark-ascii" src="face.jpg" alt="Face" data-spark-cols="80">
+   <video class="spark-ascii" autoplay muted loop playsinline src="clip.mp4" data-spark-color="source"></video>
+   <div class="spark-ascii" data-spark-text="SPARK" data-spark-cols="60"></div>
+   Bright pixels map to the last character of data-spark-chars (data-spark-invert flips it). Sources must be same-origin or CORS-enabled
    (getImageData); on a tainted canvas the original is left in place with a console.warn. */
 import { on, onVisible, motionOK } from '../core.js';
 
@@ -11,7 +11,7 @@ const esc = c => (c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '&' ? '&amp;' 
 
 export default {
   name: 'ascii',
-  selector: '.efx-ascii',
+  selector: '.spark-ascii',
   lazy: true,
   defaults: { cols: 80, chars: ' .:-=+*#%@', invert: false, color: 'mono', text: '', fps: 24, reveal: true, duration: 1200, output: 'pre', live: false },
   init(el, o) {
@@ -38,10 +38,10 @@ export default {
     let tc = text ? mkText() : null;
 
     const out = document.createElement(toCv ? 'canvas' : 'pre');
-    out.className = 'efx-ascii__out';
+    out.className = 'spark-ascii__out';
     out.setAttribute('aria-hidden', 'true');
     if (text) { el.setAttribute('role', 'img'); el.setAttribute('aria-label', text); el.textContent = ''; el.appendChild(out); }
-    else { if (isImg && el.alt) el.setAttribute('aria-label', el.alt); el.classList.add('efx-ascii__src'); el.after(out); }
+    else { if (isImg && el.alt) el.setAttribute('aria-label', el.alt); el.classList.add('spark-ascii__src'); el.after(out); }
     if (isVid) offs.push(on(out, 'click', () => (el.paused ? el.play() : el.pause())));
 
     const oc = document.createElement('canvas'), ox = oc.getContext('2d', { willReadFrequently: true });
@@ -103,8 +103,8 @@ export default {
         if (!revealed && k0 == null) k0 = t;
         const r = (live() || !g) ? sample() : g;
         if (r === false) {
-          console.warn('[effix] ascii: source is cross-origin/tainted (needs same-origin or CORS), showing the original');
-          dead = true; out.remove(); el.classList.remove('efx-ascii__src');
+          console.warn('[spark] ascii: source is cross-origin/tainted (needs same-origin or CORS), showing the original');
+          dead = true; out.remove(); el.classList.remove('spark-ascii__src');
           return;
         }
         if (r) { g = r; fit(); const k = revealed ? null : t - k0; paint(k); if (k != null && k >= o.duration) revealed = true; }
@@ -124,7 +124,7 @@ export default {
       dead = true; cancelAnimationFrame(raf);
       offs.forEach(f => f());
       out.remove();
-      el.classList.remove('efx-ascii__src');
+      el.classList.remove('spark-ascii__src');
       if (text) el.innerHTML = was.html;
       ['aria-label', 'role'].forEach((a, i) => { const v = [was.label, was.role][i]; v == null ? el.removeAttribute(a) : el.setAttribute(a, v); });
     };

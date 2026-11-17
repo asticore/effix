@@ -1,4 +1,4 @@
-/*! Effix Charts v0.3.0 | MIT | https://github.com/asticore/effix */
+/*! Spark Charts v0.4.0 | MIT | https://github.com/asticore/spark */
 (() => {
   var __defProp = Object.defineProperty;
   var __export = (target, all) => {
@@ -26,15 +26,15 @@
     tickStep: () => tickStep
   });
 
-  // effix-host:effix-core
-  var get = (...a) => window.Effix.get(...a);
-  var parseCSV = (...a) => window.Effix.parseCSV(...a);
-  var motionOK = (...a) => window.Effix.motionOK(...a);
-  var cssVar = (...a) => window.Effix.cssVar(...a);
-  var on = (...a) => window.Effix.on(...a);
-  var rafThrottle = (...a) => window.Effix.rafThrottle(...a);
-  var onVisible = (...a) => window.Effix.onVisible(...a);
-  var effix_core_default = window.Effix;
+  // spark-host:spark-core
+  var get = (...a) => window.Spark.get(...a);
+  var parseCSV = (...a) => window.Spark.parseCSV(...a);
+  var motionOK = (...a) => window.Spark.motionOK(...a);
+  var cssVar = (...a) => window.Spark.cssVar(...a);
+  var on = (...a) => window.Spark.on(...a);
+  var rafThrottle = (...a) => window.Spark.rafThrottle(...a);
+  var onVisible = (...a) => window.Spark.onVisible(...a);
+  var spark_core_default = window.Spark;
 
   // src/charts/_lib.js
   var NS = "http://www.w3.org/2000/svg";
@@ -63,11 +63,11 @@
     compact: false,
     // 12.3k
     format: "",
-    // name of a registered formatter: Effix.add('format', 'gbp', v => '£' + v.toFixed(2))
+    // name of a registered formatter: Spark.add('format', 'gbp', v => '£' + v.toFixed(2))
     csv: "",
     // CSV text or URL: header row = names, first column = labels (or inline <script type="text/csv">)
     live: "",
-    // name of a source registered with Effix.chartSource(name, (push, el) => …)
+    // name of a source registered with Spark.chartSource(name, (push, el) => …)
     title: ""
     // accessible name (falls back to aria-label / first heading)
   };
@@ -110,7 +110,7 @@
       }
       if (!out && json) out = JSON.parse(json.textContent);
     } catch (err) {
-      console.warn("[effix] chart data", err);
+      console.warn("[spark] chart data", err);
     }
     if (!out || typeof out !== "object") out = {};
     const arr = (v) => Array.isArray(v) ? v : [];
@@ -135,7 +135,7 @@
   var FALLBACK = ["#6366f1", "#ec4899", "#10b981", "#f59e0b", "#0ea5e9", "#ef4444", "#8b5cf6"];
   function palette(el, o, n) {
     const cs = getComputedStyle(el);
-    const base = o.colors.length ? o.colors : TOKENS.map((t, i) => cs.getPropertyValue(`--efx-chart-${i + 1}`).trim() || cs.getPropertyValue(t).trim() || FALLBACK[i]);
+    const base = o.colors.length ? o.colors : TOKENS.map((t, i) => cs.getPropertyValue(`--spark-chart-${i + 1}`).trim() || cs.getPropertyValue(t).trim() || FALLBACK[i]);
     return Array.from({ length: Math.max(n, 1) }, (_, i) => base[i % base.length]);
   }
   function tickStep(start, stop, count) {
@@ -224,10 +224,10 @@
   }
   var esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   function axes(g, { w, h, pad, y, ticks, labels, x, fmt, grid = true, rotate = false }) {
-    const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+    const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
     for (const t of ticks) {
       const yy = y(t);
-      if (grid) s("line", { x1: pad.l, x2: w - pad.r, y1: yy, y2: yy, class: "efx-chart__grid" }, ax);
+      if (grid) s("line", { x1: pad.l, x2: w - pad.r, y1: yy, y2: yy, class: "spark-chart__grid" }, ax);
       s("text", { x: pad.l - 8, y: yy, "text-anchor": "end", "dominant-baseline": "middle" }, ax).textContent = fmt(t);
     }
     if (labels && x) {
@@ -242,28 +242,28 @@
   }
   var uid = 0;
   function chart(el, o, draw) {
-    const id = "efx-c" + ++uid;
+    const id = "spark-c" + ++uid;
     const restore = { pos: el.style.position, iso: el.style.isolation };
     const deco = o.background;
     if (getComputedStyle(el).position === "static") el.style.position = "relative";
     if (deco) el.style.isolation = "isolate";
     const wrap2 = document.createElement("div");
-    wrap2.className = "efx-chart__wrap" + (deco ? " efx-chart__wrap--bg" : "");
+    wrap2.className = "spark-chart__wrap" + (deco ? " spark-chart__wrap--bg" : "");
     if (deco) wrap2.setAttribute("aria-hidden", "true");
-    const svg = s("svg", { class: "efx-chart__svg", role: deco ? null : "img", "aria-labelledby": deco ? null : id + "-t", focusable: "false" });
+    const svg = s("svg", { class: "spark-chart__svg", role: deco ? null : "img", "aria-labelledby": deco ? null : id + "-t", focusable: "false" });
     const title = s("title", { id: id + "-t" }, svg);
     wrap2.appendChild(svg);
     const tip = document.createElement("div");
-    tip.className = "efx-chart__tip";
+    tip.className = "spark-chart__tip";
     tip.setAttribute("role", "status");
     tip.hidden = true;
     const legend = document.createElement("div");
-    legend.className = "efx-chart__legend";
+    legend.className = "spark-chart__legend";
     const sr = document.createElement("ul");
-    sr.className = "efx-chart__sr";
+    sr.className = "spark-chart__sr";
     if (deco) el.prepend(wrap2);
     else el.append(wrap2, tip, legend, sr);
-    el.classList.add("efx-chart");
+    el.classList.add("spark-chart");
     let data = parseData(el, o);
     const hidden = /* @__PURE__ */ new Set();
     let marks = [], active = -1, w = 0, h = 0, played = !o.animate || !motionOK();
@@ -279,7 +279,7 @@
       title.textContent = name();
       const visible = draw.legendByLabel ? data.series.map((s0, i) => ({ ...s0, index: i })) : data.series.map((s0, i) => ({ ...s0, index: i })).filter((x) => !hidden.has(x.index));
       const colors = palette(el, o, data.series.length).map((c, i) => data.series[i] && data.series[i].color || c);
-      const g = s("g", { class: "efx-chart__plot" + (played ? " is-in" : "") }, svg);
+      const g = s("g", { class: "spark-chart__plot" + (played ? " is-in" : "") }, svg);
       marks = draw({ el, svg, g, w, h, o, data, visible, hidden, colors, fmt, deco, again }) || [];
       if (!deco) {
         sr.innerHTML = marks.slice(0, 200).map((m) => {
@@ -297,9 +297,9 @@
       items.forEach((label, i) => {
         const b = document.createElement("button");
         b.type = "button";
-        b.className = "efx-chart__key";
+        b.className = "spark-chart__key";
         b.setAttribute("aria-pressed", String(!hidden.has(i)));
-        b.style.setProperty("--efx-key", data.series[i] && data.series[i].color || colors[i]);
+        b.style.setProperty("--spark-key", data.series[i] && data.series[i].color || colors[i]);
         b.textContent = label;
         b.addEventListener("click", () => {
           hidden.has(i) ? hidden.delete(i) : hidden.add(i);
@@ -391,9 +391,9 @@
     function select(i) {
       var _a;
       const m = marks[i];
-      el.dispatchEvent(new CustomEvent("efx:select", { bubbles: true, detail: { index: (_a = m.index) != null ? _a : i, label: m.label, value: m.value, series: m.series } }));
+      el.dispatchEvent(new CustomEvent("spark:select", { bubbles: true, detail: { index: (_a = m.index) != null ? _a : i, label: m.label, value: m.value, series: m.series } }));
     }
-    offs.push(on(el, "efx:data", (e) => {
+    offs.push(on(el, "spark:data", (e) => {
       const d = e.detail || {};
       data = parseData(el, { ...o, update: d, labels: Array.isArray(d.labels) ? d.labels : [] });
       hidden.clear();
@@ -405,12 +405,12 @@
     });
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
     if (ro) ro.observe(el);
-    const feed = (d) => el.dispatchEvent(new CustomEvent("efx:data", { detail: d }));
+    const feed = (d) => el.dispatchEvent(new CustomEvent("spark:data", { detail: d }));
     let gone = false;
     if (o.csv && isUrl(o.csv)) fetch(o.csv).then((r) => r.text()).then((t) => {
       const d = !gone && fromCSV(t);
       if (d) feed(d);
-    }).catch((e) => console.warn("[effix] chart csv", e));
+    }).catch((e) => console.warn("[spark] chart csv", e));
     const src = o.live && get("chart-source", o.live);
     if (typeof src === "function") {
       try {
@@ -419,7 +419,7 @@
         }, el);
         if (typeof c === "function") offs.push(c);
       } catch (e) {
-        console.warn("[effix] chart source", e);
+        console.warn("[spark] chart source", e);
       }
     }
     renderLegend();
@@ -429,7 +429,7 @@
     if (!played) stopVis = onVisible(el, (vis, e) => {
       if (!vis || e.intersectionRatio < 0.25 && e.intersectionRect.height < innerHeight * 0.25) return;
       played = true;
-      svg.querySelectorAll(".efx-chart__plot").forEach((p) => p.classList.add("is-in"));
+      svg.querySelectorAll(".spark-chart__plot").forEach((p) => p.classList.add("is-in"));
       stopVis();
     }, "0px", [0, 0.01, 0.05, 0.1, 0.25]);
     return () => {
@@ -442,7 +442,7 @@
       tip.remove();
       legend.remove();
       sr.remove();
-      el.classList.remove("efx-chart");
+      el.classList.remove("spark-chart");
       el.style.position = restore.pos;
       el.style.isolation = restore.iso;
     };
@@ -451,7 +451,7 @@
   // src/charts/chart-bar.js
   var chart_bar_default = {
     name: "chart-bar",
-    selector: ".efx-chart-bar",
+    selector: ".spark-chart-bar",
     lazy: true,
     defaults: { ...COMMON, horizontal: false, stacked: false, normalize: false, diverging: false, radial: false, style: "bar", values: false, radius: 4, grid: true, min: 0 },
     init(el, o) {
@@ -475,16 +475,16 @@
         const b = band(n, hz ? [pad.t, h - pad.b] : [pad.l, w - pad.r], 0.28);
         if (!deco) {
           if (hz) {
-            const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+            const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
             sc.ticks.forEach((t) => {
-              s("line", { x1: v(t), x2: v(t), y1: pad.t, y2: h - pad.b, class: "efx-chart__grid" }, ax);
+              s("line", { x1: v(t), x2: v(t), y1: pad.t, y2: h - pad.b, class: "spark-chart__grid" }, ax);
               s("text", { x: v(t), y: h - pad.b + 16, "text-anchor": "middle" }, ax).textContent = F(t);
             });
             data.labels.forEach((l, i) => {
               s("text", { x: pad.l - 8, y: b.x(i) + b.bw / 2, "text-anchor": "end", "dominant-baseline": "middle" }, ax).textContent = l;
             });
           } else axes(g, { w, h, pad, y: v, ticks: sc.ticks, labels: data.labels, x: (i) => b.x(i) + b.bw / 2, fmt: F, grid: o.grid });
-          if (sc.min < 0) s("line", hz ? { x1: v(0), x2: v(0), y1: pad.t, y2: h - pad.b, style: "stroke:var(--efx-chart-text,#64748b);stroke-opacity:.7" } : { x1: pad.l, x2: w - pad.r, y1: v(0), y2: v(0), style: "stroke:var(--efx-chart-text,#64748b);stroke-opacity:.7" }, g);
+          if (sc.min < 0) s("line", hz ? { x1: v(0), x2: v(0), y1: pad.t, y2: h - pad.b, style: "stroke:var(--spark-chart-text,#64748b);stroke-opacity:.7" } : { x1: pad.l, x2: w - pad.r, y1: v(0), y2: v(0), style: "stroke:var(--spark-chart-text,#64748b);stroke-opacity:.7" }, g);
         }
         const marks = [];
         const per = st ? 1 : visible.length;
@@ -502,7 +502,7 @@
             const thick = Math.max(1, (st ? b.bw : bw) - (per > 1 ? 2 : 0));
             const r = Math.min(o.radius, thick / 2);
             const attrs = hz ? { x: Math.min(p0, p1), y: off, width: Math.abs(p1 - p0), height: thick } : { x: off, y: Math.min(p0, p1), width: thick, height: Math.abs(p1 - p0) };
-            const col = neg && val2 < 0 ? neg : colors[sr.index], cls = `efx-chart__mark ${hz ? "efx-chart__grow-x" : "efx-chart__grow"}`;
+            const col = neg && val2 < 0 ? neg : colors[sr.index], cls = `spark-chart__mark ${hz ? "spark-chart__grow-x" : "spark-chart__grow"}`;
             let node;
             if (lol) {
               const cx0 = attrs.x + attrs.width / 2, cy0 = attrs.y + attrs.height / 2, dr = Math.max(3, Math.min(8, thick / 2));
@@ -511,7 +511,7 @@
               s("circle", { cx: hz ? p1 : cx0, cy: hz ? cy0 : p1, r: dr, stroke: "none" }, node);
             } else node = s("rect", { ...attrs, rx: r, fill: col, class: cls, style: `--i:${i}` }, g);
             if (o.values && !deco && !st) {
-              const t = hz ? s("text", { x: val2 < 0 ? Math.min(p0, p1) - (lol ? 13 : 6) : Math.max(p0, p1) + (lol ? 13 : 6), "text-anchor": val2 < 0 ? "end" : null, y: off + thick / 2, "dominant-baseline": "middle", class: "efx-chart__value efx-chart__fade", style: `--i:${i}` }, g) : s("text", { x: off + thick / 2, y: val2 < 0 ? Math.max(p0, p1) + (lol ? 20 : 14) : Math.min(p0, p1) - (lol ? 13 : 6), "text-anchor": "middle", class: "efx-chart__value efx-chart__fade", style: `--i:${i}` }, g);
+              const t = hz ? s("text", { x: val2 < 0 ? Math.min(p0, p1) - (lol ? 13 : 6) : Math.max(p0, p1) + (lol ? 13 : 6), "text-anchor": val2 < 0 ? "end" : null, y: off + thick / 2, "dominant-baseline": "middle", class: "spark-chart__value spark-chart__fade", style: `--i:${i}` }, g) : s("text", { x: off + thick / 2, y: val2 < 0 ? Math.max(p0, p1) + (lol ? 20 : 14) : Math.min(p0, p1) - (lol ? 13 : 6), "text-anchor": "middle", class: "spark-chart__value spark-chart__fade", style: `--i:${i}` }, g);
               t.textContent = fmt(raw);
             }
             const cx = attrs.x + attrs.width / 2, cy = attrs.y + (hz ? attrs.height / 2 : 0);
@@ -540,8 +540,8 @@
     const rad = (val2) => r0 + Math.max(0, val2) * (R - r0) / (rs.max || 1);
     const marks = [];
     if (!deco) {
-      const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
-      rs.ticks.forEach((t) => s("circle", { cx, cy, r: rad(t), fill: "none", class: "efx-chart__grid" }, ax));
+      const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
+      rs.ticks.forEach((t) => s("circle", { cx, cy, r: rad(t), fill: "none", class: "spark-chart__grid" }, ax));
       data.labels.forEach((l, i) => {
         const am = (i + 0.5) / n * Math.PI * 2, [x, y] = pt(cx, cy, R + 8, am), sn = Math.sin(am), cs = Math.cos(am);
         s("text", { x, y: y + (cs > 0.3 ? -2 : cs < -0.3 ? 10 : 4), "text-anchor": sn > 0.2 ? "start" : sn < -0.2 ? "end" : "middle" }, ax).textContent = l;
@@ -555,7 +555,7 @@
         acc += Math.max(0, val2);
         const bw = (slot - gap2) / per, a0 = i * slot + gap2 / 2 + (st ? 0 : k * bw), a1 = a0 + bw;
         const ri = st ? rad(lo) : r0, ro = rad(lo + Math.max(0, val2));
-        const node = s("path", { d: arcPath(cx, cy, ri, Math.max(ro, ri + 1), a0, a1), fill: colors[sr.index], class: "efx-chart__mark efx-chart__fade", style: `--i:${i}` }, g);
+        const node = s("path", { d: arcPath(cx, cy, ri, Math.max(ro, ri + 1), a0, a1), fill: colors[sr.index], class: "spark-chart__mark spark-chart__fade", style: `--i:${i}` }, g);
         const [x, y] = pt(cx, cy, Math.max(ro, ri + 1), (a0 + a1) / 2);
         marks.push({ x, y, label, value: raw, series: visible.length > 1 || data.series.length > 1 ? sr.name : "", node, index: i, hit: (px, py) => {
           const d = Math.hypot(px - cx, py - cy);
@@ -603,12 +603,12 @@
   };
   var chart_box_default = {
     name: "chart-box",
-    selector: ".efx-chart-box",
+    selector: ".spark-chart-box",
     lazy: true,
     defaults: { ...COMMON, horizontal: false, grid: true },
     init(el, o) {
       let m = read(el, o);
-      const off = on(el, "efx:data", (e) => {
+      const off = on(el, "spark:data", (e) => {
         m = read(el, o, e.detail || {});
       });
       const draw = ({ g, w, h, visible, colors, fmt, deco }) => {
@@ -623,9 +623,9 @@
         const P = (c, val2) => hz ? [v(val2), c] : [c, v(val2)];
         if (!deco) {
           if (hz) {
-            const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+            const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
             sc.ticks.forEach((t) => {
-              s("line", { x1: v(t), x2: v(t), y1: pad.t, y2: h - pad.b, class: "efx-chart__grid" }, ax);
+              s("line", { x1: v(t), x2: v(t), y1: pad.t, y2: h - pad.b, class: "spark-chart__grid" }, ax);
               s("text", { x: v(t), y: h - pad.b + 16, "text-anchor": "middle" }, ax).textContent = fmt(t);
             });
             L.forEach((l, i) => {
@@ -638,7 +638,7 @@
           const bx = groups[x.index].boxes[i];
           if (!bx) return;
           const col = colors[x.index], c0 = b.x(i) + k * sw + (sw - cw) / 2, cm = c0 + cw / 2;
-          const gr = s("g", { class: "efx-chart__mark efx-chart__fade", style: `--i:${i}`, stroke: col, "stroke-width": 1.5, fill: "none" }, g);
+          const gr = s("g", { class: "spark-chart__mark spark-chart__fade", style: `--i:${i}`, stroke: col, "stroke-width": 1.5, fill: "none" }, g);
           const ln = (c, a, d, z, e) => {
             const [x12, y12] = P(c, a), [x22, y22] = P(d, z);
             return s("line", { x1: x12, y1: y12, x2: x22, y2: y22, ...e }, gr);
@@ -696,12 +696,12 @@
   var cut = (t, px) => t.length * 6.2 > px ? t.slice(0, Math.max(1, Math.floor(px / 6.2) - 1)) + "\u2026" : t;
   var chart_bullet_default = {
     name: "chart-bullet",
-    selector: ".efx-chart-bullet",
+    selector: ".spark-chart-bullet",
     lazy: true,
     defaults: { ...COMMON, vertical: false, barHeight: 18, values: true, shared: false, targets: [], ranges: [], legend: false },
     init(el, o) {
       let own = read2(el, o);
-      const off = on(el, "efx:data", (e) => {
+      const off = on(el, "spark:data", (e) => {
         own = Array.isArray(e.detail) ? rowsOf(e.detail, o) : null;
       });
       const rows = (data) => {
@@ -721,7 +721,7 @@
         const gmax = nice(0, Math.max(...R.map(top))), step = (hz ? h - pad.t - pad.b : w - pad.l - pad.r) / n;
         const marks = [];
         if (o.shared && !deco) {
-          const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g), sx = linear([0, gmax.max], hz ? [pad.l, w - pad.r] : [h - pad.b, pad.t]);
+          const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g), sx = linear([0, gmax.max], hz ? [pad.l, w - pad.r] : [h - pad.b, pad.t]);
           gmax.ticks.forEach((t) => s("text", hz ? { x: sx(t), y: h - 6, "text-anchor": "middle" } : { x: w - 2, y: sx(t), "text-anchor": "end", "dominant-baseline": "middle" }, ax).textContent = fmt(t));
         }
         R.forEach((r, i) => {
@@ -731,10 +731,10 @@
             const [p, q] = [sc(a), sc(b)];
             return s("rect", { ...hz ? { x: Math.min(p, q), y: c, width: Math.abs(q - p), height: t } : { x: c, y: Math.min(p, q), width: t, height: Math.abs(q - p) }, fill, class: cls, style: `--i:${i}`, ...extra }, gr);
           };
-          const gr = s("g", { class: "efx-chart__mark" }, g), bd = r.ranges.length ? r.ranges.concat(r.ranges[r.ranges.length - 1] < max ? [max] : []) : [max];
-          bd.forEach((b, j) => box(cc, th, j ? bd[j - 1] : 0, Math.min(b, max), `color-mix(in oklab, var(--sh-text, #0f172a) ${Math.max(5, 8 * (bd.length - j))}%, var(--sh-surface, #fff))`, "efx-chart__fade"));
+          const gr = s("g", { class: "spark-chart__mark" }, g), bd = r.ranges.length ? r.ranges.concat(r.ranges[r.ranges.length - 1] < max ? [max] : []) : [max];
+          bd.forEach((b, j) => box(cc, th, j ? bd[j - 1] : 0, Math.min(b, max), `color-mix(in oklab, var(--sh-text, #0f172a) ${Math.max(5, 8 * (bd.length - j))}%, var(--sh-surface, #fff))`, "spark-chart__fade"));
           const mt = Math.max(3, th / 3);
-          box(cc + (th - mt) / 2, mt, 0, Math.min(r.value, max), r.color || colors[0], hz ? "efx-chart__grow-x" : "efx-chart__grow", { rx: 1.5 });
+          box(cc + (th - mt) / 2, mt, 0, Math.min(r.value, max), r.color || colors[0], hz ? "spark-chart__grow-x" : "spark-chart__grow", { rx: 1.5 });
           if (r.target != null) {
             const tv = sc(Math.min(r.target, max)), a = cc + th * 0.15, b = cc + th * 0.85;
             s("line", hz ? { x1: tv, x2: tv, y1: a, y2: b } : { x1: a, x2: b, y1: tv, y2: tv }, gr).setAttribute("style", "stroke:var(--sh-text,#0f172a);stroke-width:2.5;stroke-linecap:round");
@@ -743,11 +743,11 @@
             if (r.label) {
               const lbl = s("text", hz ? { x: pad.l - 8, y: cc + th / 2, "text-anchor": "end", "dominant-baseline": "middle" } : { x: c0 + step / 2, y: h - 8, "text-anchor": "middle" }, g);
               lbl.textContent = cut(r.label, hz ? pad.l - 12 : step - 4);
-              lbl.setAttribute("class", "efx-chart__axis-t");
+              lbl.setAttribute("class", "spark-chart__axis-t");
             }
             if (o.values) {
               const v = s("text", hz ? { x: w - pad.r + 8, y: cc + th / 2, "dominant-baseline": "middle" } : { x: c0 + step / 2, y: pad.t - 6, "text-anchor": "middle" }, g);
-              v.setAttribute("class", "efx-chart__value efx-chart__fade");
+              v.setAttribute("class", "spark-chart__value spark-chart__fade");
               v.textContent = fmt(r.value);
             }
           }
@@ -784,7 +784,7 @@
   };
   var chart_candle_default = {
     name: "chart-candle",
-    selector: ".efx-chart-candle",
+    selector: ".spark-chart-candle",
     lazy: true,
     defaults: { ...COMMON, legend: false, style: "candle", volume: false, grid: true },
     init(el, o) {
@@ -798,7 +798,7 @@
       };
       const j = el.querySelector(':scope > script[type="application/json"]');
       read5(!o.source && o.data ? o.data : j && j.textContent);
-      const offData = on(el, "efx:data", (e) => read5(e.detail));
+      const offData = on(el, "spark:data", (e) => read5(e.detail));
       const draw = ({ g, w, h, data, colors, fmt, deco }) => {
         let R = rows && rows.map((d, i) => {
           var _a;
@@ -832,9 +832,9 @@
         const base = h - pad.b;
         return R.map((d, i) => {
           const col = d.c >= d.o ? up : dn, x = cx(i);
-          const node = s("g", { class: "efx-chart__mark efx-cd__pt" }, g);
-          s("rect", { x: b.x(i) - (b.step - b.bw) / 2, y: pad.t, width: b.step, height: base - pad.t, class: "efx-cd__band" }, node);
-          const sh = s("g", { class: "efx-chart__fade", style: `--i:${i * step}`, stroke: col, fill: col }, node);
+          const node = s("g", { class: "spark-chart__mark spark-cd__pt" }, g);
+          s("rect", { x: b.x(i) - (b.step - b.bw) / 2, y: pad.t, width: b.step, height: base - pad.t, class: "spark-cd__band" }, node);
+          const sh = s("g", { class: "spark-chart__fade", style: `--i:${i * step}`, stroke: col, fill: col }, node);
           if (vol && d.v > 0) s("rect", { x: x - bw / 2, y: base - Math.max(1, d.v / vmax * vh), width: bw, height: Math.max(1, d.v / vmax * vh), "fill-opacity": 0.35, stroke: "none" }, sh);
           s("line", { x1: x, x2: x, y1: y(d.h), y2: y(d.l), "stroke-width": ohlc ? Math.max(1, Math.min(2, bw / 3)) : 1 }, sh);
           if (ohlc) {
@@ -880,7 +880,7 @@
   var uid2 = 0;
   var chart_combo_default = {
     name: "chart-combo",
-    selector: ".efx-chart-combo",
+    selector: ".spark-chart-combo",
     lazy: true,
     defaults: { ...COMMON, types: [], axes: [], smooth: true, dots: true, area: false, stacked: false, grid: true, radius: 4, prefix2: "", suffix2: "" },
     init(el, o) {
@@ -891,7 +891,7 @@
         if (raw) meta = metaOf(JSON.parse(raw));
       } catch (e) {
       }
-      const offData = on(el, "efx:data", (e) => {
+      const offData = on(el, "spark:data", (e) => {
         if (e.detail && e.detail.series) meta = metaOf(e.detail);
       });
       const fmt2 = formatter({ ...o, prefix: o.prefix2, suffix: o.suffix2 });
@@ -924,7 +924,7 @@
         if (!deco) {
           axes(g, { w, h, pad, y: L.f, ticks: L.ticks, labels: data.labels, x: cx, fmt: sc[0] ? fmt : fmt2, grid: o.grid });
           if (right) {
-            const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+            const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
             const R = sc[1];
             R.ticks.forEach((t) => {
               s("text", { x: w - pad.r + 8, y: R.f(t), "dominant-baseline": "middle" }, ax).textContent = fmt2(t);
@@ -944,26 +944,26 @@
               y = j ? f(t[1]) : f(t[0] + (v || 0));
               t[j] += v || 0;
             }
-            s("rect", { x: b.x(i) + (st ? 0 : k * bw), y, width: thick, height: hh, rx: st ? 0 : Math.min(o.radius, thick / 2), fill: r.c, class: "efx-chart__grow", style: `--i:${i}` }, g);
+            s("rect", { x: b.x(i) + (st ? 0 : k * bw), y, width: thick, height: hh, rx: st ? 0 : Math.min(o.radius, thick / 2), fill: r.c, class: "spark-chart__grow", style: `--i:${i}` }, g);
           });
         });
         const base = h - pad.b;
         rows.filter((r) => r.k === "line").forEach((r, k) => {
           const pts = r.sr.values.slice(0, n).map((v, i) => [cx(i), Y(r)(v || 0)]);
           if (o.area && pts.length > 1) {
-            const id = "efx-cg" + ++uid2, defs2 = s("defs", {}, g), lg = s("linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 }, defs2);
+            const id = "spark-cg" + ++uid2, defs2 = s("defs", {}, g), lg = s("linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 }, defs2);
             s("stop", { offset: 0, "stop-color": r.c, "stop-opacity": 0.3 }, lg);
             s("stop", { offset: 1, "stop-color": r.c, "stop-opacity": 0 }, lg);
-            s("path", { d: linePath(pts, o.smooth) + `L${pts[pts.length - 1][0]},${base}L${pts[0][0]},${base}Z`, fill: `url(#${id})`, class: "efx-chart__fade", style: `--i:${k}` }, g);
+            s("path", { d: linePath(pts, o.smooth) + `L${pts[pts.length - 1][0]},${base}L${pts[0][0]},${base}Z`, fill: `url(#${id})`, class: "spark-chart__fade", style: `--i:${k}` }, g);
           }
-          s("path", { d: linePath(pts, o.smooth), pathLength: 1, fill: "none", stroke: r.c, "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", class: "efx-chart__draw" }, g);
+          s("path", { d: linePath(pts, o.smooth), pathLength: 1, fill: "none", stroke: r.c, "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", class: "spark-chart__draw" }, g);
         });
         if (deco) return [];
         const step = Math.min(1, 16 / n);
         return data.labels.map((label, i) => {
-          const node = s("g", { class: "efx-chart__mark efx-combo__pt" }, g);
-          s("rect", { x: b.x(i) - (b.step - b.bw) / 2, y: pad.t, width: b.step, height: base - pad.t, class: "efx-combo__band" }, node);
-          rows.filter((r) => r.k === "line").forEach((r) => s("circle", { cx: cx(i), cy: Y(r)(r.sr.values[i] || 0), r: 4, fill: r.c, class: "efx-combo__dot " + (o.dots ? "efx-chart__fade" : "efx-combo__hid"), style: `--i:${i * step}` }, node));
+          const node = s("g", { class: "spark-chart__mark spark-combo__pt" }, g);
+          s("rect", { x: b.x(i) - (b.step - b.bw) / 2, y: pad.t, width: b.step, height: base - pad.t, class: "spark-combo__band" }, node);
+          rows.filter((r) => r.k === "line").forEach((r) => s("circle", { cx: cx(i), cy: Y(r)(r.sr.values[i] || 0), r: 4, fill: r.c, class: "spark-combo__dot " + (o.dots ? "spark-chart__fade" : "spark-combo__hid"), style: `--i:${i * step}` }, node));
           const F = (r) => r.a ? fmt2 : fmt;
           return {
             x: cx(i),
@@ -1003,12 +1003,12 @@
   };
   var chart_flow_default = {
     name: "chart-flow",
-    selector: ".efx-chart-flow",
+    selector: ".spark-chart-flow",
     lazy: true,
     defaults: { ...COMMON, nodeWidth: 12, nodePad: 12, align: "justify", legend: false },
     init(el, o) {
       let d = read3(el, o);
-      const off = on(el, "efx:data", (e) => {
+      const off = on(el, "spark:data", (e) => {
         d = e.detail ? safe(e.detail) : d;
       });
       const draw = ({ g, w, h, deco, fmt }) => {
@@ -1078,7 +1078,7 @@
         const pal = palette(el, o, names.length), marks = [];
         L.forEach((l, i) => {
           const A = all[l.s], B = all[l.t], x0 = A.x + nw, x1 = B.x, xm = (x0 + x1) / 2, lw = l.v * ky;
-          const node = s("path", { d: `M${x0},${l.sy}C${xm},${l.sy} ${xm},${l.ty} ${x1},${l.ty}`, fill: "none", stroke: pal[A.i], "stroke-opacity": 0.35, "stroke-width": lw, pathLength: 1, class: "efx-chart__mark efx-chart__draw", style: `--i:${i}` }, g);
+          const node = s("path", { d: `M${x0},${l.sy}C${xm},${l.sy} ${xm},${l.ty} ${x1},${l.ty}`, fill: "none", stroke: pal[A.i], "stroke-opacity": 0.35, "stroke-width": lw, pathLength: 1, class: "spark-chart__mark spark-chart__draw", style: `--i:${i}` }, g);
           marks.push({
             x: xm,
             y: (l.sy + l.ty) / 2,
@@ -1100,7 +1100,7 @@
           });
         });
         N.forEach((n, i) => {
-          const node = s("rect", { x: n.x, y: n.y, width: nw, height: n.h, rx: 2, fill: pal[n.i], class: "efx-chart__mark efx-chart__fade", style: `--i:${i}` }, g);
+          const node = s("rect", { x: n.x, y: n.y, width: nw, height: n.h, rx: 2, fill: pal[n.i], class: "spark-chart__mark spark-chart__fade", style: `--i:${i}` }, g);
           marks.push({
             x: n.x + nw / 2,
             y: n.y + n.h / 2,
@@ -1114,7 +1114,7 @@
         });
         if (!deco) N.forEach((n, i) => {
           const right = n.x < w / 2;
-          s("text", { x: right ? n.x + nw + 6 : n.x - 6, y: n.y + n.h / 2, "text-anchor": right ? "start" : "end", "dominant-baseline": "middle", class: "efx-chart__value efx-flow__label efx-chart__fade", style: `--i:${i}` }, g).textContent = n.name;
+          s("text", { x: right ? n.x + nw + 6 : n.x - 6, y: n.y + n.h / 2, "text-anchor": right ? "start" : "end", "dominant-baseline": "middle", class: "spark-chart__value spark-flow__label spark-chart__fade", style: `--i:${i}` }, g).textContent = n.name;
         });
         return marks;
       };
@@ -1132,7 +1132,7 @@
   var cut2 = (t, n) => t.length > n ? t.slice(0, Math.max(1, n - 1)) + "\u2026" : t;
   var chart_funnel_default = {
     name: "chart-funnel",
-    selector: ".efx-chart-funnel",
+    selector: ".spark-chart-funnel",
     lazy: true,
     defaults: { ...COMMON, height: 320, style: "curved", horizontal: false, neck: 0.25, gap: 4, conversion: true, show: "inside", dynamic: true, compare: "mirror" },
     init(el, o) {
@@ -1198,7 +1198,7 @@
           if (k === n - 1) return;
           (cmp && !ghost ? [[0, -1, 0], [1, 0, 1]] : [[0, -1, 1]]).forEach(([j, lo, hi]) => {
             const a = G[j][k], b = G[j][k + 1];
-            s("path", { d: `M${q(a.u1, lo * a.eb)}L${q(b.u0, lo * b.ea)}L${q(b.u0, hi * b.ea)}L${q(a.u1, hi * a.eb)}Z`, fill: pal[i], "fill-opacity": 0.16, class: "efx-chart__fade", style: `--i:${k}` }, g);
+            s("path", { d: `M${q(a.u1, lo * a.eb)}L${q(b.u0, lo * b.ea)}L${q(b.u0, hi * b.ea)}L${q(a.u1, hi * a.eb)}Z`, fill: pal[i], "fill-opacity": 0.16, class: "spark-chart__fade", style: `--i:${k}` }, g);
           });
         });
         [1, 0].forEach((pass) => (pass && !ghost ? [] : cmp && !ghost ? [0, 1] : [0]).forEach((j) => {
@@ -1216,7 +1216,7 @@
               "stroke-width": pass ? 1.5 : ins ? 8 : null,
               "stroke-dasharray": pass ? "5 4" : null,
               "stroke-linejoin": ins ? "round" : null,
-              class: "efx-chart__mark " + (pass ? "efx-chart__fade" : hz ? "efx-fn-y" : "efx-fn-x"),
+              class: "spark-chart__mark " + (pass ? "spark-chart__fade" : hz ? "spark-fn-y" : "spark-fn-x"),
               style: `--i:${k};` + (pass ? "" : `transform-origin:${org}`)
             }, g);
             const first = V[gj](idx[0]), prev = k ? V[0](idx[k - 1]) : v, vv = V[0](i), other = V[1](i);
@@ -1242,7 +1242,7 @@
         }));
         rows.forEach((r) => r.forEach((m) => m && marks.push(m)));
         const txt = (x, y, cls, str, k, anchor = "middle") => {
-          s("text", { x, y, "text-anchor": anchor, "dominant-baseline": "central", class: cls + " efx-chart__fade", style: `--i:${k}` }, g).textContent = str;
+          s("text", { x, y, "text-anchor": anchor, "dominant-baseline": "central", class: cls + " spark-chart__fade", style: `--i:${k}` }, g).textContent = str;
         };
         if (sh !== "none") idx.forEach((i, k) => {
           const a = G[0][k], len = a.u1 - a.u0, u = (a.u0 + a.u1) / 2, name = data.labels[i], v = V[0](i), first = V[0](idx[0]);
@@ -1253,18 +1253,18 @@
           const lines = fit(Math.max(t1, t2), 30) ? 2 : fit(t1, 14) ? 1 : 0;
           const [x, y] = P(u, 0), e = ext(k, u);
           if (lines) {
-            txt(x, y - (lines > 1 ? 7 : 0), "efx-fn-t", name, k);
-            if (lines > 1) txt(x, y + 8, "efx-fn-t efx-fn-2", l2, k);
+            txt(x, y - (lines > 1 ? 7 : 0), "spark-fn-t", name, k);
+            if (lines > 1) txt(x, y + 8, "spark-fn-t spark-fn-2", l2, k);
           } else if (hz) {
             const m = Math.max(4, Math.floor((len + gp) / 6.4)), by = cy + W / 2;
-            s("line", { x1: x, x2: x, y1: cy + e + 3, y2: by + 3, class: "efx-fn-l efx-chart__fade", style: `--i:${k}` }, g);
-            txt(x, by + 12, "efx-chart__value", cut2(name, m), k);
-            txt(x, by + 25, "efx-fn-s", cut2(l2, m), k);
+            s("line", { x1: x, x2: x, y1: cy + e + 3, y2: by + 3, class: "spark-fn-l spark-chart__fade", style: `--i:${k}` }, g);
+            txt(x, by + 12, "spark-chart__value", cut2(name, m), k);
+            txt(x, by + 25, "spark-fn-s", cut2(l2, m), k);
           } else {
             const ex = sh === "side" ? pd.l - 10 : cx - e - 10;
-            if (sh === "side") s("line", { x1: ex + 5, x2: cx - e - 3, y1: y, y2: y, class: "efx-fn-l efx-chart__fade", style: `--i:${k}` }, g);
-            txt(ex, y - 7, "efx-chart__value", name, k, "end");
-            txt(ex, y + 8, "efx-fn-s", l2, k, "end");
+            if (sh === "side") s("line", { x1: ex + 5, x2: cx - e - 3, y1: y, y2: y, class: "spark-fn-l spark-chart__fade", style: `--i:${k}` }, g);
+            txt(ex, y - 7, "spark-chart__value", name, k, "end");
+            txt(ex, y + 8, "spark-fn-s", l2, k, "end");
           }
         });
         if (conv) idx.forEach((i, k) => {
@@ -1274,13 +1274,13 @@
           const e = Math.max(...G.map((gs) => Math.max(gs[k].eb, gs[k + 1].ea)));
           if (bars) {
             const [x, y] = P(uB, 0);
-            txt(x, y, "efx-fn-d", str, k);
+            txt(x, y, "spark-fn-d", str, k);
           } else if (hz) {
             const [x, y] = P(uB, -e - 9);
-            txt(x, y, "efx-fn-d", str, k);
+            txt(x, y, "spark-fn-d", str, k);
           } else {
             const [x, y] = P(uB, e + 8);
-            txt(x, y, "efx-fn-d", str, k, "start");
+            txt(x, y, "spark-fn-d", str, k, "start");
           }
         });
         return marks;
@@ -1295,11 +1295,11 @@
   var TAU = Math.PI * 2;
   var chart_gauge_default = {
     name: "chart-gauge",
-    selector: ".efx-chart-gauge",
+    selector: ".spark-chart-gauge",
     lazy: true,
     defaults: { ...COMMON, legend: false, type: "gauge", value: NaN, min: 0, max: 100, thick: 0.18, needle: false, target: NaN, label: "" },
     init(el, o) {
-      const off = on(el, "efx:data", (e) => {
+      const off = on(el, "spark:data", (e) => {
         const v = e.detail && e.detail.value;
         o.value = v != null && v !== "" && Number.isFinite(+v) ? +v : NaN;
       });
@@ -1323,8 +1323,8 @@
         const text = !deco && Math.min(w, h) >= 90;
         vals.forEach((v2, i) => {
           const r = rad ? R - ring / 2 - i * (R * 0.78 / n) : R - ring / 2, a1 = a0 + sw * p(v2), name = rad ? data.labels[i] || String(i + 1) : o.label || (data.labels[0] && data.labels[0] !== "1" ? data.labels[0] : "Value");
-          s("path", { d: arc(r, a0, a0 + sw), class: "efx-gauge-track", "stroke-width": ring, "stroke-linecap": "round", fill: "none" }, g);
-          const node = s("path", { d: arc(r, a0, a1 || a0 + 1e-3), pathLength: 1, class: "efx-chart__mark efx-gauge-sweep", style: `--i:${i * 3}`, stroke: pal[rad ? i : 0], "stroke-width": ring, "stroke-linecap": "round", fill: "none", visibility: p(v2) > 0 ? null : "hidden" }, g);
+          s("path", { d: arc(r, a0, a0 + sw), class: "spark-gauge-track", "stroke-width": ring, "stroke-linecap": "round", fill: "none" }, g);
+          const node = s("path", { d: arc(r, a0, a1 || a0 + 1e-3), pathLength: 1, class: "spark-chart__mark spark-gauge-sweep", style: `--i:${i * 3}`, stroke: pal[rad ? i : 0], "stroke-width": ring, "stroke-linecap": "round", fill: "none", visibility: p(v2) > 0 ? null : "hidden" }, g);
           const [x, y] = pt(cx, cy, r, a1);
           marks.push({
             x,
@@ -1341,27 +1341,27 @@
             }
           });
           if (rad && text) {
-            const t = s("text", { x: cx - 10, y: cy - r, "text-anchor": "end", "dominant-baseline": "central", class: "efx-gauge-lab efx-chart__fade", style: `--i:${i}` }, g);
+            const t = s("text", { x: cx - 10, y: cy - r, "text-anchor": "end", "dominant-baseline": "central", class: "spark-gauge-lab spark-chart__fade", style: `--i:${i}` }, g);
             t.textContent = name;
           }
         });
         const v = vals[0], ri = R - ring;
         if (Number.isFinite(o.target) && !rad) {
           const at = a0 + sw * p(o.target), [x1, y1] = pt(cx, cy, R - ring - 3, at), [x2, y2] = pt(cx, cy, R + 3, at);
-          s("line", { x1, y1, x2, y2, class: "efx-gauge-target" }, g);
+          s("line", { x1, y1, x2, y2, class: "spark-gauge-target" }, g);
         }
         if (deco || rad) return marks;
         if (gauge && o.needle) {
           const len = R - ring - 4;
-          s("path", { d: `M${cx - 3.5},${cy}L${cx},${cy - len}L${cx + 3.5},${cy}Z`, class: "efx-gauge-needle", style: `transform-origin:${cx}px ${cy}px;--a:${a0 + sw * p(v)}rad` }, g);
-          s("circle", { cx, cy, r: 6, class: "efx-gauge-hub" }, g);
+          s("path", { d: `M${cx - 3.5},${cy}L${cx},${cy - len}L${cx + 3.5},${cy}Z`, class: "spark-gauge-needle", style: `transform-origin:${cx}px ${cy}px;--a:${a0 + sw * p(v)}rad` }, g);
+          s("circle", { cx, cy, r: 6, class: "spark-gauge-hub" }, g);
         }
         if (text) {
           const str = fmt(v), cap = o.label || (data.labels[0] && data.labels[0] !== "1" ? data.labels[0] : "");
           const f = Math.min(ri * (gauge ? o.needle ? 0.36 : 0.5 : 0.5), ri * 1.6 / (str.length * 0.58)), ty0 = gauge ? o.needle ? cy + ri * 0.4 : cy + ri * 0.02 : cy - (cap ? f * 0.3 : 0);
-          const big = s("text", { x: cx, y: ty0, "text-anchor": "middle", "dominant-baseline": "central", class: "efx-chart__value efx-chart__fade", style: `font-size:${f}px` }, g);
+          const big = s("text", { x: cx, y: ty0, "text-anchor": "middle", "dominant-baseline": "central", class: "spark-chart__value spark-chart__fade", style: `font-size:${f}px` }, g);
           big.textContent = str;
-          if (cap) s("text", { x: cx, y: ty0 + f * 0.8, "text-anchor": "middle", "dominant-baseline": "central", class: "efx-gauge-lab efx-chart__fade" }, g).textContent = cap;
+          if (cap) s("text", { x: cx, y: ty0 + f * 0.8, "text-anchor": "middle", "dominant-baseline": "central", class: "spark-gauge-lab spark-chart__fade" }, g).textContent = cap;
         }
         return marks;
       });
@@ -1399,7 +1399,7 @@
   };
   var chart_heatmap_default = {
     name: "chart-heatmap",
-    selector: ".efx-chart-heatmap",
+    selector: ".spark-chart-heatmap",
     lazy: true,
     defaults: { ...COMMON, height: 0, legend: false, calendar: false, scheme: "", gap: 2, radius: 2 },
     init(el, o) {
@@ -1411,7 +1411,7 @@
         return { t0, n, d0, wk, cell: Math.min(20, (w - 30) / wk) };
       };
       if (!o.background && !H0) Object.defineProperty(o, "height", { get: () => cal ? days.length ? 18 + 7 * geo(Math.max(40, el.clientWidth)).cell : 60 : 22 + 30 * Math.max(1, rows) });
-      const off = on(el, "efx:data", (e) => {
+      const off = on(el, "spark:data", (e) => {
         const d = e.detail;
         if (cal) {
           try {
@@ -1424,7 +1424,7 @@
       const fmtDate = (t) => new Date(t).toLocaleDateString(void 0, { dateStyle: "medium", timeZone: "UTC" });
       const draw = ({ g, w, h, data, visible, fmt, deco }) => {
         const pal = palette(el, o, 7), c0 = pal[0], c1 = o.colors.length ? pal[1] : pal[5], gap2 = o.gap, cells = [];
-        const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+        const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
         const text = (a, t) => s("text", a, ax).textContent = t;
         let cw, ch, ox = 0, oy = 0;
         if (cal) {
@@ -1467,8 +1467,8 @@
         const marks = [];
         cells.forEach((k) => {
           const t = div ? Math.abs(k.v) / m : (k.v - lo) / (hi - lo || 1), x = ox + k.c * cw, y = oy + k.r * ch, rw = Math.max(1, cw - gap2), rh = Math.max(1, ch - gap2);
-          const fill = k.v == null ? "var(--efx-chart-text) 10%" : `${div && k.v < 0 ? c1 : c0} ${Math.round(8 + 92 * t)}%`;
-          const node = s("rect", { x, y, width: rw, height: rh, rx: o.radius, style: `fill:color-mix(in oklab, ${fill}, transparent);--i:${k.c * step}`, class: (k.v == null ? "" : "efx-chart__mark ") + "efx-chart__fade" }, g);
+          const fill = k.v == null ? "var(--spark-chart-text) 10%" : `${div && k.v < 0 ? c1 : c0} ${Math.round(8 + 92 * t)}%`;
+          const node = s("rect", { x, y, width: rw, height: rh, rx: o.radius, style: `fill:color-mix(in oklab, ${fill}, transparent);--i:${k.c * step}`, class: (k.v == null ? "" : "spark-chart__mark ") + "spark-chart__fade" }, g);
           if (k.v != null) marks.push({ x: x + rw / 2, y: y + rh / 2, label: k.label, value: k.v, series: k.series, node, index: marks.length, hit: (px, py) => px >= x - gap2 / 2 && px <= x + rw + gap2 / 2 && py >= y - gap2 / 2 && py <= y + rh + gap2 / 2 });
         });
         return marks;
@@ -1485,7 +1485,7 @@
   // src/charts/chart-histogram.js
   var chart_histogram_default = {
     name: "chart-histogram",
-    selector: ".efx-chart-histogram",
+    selector: ".spark-chart-histogram",
     lazy: true,
     defaults: { ...COMMON, bins: 0, step: 0, curve: false, grid: true },
     init(el, o) {
@@ -1524,7 +1524,7 @@
         if (!deco) axes(g, { w, h, pad, y: Y, ticks: sc.ticks, labels: edges.map(fmt), x: (i) => X(edges[i]), fmt: String, grid: o.grid });
         const marks = cnt.map((c, i) => {
           const x0 = X(edges[i]), x1 = X(edges[i + 1]), y = Y(c), label = `[${fmt(edges[i])}, ${fmt(edges[i + 1])}${i === nb - 1 ? "]" : ")"}`;
-          const node = s("rect", { x: x0, y, width: x1 - x0, height: Y(0) - y, fill: colors[0], stroke: "var(--sh-surface, #fff)", "stroke-width": deco ? 0 : 1, class: "efx-chart__mark efx-chart__grow", style: `--i:${Math.min(i, 12)}` }, g);
+          const node = s("rect", { x: x0, y, width: x1 - x0, height: Y(0) - y, fill: colors[0], stroke: "var(--sh-surface, #fff)", "stroke-width": deco ? 0 : 1, class: "spark-chart__mark spark-chart__grow", style: `--i:${Math.min(i, 12)}` }, g);
           return {
             x: (x0 + x1) / 2,
             y,
@@ -1540,7 +1540,7 @@
         if (curve) s("path", { d: linePath(Array.from({ length: 65 }, (_, i) => {
           const x = lo + (hi - lo) * i / 64;
           return [X(x), Y(pdf(x))];
-        }), false), fill: "none", stroke: colors[1] || colors[0], "stroke-width": 2, pathLength: 1, class: "efx-chart__draw", style: "pointer-events:none" }, g);
+        }), false), fill: "none", stroke: colors[1] || colors[0], "stroke-width": 2, pathLength: 1, class: "spark-chart__draw", style: "pointer-events:none" }, g);
         return marks;
       };
       draw.radius = 1;
@@ -1559,7 +1559,7 @@
   var uid3 = 0;
   var chart_line_default = {
     name: "chart-line",
-    selector: ".efx-chart-line",
+    selector: ".spark-chart-line",
     lazy: true,
     defaults: { ...COMMON, area: false, smooth: true, dots: true, stacked: false, stream: false, grid: true, min: "" },
     init(el, o) {
@@ -1604,21 +1604,21 @@
         if (area) {
           const defs2 = s("defs", {}, g);
           rows.forEach((r, k) => {
-            const id = "efx-lg" + ++uid3;
+            const id = "spark-lg" + ++uid3;
             const lg = s("linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 }, defs2);
             s("stop", { offset: 0, "stop-color": r.c, "stop-opacity": sk ? 0.85 : 0.35 }, lg);
             s("stop", { offset: 1, "stop-color": r.c, "stop-opacity": sk ? 0.85 : 0 }, lg);
             const tail = stack ? "L" + linePath(P(r.lo).reverse(), o.smooth).slice(1) : `L${x(n - 1)},${base}L${x(0)},${base}`;
-            s("path", { d: linePath(P(r.hi), o.smooth) + tail + "Z", fill: `url(#${id})`, class: "efx-chart__fade", style: `--i:${k}` }, g);
+            s("path", { d: linePath(P(r.hi), o.smooth) + tail + "Z", fill: `url(#${id})`, class: "spark-chart__fade", style: `--i:${k}` }, g);
           });
         }
-        if (!sk) rows.forEach((r) => s("path", { d: linePath(P(r.hi), o.smooth), pathLength: 1, fill: "none", stroke: r.c, "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", class: "efx-chart__draw" }, g));
+        if (!sk) rows.forEach((r) => s("path", { d: linePath(P(r.hi), o.smooth), pathLength: 1, fill: "none", stroke: r.c, "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round", class: "spark-chart__draw" }, g));
         if (deco) return [];
         const step = Math.min(1, 16 / n);
         return data.labels.map((label, i) => {
-          const node = s("g", { class: "efx-chart__mark efx-chart-line__pt" }, g);
-          s("line", { x1: x(i), x2: x(i), y1: pad.t, y2: h - pad.b, class: "efx-chart-line__x" }, node);
-          rows.forEach((r) => s("circle", { cx: x(i), cy: y(sk ? (r.lo[i] + r.hi[i]) / 2 : r.hi[i]), r: 4, fill: r.c, class: "efx-chart-line__dot " + (o.dots ? "efx-chart__fade" : "efx-chart-line__hid"), style: `--i:${i * step}` }, node));
+          const node = s("g", { class: "spark-chart__mark spark-chart-line__pt" }, g);
+          s("line", { x1: x(i), x2: x(i), y1: pad.t, y2: h - pad.b, class: "spark-chart-line__x" }, node);
+          rows.forEach((r) => s("circle", { cx: x(i), cy: y(sk ? (r.lo[i] + r.hi[i]) / 2 : r.hi[i]), r: 4, fill: r.c, class: "spark-chart-line__dot " + (o.dots ? "spark-chart__fade" : "spark-chart-line__hid"), style: `--i:${i * step}` }, node));
           const multi = rows.length > 1;
           return {
             x: x(i),
@@ -1644,7 +1644,7 @@
   var pc2 = (x) => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10) + "%";
   var chart_pie_default = {
     name: "chart-pie",
-    selector: ".efx-chart-pie",
+    selector: ".spark-chart-pie",
     lazy: true,
     defaults: { ...COMMON, height: 300, donut: 0.6, pad: 0.01, sort: false, center: "", show: "auto", half: false, rose: false },
     init(el, o) {
@@ -1676,7 +1676,7 @@
           acc = a1;
           const d = idx.length > 1 ? gap2 / 2 : 0;
           const [dx, dy] = pt(0, 0, 7, m);
-          const node = s("path", { d: arcPath(cx, cy, r0, Ro, a0 + d, a1 - d), fill: pal[i], class: "efx-chart__mark efx-pie-arc", style: `--i:${k};--dx:${dx}px;--dy:${dy}px;transform-origin:${cx}px ${cy}px` }, g);
+          const node = s("path", { d: arcPath(cx, cy, r0, Ro, a0 + d, a1 - d), fill: pal[i], class: "spark-chart__mark spark-pie-arc", style: `--i:${k};--dx:${dx}px;--dy:${dy}px;transform-origin:${cx}px ${cy}px` }, g);
           arcs.push({ node, i });
           const [mx, my] = pt(cx, cy, (r0 + Ro) / 2, m), pct = vals[i] / total * 100;
           marks.push({
@@ -1696,7 +1696,7 @@
             }
           });
           if (inner && (a1 - a0) * (r0 + R) / 2 >= 28 && R - r0 > 14) {
-            const t = s("text", { x: mx, y: my, "text-anchor": "middle", "dominant-baseline": "central", class: "efx-pie-t efx-chart__fade", style: `--i:${k}` }, g);
+            const t = s("text", { x: mx, y: my, "text-anchor": "middle", "dominant-baseline": "central", class: "spark-pie-t spark-chart__fade", style: `--i:${k}` }, g);
             t.textContent = pc2(pct);
           }
           if (lab) labs.push({ m, Ro, sd: Math.sin(m) >= 0 ? 1 : -1, t: `${data.labels[i]}  ${pc2(pct)}`, k });
@@ -1711,16 +1711,16 @@
           }
           L.forEach((l) => {
             const [x1, y1] = pt(cx, cy, l.Ro + 2, l.m), [x2, y2] = pt(cx, cy, R + 12, l.m), xl = cx + sd * (R + 22);
-            s("path", { d: `M${x1},${y1}L${x2},${y2}L${xl},${l.y}`, class: "efx-pie-l efx-chart__fade", style: `--i:${l.k}` }, g);
-            const mc = Math.floor((w / 2 - R - 30) / 6.2), t = s("text", { x: xl + sd * 4, y: l.y, "text-anchor": sd > 0 ? "start" : "end", "dominant-baseline": "central", class: "efx-chart__value efx-pie-lt efx-chart__fade", style: `--i:${l.k}` }, g);
+            s("path", { d: `M${x1},${y1}L${x2},${y2}L${xl},${l.y}`, class: "spark-pie-l spark-chart__fade", style: `--i:${l.k}` }, g);
+            const mc = Math.floor((w / 2 - R - 30) / 6.2), t = s("text", { x: xl + sd * 4, y: l.y, "text-anchor": sd > 0 ? "start" : "end", "dominant-baseline": "central", class: "spark-chart__value spark-pie-lt spark-chart__fade", style: `--i:${l.k}` }, g);
             t.textContent = l.t.length > mc ? l.t.slice(0, Math.max(3, mc - 1)) + "\u2026" : l.t;
           });
         });
         if (!deco && r0 >= 28) {
           const tot = fmt(total), custom = o.center.replace("{total}", tot);
           const fs = Math.max(12, Math.min(28, r0 * 0.42)), cyy = half ? cy - r0 * 0.3 : cy;
-          const big = s("text", { x: cx, y: cyy - (custom ? 0 : 6), "text-anchor": "middle", "dominant-baseline": "central", class: "efx-chart__value efx-pie-c" }, g);
-          const cap = s("text", { x: cx, y: cyy + fs * 0.7, "text-anchor": "middle", "dominant-baseline": "central", class: "efx-pie-s" }, g);
+          const big = s("text", { x: cx, y: cyy - (custom ? 0 : 6), "text-anchor": "middle", "dominant-baseline": "central", class: "spark-chart__value spark-pie-c" }, g);
+          const cap = s("text", { x: cx, y: cyy + fs * 0.7, "text-anchor": "middle", "dominant-baseline": "central", class: "spark-pie-s" }, g);
           const set = (a) => {
             const v = a ? fmt(vals[a.i]) : custom || tot, c = a ? data.labels[a.i] : custom ? "" : "Total";
             const f = Math.min(fs, r0 * 1.7 / (Math.max(v.length, c.length * 0.6) * 0.58));
@@ -1747,7 +1747,7 @@
   var TAU3 = Math.PI * 2;
   var chart_polar_default = {
     name: "chart-polar",
-    selector: ".efx-chart-polar",
+    selector: ".spark-chart-polar",
     lazy: true,
     defaults: { ...COMMON, height: 320, levels: 4, pad: 0.02, max: "" },
     init(el, o) {
@@ -1760,19 +1760,19 @@
         const R = deco ? Math.min(w, h) / 2 : Math.max(20, Math.min(w, h) / 2 - 14), cx = w / 2, cy = h / 2;
         const pal = palette(el, o, data.labels.length), span = TAU3 / idx.length, gap2 = Math.min(o.pad, span / 2);
         if (!deco) {
-          const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+          const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
           const lv = fixed ? Math.max(1, o.levels) : nt.ticks.length - 1;
           for (let j = 1; j <= lv; j++) {
             const r = R * j / lv;
-            s("circle", { cx, cy, r, class: "efx-chart__grid", fill: "none" }, ax);
-            s("text", { x: cx + 3, y: cy - r + 9, class: "efx-polar-tick" }, ax).textContent = fmt(mx * j / lv);
+            s("circle", { cx, cy, r, class: "spark-chart__grid", fill: "none" }, ax);
+            s("text", { x: cx + 3, y: cy - r + 9, class: "spark-polar-tick" }, ax).textContent = fmt(mx * j / lv);
           }
         }
         const marks = [];
         idx.forEach((i, k) => {
           const a0 = k * span, a1 = a0 + span, v = Math.max(0, vals[i] || 0), r = R * Math.min(1, v / mx), m = (a0 + a1) / 2;
           const [dx, dy] = pt(0, 0, 6, m);
-          const node = s("path", { d: arcPath(cx, cy, 0, Math.max(0.5, r), a0 + gap2 / 2, a1 - gap2 / 2), fill: pal[i], "fill-opacity": 0.85, class: "efx-chart__mark efx-polar-arc", style: `--i:${k};--dx:${dx}px;--dy:${dy}px;transform-origin:${cx}px ${cy}px` }, g);
+          const node = s("path", { d: arcPath(cx, cy, 0, Math.max(0.5, r), a0 + gap2 / 2, a1 - gap2 / 2), fill: pal[i], "fill-opacity": 0.85, class: "spark-chart__mark spark-polar-arc", style: `--i:${k};--dx:${dx}px;--dy:${dy}px;transform-origin:${cx}px ${cy}px` }, g);
           const [mx2, my2] = pt(cx, cy, r * 0.7, m);
           marks.push({
             x: mx2,
@@ -1803,17 +1803,17 @@
   var GAP = 12;
   var chart_progress_default = {
     name: "chart-progress",
-    selector: ".efx-chart-progress",
+    selector: ".spark-chart-progress",
     lazy: true,
     defaults: { ...COMMON, max: NaN, values: true, percent: true, thick: 10, radius: 999, legend: false },
     init(el, o) {
-      const auto = el.dataset.efxHeight === void 0;
+      const auto = el.dataset.sparkHeight === void 0;
       const fit = (n) => {
         if (auto) o.height = Math.max(1, n) * (o.thick + 30) - GAP;
       };
       const rows = (d) => fit(d.labels.length);
       rows(parseData(el, o));
-      const off = on(el, "efx:data", (e) => {
+      const off = on(el, "spark:data", (e) => {
         const x = e.detail || {};
         rows(parseData(el, { ...o, source: "", data: JSON.stringify(x), labels: x.labels || [] }));
       });
@@ -1833,12 +1833,12 @@
             const lab = s("text", { x: 0, y: i * pitch + 11, style: "fill:var(--sh-text,#0f172a);font-size:13px" }, g);
             const room = Math.max(4, Math.floor((w - txt.length * 7.5 - 12) / 7));
             lab.textContent = label.length > room ? label.slice(0, room - 1) + "\u2026" : label;
-            s("text", { x: w, y: i * pitch + 11, "text-anchor": "end", class: "efx-chart__value", style: "font-size:13px" }, g).textContent = txt;
+            s("text", { x: w, y: i * pitch + 11, "text-anchor": "end", class: "spark-chart__value", style: "font-size:13px" }, g).textContent = txt;
           }
-          const node = s("rect", { x: 0, y, width: Math.max(f, f ? th : 0), height: th, rx: r, fill: pal[i], class: "efx-chart__mark efx-chart__grow-x", style: `--i:${i}` }, g);
+          const node = s("rect", { x: 0, y, width: Math.max(f, f ? th : 0), height: th, rx: r, fill: pal[i], class: "spark-chart__mark spark-chart__grow-x", style: `--i:${i}` }, g);
           if (t) {
             const tx = Math.min(1, t / sc) * w;
-            s("line", { x1: tx, x2: tx, y1: y - 3, y2: y + th + 3, stroke: "var(--sh-text,#0f172a)", "stroke-width": 2, "stroke-linecap": "round", class: "efx-chart__fade", style: `--i:${i}` }, g);
+            s("line", { x1: tx, x2: tx, y1: y - 3, y2: y + th + 3, stroke: "var(--sh-text,#0f172a)", "stroke-width": 2, "stroke-linecap": "round", class: "spark-chart__fade", style: `--i:${i}` }, g);
           }
           return {
             x: f,
@@ -1876,7 +1876,7 @@
   };
   var chart_pyramid_default = {
     name: "chart-pyramid",
-    selector: ".efx-chart-pyramid",
+    selector: ".spark-chart-pyramid",
     lazy: true,
     defaults: { ...COMMON, height: 320, inverted: false, equal: false, notes: [], gap: 3 },
     init(el, o) {
@@ -1898,23 +1898,23 @@
           const bh = wt[k] / sum * av, y0 = y, y1 = y + bh, ym = (y0 + y1) / 2;
           y = y1 + gp;
           const a = Math.max(0, hw(y0)), b = Math.max(0, hw(y1));
-          const node = s("polygon", { points: `${cx - a},${y0} ${cx + a},${y0} ${cx + b},${y1} ${cx - b},${y1}`, fill: pal[i], class: "efx-chart__mark efx-pyr__b", style: `--i:${inv ? n - 1 - k : k}` }, g);
+          const node = s("polygon", { points: `${cx - a},${y0} ${cx + a},${y0} ${cx + b},${y1} ${cx - b},${y1}`, fill: pal[i], class: "spark-chart__mark spark-pyr__b", style: `--i:${inv ? n - 1 - k : k}` }, g);
           const note = o.notes[k];
           if (!deco) {
             const label = data.labels[i], val2 = has ? fmt(vals[i] || 0) : "", mid = hw(ym) * 2, fit = mid >= label.length * 6.8 + 14;
             const two = val2 && fit && bh >= 38 && mid >= val2.length * 6.4 + 14;
             const t = (x, yy, cls, str, anchor) => {
-              const e = s("text", { x, y: yy, "text-anchor": anchor || "middle", "dominant-baseline": "middle", class: cls + " efx-chart__fade", style: `--i:${(inv ? n - 1 - k : k) * 2 + 2}` }, g);
+              const e = s("text", { x, y: yy, "text-anchor": anchor || "middle", "dominant-baseline": "middle", class: cls + " spark-chart__fade", style: `--i:${(inv ? n - 1 - k : k) * 2 + 2}` }, g);
               e.textContent = str;
             };
             if (fit) {
-              t(cx, ym - (two ? 7 : 0), "efx-pyr__t", label);
-              if (two) t(cx, ym + 8, "efx-pyr__t efx-pyr__t2", val2);
-            } else t(cx + Math.max(a, b) + 8, ym, "efx-pyr__o", label + (val2 ? " \xB7 " + val2 : ""), "start");
+              t(cx, ym - (two ? 7 : 0), "spark-pyr__t", label);
+              if (two) t(cx, ym + 8, "spark-pyr__t spark-pyr__t2", val2);
+            } else t(cx + Math.max(a, b) + 8, ym, "spark-pyr__o", label + (val2 ? " \xB7 " + val2 : ""), "start");
             if (note) {
               const nx = pad + tw + 14, ex = cx + Math.max(hw(ym), 0) + (fit ? 4 : 0);
-              if (fit) s("line", { x1: ex, x2: nx - 6, y1: ym, y2: ym, class: "efx-chart__grid efx-chart__fade", style: `--i:${k}` }, g);
-              const lines = wrap(note, Math.max(8, Math.floor(nw / 6.4))), e = s("text", { x: nx, y: ym - (lines.length - 1) * 7, class: "efx-pyr__n efx-chart__fade", style: `--i:${k * 2 + 2}` }, g);
+              if (fit) s("line", { x1: ex, x2: nx - 6, y1: ym, y2: ym, class: "spark-chart__grid spark-chart__fade", style: `--i:${k}` }, g);
+              const lines = wrap(note, Math.max(8, Math.floor(nw / 6.4))), e = s("text", { x: nx, y: ym - (lines.length - 1) * 7, class: "spark-pyr__n spark-chart__fade", style: `--i:${k * 2 + 2}` }, g);
               lines.forEach((l, q) => {
                 const sp = s("tspan", { x: nx, dy: q ? 14 : 0, "dominant-baseline": "middle" }, e);
                 sp.textContent = l;
@@ -1948,7 +1948,7 @@
   var hit = (a, b) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
   var chart_quadrant_default = {
     name: "chart-quadrant",
-    selector: ".efx-chart-quadrant",
+    selector: ".spark-chart-quadrant",
     lazy: true,
     defaults: { ...COMMON, height: 360, legend: false, quadrants: [], xLabel: "", yLabel: "", xDomain: [], yDomain: [] },
     init(el, o) {
@@ -1964,13 +1964,13 @@
       try {
         items = read5(JSON.parse((o.data || "").trim() || (j ? j.textContent : "[]")));
       } catch (e) {
-        console.warn("[effix] chart data", e);
+        console.warn("[spark] chart data", e);
       }
       const jt = j && j.getAttribute("type");
-      if (j) j.setAttribute("type", "application/x-efx-json");
+      if (j) j.setAttribute("type", "application/x-spark-json");
       o.source = "";
       o.data = "[]";
-      const off = on(el, "efx:data", (e) => {
+      const off = on(el, "spark:data", (e) => {
         items = read5(e.detail);
       });
       const draw = ({ g, w, h, deco }) => {
@@ -1982,13 +1982,13 @@
         const cl = (v, a, b) => Math.max(Math.min(a, b), Math.min(Math.max(a, b), v));
         [[X0, Y0, 2], [mx, Y0, 0], [X0, my, 4], [mx, my, 5]].forEach(([qx, qy, c], k) => {
           const l = qx === X0 ? 0 : 1, t = qy === Y0 ? 0 : 1;
-          s("rect", { x: qx + (l ? gp : 0), y: qy + (t ? gp : 0), width: mx - X0 - gp, height: my - Y0 - gp, rx: deco ? 0 : 8, fill: pal[c], "fill-opacity": deco ? 0.14 : 0.09, class: "efx-chart__fade", style: `--i:${k}` }, g);
-          if (!deco && Q2[k]) s("text", { x: l ? X1 - 12 : X0 + 12, y: t ? Y1 - 12 : Y0 + 18, "text-anchor": l ? "end" : "start", class: "efx-quad__q efx-chart__fade" }, g).textContent = Q2[k];
+          s("rect", { x: qx + (l ? gp : 0), y: qy + (t ? gp : 0), width: mx - X0 - gp, height: my - Y0 - gp, rx: deco ? 0 : 8, fill: pal[c], "fill-opacity": deco ? 0.14 : 0.09, class: "spark-chart__fade", style: `--i:${k}` }, g);
+          if (!deco && Q2[k]) s("text", { x: l ? X1 - 12 : X0 + 12, y: t ? Y1 - 12 : Y0 + 18, "text-anchor": l ? "end" : "start", class: "spark-quad__q spark-chart__fade" }, g).textContent = Q2[k];
         });
         if (!deco) {
-          const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
-          s("line", { x1: mx, x2: mx, y1: Y0, y2: Y1, class: "efx-chart__grid" }, ax);
-          s("line", { x1: X0, x2: X1, y1: my, y2: my, class: "efx-chart__grid" }, ax);
+          const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
+          s("line", { x1: mx, x2: mx, y1: Y0, y2: Y1, class: "spark-chart__grid" }, ax);
+          s("line", { x1: X0, x2: X1, y1: my, y2: my, class: "spark-chart__grid" }, ax);
           if (o.xLabel) s("text", { x: mx, y: h - 8, "text-anchor": "middle" }, ax).textContent = o.xLabel;
           if (o.yLabel) s("text", { x: 10, y: my, "text-anchor": "middle", transform: `rotate(-90 10 ${my})` }, ax).textContent = o.yLabel;
         }
@@ -2000,7 +2000,7 @@
           return { q, r, cx, cy, col: pal[q.group == null ? 0 : groups.indexOf(q.group) % 7] };
         });
         dots.forEach((d, i) => {
-          d.node = s("circle", { cx: d.cx, cy: d.cy, r: d.r, fill: d.col, "fill-opacity": rmax ? 0.8 : 1, stroke: "var(--sh-surface,#fff)", "stroke-width": 2, class: "efx-chart__mark efx-chart__fade", style: `--i:${i + 4}` }, g);
+          d.node = s("circle", { cx: d.cx, cy: d.cy, r: d.r, fill: d.col, "fill-opacity": rmax ? 0.8 : 1, stroke: "var(--sh-surface,#fff)", "stroke-width": 2, class: "spark-chart__mark spark-chart__fade", style: `--i:${i + 4}` }, g);
         });
         if (!deco) {
           const placed = [], box = (d) => ({ x: d.cx - d.r, y: d.cy - d.r, w: 2 * d.r, h: 2 * d.r });
@@ -2018,7 +2018,7 @@
               if (!sc) break;
             }
             placed.push(best.b);
-            s("text", { x: d.cx + best.dx, y: d.cy + best.dy, "text-anchor": ["start", "end", "middle"][best.a], "dominant-baseline": "middle", class: "efx-quad__l efx-chart__fade", style: `--i:${i + 6}` }, g).textContent = t;
+            s("text", { x: d.cx + best.dx, y: d.cy + best.dy, "text-anchor": ["start", "end", "middle"][best.a], "dominant-baseline": "middle", class: "spark-quad__l spark-chart__fade", style: `--i:${i + 6}` }, g).textContent = t;
           });
         }
         return dots.map((d, i) => {
@@ -2053,7 +2053,7 @@
   var TAU4 = Math.PI * 2;
   var chart_radar_default = {
     name: "chart-radar",
-    selector: ".efx-chart-radar",
+    selector: ".spark-chart-radar",
     lazy: true,
     defaults: { ...COMMON, height: 320, levels: 4, area: true, dots: true, max: "" },
     init(el, o) {
@@ -2067,14 +2067,14 @@
         const cx = w / 2, cy = h / 2, ang = (k) => k * TAU4 / n;
         const pt2 = (k, r) => [cx + r * Math.sin(ang(k)), cy - r * Math.cos(ang(k))];
         const poly = (r) => "M" + data.labels.map((_, k) => pt2(k, r).join(",")).join("L") + "Z";
-        const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+        const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
         for (let j = 1; j <= lv; j++) {
-          s("path", { d: poly(R * j / lv), class: "efx-chart__grid", fill: "none" }, ax);
-          if (!deco && j < lv) s("text", { x: cx + 4, y: cy - R * j / lv, class: "efx-rd-tick", "dominant-baseline": "central" }, ax).textContent = fmt(mx * j / lv);
+          s("path", { d: poly(R * j / lv), class: "spark-chart__grid", fill: "none" }, ax);
+          if (!deco && j < lv) s("text", { x: cx + 4, y: cy - R * j / lv, class: "spark-rd-tick", "dominant-baseline": "central" }, ax).textContent = fmt(mx * j / lv);
         }
         data.labels.forEach((l, k) => {
           const [x, y] = pt2(k, R);
-          s("line", { x1: cx, y1: cy, x2: x, y2: y, class: "efx-chart__grid" }, ax);
+          s("line", { x1: cx, y1: cy, x2: x, y2: y, class: "spark-chart__grid" }, ax);
           if (deco) return;
           const sn = Math.sin(ang(k)), cs = Math.cos(ang(k)), [lx, ly] = pt2(k, R + 12);
           const room = Math.max(4, Math.floor((w / 2 - R * Math.abs(sn) - 12) / 6.2));
@@ -2085,9 +2085,9 @@
         visible.forEach((sr, si) => {
           const col = colors[sr.index], pts = data.labels.map((_, k) => pt2(k, R * Math.min(1, Math.max(0, sr.values[k] || 0) / mx)));
           const d = "M" + pts.map((p) => p.join(",")).join("L") + "Z";
-          s("path", { d, fill: o.area ? col : "none", "fill-opacity": o.area ? 0.18 : null, stroke: col, "stroke-width": 2, "stroke-linejoin": "round", class: "efx-rd-poly", style: `--i:${si};transform-origin:${cx}px ${cy}px` }, g);
+          s("path", { d, fill: o.area ? col : "none", "fill-opacity": o.area ? 0.18 : null, stroke: col, "stroke-width": 2, "stroke-linejoin": "round", class: "spark-rd-poly", style: `--i:${si};transform-origin:${cx}px ${cy}px` }, g);
           data.labels.forEach((l, k) => {
-            const node = s("circle", { cx: pts[k][0], cy: pts[k][1], r: 4, fill: col, stroke: "var(--sh-surface, #fff)", "stroke-width": 1.5, class: "efx-chart__mark efx-rd-dot" + (o.dots || deco ? "" : " efx-rd-h"), style: `--i:${k + si}` }, g);
+            const node = s("circle", { cx: pts[k][0], cy: pts[k][1], r: 4, fill: col, stroke: "var(--sh-surface, #fff)", "stroke-width": 1.5, class: "spark-chart__mark spark-rd-dot" + (o.dots || deco ? "" : " spark-rd-h"), style: `--i:${k + si}` }, g);
             marks.push({ x: pts[k][0], y: pts[k][1], label: l, value: sr.values[k] || 0, series: data.series.length > 1 ? sr.name : "", node, index: k, group: sr.index + 1 });
           });
         });
@@ -2111,7 +2111,7 @@
   var nf2 = new Intl.NumberFormat(void 0, { maximumFractionDigits: 2 });
   var chart_scatter_default = {
     name: "chart-scatter",
-    selector: ".efx-chart-scatter",
+    selector: ".spark-chart-scatter",
     lazy: true,
     defaults: { ...COMMON, xLabel: "", yLabel: "", bubble: false, connected: false },
     init(el, o) {
@@ -2127,14 +2127,14 @@
       try {
         sets = read5(JSON.parse(j ? j.textContent : o.data));
       } catch (e) {
-        console.warn("[effix] chart data", e);
+        console.warn("[spark] chart data", e);
       }
       const jt = j && j.getAttribute("type");
-      if (j) j.setAttribute("type", "application/x-efx-json");
+      if (j) j.setAttribute("type", "application/x-spark-json");
       const names = () => JSON.stringify({ series: sets.map((q) => ({ name: q.n, values: [] })) });
       o.source = "";
       o.data = names();
-      const off = on(el, "efx:data", (e) => {
+      const off = on(el, "spark:data", (e) => {
         sets = read5(e.detail);
       });
       const draw = ({ g, w, h, hidden, fmt, deco }) => {
@@ -2150,9 +2150,9 @@
         const x = linear([X.min, X.max], [pad.l, w - pad.r]), y = linear([Y.min, Y.max], [h - pad.b, pad.t]);
         if (!deco) {
           axes(g, { w, h, pad, y, ticks: Y.ticks, fmt });
-          const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+          const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
           X.ticks.forEach((t) => {
-            s("line", { x1: x(t), x2: x(t), y1: pad.t, y2: h - pad.b, class: "efx-chart__grid" }, ax);
+            s("line", { x1: x(t), x2: x(t), y1: pad.t, y2: h - pad.b, class: "spark-chart__grid" }, ax);
             s("text", { x: x(t), y: h - pad.b + 18, "text-anchor": "middle" }, ax).textContent = nf2.format(t);
           });
           if (o.xLabel) s("text", { x: (pad.l + w - pad.r) / 2, y: h - 4, "text-anchor": "middle" }, ax).textContent = o.xLabel;
@@ -2163,14 +2163,14 @@
           if (q.length < 2) return;
           const c = colors[v.index], e = q[q.length - 1], f = q[q.length - 2], a = Math.atan2(e[1] - f[1], e[0] - f[0]), lp = sets[v.index].p[q.length - 1];
           const back = (R(lp) + 2) * (Math.hypot(e[0] - f[0], e[1] - f[1]) > R(lp) + 12 ? 1 : 0);
-          s("path", { d: "M" + q.map((p) => p.join(",")).join("L"), pathLength: 1, fill: "none", stroke: c, "stroke-width": 1.5, "stroke-opacity": 0.6, "stroke-linejoin": "round", class: "efx-chart__draw" }, g);
-          s("path", { d: "M0,0L-9,-4.5L-9,4.5Z", transform: `translate(${e[0] - back * Math.cos(a)} ${e[1] - back * Math.sin(a)}) rotate(${a * 180 / Math.PI})`, fill: c, class: "efx-chart__fade", style: `--i:${k + 6}` }, g);
+          s("path", { d: "M" + q.map((p) => p.join(",")).join("L"), pathLength: 1, fill: "none", stroke: c, "stroke-width": 1.5, "stroke-opacity": 0.6, "stroke-linejoin": "round", class: "spark-chart__draw" }, g);
+          s("path", { d: "M0,0L-9,-4.5L-9,4.5Z", transform: `translate(${e[0] - back * Math.cos(a)} ${e[1] - back * Math.sin(a)}) rotate(${a * 180 / Math.PI})`, fill: c, class: "spark-chart__fade", style: `--i:${k + 6}` }, g);
         });
         const multi = sets.length > 1, items = [];
         visible.forEach((v) => (sets[v.index] ? sets[v.index].p : []).forEach((p) => items.push({ p, v, cx: x(p.x), cy: y(p.y), r: R(p) })));
         const step = Math.min(1, 24 / items.length);
         [...items].sort((a, b) => b.r - a.r).forEach((t, k) => {
-          t.node = s("circle", { cx: t.cx, cy: t.cy, r: t.r, fill: colors[t.v.index], "fill-opacity": o.bubble ? 0.55 : 0.85, stroke: o.bubble ? colors[t.v.index] : null, "stroke-width": 1.5, class: "efx-chart__mark efx-chart__fade", style: `--i:${k * step}` }, g);
+          t.node = s("circle", { cx: t.cx, cy: t.cy, r: t.r, fill: colors[t.v.index], "fill-opacity": o.bubble ? 0.55 : 0.85, stroke: o.bubble ? colors[t.v.index] : null, "stroke-width": 1.5, class: "spark-chart__mark spark-chart__fade", style: `--i:${k * step}` }, g);
         });
         return items.sort((a, b) => a.cx - b.cx).map((t, i) => ({
           x: t.cx,
@@ -2200,7 +2200,7 @@
   var uid4 = 0;
   var chart_spark_default = {
     name: "chart-spark",
-    selector: ".efx-chart-spark",
+    selector: ".spark-chart-spark",
     lazy: true,
     defaults: { ...COMMON, height: 0, legend: false, area: true, type: "line", last: true, smooth: true },
     init(el, o) {
@@ -2223,20 +2223,20 @@
           const y2 = linear(lo === hi ? [lo - 1, hi + 1] : [lo, hi], [h - py, py]);
           const pts = v.map((a, i) => [x(i), y2(a)]), d = linePath(pts, o.smooth);
           if (o.area) {
-            const id = "efx-sg" + ++uid4, lg = s("linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 }, s("defs", {}, g));
+            const id = "spark-sg" + ++uid4, lg = s("linearGradient", { id, x1: 0, y1: 0, x2: 0, y2: 1 }, s("defs", {}, g));
             s("stop", { offset: 0, "stop-color": c, "stop-opacity": 0.35 }, lg);
             s("stop", { offset: 1, "stop-color": c, "stop-opacity": 0 }, lg);
-            s("path", { d: `${d}L${x(n - 1)},${h}L${x(0)},${h}Z`, fill: `url(#${id})`, class: "efx-chart__fade" }, g);
+            s("path", { d: `${d}L${x(n - 1)},${h}L${x(0)},${h}Z`, fill: `url(#${id})`, class: "spark-chart__fade" }, g);
           }
-          s("path", { d, pathLength: 1, fill: "none", stroke: c, "stroke-width": 1.75, "stroke-linecap": "round", "stroke-linejoin": "round", class: "efx-chart__draw" }, g);
-          if (o.last) s("circle", { cx: x(n - 1), cy: y2(v[n - 1]), r: 2.5, fill: c, class: "efx-chart__fade", style: "--i:12" }, g);
+          s("path", { d, pathLength: 1, fill: "none", stroke: c, "stroke-width": 1.75, "stroke-linecap": "round", "stroke-linejoin": "round", class: "spark-chart__draw" }, g);
+          if (o.last) s("circle", { cx: x(n - 1), cy: y2(v[n - 1]), r: 2.5, fill: c, class: "spark-chart__fade", style: "--i:12" }, g);
           if (deco) return [];
-          return pts.map((p, i) => mk(i, s("circle", { cx: p[0], cy: p[1], r: 3.5, fill: c, class: "efx-chart__mark efx-chart-spark__pt" }, g), p[0], p[1]));
+          return pts.map((p, i) => mk(i, s("circle", { cx: p[0], cy: p[1], r: 3.5, fill: c, class: "spark-chart__mark spark-chart-spark__pt" }, g), p[0], p[1]));
         }
         const wl = T === "win-loss", y = linear([Math.min(0, lo), Math.max(0, hi) || 1], [h - py, py]), base = wl ? h / 2 : y(0);
         return v.map((a, i) => {
           const top = wl ? a > 0 ? py : base + 1 : Math.min(y(a), base), ht = wl ? a ? (h - 2 * py) / 2 - 1 : 1 : Math.max(1, Math.abs(y(a) - base));
-          const node = s("rect", { x: px + i * slot + slot * 0.15, y: wl && !a ? base - 0.5 : top, width: Math.max(1, slot * 0.7), height: ht, rx: Math.min(2, slot * 0.35), fill: wl ? a >= 0 ? o.colors.length ? pal[0] : pal[2] : o.colors.length > 1 ? pal[1] : pal[5] : c, class: "efx-chart__mark efx-chart__grow", style: `--i:${i * step}` }, g);
+          const node = s("rect", { x: px + i * slot + slot * 0.15, y: wl && !a ? base - 0.5 : top, width: Math.max(1, slot * 0.7), height: ht, rx: Math.min(2, slot * 0.35), fill: wl ? a >= 0 ? o.colors.length ? pal[0] : pal[2] : o.colors.length > 1 ? pal[1] : pal[5] : c, class: "spark-chart__mark spark-chart__grow", style: `--i:${i * step}` }, g);
           return mk(i, node, px + (i + 0.5) * slot, top);
         });
       };
@@ -2279,12 +2279,12 @@
   var cut3 = (t, px) => t.length * 6.2 > px ? t.slice(0, Math.max(1, Math.floor(px / 6.2) - 1)) + "\u2026" : t;
   var chart_sunburst_default = {
     name: "chart-sunburst",
-    selector: ".efx-chart-sunburst",
+    selector: ".spark-chart-sunburst",
     lazy: true,
     defaults: { ...COMMON, height: 320, depth: 4, captions: true, legend: false },
     init(el, o) {
       let tree = read4(el, o), focus = tree, zoomed = false, ct = null;
-      const off = on(el, "efx:data", (e) => {
+      const off = on(el, "spark:data", (e) => {
         const d = e.detail;
         if (d && d.zoom) return;
         if (d && (d.children || d.name != null || Array.isArray(d))) tree = build(d);
@@ -2317,8 +2317,8 @@
         };
         arcs.forEach(({ n, a0, a1, d }, j) => {
           const r0 = rc + (d - 1) * t, r1 = r0 + t, pct = Math.max(42, 100 - 15 * (n.depth - 1)), am = (a0 + a1) / 2;
-          const cls = anim ? " efx-sb" : "", st = `--i:${d};--o:${cx}px ${cy}px`;
-          const node = s("path", { d: arcPath(cx, cy, r0, r1, a0, a1), fill: `color-mix(in oklab, ${pal[n.br]} ${pct}%, var(--sh-surface, #fff))`, stroke: "var(--sh-surface, #fff)", "stroke-width": 1.5, class: "efx-chart__mark" + cls, style: st }, g);
+          const cls = anim ? " spark-sb" : "", st = `--i:${d};--o:${cx}px ${cy}px`;
+          const node = s("path", { d: arcPath(cx, cy, r0, r1, a0, a1), fill: `color-mix(in oklab, ${pal[n.br]} ${pct}%, var(--sh-surface, #fff))`, stroke: "var(--sh-surface, #fff)", "stroke-width": 1.5, class: "spark-chart__mark" + cls, style: st }, g);
           pos.set(n, j);
           const [x, y] = pt(cx, cy, (r0 + r1) / 2, am), arc = (a1 - a0) * (r0 + r1) / 2, deg = am * 180 / Math.PI;
           if (!deco && o.captions) {
@@ -2328,7 +2328,7 @@
               tx = arc >= 13 && t >= 34 ? cut3(tx, t - 10) : "";
               if (tx.length < 2) tx = "";
             }
-            if (tx) s("text", { x, y, "text-anchor": "middle", "dominant-baseline": "middle", transform: `rotate(${rot} ${x} ${y})`, class: "efx-chart__value efx-sb__t" + (anim ? " efx-sbf" : ""), style: `${st};fill:${pct < 75 ? "var(--sh-text,#0f172a)" : "#fff"}` }, g).textContent = tx;
+            if (tx) s("text", { x, y, "text-anchor": "middle", "dominant-baseline": "middle", transform: `rotate(${rot} ${x} ${y})`, class: "spark-chart__value spark-sb__t" + (anim ? " spark-sbf" : ""), style: `${st};fill:${pct < 75 ? "var(--sh-text,#0f172a)" : "#fff"}` }, g).textContent = tx;
           }
           const rel = [];
           for (let p = n.parent; p && p !== focus; p = p.parent) rel.push(pos.get(p));
@@ -2351,7 +2351,7 @@
           });
         });
         if (!deco) {
-          const up = focus.parent, T = [0, 1, 2].map((i) => s("text", { x: cx, y: cy + (i - 1) * 16 - (i ? 0 : 2), "text-anchor": "middle", "dominant-baseline": "middle", class: i === 1 ? "efx-chart__value" : "efx-sb__s" }, g));
+          const up = focus.parent, T = [0, 1, 2].map((i) => s("text", { x: cx, y: cy + (i - 1) * 16 - (i ? 0 : 2), "text-anchor": "middle", "dominant-baseline": "middle", class: i === 1 ? "spark-chart__value" : "spark-sb__s" }, g));
           const set = (a, b, c) => {
             T[0].textContent = cut3(a, rc * 2 - 6);
             T[1].textContent = cut3(b, rc * 2 - 6);
@@ -2374,14 +2374,14 @@
         if (ct) ct.set(m && m.node ? m : null);
       };
       const stop = chart(el, o, draw);
-      const offS = on(el, "efx:select", (e) => {
+      const offS = on(el, "spark:select", (e) => {
         const i = e.detail.index, n = i < 0 ? focus.parent : tree.all[i];
         if (e.target !== el || !n || n === focus || !n.kids.length) return;
         focus = n;
         zoomed = true;
-        const svg = el.querySelector(".efx-chart__svg");
+        const svg = el.querySelector(".spark-chart__svg");
         svg.dispatchEvent(new Event("pointerleave"));
-        el.dispatchEvent(new CustomEvent("efx:data", { detail: { zoom: 1 } }));
+        el.dispatchEvent(new CustomEvent("spark:data", { detail: { zoom: 1 } }));
       });
       return () => {
         off();
@@ -2420,7 +2420,7 @@
   };
   var chart_timeline_default = {
     name: "chart-timeline",
-    selector: ".efx-chart-timeline",
+    selector: ".spark-chart-timeline",
     lazy: true,
     defaults: { ...COMMON, legend: false, today: true, grid: true, radius: 4 },
     init(el, o) {
@@ -2434,7 +2434,7 @@
       };
       const j = el.querySelector(':scope > script[type="application/json"]');
       read5(o.data || j && j.textContent);
-      const offData = on(el, "efx:data", (e) => read5(e.detail));
+      const offData = on(el, "spark:data", (e) => read5(e.detail));
       let uid6 = 0;
       let items = [], lanes = [];
       const prep = () => {
@@ -2468,9 +2468,9 @@
         const nh = grouped() ? lanes.length : 0;
         const rh = deco ? (h - pad.t - pad.b) / (items.length + nh * 0.6) : ROW;
         let yy = pad.t, last = null;
-        const ax = s("g", { class: "efx-chart__axis", "aria-hidden": "true" }, g);
+        const ax = s("g", { class: "spark-chart__axis", "aria-hidden": "true" }, g);
         if (!deco) ticks.forEach((k) => {
-          s("line", { x1: x(k.t), x2: x(k.t), y1: pad.t, y2: h - pad.b, class: "efx-chart__grid" }, ax);
+          s("line", { x1: x(k.t), x2: x(k.t), y1: pad.t, y2: h - pad.b, class: "spark-chart__grid" }, ax);
           s("text", { x: x(k.t), y: h - pad.b + 18, "text-anchor": "middle" }, ax).textContent = k.text;
         });
         const marks = [];
@@ -2478,14 +2478,14 @@
           var _a, _b, _c;
           if (grouped() && it.g !== last) {
             last = it.g;
-            if (!deco) s("text", { x: 0, y: yy + rh * 0.35, "dominant-baseline": "middle", class: "efx-tl__grp" }, ax).textContent = it.g || "\u2014";
+            if (!deco) s("text", { x: 0, y: yy + rh * 0.35, "dominant-baseline": "middle", class: "spark-tl__grp" }, ax).textContent = it.g || "\u2014";
             yy += rh * 0.6;
           }
           const d = it.d, col = d.color || pal[Math.max(0, lanes.indexOf(it.g)) % pal.length];
           const x0 = x(it.a), bw = Math.max(3, x(it.b) - x0), bh = Math.min(rh * 0.6, 20), by = yy + (rh - bh) / 2;
           const p = d.progress == null ? null : Math.max(0, Math.min(1, +d.progress > 1 ? +d.progress / 100 : +d.progress));
-          const node = s("g", { class: "efx-chart__mark efx-chart__grow-x", style: `--i:${i}` }, g);
-          const id = "efx-tl" + ++uid6 + "-" + i;
+          const node = s("g", { class: "spark-chart__mark spark-chart__grow-x", style: `--i:${i}` }, g);
+          const id = "spark-tl" + ++uid6 + "-" + i;
           s("rect", { x: x0, y: by, width: bw, height: bh, rx: o.radius, fill: col, "fill-opacity": p == null ? 1 : 0.28 }, node);
           if (p != null) {
             const cp = s("clipPath", { id }, node);
@@ -2514,8 +2514,8 @@
         if (!deco && dates && o.today) {
           const now = Date.now();
           if (now >= lo && now <= hi) {
-            s("line", { x1: x(now), x2: x(now), y1: pad.t, y2: h - pad.b, class: "efx-tl__today", stroke: pal[5] }, g);
-            s("text", { x: x(now), y: pad.t - 4, "text-anchor": "middle", class: "efx-tl__tt", fill: pal[5] }, g).textContent = "Today";
+            s("line", { x1: x(now), x2: x(now), y1: pad.t, y2: h - pad.b, class: "spark-tl__today", stroke: pal[5] }, g);
+            s("text", { x: x(now), y: pad.t - 4, "text-anchor": "middle", class: "spark-tl__tt", fill: pal[5] }, g).textContent = "Today";
           }
         }
         return marks;
@@ -2537,7 +2537,7 @@
   var PHI = (1 + Math.sqrt(5)) / 2;
   var chart_treemap_default = {
     name: "chart-treemap",
-    selector: ".efx-chart-treemap",
+    selector: ".spark-chart-treemap",
     lazy: true,
     defaults: { ...COMMON, gap: 2, radius: 4, captions: true, sort: true },
     init(el, o) {
@@ -2592,13 +2592,13 @@
           const x = a + q, y = b + q, tw = Math.max(0, c - a - o.gap), th = Math.max(0, e - b - o.gap);
           const pct = ramp ? 100 - 55 * items.filter((z) => z.v > d.v).length / Math.max(1, n - 1) : 100;
           const fill = ramp ? `color-mix(in oklab, ${pal[0]} ${pct}%, var(--sh-surface, #fff))` : pal[d.i];
-          const node = s("rect", { x, y, width: tw, height: th, rx: Math.min(o.radius, tw / 2, th / 2), fill, class: "efx-chart__mark" + (fresh ? " efx-tm" : ""), style: `--i:${j}` }, g);
+          const node = s("rect", { x, y, width: tw, height: th, rx: Math.min(o.radius, tw / 2, th / 2), fill, class: "spark-chart__mark" + (fresh ? " spark-tm" : ""), style: `--i:${j}` }, g);
           if (o.captions && !deco && tw >= 44 && th >= 26) {
             const st = `pointer-events:none;fill:${pct < 70 ? "var(--sh-text,#0f172a)" : "#fff"}`;
-            const t = s("text", { x: x + 7, y: y + 17, class: "efx-chart__value" + (fresh ? " efx-tm" : ""), style: `${st};--i:${j}` }, g);
+            const t = s("text", { x: x + 7, y: y + 17, class: "spark-chart__value" + (fresh ? " spark-tm" : ""), style: `${st};--i:${j}` }, g);
             t.textContent = d.l.length * 6.6 > tw - 12 ? d.l.slice(0, Math.max(1, Math.floor((tw - 12) / 6.6) - 1)) + "\u2026" : d.l;
             if (th >= 44) {
-              const u = s("text", { x: x + 7, y: y + 33, class: fresh ? "efx-tm" : "", style: `${st};opacity:.85;--i:${j}` }, g);
+              const u = s("text", { x: x + 7, y: y + 33, class: fresh ? "spark-tm" : "", style: `${st};opacity:.85;--i:${j}` }, g);
               u.textContent = fmt(d.v);
             }
           }
@@ -2642,7 +2642,7 @@
   };
   var chart_venn_default = {
     name: "chart-venn",
-    selector: ".efx-chart-venn",
+    selector: ".spark-chart-venn",
     lazy: true,
     defaults: { ...COMMON, height: 300, legend: false, opacity: 0.4 },
     init(el, o) {
@@ -2658,13 +2658,13 @@
       try {
         items = read5(JSON.parse((o.data || "").trim() || (j ? j.textContent : "[]")));
       } catch (e) {
-        console.warn("[effix] chart data", e);
+        console.warn("[spark] chart data", e);
       }
       const jt = j && j.getAttribute("type");
-      if (j) j.setAttribute("type", "application/x-efx-json");
+      if (j) j.setAttribute("type", "application/x-spark-json");
       o.source = "";
       o.data = "[]";
-      const off = on(el, "efx:data", (e) => {
+      const off = on(el, "spark:data", (e) => {
         items = read5(e.detail);
       });
       const draw = ({ g, w, h, fmt, deco }) => {
@@ -2701,9 +2701,9 @@
         [[0, 1], [0, 2], [1, 2], [0, 1, 2]].forEach((ids) => {
           if (ids.every((i) => i < names.length) && sizeOf(ids) > 0) regions.push({ ids, size: sizeOf(ids), name: ids.map((i) => names[i]).join(" \u2229 ") });
         });
-        const id = "efx-v" + ++uid5;
+        const id = "spark-v" + ++uid5;
         c.forEach((q, i) => {
-          regions[i].node = s("circle", { cx: q.x, cy: q.y, r: q.r, fill: pal[i], "fill-opacity": o.opacity, stroke: pal[i], "stroke-width": 1.5, class: "efx-chart__mark efx-venn__c efx-chart__fade", style: `--i:${i * 2}` }, g);
+          regions[i].node = s("circle", { cx: q.x, cy: q.y, r: q.r, fill: pal[i], "fill-opacity": o.opacity, stroke: pal[i], "stroke-width": 1.5, class: "spark-chart__mark spark-venn__c spark-chart__fade", style: `--i:${i * 2}` }, g);
         });
         regions.slice(names.length).forEach((r, m) => {
           const [a, b, d] = r.ids, cp = (n, t) => {
@@ -2712,19 +2712,19 @@
             return `url(#${id}-${m}-${n})`;
           };
           const host = d == null ? g : s("g", { "clip-path": cp(1, d) }, g);
-          r.node = s("circle", { cx: c[a].x, cy: c[a].y, r: c[a].r, "clip-path": cp(0, b), class: "efx-chart__mark efx-venn__x" }, host);
+          r.node = s("circle", { cx: c[a].x, cy: c[a].y, r: c[a].r, "clip-path": cp(0, b), class: "spark-chart__mark spark-venn__x" }, host);
         });
         if (!deco) {
           const txt = (x, y, cls, str, i, dy) => {
-            const t = s("text", { x, y: y + (dy || 0), "text-anchor": "middle", "dominant-baseline": "middle", class: cls + " efx-chart__fade", style: `--i:${i}` }, g);
+            const t = s("text", { x, y: y + (dy || 0), "text-anchor": "middle", "dominant-baseline": "middle", class: cls + " spark-chart__fade", style: `--i:${i}` }, g);
             t.textContent = str;
           };
           c.forEach((q, i) => {
             const oth = c.filter((_, j2) => j2 !== i), mx = oth.reduce((a, p) => a + p.x, 0) / (oth.length || 1), my = oth.reduce((a, p) => a + p.y, 0) / (oth.length || 1);
             const dx = q.x - mx, dy = q.y - my, l = oth.length ? Math.hypot(dx, dy) || 1 : 1, sh = oth.length ? q.r * (names.length > 2 ? 0.5 : 0.42) : 0;
             const lx = q.x + (oth.length ? dx / l : 0) * sh, ly = q.y + (oth.length ? dy / l : 0) * sh;
-            txt(lx, ly, "efx-chart__value", names[i], i + 3, -7);
-            txt(lx, ly, "efx-venn__n", fmt(tot[i]), i + 3, 9);
+            txt(lx, ly, "spark-chart__value", names[i], i + 3, -7);
+            txt(lx, ly, "spark-venn__n", fmt(tot[i]), i + 3, 9);
           });
           regions.slice(names.length).forEach((r, m) => {
             let px, py;
@@ -2743,7 +2743,7 @@
                 py += ey / el2 * wd * 0.5;
               }
             }
-            txt(px, py, "efx-chart__value efx-venn__i", fmt(r.size), names.length + 3 + m);
+            txt(px, py, "spark-chart__value spark-venn__i", fmt(r.size), names.length + 3 + m);
           });
         }
         return regions.map((r, i) => ({
@@ -2772,7 +2772,7 @@
   // src/charts/chart-waterfall.js
   var chart_waterfall_default = {
     name: "chart-waterfall",
-    selector: ".efx-chart-waterfall",
+    selector: ".spark-chart-waterfall",
     lazy: true,
     defaults: { ...COMMON, totals: [], values: true, connectors: true, grid: true, radius: 3 },
     init(el, o) {
@@ -2799,13 +2799,13 @@
         const y = linear([sc.min, sc.max], [h - pad.b, pad.t]);
         const b = band(n, [pad.l, w - pad.r], 0.3);
         if (!deco) axes(g, { w, h, pad, y, ticks: sc.ticks, labels: data.labels, x: (i) => b.x(i) + b.bw / 2, fmt, grid: o.grid, rotate: b.step < 44 });
-        if (o.connectors && !deco) bars.slice(1).forEach((k, i) => s("line", { x1: b.x(i) + b.bw, x2: b.x(i + 1), y1: y(bars[i].to), y2: y(bars[i].to), class: "efx-chart__fade efx-wf__c", style: `--i:${i}` }, g));
+        if (o.connectors && !deco) bars.slice(1).forEach((k, i) => s("line", { x1: b.x(i) + b.bw, x2: b.x(i + 1), y1: y(bars[i].to), y2: y(bars[i].to), class: "spark-chart__fade spark-wf__c", style: `--i:${i}` }, g));
         return bars.map((k, i) => {
           const col = k.isT ? cT : k.v < 0 ? cD : cU, y0 = y(k.from), y1 = y(k.to), top = Math.min(y0, y1), bh = Math.max(1, Math.abs(y1 - y0));
-          const node = s("rect", { x: b.x(i), y: top, width: b.bw, height: bh, rx: Math.min(o.radius, b.bw / 2, bh / 2), fill: col, class: "efx-chart__mark efx-chart__grow", style: `--i:${i}` }, g);
+          const node = s("rect", { x: b.x(i), y: top, width: b.bw, height: bh, rx: Math.min(o.radius, b.bw / 2, bh / 2), fill: col, class: "spark-chart__mark spark-chart__grow", style: `--i:${i}` }, g);
           if (o.values && !deco && b.bw > 18) {
             const up = k.isT || k.v >= 0;
-            s("text", { x: b.x(i) + b.bw / 2, y: up ? top - 6 : top + bh + 13, "text-anchor": "middle", class: "efx-chart__value efx-chart__fade", style: `--i:${i}` }, g).textContent = k.isT ? fmt(k.d) : sg(k.v);
+            s("text", { x: b.x(i) + b.bw / 2, y: up ? top - 6 : top + bh + 13, "text-anchor": "middle", class: "spark-chart__value spark-chart__fade", style: `--i:${i}` }, g).textContent = k.isT ? fmt(k.d) : sg(k.v);
           }
           return {
             x: b.x(i) + b.bw / 2,
@@ -2822,10 +2822,10 @@
     }
   };
 
-  // src/effix-entry.js
+  // src/spark-entry.js
   var defs = [chart_bar_default, chart_box_default, chart_bullet_default, chart_candle_default, chart_combo_default, chart_flow_default, chart_funnel_default, chart_gauge_default, chart_heatmap_default, chart_histogram_default, chart_line_default, chart_pie_default, chart_polar_default, chart_progress_default, chart_pyramid_default, chart_quadrant_default, chart_radar_default, chart_scatter_default, chart_spark_default, chart_sunburst_default, chart_timeline_default, chart_treemap_default, chart_venn_default, chart_waterfall_default];
-  if (window.Effix) window.Effix.charts = lib_exports;
-  else window.EffixChartKit = lib_exports;
-  if (window.Effix) window.Effix.define(defs);
-  else (window.EffixPending = window.EffixPending || []).push(...defs);
+  if (window.Spark) window.Spark.charts = lib_exports;
+  else window.SparkChartKit = lib_exports;
+  if (window.Spark) window.Spark.define(defs);
+  else (window.SparkPending = window.SparkPending || []).push(...defs);
 })();

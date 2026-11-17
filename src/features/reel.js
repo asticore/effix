@@ -1,19 +1,19 @@
 /* reel — HTML scene sequencer (showreel / product-launch film).
-   <div class="efx-reel" data-efx-loop>
-     <section class="efx-reel__scene" data-efx-duration="3000" data-efx-transition="slide">…</section> …
-   Plays scenes in order, one visible at a time; entering a scene re-runs Effix features inside it.
-   Controls, clickable progress segments, ←/→/Space, pauses offscreen. Emits efx:scene {index}. */
-import Effix, { onVisible, motionOK, on, cssVar } from '../core.js';
+   <div class="spark-reel" data-spark-loop>
+     <section class="spark-reel__scene" data-spark-duration="3000" data-spark-transition="slide">…</section> …
+   Plays scenes in order, one visible at a time; entering a scene re-runs Spark features inside it.
+   Controls, clickable progress segments, ←/→/Space, pauses offscreen. Emits spark:scene {index}. */
+import Spark, { onVisible, motionOK, on, cssVar } from '../core.js';
 
 const snap = (n, attrs) => { const o = attrs.map(a => [a, n.getAttribute(a)]); return () => o.forEach(([a, v]) => v == null ? n.removeAttribute(a) : n.setAttribute(a, v)); };
 const ms = v => { const n = parseFloat(v); return /ms\s*$/.test(v) || !/s\s*$/.test(v) ? n || 600 : n * 1000; };
 
 export default {
   name: 'reel',
-  selector: '.efx-reel',
+  selector: '.spark-reel',
   defaults: { autoplay: true, loop: false, controls: true, duration: 3000, transition: 'fade' },
   init(el, o) {
-    const scenes = [...el.children].filter(c => c.matches('.efx-reel__scene,[data-efx-scene]'));
+    const scenes = [...el.children].filter(c => c.matches('.spark-reel__scene,[data-spark-scene]'));
     const n = scenes.length;
     if (!n) return;
     const calm = !motionOK();
@@ -26,7 +26,7 @@ export default {
     el.setAttribute('aria-roledescription', 'scene sequence');
     if (!el.hasAttribute('aria-label')) el.setAttribute('aria-label', 'Scenes');
     if (!el.hasAttribute('tabindex')) el.tabIndex = 0;
-    const dur = s => Math.max(200, parseFloat(s.dataset.efxDuration) || o.duration);
+    const dur = s => Math.max(200, parseFloat(s.dataset.sparkDuration) || o.duration);
     scenes.forEach((s, i) => {
       undo.push(snap(s, ['role', 'aria-roledescription', 'aria-label', 'aria-hidden', 'inert']));
       s.setAttribute('role', 'group'); s.setAttribute('aria-roledescription', 'scene');
@@ -34,18 +34,18 @@ export default {
       s.setAttribute('aria-hidden', 'true'); s.inert = true;
     });
     const live = document.createElement('span');
-    live.className = 'efx-reel__live'; live.setAttribute('aria-live', 'polite');
+    live.className = 'spark-reel__live'; live.setAttribute('aria-live', 'polite');
     el.appendChild(live);
     let bar, btn; const segs = [];
     if (o.controls) {
-      bar = document.createElement('div'); bar.className = 'efx-reel__controls';
-      btn = document.createElement('button'); btn.type = 'button'; btn.className = 'efx-reel__play';
+      bar = document.createElement('div'); bar.className = 'spark-reel__controls';
+      btn = document.createElement('button'); btn.type = 'button'; btn.className = 'spark-reel__play';
       bar.appendChild(btn);
       scenes.forEach((s, i) => {
-        const b = document.createElement('button'); b.type = 'button'; b.className = 'efx-reel__seg';
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'spark-reel__seg';
         b.setAttribute('aria-label', `Go to scene ${i + 1} of ${n}`);
-        b.style.setProperty('--efx-d', dur(s) + 'ms');
-        b.innerHTML = '<span class="efx-reel__fill"></span>';
+        b.style.setProperty('--spark-d', dur(s) + 'ms');
+        b.innerHTML = '<span class="spark-reel__fill"></span>';
         b.onclick = () => go(i, true);
         segs.push(b); bar.appendChild(b);
       });
@@ -72,8 +72,8 @@ export default {
       i = ((i % n) + n) % n;
       if (i === idx) return;
       const dir = i > idx ? 1 : -1, s = scenes[i], prev = scenes[idx];
-      const type = calm ? 'cut' : s.dataset.efxTransition || o.transition;
-      el.style.setProperty('--efx-dir', dir);
+      const type = calm ? 'cut' : s.dataset.sparkTransition || o.transition;
+      el.style.setProperty('--spark-dir', dir);
       clearTimeout(leaveT);
       if (leaving) leaving.className = leaving.className.replace(/\s?(is-leave|t-\w+)/g, '');
       scenes.forEach(x => x.classList.remove('is-enter'));
@@ -81,7 +81,7 @@ export default {
         prev.classList.remove('is-active'); prev.inert = true; prev.setAttribute('aria-hidden', 'true');
         if (type !== 'cut') {
           prev.classList.add('is-leave', 't-' + type); leaving = prev;
-          leaveT = setTimeout(() => { prev.classList.remove('is-leave', 't-' + type); leaving = null; }, ms(cssVar(el, '--efx-reel-t', '600ms')) + 50);
+          leaveT = setTimeout(() => { prev.classList.remove('is-leave', 't-' + type); leaving = null; }, ms(cssVar(el, '--spark-reel-t', '600ms')) + 50);
         }
       }
       idx = i;
@@ -95,9 +95,9 @@ export default {
         if (k === i) { const f = b.firstChild; f.style.animation = 'none'; void f.offsetWidth; f.style.animation = ''; }
       });
       halt(); left = dur(s);
-      Effix.refresh(s);
+      Spark.refresh(s);
       if (manual || !running()) live.textContent = `Scene ${i + 1} of ${n}`;
-      el.dispatchEvent(new CustomEvent('efx:scene', { detail: { index: i }, bubbles: true }));
+      el.dispatchEvent(new CustomEvent('spark:scene', { detail: { index: i }, bubbles: true }));
       sync();
     }
     const toggle = () => { if (!want && idx === n - 1 && !o.loop) { want = true; idx = -1; go(0); return; } want = !want; sync(); };
@@ -122,7 +122,7 @@ export default {
       scenes.forEach(s => s.classList.remove('is-active', 'is-enter', 'is-leave', 't-fade', 't-slide', 't-wipe', 't-zoom', 't-cut'));
       undo.reverse().forEach(f => f());
       el.classList.remove('is-reel', 'is-manual', 'is-paused', 'is-first');
-      el.style.removeProperty('--efx-dir');
+      el.style.removeProperty('--spark-dir');
       if (restorePos) el.style.position = '';
     };
   },

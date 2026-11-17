@@ -1,5 +1,5 @@
 /* nudge — periodic attention animation until the user interacts.
-   <button class="btn efx-nudge" data-efx-anim="ring" data-efx-dot>🔔</button>
+   <button class="btn spark-nudge" data-spark-anim="ring" data-spark-dot>🔔</button>
    anim: shake | wobble | ring (built in) or any animate.css name (e.g. pulse, tada, heartbeat). */
 import { onVisible, on, motionOK } from '../core.js';
 
@@ -7,7 +7,7 @@ const BUILTIN = ['shake', 'wobble', 'ring'];
 
 export default {
   name: 'nudge',
-  selector: '.efx-nudge',
+  selector: '.spark-nudge',
   defaults: { every: 6000, anim: 'shake', times: 0, delay: 3000, stop: 'click', dot: false },
   init(el, o) {
     const offs = [];
@@ -15,12 +15,12 @@ export default {
     if (o.dot) {
       if (getComputedStyle(el).position === 'static') { el.style.position = 'relative'; restorePos = true; }
       dot = document.createElement('span');
-      dot.className = 'efx-nudge__dot'; dot.setAttribute('aria-hidden', 'true');
+      dot.className = 'spark-nudge__dot'; dot.setAttribute('aria-hidden', 'true');
       el.append(dot);
     }
     if (!motionOK()) return () => { if (dot) dot.remove(); if (restorePos) el.style.position = ''; };
 
-    const kf = BUILTIN.includes(o.anim) ? 'efx-nudge-' + o.anim : o.anim.startsWith('efx-') ? o.anim : 'efx-' + o.anim;
+    const kf = BUILTIN.includes(o.anim) ? 'spark-nudge-' + o.anim : o.anim.startsWith('spark-') ? o.anim : 'spark-' + o.anim;
     let timer = 0, count = 0, vis = false, stopped = false;
     const clear = () => { el.style.animation = ''; el.classList.remove('is-nudging'); };
     const schedule = ms => { clearTimeout(timer); timer = 0; if (!stopped && vis && !document.hidden) timer = setTimeout(play, ms); };

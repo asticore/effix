@@ -1,15 +1,15 @@
-/* Effix + React: call useEffix(ref, deps) in a component that renders .efx-* markup.
-   Features must be defined first (import the Effix bundle, or Effix.define(...)).
-     const ref = useRef(null); useEffix(ref, [items]);  return <div ref={ref}>…</div>; */
+/* Spark + React: call useSpark(ref, deps) in a component that renders .spark-* markup.
+   Features must be defined first (import the Spark bundle, or Spark.define(...)).
+     const ref = useRef(null); useSpark(ref, [items]);  return <div ref={ref}>…</div>; */
 import { useEffect } from 'react';
-import Effix from '../core.js';
+import Spark from '../core.js';
 
-export function useEffix(ref, deps = []) {
+export function useSpark(ref, deps = []) {
   useEffect(() => {
     const el = ref && ref.current;
     if (!el) return;
-    Effix.init(el);
-    return () => Effix.destroy(el);
+    Spark.init(el);
+    return () => Spark.destroy(el);
   }, deps); // eslint-disable-line react-hooks/exhaustive-deps
 }
-export default useEffix;
+export default useSpark;

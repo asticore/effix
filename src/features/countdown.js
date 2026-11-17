@@ -1,9 +1,9 @@
 /* countdown — live countdown to a date.
-   <div class="efx-countdown" data-efx-to="2027-01-31T18:00"></div>
-   Fires `efx:done` (bubbles) and adds .is-done when it reaches zero. */
+   <div class="spark-countdown" data-spark-to="2027-01-31T18:00"></div>
+   Fires `spark:done` (bubbles) and adds .is-done when it reaches zero. */
 export default {
   name: 'countdown',
-  selector: '.efx-countdown',
+  selector: '.spark-countdown',
   defaults: { to: '', units: 'dhms', labels: ['Days', 'Hours', 'Minutes', 'Seconds'], expired: '', pad: true, compact: false },
   init(el, o) {
     const end = new Date(o.to).getTime();
@@ -19,7 +19,7 @@ export default {
       el.textContent = '';
       us.forEach(u => {
         const cell = document.createElement('div'), n = document.createElement('span'), l = document.createElement('span');
-        cell.className = 'efx-countdown__unit'; n.className = 'efx-countdown__num'; l.className = 'efx-countdown__label';
+        cell.className = 'spark-countdown__unit'; n.className = 'spark-countdown__num'; l.className = 'spark-countdown__label';
         l.textContent = labels['dhms'.indexOf(u)] || ''; nums[u] = n;
         cell.append(n, l); el.append(cell);
       });
@@ -48,7 +48,7 @@ export default {
       done = true;
       if (o.expired) el.textContent = o.expired;
       el.classList.add('is-done');
-      el.dispatchEvent(new CustomEvent('efx:done', { bubbles: true }));
+      el.dispatchEvent(new CustomEvent('spark:done', { bubbles: true }));
     };
     const vis = () => { clearTimeout(tm); if (!document.hidden && !done) tick(); };
     document.addEventListener('visibilitychange', vis);

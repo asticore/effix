@@ -1,5 +1,5 @@
-/* chart-pie — pie & donut (semicircle with data-efx-half).
-   <div class="efx-chart-pie" data-efx-data="40,30,20,10" data-efx-labels="A|B|C|D"></div> */
+/* chart-pie — pie & donut (semicircle with data-spark-half).
+   <div class="spark-chart-pie" data-spark-data="40,30,20,10" data-spark-labels="A|B|C|D"></div> */
 import { COMMON, chart, palette, s, esc, arcPath, polar } from './_lib.js';
 
 const TAU = Math.PI * 2;
@@ -7,7 +7,7 @@ const pc = x => (x >= 10 ? Math.round(x) : Math.round(x * 10) / 10) + '%';
 
 export default {
   name: 'chart-pie',
-  selector: '.efx-chart-pie',
+  selector: '.spark-chart-pie',
   lazy: true,
   defaults: { ...COMMON, height: 300, donut: 0.6, pad: 0.01, sort: false, center: '', show: 'auto', half: false, rose: false },
   init(el, o) {
@@ -35,7 +35,7 @@ export default {
         acc = a1;
         const d = idx.length > 1 ? gap / 2 : 0;
         const [dx, dy] = polar(0, 0, 7, m);
-        const node = s('path', { d: arcPath(cx, cy, r0, Ro, a0 + d, a1 - d), fill: pal[i], class: 'efx-chart__mark efx-pie-arc', style: `--i:${k};--dx:${dx}px;--dy:${dy}px;transform-origin:${cx}px ${cy}px` }, g);
+        const node = s('path', { d: arcPath(cx, cy, r0, Ro, a0 + d, a1 - d), fill: pal[i], class: 'spark-chart__mark spark-pie-arc', style: `--i:${k};--dx:${dx}px;--dy:${dy}px;transform-origin:${cx}px ${cy}px` }, g);
         arcs.push({ node, i });
         const [mx, my] = polar(cx, cy, (r0 + Ro) / 2, m), pct = (vals[i] / total) * 100;
         marks.push({
@@ -49,7 +49,7 @@ export default {
           },
         });
         if (inner && (a1 - a0) * (r0 + R) / 2 >= 28 && R - r0 > 14) {
-          const t = s('text', { x: mx, y: my, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'efx-pie-t efx-chart__fade', style: `--i:${k}` }, g);
+          const t = s('text', { x: mx, y: my, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'spark-pie-t spark-chart__fade', style: `--i:${k}` }, g);
           t.textContent = pc(pct);
         }
         if (lab) labs.push({ m, Ro, sd: Math.sin(m) >= 0 ? 1 : -1, t: `${data.labels[i]}  ${pc(pct)}`, k });
@@ -61,8 +61,8 @@ export default {
         for (let j = L.length - 1; j >= 0; j--) { if (j < L.length - 1 && L[j].y > L[j + 1].y - 15) L[j].y = L[j + 1].y - 15; }
         L.forEach(l => {
           const [x1, y1] = polar(cx, cy, l.Ro + 2, l.m), [x2, y2] = polar(cx, cy, R + 12, l.m), xl = cx + sd * (R + 22);
-          s('path', { d: `M${x1},${y1}L${x2},${y2}L${xl},${l.y}`, class: 'efx-pie-l efx-chart__fade', style: `--i:${l.k}` }, g);
-          const mc = Math.floor((w / 2 - R - 30) / 6.2), t = s('text', { x: xl + sd * 4, y: l.y, 'text-anchor': sd > 0 ? 'start' : 'end', 'dominant-baseline': 'central', class: 'efx-chart__value efx-pie-lt efx-chart__fade', style: `--i:${l.k}` }, g);
+          s('path', { d: `M${x1},${y1}L${x2},${y2}L${xl},${l.y}`, class: 'spark-pie-l spark-chart__fade', style: `--i:${l.k}` }, g);
+          const mc = Math.floor((w / 2 - R - 30) / 6.2), t = s('text', { x: xl + sd * 4, y: l.y, 'text-anchor': sd > 0 ? 'start' : 'end', 'dominant-baseline': 'central', class: 'spark-chart__value spark-pie-lt spark-chart__fade', style: `--i:${l.k}` }, g);
           t.textContent = l.t.length > mc ? l.t.slice(0, Math.max(3, mc - 1)) + '…' : l.t;
         });
       });
@@ -70,8 +70,8 @@ export default {
       if (!deco && r0 >= 28) {
         const tot = fmt(total), custom = o.center.replace('{total}', tot);
         const fs = Math.max(12, Math.min(28, r0 * 0.42)), cyy = half ? cy - r0 * 0.3 : cy;
-        const big = s('text', { x: cx, y: cyy - (custom ? 0 : 6), 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'efx-chart__value efx-pie-c' }, g);
-        const cap = s('text', { x: cx, y: cyy + fs * 0.7, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'efx-pie-s' }, g);
+        const big = s('text', { x: cx, y: cyy - (custom ? 0 : 6), 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'spark-chart__value spark-pie-c' }, g);
+        const cap = s('text', { x: cx, y: cyy + fs * 0.7, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'spark-pie-s' }, g);
         const set = a => {
           const v = a ? fmt(vals[a.i]) : custom || tot, c = a ? data.labels[a.i] : custom ? '' : 'Total';
           const f = Math.min(fs, (r0 * 1.7) / (Math.max(v.length, c.length * 0.6) * 0.58));

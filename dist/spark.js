@@ -1,4 +1,4 @@
-/*! Effix v0.3.0 | MIT | https://github.com/asticore/effix */
+/*! Spark v0.4.0 | MIT | https://github.com/asticore/spark */
 (() => {
   // src/core.js
   var registry = /* @__PURE__ */ new Map();
@@ -8,9 +8,9 @@
   } };
   var reduceMQ = mq("(prefers-reduced-motion: reduce)");
   var fineMQ = mq("(hover: hover) and (pointer: fine)");
-  var motionOK = () => !reduceMQ.matches && !(doc && doc.documentElement.hasAttribute("data-efx-reduce"));
+  var motionOK = () => !reduceMQ.matches && !(doc && doc.documentElement.hasAttribute("data-spark-reduce"));
   var finePointer = () => fineMQ.matches;
-  var camelKey = (k) => "efx" + k[0].toUpperCase() + k.slice(1);
+  var camelKey = (k) => "spark" + k[0].toUpperCase() + k.slice(1);
   function options(el, defaults = {}) {
     const out = {};
     for (const key in defaults) {
@@ -35,7 +35,7 @@
   }
   function themeColor(el) {
     const cs = getComputedStyle(el);
-    for (const n of ["--efx-color", "--sh-tone", "--sh-primary"]) {
+    for (const n of ["--spark-color", "--sh-tone", "--sh-primary"]) {
       const v = cs.getPropertyValue(n).trim();
       if (v) return v;
     }
@@ -129,7 +129,7 @@
   }
   var lazyQueue = /* @__PURE__ */ new WeakMap();
   var lazyIO = null;
-  var lazyMargin = () => doc && doc.documentElement.dataset.efxMargin || "200px";
+  var lazyMargin = () => doc && doc.documentElement.dataset.sparkMargin || "200px";
   function mount(el, def) {
     let m = mounted.get(el);
     if (m && m.has(def.name)) return;
@@ -143,10 +143,10 @@
     } catch (err) {
       m.delete(def.name);
       if (!m.size) mounted.delete(el);
-      console.error(`[effix] ${def.name} failed`, err);
+      console.error(`[spark] ${def.name} failed`, err);
       return;
     }
-    el.setAttribute("data-efx-ready", [...m.keys()].join(" "));
+    el.setAttribute("data-spark-ready", [...m.keys()].join(" "));
   }
   function queueLazy(el, def) {
     if (typeof IntersectionObserver === "undefined") return mount(el, def);
@@ -156,7 +156,7 @@
         const names2 = lazyQueue.get(e.target);
         lazyIO.unobserve(e.target);
         lazyQueue.delete(e.target);
-        e.target.removeAttribute("data-efx-lazy");
+        e.target.removeAttribute("data-spark-lazy");
         if (names2) names2.forEach((n) => registry.has(n) && mount(e.target, registry.get(n)));
       }), { rootMargin: lazyMargin() });
     }
@@ -165,7 +165,7 @@
       s = /* @__PURE__ */ new Set();
       lazyQueue.set(el, s);
       lazyIO.observe(el);
-      el.setAttribute("data-efx-lazy", "");
+      el.setAttribute("data-spark-lazy", "");
     }
     s.add(def.name);
   }
@@ -175,7 +175,7 @@
     if (root.nodeType === 1 && root.matches(def.selector)) els.push(root);
     if (root.querySelectorAll) els.push(...root.querySelectorAll(def.selector));
     for (const el of els) {
-      if (((_a = mounted.get(el)) == null ? void 0 : _a.has(def.name)) || ((_b = lazyQueue.get(el)) == null ? void 0 : _b.has(def.name)) || el.closest("[data-efx-skip]")) continue;
+      if (((_a = mounted.get(el)) == null ? void 0 : _a.has(def.name)) || ((_b = lazyQueue.get(el)) == null ? void 0 : _b.has(def.name)) || el.closest("[data-spark-skip]")) continue;
       if (!mediaOK(el)) continue;
       if (def.lazy) queueLazy(el, def);
       else mount(el, def);
@@ -198,7 +198,7 @@
   }
   function destroy(root = doc, name) {
     if (!root) return api;
-    const sel = "[data-efx-ready], [data-efx-lazy]";
+    const sel = "[data-spark-ready], [data-spark-lazy]";
     const els = root.nodeType === 1 ? [root, ...root.querySelectorAll(sel)] : [...root.querySelectorAll(sel)];
     for (const el of els) teardown(el, name);
     return api;
@@ -211,7 +211,7 @@
       if (!q.size) {
         lazyQueue.delete(el);
         lazyIO.unobserve(el);
-        el.removeAttribute("data-efx-lazy");
+        el.removeAttribute("data-spark-lazy");
       }
     }
     const m = mounted.get(el);
@@ -221,19 +221,19 @@
       try {
         cleanup && cleanup();
       } catch (err) {
-        console.error(`[effix] ${n} cleanup failed`, err);
+        console.error(`[spark] ${n} cleanup failed`, err);
       }
       m.delete(n);
     }
-    if (m.size) el.setAttribute("data-efx-ready", [...m.keys()].join(" "));
+    if (m.size) el.setAttribute("data-spark-ready", [...m.keys()].join(" "));
     else {
       mounted.delete(el);
-      el.removeAttribute("data-efx-ready");
+      el.removeAttribute("data-spark-ready");
     }
   }
   var mediaWatch = /* @__PURE__ */ new WeakMap();
   function mediaOK(el) {
-    const q = el.getAttribute("data-efx-media");
+    const q = el.getAttribute("data-spark-media");
     if (!q || typeof matchMedia === "undefined") return true;
     let mql = mediaWatch.get(el);
     if (!mql) {
@@ -258,7 +258,7 @@
     return init(root, name ? [name] : void 0);
   }
   var mo = null;
-  var injected = (n) => /(^|\s)efx-[\w-]+__/.test(n.getAttribute("class") || "");
+  var injected = (n) => /(^|\s)spark-[\w-]+__/.test(n.getAttribute("class") || "");
   function observe(target = doc && doc.body) {
     if (mo || !target || typeof MutationObserver === "undefined") return api;
     mo = new MutationObserver((records) => {
@@ -267,7 +267,7 @@
           if (n.nodeType === 1 && !n.isConnected && !injected(n)) destroy(n);
         });
         r.addedNodes.forEach((n) => {
-          if (n.nodeType === 1 && n.isConnected && !injected(n) && !n.closest("[data-efx-skip]")) init(n);
+          if (n.nodeType === 1 && n.isConnected && !injected(n) && !n.closest("[data-spark-skip]")) init(n);
         });
       }
     });
@@ -298,7 +298,7 @@
   };
   function setData(el, data) {
     if (typeof el === "string") el = doc && doc.querySelector(el);
-    if (el) el.dispatchEvent(new CustomEvent("efx:data", { detail: data }));
+    if (el) el.dispatchEvent(new CustomEvent("spark:data", { detail: data }));
     return api;
   }
   function parseCSV(text) {
@@ -333,8 +333,8 @@
   }
   function chartSource(name, fn) {
     add("chart-source", name, fn);
-    if (doc) doc.querySelectorAll("[data-efx-live]").forEach((el) => {
-      if (el.dataset.efxLive === name && el.hasAttribute("data-efx-ready")) refresh(el);
+    if (doc) doc.querySelectorAll("[data-spark-live]").forEach((el) => {
+      if (el.dataset.sparkLive === name && el.hasAttribute("data-spark-ready")) refresh(el);
     });
     return api;
   }
@@ -344,7 +344,7 @@
   };
   var features = () => [...registry.keys()];
   var api = {
-    version: "0.3.0",
+    version: "0.4.0",
     define,
     init,
     destroy,
@@ -372,22 +372,22 @@
   function autoBoot() {
     if (!doc) return;
     const html = doc.documentElement;
-    const cfg = typeof window !== "undefined" && window.EffixConfig || {};
-    const pending = typeof window !== "undefined" && window.EffixPending || [];
+    const cfg = typeof window !== "undefined" && window.SparkConfig || {};
+    const pending = typeof window !== "undefined" && window.SparkPending || [];
     if (pending.length) define(pending.splice(0));
-    if (typeof window !== "undefined" && window.EffixChartKit && !api.charts) api.charts = window.EffixChartKit;
+    if (typeof window !== "undefined" && window.SparkChartKit && !api.charts) api.charts = window.SparkChartKit;
     if (typeof cfg.extend === "function") {
       try {
         cfg.extend(api);
       } catch (err) {
-        console.error("[effix] extend", err);
+        console.error("[spark] extend", err);
       }
     }
-    if (cfg.auto === false || html.hasAttribute("data-efx-manual")) return;
+    if (cfg.auto === false || html.hasAttribute("data-spark-manual")) return;
     const go = () => {
       init();
-      if (cfg.observe || html.hasAttribute("data-efx-observe")) observe();
-      doc.dispatchEvent(new CustomEvent("efx:ready", { detail: api }));
+      if (cfg.observe || html.hasAttribute("data-spark-observe")) observe();
+      doc.dispatchEvent(new CustomEvent("spark:ready", { detail: api }));
     };
     if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", go, { once: true });
     else go();
@@ -657,7 +657,7 @@
   });
   var ambient_default = {
     name: "ambient",
-    selector: ".efx-ambient",
+    selector: ".spark-ambient",
     lazy: true,
     defaults: { mode: "stars", count: 0, color: "", speed: 1, opacity: 1, interact: true },
     init(el, o) {
@@ -667,7 +667,7 @@
         restorePos = true;
       }
       const cv2 = document.createElement("canvas");
-      cv2.className = "efx-ambient__canvas";
+      cv2.className = "spark-ambient__canvas";
       cv2.setAttribute("aria-hidden", "true");
       el.insertBefore(cv2, el.firstChild);
       const ctx2 = cv2.getContext("2d");
@@ -806,8 +806,8 @@
   };
   function compute(g, items) {
     const ds = g.dataset, n = items.length;
-    const step = parseFloat(ds.efxStagger) || 80, total = parseFloat(ds.efxTotal) || 0;
-    const from = (ds.efxFrom || "first").trim(), grid = (ds.efxGrid || "").trim(), axis = grid && ds.efxAxis;
+    const step = parseFloat(ds.sparkStagger) || 80, total = parseFloat(ds.sparkTotal) || 0;
+    const from = (ds.sparkFrom || "first").trim(), grid = (ds.sparkGrid || "").trim(), axis = grid && ds.sparkAxis;
     let pos;
     if (grid === "auto") {
       const bx = bucket(items.map((e) => e.offsetLeft)), by = bucket(items.map((e) => e.offsetTop));
@@ -837,14 +837,14 @@
       const o = from === "center" ? mid : from === "last" ? pos[n - 1] : /^\d+$/.test(from) ? pos[Math.min(+from, n - 1)] : pos[0];
       d = pos.map((p) => dist(p, o));
     }
-    const max = Math.max(...d), fn = ds.efxEase ? ease(ds.efxEase) : null;
+    const max = Math.max(...d), fn = ds.sparkEase ? ease(ds.sparkEase) : null;
     return d.map((v) => {
       let t = max ? v / max : 0;
       if (fn) t = fn(t);
       return total > 0 ? t * total : t * max * step;
     });
   }
-  var staggerGroup = (el) => el.parentElement && el.parentElement.closest(".efx-stagger");
+  var staggerGroup = (el) => el.parentElement && el.parentElement.closest(".spark-stagger");
   function stagger(group, sel, el) {
     let m = cache.get(group);
     if (!m) cache.set(group, m = /* @__PURE__ */ new Map());
@@ -858,43 +858,43 @@
   }
 
   // src/features/animate.js
-  var ENTER = /\befx-(fade-in|bounce-(in|up|down)|slide-|pop-in|rotate-in|scale-|zoom-in|flip-)/;
+  var ENTER = /\bspark-(fade-in|bounce-(in|up|down)|slide-|pop-in|rotate-in|scale-|zoom-in|flip-)/;
   var animate_default = {
     name: "animate",
-    selector: ".efx-click,.efx-load,.efx-scroll",
+    selector: ".spark-click,.spark-load,.spark-scroll",
     defaults: { delay: 0, once: true, threshold: 0.15, repeat: "" },
     init(el, o) {
       if (!motionOK()) return;
       const cl = el.classList, st = el.style, offs = [];
-      const prevDelay = st.getPropertyValue("--efx-delay"), prevIter = st.getPropertyValue("--efx-iter");
+      const prevDelay = st.getPropertyValue("--spark-delay"), prevIter = st.getPropertyValue("--spark-iter");
       let delay = o.delay;
       const group = staggerGroup(el);
-      if (group && !cl.contains("efx-click")) delay += stagger(group, ".efx-load,.efx-scroll", el);
-      if (delay) st.setProperty("--efx-delay", delay + "ms");
-      if (o.repeat) st.setProperty("--efx-iter", o.repeat === "infinite" || o.repeat === "loop" ? "infinite" : parseFloat(o.repeat) || 1);
+      if (group && !cl.contains("spark-click")) delay += stagger(group, ".spark-load,.spark-scroll", el);
+      if (delay) st.setProperty("--spark-delay", delay + "ms");
+      if (o.repeat) st.setProperty("--spark-iter", o.repeat === "infinite" || o.repeat === "loop" ? "infinite" : parseFloat(o.repeat) || 1);
       const play = () => {
-        cl.remove("efx-anim-pending");
+        cl.remove("spark-anim-pending");
         cl.remove("is-playing");
         void el.offsetWidth;
         cl.add("is-playing");
       };
       let stop = () => {
       };
-      if (cl.contains("efx-click")) {
+      if (cl.contains("spark-click")) {
         offs.push(on(el, "click", play), on(el, "animationend", (e) => {
           if (e.target === el) cl.remove("is-playing");
         }));
-      } else if (cl.contains("efx-scroll")) {
+      } else if (cl.contains("spark-scroll")) {
         const enter = ENTER.test(el.className);
-        if (enter) cl.add("efx-anim-pending");
+        if (enter) cl.add("spark-anim-pending");
         stop = onVisible(el, (vis, e) => {
           if (vis && (e.intersectionRatio >= o.threshold || e.intersectionRect.height >= innerHeight * 0.25)) {
-            cl.remove("efx-anim-pending");
+            cl.remove("spark-anim-pending");
             cl.add("is-playing");
             if (o.once) stop();
           } else if (!o.once && !vis) {
             cl.remove("is-playing");
-            if (enter) cl.add("efx-anim-pending");
+            if (enter) cl.add("spark-anim-pending");
           }
         }, "0px", [0, o.threshold, 0.5, 1]);
       } else if (delay) {
@@ -905,11 +905,11 @@
       return () => {
         stop();
         offs.forEach((f2) => f2());
-        cl.remove("efx-anim-pending", "is-playing");
-        if (prevDelay) st.setProperty("--efx-delay", prevDelay);
-        else st.removeProperty("--efx-delay");
-        if (prevIter) st.setProperty("--efx-iter", prevIter);
-        else st.removeProperty("--efx-iter");
+        cl.remove("spark-anim-pending", "is-playing");
+        if (prevDelay) st.setProperty("--spark-delay", prevDelay);
+        else st.removeProperty("--spark-delay");
+        if (prevIter) st.setProperty("--spark-iter", prevIter);
+        else st.removeProperty("--spark-iter");
       };
     }
   };
@@ -919,7 +919,7 @@
   var esc = (c) => c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === "&" ? "&amp;" : c;
   var ascii_default = {
     name: "ascii",
-    selector: ".efx-ascii",
+    selector: ".spark-ascii",
     lazy: true,
     defaults: { cols: 80, chars: " .:-=+*#%@", invert: false, color: "mono", text: "", fps: 24, reveal: true, duration: 1200, output: "pre", live: false },
     init(el, o) {
@@ -946,7 +946,7 @@
       const was = { html: el.innerHTML, label: el.getAttribute("aria-label"), role: el.getAttribute("role") };
       let tc = text ? mkText() : null;
       const out = document.createElement(toCv ? "canvas" : "pre");
-      out.className = "efx-ascii__out";
+      out.className = "spark-ascii__out";
       out.setAttribute("aria-hidden", "true");
       if (text) {
         el.setAttribute("role", "img");
@@ -955,7 +955,7 @@
         el.appendChild(out);
       } else {
         if (isImg && el.alt) el.setAttribute("aria-label", el.alt);
-        el.classList.add("efx-ascii__src");
+        el.classList.add("spark-ascii__src");
         el.after(out);
       }
       if (isVid) offs.push(on(out, "click", () => el.paused ? el.play() : el.pause()));
@@ -1038,10 +1038,10 @@
           if (!revealed && k0 == null) k0 = t;
           const r = live() || !g ? sample2() : g;
           if (r === false) {
-            console.warn("[effix] ascii: source is cross-origin/tainted (needs same-origin or CORS), showing the original");
+            console.warn("[spark] ascii: source is cross-origin/tainted (needs same-origin or CORS), showing the original");
             dead = true;
             out.remove();
-            el.classList.remove("efx-ascii__src");
+            el.classList.remove("spark-ascii__src");
             return;
           }
           if (r) {
@@ -1090,7 +1090,7 @@
         cancelAnimationFrame(raf2);
         offs.forEach((f2) => f2());
         out.remove();
-        el.classList.remove("efx-ascii__src");
+        el.classList.remove("spark-ascii__src");
         if (text) el.innerHTML = was.html;
         ["aria-label", "role"].forEach((a, i) => {
           const v = [was.label, was.role][i];
@@ -1210,7 +1210,7 @@
     if (!AX) return null;
     if (!sameOK(m)) {
       graphs.set(m, null);
-      console.warn("[effix] audio: cross-origin media without crossorigin attribute, visualizer skipped", m.currentSrc);
+      console.warn("[spark] audio: cross-origin media without crossorigin attribute, visualizer skipped", m.currentSrc);
       return null;
     }
     if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return null;
@@ -1226,32 +1226,32 @@
       return g;
     } catch (e) {
       graphs.set(m, null);
-      console.warn("[effix] audio: analyser unavailable", e);
+      console.warn("[spark] audio: analyser unavailable", e);
       return null;
     }
   }
   var audio_default = {
     name: "audio",
-    selector: ".efx-audio",
+    selector: ".spark-audio",
     lazy: true,
     defaults: { for: "", type: "bars", color: "", count: 48, gain: 1 },
-    init(el, o, Effix) {
+    init(el, o, Spark) {
       const m = o.for ? document.querySelector(o.for) : el.querySelector("audio,video");
-      if (!m || el === m) return console.warn("[effix] audio: media not found", o.for);
-      const fn = Effix.get("audio-viz", o.type) || Effix.get("audio-viz", "bars");
+      if (!m || el === m) return console.warn("[spark] audio: media not found", o.for);
+      const fn = Spark.get("audio-viz", o.type) || Spark.get("audio-viz", "bars");
       let restore = false;
       if (getComputedStyle(el).position === "static") {
         el.style.position = "relative";
         restore = true;
       }
       const cv2 = document.createElement("canvas");
-      cv2.className = "efx-audio__canvas";
+      cv2.className = "spark-audio__canvas";
       cv2.setAttribute("aria-hidden", "true");
       el.appendChild(cv2);
       const cx = cv2.getContext("2d");
       let colors = split2(o.color);
       if (!colors.length) for (let i = 1; i < 5; i++) {
-        const v = cssVar(el, "--efx-chart-" + i);
+        const v = cssVar(el, "--spark-chart-" + i);
         if (v) colors.push(v);
       }
       if (!colors.length) colors = [themeColor(el)];
@@ -1269,7 +1269,7 @@
       };
       const setLv = (v) => {
         const s = v.toFixed(3);
-        [el, ...linked].forEach((n) => n.style.setProperty("--efx-level", s));
+        [el, ...linked].forEach((n) => n.style.setProperty("--spark-level", s));
       };
       const rest = () => paint(reduce ? calm : idle);
       const tick = () => {
@@ -1310,7 +1310,7 @@
       }
       if (!reduce) {
         const onPlay = () => {
-          linked = [...document.querySelectorAll("[data-efx-level-for]")].filter((n) => document.querySelector(n.dataset.efxLevelFor) === m);
+          linked = [...document.querySelectorAll("[data-spark-level-for]")].filter((n) => document.querySelector(n.dataset.sparkLevelFor) === m);
           g = tap(m);
           if (!g) return;
           if (AC.state === "suspended") AC.resume();
@@ -1338,7 +1338,7 @@
         raf2 = 0;
         playing = false;
         offs.forEach((f2) => f2());
-        [el, ...linked].forEach((n) => n.style.removeProperty("--efx-level"));
+        [el, ...linked].forEach((n) => n.style.removeProperty("--spark-level"));
         cv2.remove();
         if (restore) el.style.position = "";
       };
@@ -1356,7 +1356,7 @@
   var uid = 0;
   var beam_default = {
     name: "beam",
-    selector: ".efx-beam",
+    selector: ".spark-beam",
     defaults: { links: "", curvature: 40, speed: 3, width: 2, color: "", reverse: false },
     init(el, o) {
       const q = (s) => {
@@ -1373,16 +1373,16 @@
         el.style.position = "relative";
         restore = true;
       }
-      const motion = motionOK(), id = "efx-beam-" + ++uid;
-      const svg = mk("svg", { class: "efx-beam__svg", "aria-hidden": "true" });
-      svg.style.setProperty("--efx-beam-s", o.speed + "s");
+      const motion = motionOK(), id = "spark-beam-" + ++uid;
+      const svg = mk("svg", { class: "spark-beam__svg", "aria-hidden": "true" });
+      svg.style.setProperty("--spark-beam-s", o.speed + "s");
       const parts = L.map((l, i) => {
         const g = mk("linearGradient", { id: id + i, gradientUnits: "userSpaceOnUse" }, svg);
         const stops = o.color ? [o.color, o.color] : ["var(--sh-primary,#6366f1)", "var(--sh-accent,#ec4899)"];
         stops.forEach((c, k) => mk("stop", { offset: k, style: "stop-color:" + c }, g));
-        const at = { class: "efx-beam__path", stroke: `url(#${id + i})`, "stroke-width": o.width, pathLength: 100 };
+        const at = { class: "spark-beam__path", stroke: `url(#${id + i})`, "stroke-width": o.width, pathLength: 100 };
         const base = mk("path", { ...at, opacity: motion ? 0.18 : 0.6 }, svg);
-        const run = motion && mk("path", { ...at, class: "efx-beam__path efx-beam__run" + (o.reverse ? " efx-beam__rev" : ""), "stroke-dasharray": "25 200" }, svg);
+        const run = motion && mk("path", { ...at, class: "spark-beam__path spark-beam__run" + (o.reverse ? " spark-beam__rev" : ""), "stroke-dasharray": "25 200" }, svg);
         if (run) run.style.animationDelay = -(i * o.speed / 3) + "s";
         return { g, base, run };
       });
@@ -1424,13 +1424,13 @@
   // src/features/border.js
   var border_default = {
     name: "border",
-    selector: ".efx-border-spin,.efx-border-trace,.efx-border-glow,.efx-border-gradient,.efx-border-wipe,.efx-border-pulse",
+    selector: ".spark-border-spin,.spark-border-trace,.spark-border-glow,.spark-border-gradient,.spark-border-wipe,.spark-border-pulse",
     defaults: { colors: [], speed: 0, width: 0, loading: "", timeout: 0 },
     init(el, o) {
       const st = el.style, cl = el.classList, offs = [];
-      if (o.colors.length) st.setProperty("--efx-border-colors", o.colors.join(","));
-      if (o.speed > 0) st.setProperty("--efx-border-speed", o.speed + "s");
-      if (o.width > 0) st.setProperty("--efx-border-width", o.width + "px");
+      if (o.colors.length) st.setProperty("--spark-border-colors", o.colors.join(","));
+      if (o.speed > 0) st.setProperty("--spark-border-speed", o.speed + "s");
+      if (o.width > 0) st.setProperty("--spark-border-width", o.width + "px");
       let restorePos = false;
       if (getComputedStyle(el).position === "static") {
         st.position = "relative";
@@ -1468,7 +1468,7 @@
           el.setAttribute("aria-disabled", "true");
           if (o.timeout > 0) t = setTimeout(stop, o.timeout);
           sync();
-        }), on(el, "efx:done", stop));
+        }), on(el, "spark:done", stop));
       }
       if (ok) offs.push(onVisible(el, (v) => {
         vis = v;
@@ -1482,7 +1482,7 @@
         if (restorePos) st.position = "";
         cl.remove("is-paused", "is-static", "is-loading");
         el.removeAttribute("aria-busy");
-        ["--efx-border-colors", "--efx-border-speed", "--efx-border-width"].forEach((p) => st.removeProperty(p));
+        ["--spark-border-colors", "--spark-border-speed", "--spark-border-width"].forEach((p) => st.removeProperty(p));
       };
     }
   };
@@ -1490,7 +1490,7 @@
   // src/features/carousel.js
   var carousel_default = {
     name: "carousel",
-    selector: ".efx-carousel",
+    selector: ".spark-carousel",
     defaults: { autoplay: 0, loop: true, dots: true, arrows: true, perView: 0, fade: false },
     init(el, o) {
       const slides = [...el.children], n = slides.length;
@@ -1508,12 +1508,12 @@
         return b;
       };
       const nav = document.createElement("div");
-      nav.className = "efx-carousel__nav";
-      const prev = btn("btn btn-icon btn-ghost efx-carousel__prev", "Previous slide", "\u2039");
-      const next = btn("btn btn-icon btn-ghost efx-carousel__next", "Next slide", "\u203A");
-      const dots = slides.map((_, i) => btn("efx-carousel__dot", `Go to slide ${i + 1}`));
+      nav.className = "spark-carousel__nav";
+      const prev = btn("btn btn-icon btn-ghost spark-carousel__prev", "Previous slide", "\u2039");
+      const next = btn("btn btn-icon btn-ghost spark-carousel__next", "Next slide", "\u203A");
+      const dots = slides.map((_, i) => btn("spark-carousel__dot", `Go to slide ${i + 1}`));
       const dotBox = document.createElement("div");
-      dotBox.className = "efx-carousel__dots";
+      dotBox.className = "spark-carousel__dots";
       if (o.arrows) nav.appendChild(prev);
       if (o.dots) {
         dotBox.append(...dots);
@@ -1522,17 +1522,17 @@
       if (o.arrows) nav.appendChild(next);
       let pause;
       if (auto) {
-        pause = btn("btn btn-icon btn-ghost efx-carousel__pause", "Pause autoplay", "\u23F8");
+        pause = btn("btn btn-icon btn-ghost spark-carousel__pause", "Pause autoplay", "\u23F8");
         nav.appendChild(pause);
       }
       if (nav.children.length) el.after(nav);
       const tab = el.getAttribute("tabindex");
       if (tab === null) el.setAttribute("tabindex", "0");
-      if (o.fade) el.classList.add("efx-carousel-fade");
+      if (o.fade) el.classList.add("spark-carousel-fade");
       if (o.perView > 0 && !o.fade) {
-        el.style.setProperty("--efx-per-view", o.perView);
+        el.style.setProperty("--spark-per-view", o.perView);
         slides.forEach((s) => {
-          s.style.flexBasis = "calc(100% / var(--efx-per-view))";
+          s.style.flexBasis = "calc(100% / var(--spark-per-view))";
         });
       }
       const mark = () => {
@@ -1639,8 +1639,8 @@
         io2 && io2.disconnect();
         nav.remove();
         if (tab === null) el.removeAttribute("tabindex");
-        el.classList.remove("efx-carousel-fade");
-        el.style.removeProperty("--efx-per-view");
+        el.classList.remove("spark-carousel-fade");
+        el.style.removeProperty("--spark-per-view");
         slides.forEach((s) => {
           s.classList.remove("is-active");
           s.style.flexBasis = "";
@@ -1651,17 +1651,17 @@
 
   // src/features/chapter.js
   var NS2 = "http://www.w3.org/2000/svg";
-  var titleOf = (s) => s.dataset.efxTitle || (s.querySelector("h1,h2,h3,h4,h5,h6") || {}).textContent || "";
+  var titleOf = (s) => s.dataset.sparkTitle || (s.querySelector("h1,h2,h3,h4,h5,h6") || {}).textContent || "";
   var chapter_default = {
     name: "chapter",
-    selector: ".efx-chapter",
-    defaults: { sections: "section[data-efx-title]", ring: true },
+    selector: ".spark-chapter",
+    defaults: { sections: "section[data-spark-title]", ring: true },
     init(el, o) {
       const secs = [...document.querySelectorAll(o.sections)];
       if (!secs.length) return;
       const prevLive = el.getAttribute("aria-live"), prevHref = el.getAttribute("href");
       if (!prevLive) el.setAttribute("aria-live", "polite");
-      el.classList.add("efx-chapter-on", "is-empty");
+      el.classList.add("spark-chapter-on", "is-empty");
       const nodes = [];
       const add2 = (tag, cls, ns) => {
         const n = ns ? document.createElementNS(NS2, tag) : document.createElement(tag);
@@ -1669,14 +1669,14 @@
         nodes.push(n);
         return n;
       };
-      const text = add2("span", "efx-chapter__text");
+      const text = add2("span", "spark-chapter__text");
       let circle = null;
       if (o.ring) {
-        const svg = add2("svg", "efx-chapter__ring", 1);
+        const svg = add2("svg", "spark-chapter__ring", 1);
         svg.setAttribute("viewBox", "0 0 24 24");
         svg.setAttribute("aria-hidden", "true");
-        const bg = add2("circle", "efx-chapter__track", 1);
-        circle = add2("circle", "efx-chapter__bar", 1);
+        const bg = add2("circle", "spark-chapter__track", 1);
+        circle = add2("circle", "spark-chapter__bar", 1);
         [bg, circle].forEach((c) => {
           c.setAttribute("cx", 12);
           c.setAttribute("cy", 12);
@@ -1730,7 +1730,7 @@
         offClick();
         nodes.forEach((n) => n.remove());
         [...text.children].forEach((n) => n.remove());
-        el.classList.remove("efx-chapter-on", "is-empty");
+        el.classList.remove("spark-chapter-on", "is-empty");
         prevLive === null ? el.removeAttribute("aria-live") : el.setAttribute("aria-live", prevLive);
         prevHref === null ? el.removeAttribute("href") : el.setAttribute("href", prevHref);
       };
@@ -1741,7 +1741,7 @@
   var names = /* @__PURE__ */ new Map();
   var collapse_default = {
     name: "collapse",
-    selector: ".efx-collapse",
+    selector: ".spark-collapse",
     defaults: { duration: 300, easing: "ease" },
     init(el, o) {
       const list2 = el.matches("details") ? [el] : [...el.querySelectorAll("details")];
@@ -1819,14 +1819,14 @@
   // src/features/compare.js
   var compare_default = {
     name: "compare",
-    selector: ".efx-compare",
+    selector: ".spark-compare",
     defaults: { start: 50, vertical: false, hover: false },
     init(el, o) {
       const after = el.querySelectorAll(":scope > img")[1];
       if (!after) return;
       const mk2 = (tag, cls) => {
         const n = document.createElement(tag);
-        n.className = "efx-compare__" + cls;
+        n.className = "spark-compare__" + cls;
         return n;
       };
       const clip = mk2("div", "clip"), handle = mk2("div", "handle"), knob = mk2("span", "knob"), input = mk2("input", "range");
@@ -1835,7 +1835,7 @@
       Object.assign(input, { type: "range", min: 0, max: 100, step: 1 });
       input.setAttribute("aria-label", "Comparison position");
       if (o.vertical) {
-        el.classList.add("efx-compare-vertical");
+        el.classList.add("spark-compare-vertical");
         input.setAttribute("aria-orientation", "vertical");
       }
       const pos = el.style.position, setPos = getComputedStyle(el).position === "static";
@@ -1845,7 +1845,7 @@
       el.append(input, handle);
       const set = (p) => {
         p = Math.max(0, Math.min(100, p));
-        el.style.setProperty("--efx-pos", p + "%");
+        el.style.setProperty("--spark-pos", p + "%");
         input.value = p;
         input.setAttribute("aria-valuetext", Math.round(p) + "%");
       };
@@ -1881,8 +1881,8 @@
         clip.replaceWith(after);
         input.remove();
         handle.remove();
-        el.classList.remove("efx-compare-vertical", "is-dragging");
-        el.style.removeProperty("--efx-pos");
+        el.classList.remove("spark-compare-vertical", "is-dragging");
+        el.style.removeProperty("--spark-pos");
         if (setPos) el.style.position = pos;
       };
     }
@@ -1935,7 +1935,7 @@
   var burst = (x, y, o, colors) => {
     if (!cv) {
       cv = document.createElement("canvas");
-      cv.className = "efx-confetti__canvas";
+      cv.className = "spark-confetti__canvas";
       cv.setAttribute("aria-hidden", "true");
       cv.style.cssText = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:2147483000";
       dpr = Math.min(devicePixelRatio || 1, 2);
@@ -2002,10 +2002,10 @@
   };
   var confetti_default = {
     name: "confetti",
-    selector: ".efx-confetti",
+    selector: ".spark-confetti",
     defaults: { trigger: "click", count: 80, spread: 70, velocity: 45, gravity: 1, colors: [], shapes: ["square", "circle", "strip"], origin: "" },
     init(el, o) {
-      if (!refs++) docOff = on(document, "efx:confetti", onEvt);
+      if (!refs++) docOff = on(document, "spark:confetti", onEvt);
       const offs = [() => {
         if (!--refs && docOff) {
           docOff();
@@ -2014,7 +2014,7 @@
       }];
       let stopVis = () => {
       };
-      if (o.trigger === "done") offs.push(on(el, "efx:done", () => fire(el, o)));
+      if (o.trigger === "done") offs.push(on(el, "spark:done", () => fire(el, o)));
       else if (o.trigger === "view") {
         stopVis = onVisible(el, (v) => {
           if (v) {
@@ -2053,12 +2053,12 @@
   };
   var copy_default = {
     name: "copy",
-    selector: ".efx-copy",
+    selector: ".spark-copy",
     defaults: { target: "", text: "", done: "Copied!", duration: 1800 },
     init(el, o) {
       const html = el.innerHTML;
       const live = document.createElement("span");
-      live.className = "efx-copy__live";
+      live.className = "spark-copy__live";
       live.setAttribute("aria-live", "polite");
       el.after(live);
       let timer = 0, dead = false, changed = false;
@@ -2109,7 +2109,7 @@
   // src/features/countdown.js
   var countdown_default = {
     name: "countdown",
-    selector: ".efx-countdown",
+    selector: ".spark-countdown",
     defaults: { to: "", units: "dhms", labels: ["Days", "Hours", "Minutes", "Seconds"], expired: "", pad: true, compact: false },
     init(el, o) {
       const end = new Date(o.to).getTime();
@@ -2126,9 +2126,9 @@
         el.textContent = "";
         us.forEach((u) => {
           const cell2 = document.createElement("div"), n = document.createElement("span"), l = document.createElement("span");
-          cell2.className = "efx-countdown__unit";
-          n.className = "efx-countdown__num";
-          l.className = "efx-countdown__label";
+          cell2.className = "spark-countdown__unit";
+          n.className = "spark-countdown__num";
+          l.className = "spark-countdown__label";
           l.textContent = labels["dhms".indexOf(u)] || "";
           nums[u] = n;
           cell2.append(n, l);
@@ -2172,7 +2172,7 @@
         done = true;
         if (o.expired) el.textContent = o.expired;
         el.classList.add("is-done");
-        el.dispatchEvent(new CustomEvent("efx:done", { bubbles: true }));
+        el.dispatchEvent(new CustomEvent("spark:done", { bubbles: true }));
       };
       const vis = () => {
         clearTimeout(tm);
@@ -2193,7 +2193,7 @@
   // src/features/counter.js
   var counter_default = {
     name: "counter",
-    selector: ".efx-counter",
+    selector: ".spark-counter",
     defaults: { from: 0, to: NaN, duration: 1600, decimals: -1, separator: ",", ease: "ease-out-cubic", prefix: "", suffix: "", once: true },
     init(el, o) {
       const orig = el.textContent, hadHidden = el.getAttribute("aria-hidden");
@@ -2226,7 +2226,7 @@
         };
       }
       const sr = document.createElement("span");
-      sr.className = "efx-counter__sr";
+      sr.className = "spark-counter__sr";
       sr.textContent = fmt(to);
       el.after(sr);
       el.setAttribute("aria-hidden", "true");
@@ -2255,14 +2255,14 @@
   // src/features/cursor.js
   var cursor_default = {
     name: "cursor",
-    selector: ".efx-cursor",
+    selector: ".spark-cursor",
     defaults: {
       style: "ring",
       size: 32,
       color: "",
       hideNative: false,
       blend: false,
-      hover: "a,button,[role=button],input,select,textarea,label,summary,.efx-cursor-hover"
+      hover: "a,button,[role=button],input,select,textarea,label,summary,.spark-cursor-hover"
     },
     init(el, o) {
       if (!finePointer() || !motionOK()) return;
@@ -2270,23 +2270,23 @@
       try {
         document.querySelector(hoverSel);
       } catch {
-        hoverSel = "a,button,[role=button],input,select,textarea,label,summary,.efx-cursor-hover";
+        hoverSel = "a,button,[role=button],input,select,textarea,label,summary,.spark-cursor-hover";
       }
       const mk2 = (k) => {
         const d = document.createElement("div");
-        d.className = "efx-cursor__" + k;
+        d.className = "spark-cursor__" + k;
         d.setAttribute("aria-hidden", "true");
-        d.style.cssText = "opacity:0;--efx-cursor-size:" + (k === "ring" ? o.size : Math.max(6, o.size / 5)) + "px";
-        if (o.color) d.style.setProperty("--efx-cursor-color", o.color);
-        else d.style.setProperty("--efx-cursor-color", themeColor(el));
-        if (o.blend) d.classList.add("efx-cursor--blend");
+        d.style.cssText = "opacity:0;--spark-cursor-size:" + (k === "ring" ? o.size : Math.max(6, o.size / 5)) + "px";
+        if (o.color) d.style.setProperty("--spark-cursor-color", o.color);
+        else d.style.setProperty("--spark-cursor-color", themeColor(el));
+        if (o.blend) d.classList.add("spark-cursor--blend");
         document.body.appendChild(d);
         return d;
       };
       const ring = o.style !== "dot" ? mk2("ring") : null;
       const dot2 = o.style !== "ring" ? mk2("dot") : null;
       const parts = [ring, dot2].filter(Boolean);
-      if (o.hideNative) el.classList.add("efx-cursor-hide");
+      if (o.hideNative) el.classList.add("spark-cursor-hide");
       let tx = 0, ty = 0, rx = 0, ry = 0, raf2 = 0, seen = false;
       const put = (n, x, y) => {
         n.style.transform = "translate3d(" + x + "px," + y + "px,0) translate(-50%,-50%)";
@@ -2337,7 +2337,7 @@
         offs.forEach((f2) => f2());
         cancelAnimationFrame(raf2);
         parts.forEach((n) => n.remove());
-        el.classList.remove("efx-cursor-hide");
+        el.classList.remove("spark-cursor-hide");
       };
     }
   };
@@ -2345,14 +2345,14 @@
   // src/features/dim.js
   var dim_default = {
     name: "dim",
-    selector: ".efx-dim",
+    selector: ".spark-dim",
     defaults: { opacity: 0.35, blur: 0, preview: true, items: "" },
     init(el, o) {
-      const kids = () => o.items ? [...el.querySelectorAll(o.items)] : [...el.children].filter((c) => !c.classList.contains("efx-dim__preview"));
-      const s = el.style, saved = [s.getPropertyValue("--efx-dim-opacity"), s.getPropertyValue("--efx-dim-blur")];
-      if (!el.style.getPropertyValue("--efx-dim-opacity")) s.setProperty("--efx-dim-opacity", o.opacity);
-      if (o.blur) s.setProperty("--efx-dim-blur", o.blur + "px");
-      el.classList.add("efx-dim-on");
+      const kids = () => o.items ? [...el.querySelectorAll(o.items)] : [...el.children].filter((c) => !c.classList.contains("spark-dim__preview"));
+      const s = el.style, saved = [s.getPropertyValue("--spark-dim-opacity"), s.getPropertyValue("--spark-dim-blur")];
+      if (!el.style.getPropertyValue("--spark-dim-opacity")) s.setProperty("--spark-dim-opacity", o.opacity);
+      if (o.blur) s.setProperty("--spark-dim-blur", o.blur + "px");
+      el.classList.add("spark-dim-on");
       const fine = finePointer();
       let cur = null, pv = null, restorePos = false, ptr = 0, shown2 = "";
       if (o.preview && fine && motionOK()) {
@@ -2361,7 +2361,7 @@
           restorePos = true;
         }
         pv = document.createElement("div");
-        pv.className = "efx-dim__preview";
+        pv.className = "spark-dim__preview";
         pv.setAttribute("aria-hidden", "true");
         el.append(pv);
       }
@@ -2375,10 +2375,10 @@
         if (it === cur) return;
         if (cur) cur.classList.remove("is-hovered");
         cur = it;
-        el.classList.toggle("efx-dim-active", !!it);
+        el.classList.toggle("spark-dim-active", !!it);
         if (it) it.classList.add("is-hovered");
         if (pv) {
-          const src = it && it.dataset.efxImage;
+          const src = it && it.dataset.sparkImage;
           pv.classList.toggle("is-on", !!src && ptr);
           if (src && shown2 !== src) {
             shown2 = src;
@@ -2390,7 +2390,7 @@
         if (e.pointerType === "touch") return;
         ptr = 1;
         set(itemOf(e.target));
-        if (pv && cur && cur.dataset.efxImage) {
+        if (pv && cur && cur.dataset.sparkImage) {
           const r = el.getBoundingClientRect();
           pv.style.translate = e.clientX - r.left + "px " + (e.clientY - r.top) + "px";
           pv.classList.add("is-on");
@@ -2424,9 +2424,9 @@
       return () => {
         offs.forEach((f2) => f2());
         if (cur) cur.classList.remove("is-hovered");
-        el.classList.remove("efx-dim-on", "efx-dim-active");
-        saved[0] ? s.setProperty("--efx-dim-opacity", saved[0]) : s.removeProperty("--efx-dim-opacity");
-        saved[1] ? s.setProperty("--efx-dim-blur", saved[1]) : s.removeProperty("--efx-dim-blur");
+        el.classList.remove("spark-dim-on", "spark-dim-active");
+        saved[0] ? s.setProperty("--spark-dim-opacity", saved[0]) : s.removeProperty("--spark-dim-opacity");
+        saved[1] ? s.setProperty("--spark-dim-blur", saved[1]) : s.removeProperty("--spark-dim-blur");
         pv && pv.remove();
         if (restorePos) el.style.position = "";
       };
@@ -2436,7 +2436,7 @@
   // src/features/direction.js
   var direction_default = {
     name: "direction",
-    selector: ".efx-direction",
+    selector: ".spark-direction",
     defaults: { fill: "edge" },
     init(el, o) {
       let restorePos = false;
@@ -2446,7 +2446,7 @@
           el.style.position = "relative";
           restorePos = true;
         }
-        el.classList.add("efx-direction-fill");
+        el.classList.add("spark-direction-fill");
       }
       const edge = (e) => {
         const r = el.getBoundingClientRect();
@@ -2456,20 +2456,20 @@
       const at = (e) => {
         if (!circle) return;
         const r = el.getBoundingClientRect();
-        el.style.setProperty("--efx-x", (e ? (e.clientX - r.left) / (r.width || 1) * 100 : 50).toFixed(1) + "%");
-        el.style.setProperty("--efx-y", (e ? (e.clientY - r.top) / (r.height || 1) * 100 : 50).toFixed(1) + "%");
+        el.style.setProperty("--spark-x", (e ? (e.clientX - r.left) / (r.width || 1) * 100 : 50).toFixed(1) + "%");
+        el.style.setProperty("--spark-y", (e ? (e.clientY - r.top) / (r.height || 1) * 100 : 50).toFixed(1) + "%");
       };
       const enter = (from, e) => {
         at(e);
-        el.setAttribute("data-efx-from", from);
-        el.classList.add("efx-direction-snap");
+        el.setAttribute("data-spark-from", from);
+        el.classList.add("spark-direction-snap");
         void el.offsetWidth;
-        el.classList.remove("efx-direction-snap");
+        el.classList.remove("spark-direction-snap");
         el.classList.add("is-hover");
       };
       const leave = (from, e) => {
         at(e);
-        el.setAttribute("data-efx-from", from);
+        el.setAttribute("data-spark-from", from);
         el.classList.remove("is-hover");
       };
       const mouse = (e) => e.pointerType !== "touch";
@@ -2489,10 +2489,10 @@
       ];
       return () => {
         offs.forEach((f2) => f2());
-        el.classList.remove("is-hover", "efx-direction-fill", "efx-direction-snap");
-        el.removeAttribute("data-efx-from");
-        el.style.removeProperty("--efx-x");
-        el.style.removeProperty("--efx-y");
+        el.classList.remove("is-hover", "spark-direction-fill", "spark-direction-snap");
+        el.removeAttribute("data-spark-from");
+        el.style.removeProperty("--spark-x");
+        el.style.removeProperty("--spark-y");
         if (restorePos) el.style.position = "";
       };
     }
@@ -2503,13 +2503,13 @@
   var uid2 = 0;
   var distort_default = {
     name: "distort",
-    selector: ".efx-distort",
+    selector: ".spark-distort",
     defaults: { scale: 30, frequency: 0.02, speed: 1, trigger: "hover" },
     init(el, o) {
       if (!motionOK() || o.trigger === "hover" && !finePointer()) return;
-      const id = "efx-distort-" + ++uid2;
+      const id = "spark-distort-" + ++uid2;
       const svg = document.createElementNS(NS3, "svg");
-      svg.setAttribute("class", "efx-distort__svg");
+      svg.setAttribute("class", "spark-distort__svg");
       svg.setAttribute("aria-hidden", "true");
       svg.innerHTML = `<filter id="${id}" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="${o.frequency}" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="0" xChannelSelector="R" yChannelSelector="G"/></filter>`;
       document.body.appendChild(svg);
@@ -2619,7 +2619,7 @@
   add("divider-shape", Object.fromEntries(Object.entries(SHAPES).map(([k, [periodic, layers, ops]]) => [k, { periodic, layers, ops }])));
   var divider_default = {
     name: "divider",
-    selector: ".efx-divider",
+    selector: ".spark-divider",
     defaults: { shape: "wave", color: "", height: 80, flip: false, invert: false, animate: "none", speed: 12, position: "", path: "" },
     init(el, o) {
       const custom = o.path.replace(/[^\d\sMmLlHhVvCcSsQqTtAaZz.,eE+-]/g, "").trim();
@@ -2632,7 +2632,7 @@
       const side = layers[0][1];
       const saved = st.cssText;
       let claimed = false;
-      if (o.color) st.setProperty("--efx-divider-color", o.color);
+      if (o.color) st.setProperty("--spark-divider-color", o.color);
       st.height = o.height + "px";
       if (o.flip || o.invert) st.transform = `scale(${o.flip ? -1 : 1},${o.invert ? -1 : 1})`;
       if (o.position) {
@@ -2646,8 +2646,8 @@
         }
       }
       el.setAttribute("aria-hidden", "true");
-      el.setAttribute("data-efx-mode", move ? mode : "none");
-      st.setProperty("--efx-dv-dir", side === "t" ? 1 : -1);
+      el.setAttribute("data-spark-mode", move ? mode : "none");
+      st.setProperty("--spark-dv-dir", side === "t" ? 1 : -1);
       const mk2 = (k, op) => {
         let body = "";
         layers.forEach(([y0, s2, tile], li) => {
@@ -2660,22 +2660,22 @@
           d += s2 === "t" ? `L${W},0L0,0Z` : `L${W},120L0,120Z`;
           body += `<path d="${d}"${ops[li] ? ` opacity="${ops[li]}"` : ""}/>`;
         });
-        const s = `<svg viewBox="0 0 ${W} 120" preserveAspectRatio="none" focusable="false" class="efx-divider__svg" style="${drift ? "width:200%;" : ""}${op < 1 ? `opacity:${op};` : ""}--efx-dv-t:${move ? o.speed : 0}s;${k ? `animation-duration:${(o.speed * [1.5, 1, 0.7][k]).toFixed(1)}s;animation-delay:-${(o.speed * k / 3).toFixed(1)}s;` : ""}">${body}</svg>`;
+        const s = `<svg viewBox="0 0 ${W} 120" preserveAspectRatio="none" focusable="false" class="spark-divider__svg" style="${drift ? "width:200%;" : ""}${op < 1 ? `opacity:${op};` : ""}--spark-dv-t:${move ? o.speed : 0}s;${k ? `animation-duration:${(o.speed * [1.5, 1, 0.7][k]).toFixed(1)}s;animation-delay:-${(o.speed * k / 3).toFixed(1)}s;` : ""}">${body}</svg>`;
         return s;
       };
       const copies = mode === "layers" && move ? [0, 1, 2] : [0];
       el.innerHTML = copies.map((k) => mk2(k, copies.length > 1 ? [0.35, 0.6, 1][k] : 1)).join("");
       el.classList.add("is-ready");
       const kind = drift ? "drift" : move ? "float" : "";
-      if (kind) el.classList.add("efx-divider--" + kind);
+      if (kind) el.classList.add("spark-divider--" + kind);
       const stop = move ? onVisible(el, (v) => el.classList.toggle("is-paused", !v)) : () => {
       };
       return () => {
         stop();
         el.innerHTML = "";
         el.removeAttribute("aria-hidden");
-        el.removeAttribute("data-efx-mode");
-        el.classList.remove("is-ready", "is-paused", "efx-divider--drift", "efx-divider--float");
+        el.removeAttribute("data-spark-mode");
+        el.classList.remove("is-ready", "is-paused", "spark-divider--drift", "spark-divider--float");
         st.cssText = saved;
         if (claimed) releaseParent(parent);
       };
@@ -2685,7 +2685,7 @@
   // src/features/drag.js
   var drag_default = {
     name: "drag",
-    selector: ".efx-drag",
+    selector: ".spark-drag",
     defaults: { inertia: true, axis: "x" },
     init(el, o) {
       const ax = o.axis === "y" || o.axis === "both" ? o.axis : "x";
@@ -2769,13 +2769,13 @@
         }, true),
         on(el, "dragstart", (e) => e.preventDefault())
       ];
-      el.classList.add("efx-drag-on");
+      el.classList.add("spark-drag-on");
       return () => {
         stopInertia();
         offs.forEach((f2) => f2());
         offsMove.forEach((f2) => f2());
         restore();
-        el.classList.remove("efx-drag-on");
+        el.classList.remove("spark-drag-on");
       };
     }
   };
@@ -2784,7 +2784,7 @@
   var KEYS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
   var draggable_default = {
     name: "draggable",
-    selector: ".efx-draggable",
+    selector: ".spark-draggable",
     defaults: { axis: "both", bounds: "parent", release: "spring", spring: "170,18", friction: 0.92, bounce: 0.5, snap: 0, step: 10, handle: "" },
     init(el, o) {
       const ax = o.axis === "x" || o.axis === "y" ? o.axis : "both";
@@ -2793,7 +2793,7 @@
       const st = el.style, hs = handle.style;
       const saved = { tr: st.translate, ta: hs.touchAction, cu: hs.cursor, ti: el.getAttribute("tabindex"), ro: el.getAttribute("role"), rd: el.getAttribute("aria-roledescription") };
       let x = 0, y = 0, id = 0, drag = null, block = false, lim = [-Infinity, Infinity, -Infinity, Infinity], offW = [];
-      const emit = (n) => el.dispatchEvent(new CustomEvent("efx:" + n, { bubbles: true, detail: { x, y } }));
+      const emit = (n) => el.dispatchEvent(new CustomEvent("spark:" + n, { bubbles: true, detail: { x, y } }));
       const put = () => {
         st.translate = x + "px " + y + "px";
       };
@@ -2940,7 +2940,7 @@
       if (saved.ti === null) el.setAttribute("tabindex", "0");
       if (saved.ro === null) el.setAttribute("role", "group");
       el.setAttribute("aria-roledescription", "draggable");
-      el.classList.add("efx-draggable-on");
+      el.classList.add("spark-draggable-on");
       return () => {
         stop();
         offs.forEach((f2) => f2());
@@ -2952,7 +2952,7 @@
         attr("tabindex", saved.ti);
         attr("role", saved.ro);
         attr("aria-roledescription", saved.rd);
-        el.classList.remove("efx-draggable-on", "is-dragging");
+        el.classList.remove("spark-draggable-on", "is-dragging");
       };
     }
   };
@@ -2962,13 +2962,13 @@
   var clamp = (v) => Math.min(1, Math.max(0, v));
   var draw_default = {
     name: "draw",
-    selector: ".efx-draw",
+    selector: ".spark-draw",
     defaults: { mode: "scroll", duration: 1500, start: 0, end: 0.7, stagger: 0, fill: false },
     init(el, o) {
       if (!motionOK()) return;
       const root = el.matches("svg") ? el : el.querySelector("svg");
       if (!root) return;
-      const marked = root.querySelectorAll("[data-efx-draw-item]");
+      const marked = root.querySelectorAll("[data-spark-draw-item]");
       const items = [...marked.length ? marked : root.querySelectorAll(SHAPES2)].filter((n2) => n2.getTotalLength);
       const parts = items.map((n2) => {
         let len = 0;
@@ -3026,7 +3026,7 @@
   var TR = ["height", "opacity", "margin", "padding", "border-width"].map((p) => p + " .45s ease").join(",");
   var feed_default = {
     name: "feed",
-    selector: ".efx-feed",
+    selector: ".spark-feed",
     defaults: { interval: 1500, max: 4, loop: true, order: "newest" },
     init(el, o) {
       const items = [...el.children], n = items.length;
@@ -3136,17 +3136,17 @@
   // src/features/flip.js
   var flip_default = {
     name: "flip",
-    selector: ".efx-flip",
+    selector: ".spark-flip",
     defaults: { trigger: "hover", axis: "y", duration: 600 },
     init(el, o) {
-      const front = el.querySelector(":scope > .efx-flip__front"), back = el.querySelector(":scope > .efx-flip__back");
+      const front = el.querySelector(":scope > .spark-flip__front"), back = el.querySelector(":scope > .spark-flip__back");
       if (!front || !back) return;
       const click = o.trigger === "click" || !finePointer();
       const prev = { role: el.getAttribute("role"), tab: el.getAttribute("tabindex"), pressed: el.getAttribute("aria-pressed") };
-      const cls = ["efx-flip-on", o.axis === "x" ? "efx-flip-x" : "efx-flip-y"];
-      if (!motionOK()) cls.push("efx-flip-fade");
+      const cls = ["spark-flip-on", o.axis === "x" ? "spark-flip-x" : "spark-flip-y"];
+      if (!motionOK()) cls.push("spark-flip-fade");
       el.classList.add(...cls);
-      el.style.setProperty("--efx-flip-duration", o.duration + "ms");
+      el.style.setProperty("--spark-flip-duration", o.duration + "ms");
       const set = (v) => {
         el.classList.toggle("is-flipped", v);
         back.setAttribute("aria-hidden", String(!v));
@@ -3178,7 +3178,7 @@
       return () => {
         offs.forEach((f2) => f2());
         el.classList.remove(...cls, "is-flipped");
-        el.style.removeProperty("--efx-flip-duration");
+        el.style.removeProperty("--spark-flip-duration");
         back.removeAttribute("aria-hidden");
         ["role", "tabindex", "aria-pressed"].forEach((a, i) => {
           const v = [prev.role, prev.tab, prev.pressed][i];
@@ -3191,22 +3191,22 @@
   // src/features/glitch.js
   var glitch_default = {
     name: "glitch",
-    selector: ".efx-glitch",
+    selector: ".spark-glitch",
     defaults: { trigger: "always", text: "" },
     init(el, o) {
-      const hadText = el.hasAttribute("data-efx-text"), prev = el.getAttribute("data-efx-text");
-      el.setAttribute("data-efx-text", o.text || (el.textContent || "").replace(/\s+/g, " ").trim());
+      const hadText = el.hasAttribute("data-spark-text"), prev = el.getAttribute("data-spark-text");
+      el.setAttribute("data-spark-text", o.text || (el.textContent || "").replace(/\s+/g, " ").trim());
       let restorePos = false;
       if (getComputedStyle(el).position === "static") {
         el.style.position = "relative";
         restorePos = true;
       }
-      if (motionOK()) el.classList.add("efx-glitch-on");
+      if (motionOK()) el.classList.add("spark-glitch-on");
       return () => {
-        el.classList.remove("efx-glitch-on");
+        el.classList.remove("spark-glitch-on");
         if (restorePos) el.style.position = "";
-        if (hadText) el.setAttribute("data-efx-text", prev);
-        else el.removeAttribute("data-efx-text");
+        if (hadText) el.setAttribute("data-spark-text", prev);
+        else el.removeAttribute("data-spark-text");
       };
     }
   };
@@ -3214,7 +3214,7 @@
   // src/features/globe.js
   var globe_default = {
     name: "globe",
-    selector: ".efx-globe",
+    selector: ".spark-globe",
     lazy: true,
     defaults: { dots: 1200, speed: 0.2, markers: [], color: "", tilt: 0.3, drag: true },
     init(el, o) {
@@ -3224,7 +3224,7 @@
         restore = 1;
       }
       const cv2 = document.createElement("canvas"), c = cv2.getContext("2d"), col = o.color || themeColor(el);
-      cv2.className = "efx-globe__canvas";
+      cv2.className = "spark-globe__canvas";
       cv2.setAttribute("aria-hidden", "true");
       el.appendChild(cv2);
       const N = Math.min(6e3, o.dots), P = [];
@@ -3234,7 +3234,7 @@
         a = i * 2.39996;
         P.push([Math.cos(a) * r, y, Math.sin(a) * r]);
       }
-      const M = (el.dataset.efxMarkers || "").split("|").map((s) => s.split(",").map(parseFloat)).filter((m) => m.length > 1 && m.every(isFinite)).map(([la, lo]) => {
+      const M = (el.dataset.sparkMarkers || "").split("|").map((s) => s.split(",").map(parseFloat)).filter((m) => m.length > 1 && m.every(isFinite)).map(([la, lo]) => {
         la *= Math.PI / 180;
         lo *= Math.PI / 180;
         return [Math.cos(la) * Math.cos(lo), Math.sin(la), Math.cos(la) * Math.sin(lo)];
@@ -3346,14 +3346,14 @@
   // src/features/hscroll.js
   var hscroll_default = {
     name: "hscroll",
-    selector: ".efx-hscroll",
+    selector: ".spark-hscroll",
     defaults: { offset: 0, snap: false },
     init(el, o) {
       const made = [];
-      let track = [...el.children].find((c) => c.classList.contains("efx-hscroll__track"));
+      let track = [...el.children].find((c) => c.classList.contains("spark-hscroll__track"));
       if (!track) {
         track = document.createElement("div");
-        track.className = "efx-hscroll__track";
+        track.className = "spark-hscroll__track";
         while (el.firstChild) track.appendChild(el.firstChild);
         el.appendChild(track);
         made.push(track);
@@ -3377,7 +3377,7 @@
           pin.remove();
           pin = null;
         }
-        el.classList.remove("efx-hscroll-on", "efx-hscroll-native");
+        el.classList.remove("spark-hscroll-on", "spark-hscroll-native");
       };
       const measure = () => {
         const vw = innerWidth, vh = innerHeight - o.offset;
@@ -3391,16 +3391,16 @@
       };
       const setup = () => {
         if (!pinned()) {
-          el.classList.add("efx-hscroll-native");
+          el.classList.add("spark-hscroll-native");
           return;
         }
         pin = document.createElement("div");
-        pin.className = "efx-hscroll__pin";
+        pin.className = "spark-hscroll__pin";
         pin.style.top = o.offset + "px";
         pin.style.height = `calc(100vh - ${o.offset}px)`;
         el.insertBefore(pin, track);
         pin.appendChild(track);
-        el.classList.add("efx-hscroll-on");
+        el.classList.add("spark-hscroll-on");
         track.style.willChange = "transform";
         saveH = el.style.height;
         measure()();
@@ -3456,14 +3456,14 @@
   var rnd2 = (m) => ((Math.random() * 2 - 1) * m).toFixed(2) + "%";
   var kenburns_default = {
     name: "kenburns",
-    selector: ".efx-kenburns",
+    selector: ".spark-kenburns",
     defaults: { duration: 12e3, zoom: 1.15 },
     init(el, o) {
       let host = el, frame = null;
       const single = el.tagName === "IMG";
       if (single) {
         frame = document.createElement("span");
-        frame.className = "efx-kenburns__frame";
+        frame.className = "spark-kenburns__frame";
         el.parentNode.insertBefore(frame, el);
         frame.appendChild(el);
         host = frame;
@@ -3472,14 +3472,14 @@
       if (!imgs.length) return;
       const live = motionOK(), multi = imgs.length > 1;
       const m = Math.max(0, (o.zoom - 1) / (2 * o.zoom) * 100);
-      host.classList.add("efx-kenburns-on");
+      host.classList.add("spark-kenburns-on");
       if (!live) host.classList.add("is-static");
-      host.style.setProperty("--efx-kb-duration", o.duration + (multi ? 1e3 : 0) + "ms");
-      host.style.setProperty("--efx-kb-zoom", String(o.zoom));
+      host.style.setProperty("--spark-kb-duration", o.duration + (multi ? 1e3 : 0) + "ms");
+      host.style.setProperty("--spark-kb-zoom", String(o.zoom));
       if (multi) host.classList.add("is-slides");
       imgs.forEach((im) => {
-        im.classList.add("efx-kenburns__img");
-        ["x0", "y0", "x1", "y1"].forEach((k) => im.style.setProperty("--efx-kb-" + k, rnd2(m)));
+        im.classList.add("spark-kenburns__img");
+        ["x0", "y0", "x1", "y1"].forEach((k) => im.style.setProperty("--spark-kb-" + k, rnd2(m)));
       });
       let i = 0, timer = 0;
       const show3 = (n) => {
@@ -3489,7 +3489,7 @@
         });
         if (multi) imgs.forEach((im) => {
           if (im.classList.contains("is-active")) {
-            ["x0", "y0", "x1", "y1"].forEach((k) => im.style.setProperty("--efx-kb-" + k, rnd2(m)));
+            ["x0", "y0", "x1", "y1"].forEach((k) => im.style.setProperty("--spark-kb-" + k, rnd2(m)));
           }
         });
         i = n;
@@ -3510,11 +3510,11 @@
       return () => {
         stop();
         clearTimeout(timer);
-        host.classList.remove("efx-kenburns-on", "is-static", "is-slides", "is-paused");
-        ["--efx-kb-duration", "--efx-kb-zoom"].forEach((v) => host.style.removeProperty(v));
+        host.classList.remove("spark-kenburns-on", "is-static", "is-slides", "is-paused");
+        ["--spark-kb-duration", "--spark-kb-zoom"].forEach((v) => host.style.removeProperty(v));
         imgs.forEach((im) => {
-          im.classList.remove("efx-kenburns__img", "is-active", "is-leaving");
-          ["x0", "y0", "x1", "y1"].forEach((k) => im.style.removeProperty("--efx-kb-" + k));
+          im.classList.remove("spark-kenburns__img", "is-active", "is-leaving");
+          ["x0", "y0", "x1", "y1"].forEach((k) => im.style.removeProperty("--spark-kb-" + k));
         });
         if (frame) {
           frame.parentNode.insertBefore(el, frame);
@@ -3529,17 +3529,17 @@
   var TONES = ["var(--sh-primary,#6366f1)", "var(--sh-success,#22c55e)", "var(--sh-info,#0ea5e9)", "var(--sh-warning,#f59e0b)", "var(--sh-danger,#ef4444)", "var(--sh-accent,#ec4899)"];
   var kinetic_default = {
     name: "kinetic",
-    selector: ".efx-kinetic",
+    selector: ".spark-kinetic",
     defaults: { words: [], beat: 600, styles: STYLES, colors: [], random: false, hold: false },
     init(el, o) {
       const words = o.words.length ? o.words : el.textContent.trim().split(/\s+/).filter(Boolean);
       if (!words.length) return;
       const html = el.innerHTML, sentence = words.join(" ");
       const sr = document.createElement("span");
-      sr.className = "efx-kinetic__sr";
+      sr.className = "spark-kinetic__sr";
       sr.textContent = sentence;
       const stage = document.createElement("span");
-      stage.className = "efx-kinetic__stage";
+      stage.className = "spark-kinetic__stage";
       stage.setAttribute("aria-hidden", "true");
       el.textContent = "";
       el.append(sr, stage);
@@ -3548,7 +3548,7 @@
       const cleanup = () => {
         el.innerHTML = html;
         el.classList.remove("is-kinetic");
-        el.style.removeProperty("--efx-kin");
+        el.style.removeProperty("--spark-kin");
       };
       if (!motionOK()) {
         stage.textContent = sentence;
@@ -3559,7 +3559,7 @@
         };
       }
       el.classList.add("is-kinetic");
-      el.style.setProperty("--efx-kin", Math.min(o.beat * 0.75, 700) + "ms");
+      el.style.setProperty("--spark-kin", Math.min(o.beat * 0.75, 700) + "ms");
       let cur = -1, timer = 0, vis = false, tab = !document.hidden, k = 0;
       const stop = () => {
         clearTimeout(timer);
@@ -3573,12 +3573,12 @@
         cur = i;
         const st = o.random ? list2[Math.floor(Math.random() * list2.length)] : list2[k++ % list2.length];
         const w = document.createElement("span");
-        w.className = "efx-kinetic__word k-" + st;
+        w.className = "spark-kinetic__word k-" + st;
         w.style.color = colors[i % colors.length];
         if (st === "split") [...words[i]].forEach((c, j) => {
           const s = document.createElement("span");
           s.textContent = c;
-          s.style.setProperty("--efx-i", j);
+          s.style.setProperty("--spark-i", j);
           w.appendChild(s);
         });
         else w.textContent = words[i];
@@ -3611,10 +3611,10 @@
   };
 
   // src/features/layout.js
-  var SKIP = ".efx-layout__ghost,.efx-layout__status,[data-efx-filter],[data-efx-sort],[data-efx-controls]";
+  var SKIP = ".spark-layout__ghost,.spark-layout__status,[data-spark-filter],[data-spark-sort],[data-spark-controls]";
   var layout_default = {
     name: "layout",
-    selector: ".efx-layout",
+    selector: ".spark-layout",
     defaults: { duration: 400, ease: "cubic-bezier(.22,1,.36,1)", scale: 0.9, noun: "item", count: "" },
     init(el, o) {
       const animate = motionOK() && !!el.animate;
@@ -3644,10 +3644,10 @@
       };
       const ghost = (c, r) => {
         const g = c.cloneNode(true);
-        g.classList.add("efx-layout__ghost");
+        g.classList.add("spark-layout__ghost");
         g.removeAttribute("id");
         g.removeAttribute("hidden");
-        g.removeAttribute("data-efx-ready");
+        g.removeAttribute("data-spark-ready");
         g.setAttribute("aria-hidden", "true");
         g.querySelectorAll("[id]").forEach((n) => n.removeAttribute("id"));
         Object.assign(g.style, { position: "absolute", margin: "0", boxSizing: "border-box", left: r.x + "px", top: r.y + "px", width: r.w + "px", height: r.h + "px" });
@@ -3686,7 +3686,7 @@
         status = target;
       } else {
         status = document.createElement("span");
-        status.className = "efx-layout__status";
+        status.className = "spark-layout__status";
         status.setAttribute("role", "status");
         status.setAttribute("aria-live", "polite");
         el.after(status);
@@ -3696,18 +3696,18 @@
         const n = items().filter((c) => !c.hidden && shown2(c)).length;
         status.textContent = n + " " + o.noun + (n === 1 ? "" : "s");
       };
-      const ctl = /* @__PURE__ */ new Set([...el.querySelectorAll("[data-efx-filter],[data-efx-sort]")]);
-      document.querySelectorAll("[data-efx-for]").forEach((b) => {
-        if (b.matches("[data-efx-filter],[data-efx-sort]") && el.matches(b.dataset.efxFor || "\0")) ctl.add(b);
+      const ctl = /* @__PURE__ */ new Set([...el.querySelectorAll("[data-spark-filter],[data-spark-sort]")]);
+      document.querySelectorAll("[data-spark-for]").forEach((b) => {
+        if (b.matches("[data-spark-filter],[data-spark-sort]") && el.matches(b.dataset.sparkFor || "\0")) ctl.add(b);
       });
-      const filters = [...ctl].filter((b) => b.hasAttribute("data-efx-filter"));
-      const sorts = [...ctl].filter((b) => b.hasAttribute("data-efx-sort"));
+      const filters = [...ctl].filter((b) => b.hasAttribute("data-spark-filter"));
+      const sorts = [...ctl].filter((b) => b.hasAttribute("data-spark-sort"));
       const savedPressed = new Map([...ctl].map((b) => [b, b.getAttribute("aria-pressed")]));
       const hid = /* @__PURE__ */ new Set();
       const setPressed = (list2, on_) => list2.forEach((b) => b.setAttribute("aria-pressed", b === on_ ? "true" : "false"));
       const applyFilter = (tag) => {
         items().forEach((c) => {
-          const ok = tag === "*" || (c.getAttribute("data-efx-tags") || "").split(/\s+/).includes(tag);
+          const ok = tag === "*" || (c.getAttribute("data-spark-tags") || "").split(/\s+/).includes(tag);
           if (!ok && !c.hidden) {
             c.hidden = true;
             hid.add(c);
@@ -3718,7 +3718,7 @@
         });
       };
       const sortBy = (key, dir) => {
-        const val = (c) => c.getAttribute("data-efx-key-" + key) || "";
+        const val = (c) => c.getAttribute("data-spark-key-" + key) || "";
         const list2 = items();
         if (!list2.length) return;
         const end = list2[list2.length - 1].nextSibling;
@@ -3730,33 +3730,33 @@
       };
       const offs = [];
       filters.forEach((b) => offs.push(on(b, "click", () => {
-        applyFilter(b.getAttribute("data-efx-filter"));
+        applyFilter(b.getAttribute("data-spark-filter"));
         setPressed(filters, b);
       })));
       sorts.forEach((b) => offs.push(on(b, "click", () => {
-        const dir = b.getAttribute("aria-pressed") === "true" && b.getAttribute("data-efx-dir") !== "desc" ? "desc" : "asc";
-        sorts.forEach((s) => s.removeAttribute("data-efx-dir"));
-        b.setAttribute("data-efx-dir", dir);
-        sortBy(b.getAttribute("data-efx-sort"), dir);
+        const dir = b.getAttribute("aria-pressed") === "true" && b.getAttribute("data-spark-dir") !== "desc" ? "desc" : "asc";
+        sorts.forEach((s) => s.removeAttribute("data-spark-dir"));
+        b.setAttribute("data-spark-dir", dir);
+        sortBy(b.getAttribute("data-spark-sort"), dir);
         setPressed(sorts, b);
       })));
       const start = filters.find((b) => b.getAttribute("aria-pressed") === "true");
       if (start) {
-        applyFilter(start.getAttribute("data-efx-filter"));
+        applyFilter(start.getAttribute("data-spark-filter"));
         setPressed(filters, start);
       } else filters.forEach((b) => {
-        if (b.getAttribute("data-efx-filter") === "*") b.setAttribute("aria-pressed", "true");
+        if (b.getAttribute("data-spark-filter") === "*") b.setAttribute("aria-pressed", "true");
         else b.setAttribute("aria-pressed", "false");
       });
       sorts.forEach((b) => {
         if (b.getAttribute("aria-pressed") === null) b.setAttribute("aria-pressed", "false");
       });
-      el.classList.add("efx-layout-on");
+      el.classList.add("spark-layout-on");
       snapshot();
       count();
       let mo2 = null, ro = null, raf2 = 0;
       if (animate) {
-        const relevant = (r) => [...r.addedNodes, ...r.removedNodes].some((n) => !(n.nodeType === 1 && n.classList.contains("efx-layout__ghost") || n.classList && n.classList.contains("efx-layout__status"))) || r.type === "attributes" && !r.target.classList.contains("efx-layout__ghost") && !(r.target.closest && r.target.closest(".efx-layout__ghost"));
+        const relevant = (r) => [...r.addedNodes, ...r.removedNodes].some((n) => !(n.nodeType === 1 && n.classList.contains("spark-layout__ghost") || n.classList && n.classList.contains("spark-layout__status"))) || r.type === "attributes" && !r.target.classList.contains("spark-layout__ghost") && !(r.target.closest && r.target.closest(".spark-layout__ghost"));
         mo2 = new MutationObserver((rs) => {
           if (rs.some(relevant)) {
             flip();
@@ -3796,9 +3796,9 @@
           c.hidden = false;
         });
         savedPressed.forEach((v, b) => v === null ? b.removeAttribute("aria-pressed") : b.setAttribute("aria-pressed", v));
-        ctl.forEach((b) => b.removeAttribute("data-efx-dir"));
+        ctl.forEach((b) => b.removeAttribute("data-spark-dir"));
         el.style.position = savedPos;
-        el.classList.remove("efx-layout-on");
+        el.classList.remove("spark-layout-on");
       };
     }
   };
@@ -3806,15 +3806,15 @@
   // src/features/lazyimg.js
   var lazyimg_default = {
     name: "lazyimg",
-    selector: ".efx-lazyimg",
+    selector: ".spark-lazyimg",
     defaults: { margin: "300px", blur: 12 },
     init(el, o) {
-      const bg = el.dataset.efxBg, isImg = el.tagName === "IMG";
+      const bg = el.dataset.sparkBg, isImg = el.tagName === "IMG";
       if (!isImg && !bg) return;
       const blur = motionOK();
       const prev = isImg ? [el.getAttribute("src"), el.getAttribute("srcset")] : el.style.backgroundImage;
       if (blur) {
-        el.style.setProperty("--efx-blur", o.blur + "px");
+        el.style.setProperty("--spark-blur", o.blur + "px");
         el.classList.add("is-lazy");
       }
       let img = null;
@@ -3824,23 +3824,23 @@
         img = new Image();
         img.onload = () => {
           if (isImg) {
-            el.srcset = el.dataset.efxSrcset || "";
-            if (el.dataset.efxSrc) el.src = el.dataset.efxSrc;
-            if (!el.dataset.efxSrcset) el.removeAttribute("srcset");
+            el.srcset = el.dataset.sparkSrcset || "";
+            if (el.dataset.sparkSrc) el.src = el.dataset.sparkSrc;
+            if (!el.dataset.sparkSrcset) el.removeAttribute("srcset");
           } else el.style.backgroundImage = `url("${bg}")`;
           el.classList.add("is-loaded");
           el.classList.remove("is-lazy");
         };
         img.onerror = () => el.classList.add("is-error");
-        if (isImg && el.dataset.efxSizes) img.sizes = el.dataset.efxSizes;
-        if (isImg && el.dataset.efxSrcset) img.srcset = el.dataset.efxSrcset;
-        img.src = isImg ? el.dataset.efxSrc || (el.dataset.efxSrcset || "").split(/[ ,]/)[0] : bg;
+        if (isImg && el.dataset.sparkSizes) img.sizes = el.dataset.sparkSizes;
+        if (isImg && el.dataset.sparkSrcset) img.srcset = el.dataset.sparkSrcset;
+        img.src = isImg ? el.dataset.sparkSrc || (el.dataset.sparkSrcset || "").split(/[ ,]/)[0] : bg;
       }, o.margin);
       return () => {
         stop();
         if (img) img.onload = img.onerror = null;
         el.classList.remove("is-lazy", "is-loaded", "is-error");
-        el.style.removeProperty("--efx-blur");
+        el.style.removeProperty("--spark-blur");
         if (isImg) {
           prev[0] == null ? el.removeAttribute("src") : el.setAttribute("src", prev[0]);
           prev[1] == null ? el.removeAttribute("srcset") : el.setAttribute("srcset", prev[1]);
@@ -3850,20 +3850,20 @@
   };
 
   // src/features/lightbox.js
-  var SEL = "a[href],[data-efx-src]";
+  var SEL = "a[href],[data-spark-src]";
   var S = null;
   var meta = (a) => {
     const img = a.querySelector("img"), fig = a.closest("figure");
     const fc = fig && fig.querySelector("figcaption");
-    return { src: a.dataset.efxSrc || a.getAttribute("href"), cap: a.dataset.efxCaption || img && img.alt || fc && fc.textContent.trim() || "" };
+    return { src: a.dataset.sparkSrc || a.getAttribute("href"), cap: a.dataset.sparkCaption || img && img.alt || fc && fc.textContent.trim() || "" };
   };
   function build() {
     const d = document.createElement("dialog");
-    d.className = "modal modal-lg efx-lightbox__dialog";
+    d.className = "modal modal-lg spark-lightbox__dialog";
     d.setAttribute("aria-label", "Image viewer");
-    d.innerHTML = '<button type="button" class="btn-close efx-lightbox__close" aria-label="Close"></button><button type="button" class="btn btn-icon efx-lightbox__prev" aria-label="Previous image">\u2039</button><figure class="efx-lightbox__fig"><img alt=""><figcaption></figcaption></figure><button type="button" class="btn btn-icon efx-lightbox__next" aria-label="Next image">\u203A</button><div class="efx-lightbox__count" aria-live="polite"></div>';
+    d.innerHTML = '<button type="button" class="btn-close spark-lightbox__close" aria-label="Close"></button><button type="button" class="btn btn-icon spark-lightbox__prev" aria-label="Previous image">\u2039</button><figure class="spark-lightbox__fig"><img alt=""><figcaption></figcaption></figure><button type="button" class="btn btn-icon spark-lightbox__next" aria-label="Next image">\u203A</button><div class="spark-lightbox__count" aria-live="polite"></div>';
     document.body.appendChild(d);
-    const q = (c) => d.querySelector(".efx-lightbox__" + c);
+    const q = (c) => d.querySelector(".spark-lightbox__" + c);
     const s = { d, img: q("fig").firstChild, cap: q("fig").lastChild, count: q("count"), prev: q("prev"), next: q("next"), items: [], i: 0, opts: {}, opener: null, refs: 0, offs: [] };
     const step = (k) => {
       const n = s.items.length;
@@ -3926,13 +3926,13 @@
   }
   var lightbox_default = {
     name: "lightbox",
-    selector: ".efx-lightbox",
+    selector: ".spark-lightbox",
     defaults: { loop: true, captions: true, group: "" },
     init(el, o) {
       if (!S) S = build();
       S.refs++;
       const links = () => {
-        const roots = o.group ? [...document.querySelectorAll(".efx-lightbox")].filter((r) => r.dataset.efxGroup === o.group) : [el];
+        const roots = o.group ? [...document.querySelectorAll(".spark-lightbox")].filter((r) => r.dataset.sparkGroup === o.group) : [el];
         return roots.flatMap((r) => [...r.querySelectorAll(SEL)]);
       };
       const off = on(el, "click", (e) => {
@@ -3964,35 +3964,35 @@
   var parse = (a) => (Array.isArray(a) ? a : []).map((c) => ({ t: +c.t || 0, end: c.end, text: String(c.text == null ? "" : c.text), words: c.words })).sort((a2, b) => a2.t - b.t);
   var lyrics_default = {
     name: "lyrics",
-    selector: ".efx-lyrics",
+    selector: ".spark-lyrics",
     defaults: { for: "", karaoke: false, scroll: true, seek: true, offset: 0 },
     init(el, o) {
       const m = o.for && document.querySelector(o.for) || el.parentElement && el.parentElement.querySelector("audio,video");
-      if (!m) return console.warn("[effix] lyrics: media not found", o.for);
+      if (!m) return console.warn("[spark] lyrics: media not found", o.for);
       const orig = el.innerHTML;
       const offs = [];
       let cues = [], lines = [], W = [], cur = -2, raf2 = 0, hold2 = 0, rm = [];
       const reduce = !motionOK();
       const sc = el.querySelector('script[type="application/json"]');
       try {
-        cues = parse(JSON.parse(el.dataset.efxCues || sc && sc.textContent || "[]"));
+        cues = parse(JSON.parse(el.dataset.sparkCues || sc && sc.textContent || "[]"));
       } catch (e) {
-        console.warn("[effix] lyrics: bad cue JSON", e);
+        console.warn("[spark] lyrics: bad cue JSON", e);
       }
       const ol = document.createElement("ol");
-      ol.className = "efx-lyrics__list";
+      ol.className = "spark-lyrics__list";
       el.textContent = "";
       el.appendChild(ol);
-      el.classList.toggle("efx-lyrics--karaoke", o.karaoke);
+      el.classList.toggle("spark-lyrics--karaoke", o.karaoke);
       const build2 = () => {
         ol.textContent = "";
         W = [];
         cur = -2;
         lines = cues.map((c, i) => {
           const li = document.createElement("li");
-          li.className = "efx-lyrics__line";
+          li.className = "spark-lyrics__line";
           const b = document.createElement(o.seek ? "button" : "span");
-          b.className = "efx-lyrics__btn";
+          b.className = "spark-lyrics__btn";
           if (o.seek) {
             b.type = "button";
             b.onclick = () => {
@@ -4013,7 +4013,7 @@
             }
             W[i] = ws.map((w, k) => {
               const s = document.createElement("span");
-              s.className = "efx-lyrics__word";
+              s.className = "spark-lyrics__word";
               s.textContent = w.w;
               if (k) b.appendChild(document.createTextNode(" "));
               b.appendChild(s);
@@ -4100,7 +4100,7 @@
         rm.forEach(([t, md]) => {
           t.mode = md;
         });
-        el.classList.remove("efx-lyrics--karaoke");
+        el.classList.remove("spark-lyrics--karaoke");
         el.innerHTML = orig;
       };
     }
@@ -4124,15 +4124,15 @@
   };
   var magnetic_default = {
     name: "magnetic",
-    selector: ".efx-magnetic",
+    selector: ".spark-magnetic",
     defaults: { strength: 0.3, radius: 120, max: 24 },
     init(el, o) {
       if (!finePointer() || !motionOK()) return;
       let unsub = null, pulled = false, settle = 0;
       const clamp4 = (v) => Math.max(-o.max, Math.min(o.max, v));
       const set = (x, y) => {
-        el.style.setProperty("--efx-mx", x + "px");
-        el.style.setProperty("--efx-my", y + "px");
+        el.style.setProperty("--spark-mx", x + "px");
+        el.style.setProperty("--spark-my", y + "px");
       };
       const release2 = () => {
         if (!pulled) return;
@@ -4166,8 +4166,8 @@
         stopVis();
         unsub && unsub();
         clearTimeout(settle);
-        el.style.removeProperty("--efx-mx");
-        el.style.removeProperty("--efx-my");
+        el.style.removeProperty("--spark-mx");
+        el.style.removeProperty("--spark-my");
         el.classList.remove("is-pulled", "is-magnetic");
       };
     }
@@ -4176,27 +4176,27 @@
   // src/features/marquee.js
   var marquee_default = {
     name: "marquee",
-    selector: ".efx-marquee",
+    selector: ".spark-marquee",
     defaults: { speed: 60, direction: "left", pause: true, gap: 32 },
     init(el, o) {
       const kids = [...el.childNodes];
-      el.style.setProperty("--efx-gap", o.gap + "px");
+      el.style.setProperty("--spark-gap", o.gap + "px");
       if (!motionOK()) {
-        el.classList.add("efx-marquee--static");
+        el.classList.add("spark-marquee--static");
         return () => {
-          el.classList.remove("efx-marquee--static");
-          el.style.removeProperty("--efx-gap");
+          el.classList.remove("spark-marquee--static");
+          el.style.removeProperty("--spark-gap");
         };
       }
       const track = document.createElement("div");
       const g = document.createElement("div");
-      track.className = "efx-marquee__track";
-      g.className = "efx-marquee__group";
+      track.className = "spark-marquee__track";
+      g.className = "spark-marquee__group";
       kids.forEach((k) => g.appendChild(k));
       track.appendChild(g);
       el.appendChild(track);
-      el.classList.add("efx-marquee--on");
-      el.classList.toggle("efx-marquee--pause", o.pause);
+      el.classList.add("spark-marquee--on");
+      el.classList.toggle("spark-marquee--pause", o.pause);
       if (o.direction === "right") track.style.animationDirection = "reverse";
       let n = 0;
       const build2 = () => {
@@ -4208,18 +4208,18 @@
           for (let i = 1; i < k; i++) {
             const c = g.cloneNode(true);
             c.setAttribute("aria-hidden", "true");
-            c.setAttribute("data-efx-skip", "");
+            c.setAttribute("data-spark-skip", "");
             c.setAttribute("inert", "");
-            [c, ...c.querySelectorAll("[data-efx-ready],[data-efx-lazy]")].forEach((x) => {
-              x.removeAttribute("data-efx-ready");
-              x.removeAttribute("data-efx-lazy");
+            [c, ...c.querySelectorAll("[data-spark-ready],[data-spark-lazy]")].forEach((x) => {
+              x.removeAttribute("data-spark-ready");
+              x.removeAttribute("data-spark-lazy");
             });
             c.querySelectorAll("[id]").forEach((x) => x.removeAttribute("id"));
             track.appendChild(c);
           }
           n = k;
         }
-        track.style.setProperty("--efx-shift", `-${100 / k}%`);
+        track.style.setProperty("--spark-shift", `-${100 / k}%`);
         track.style.animationDuration = Math.max(1, w / Math.max(1, o.speed)) + "s";
       };
       build2();
@@ -4231,8 +4231,8 @@
         stop();
         kids.forEach((k) => el.insertBefore(k, track));
         track.remove();
-        el.classList.remove("efx-marquee--on", "efx-marquee--pause", "is-paused");
-        el.style.removeProperty("--efx-gap");
+        el.classList.remove("spark-marquee--on", "spark-marquee--pause", "is-paused");
+        el.style.removeProperty("--spark-gap");
       };
     }
   };
@@ -4240,15 +4240,15 @@
   // src/features/mask.js
   var mask_default = {
     name: "mask",
-    selector: ".efx-mask",
+    selector: ".spark-mask",
     defaults: { radius: 120, soft: 0.4, gray: true },
     init(el, o) {
       const base = el.querySelector("img");
       if (!base) return;
-      let reveal = el.querySelector(".efx-mask__reveal"), made = false;
+      let reveal = el.querySelector(".spark-mask__reveal"), made = false;
       if (!reveal) {
         reveal = base.cloneNode();
-        reveal.className = "efx-mask__reveal";
+        reveal.className = "spark-mask__reveal";
         reveal.alt = "";
         reveal.removeAttribute("id");
         reveal.removeAttribute("loading");
@@ -4257,12 +4257,12 @@
       }
       reveal.setAttribute("aria-hidden", "true");
       const prev = { role: el.getAttribute("role"), tab: el.getAttribute("tabindex"), label: el.getAttribute("aria-label") };
-      el.classList.add("efx-mask-on");
-      base.classList.toggle("efx-mask__base", o.gray);
-      el.style.setProperty("--efx-soft", String(Math.min(0.99, Math.max(0, o.soft))));
-      el.style.setProperty("--efx-r", "0px");
-      el.style.setProperty("--efx-x", "50%");
-      el.style.setProperty("--efx-y", "50%");
+      el.classList.add("spark-mask-on");
+      base.classList.toggle("spark-mask__base", o.gray);
+      el.style.setProperty("--spark-soft", String(Math.min(0.99, Math.max(0, o.soft))));
+      el.style.setProperty("--spark-r", "0px");
+      el.style.setProperty("--spark-x", "50%");
+      el.style.setProperty("--spark-y", "50%");
       el.setAttribute("role", "button");
       el.setAttribute("tabindex", "0");
       el.setAttribute("aria-pressed", "false");
@@ -4271,7 +4271,7 @@
       const anim = () => {
         r += (target - r) * (motionOK() ? 0.18 : 1);
         if (Math.abs(target - r) < 0.5) r = target;
-        el.style.setProperty("--efx-r", r.toFixed(1) + "px");
+        el.style.setProperty("--spark-r", r.toFixed(1) + "px");
         raf2 = r === target ? 0 : requestAnimationFrame(anim);
       };
       const grow = (v) => {
@@ -4280,8 +4280,8 @@
       };
       const move = rafThrottle((e) => {
         const b = el.getBoundingClientRect();
-        el.style.setProperty("--efx-x", e.clientX - b.left + "px");
-        el.style.setProperty("--efx-y", e.clientY - b.top + "px");
+        el.style.setProperty("--spark-x", e.clientX - b.left + "px");
+        el.style.setProperty("--spark-y", e.clientY - b.top + "px");
       });
       const toggle = () => {
         const v = !el.classList.contains("is-full");
@@ -4312,9 +4312,9 @@
         cancelAnimationFrame(raf2);
         if (made) reveal.remove();
         else reveal.removeAttribute("aria-hidden");
-        base.classList.remove("efx-mask__base");
-        el.classList.remove("efx-mask-on", "is-full");
-        ["--efx-soft", "--efx-r", "--efx-x", "--efx-y"].forEach((v) => el.style.removeProperty(v));
+        base.classList.remove("spark-mask__base");
+        el.classList.remove("spark-mask-on", "is-full");
+        ["--spark-soft", "--spark-r", "--spark-x", "--spark-y"].forEach((v) => el.style.removeProperty(v));
         ["role", "tabindex", "aria-pressed", "aria-label"].forEach((a) => el.removeAttribute(a));
         if (prev.role) el.setAttribute("role", prev.role);
         if (prev.tab) el.setAttribute("tabindex", prev.tab);
@@ -4326,12 +4326,12 @@
   // src/features/media.js
   var media_default = {
     name: "media",
-    selector: ".efx-media",
+    selector: ".spark-media",
     defaults: { play: "view", threshold: 0.4, reset: false },
     init(el, o) {
       const vids = el.matches("video") ? [el] : [...el.querySelectorAll("video")];
       if (!vids.length) return;
-      const hover = o.play === "hover" || el.hasAttribute("data-efx-hover");
+      const hover = o.play === "hover" || el.hasAttribute("data-spark-hover");
       const reduce = !motionOK();
       const offs = [], undo = [];
       const play = () => vids.forEach((v) => {
@@ -4343,13 +4343,13 @@
         v.pause();
         if (o.reset) v.currentTime = 0;
       });
-      const lazy = [el, ...el.querySelectorAll("[data-efx-src]")].filter((n) => n.dataset.efxSrc);
+      const lazy = [el, ...el.querySelectorAll("[data-spark-src]")].filter((n) => n.dataset.sparkSrc);
       if (lazy.length) {
         const s = onVisible(el, (v) => {
           if (!v) return;
           s();
           lazy.forEach((n) => {
-            n.src = n.dataset.efxSrc;
+            n.src = n.dataset.sparkSrc;
           });
           vids.forEach((x) => x.load());
         }, "300px");
@@ -4369,7 +4369,7 @@
         if (el !== vids[0]) {
           const b = document.createElement("button");
           b.type = "button";
-          b.className = "efx-media__play";
+          b.className = "spark-media__play";
           b.setAttribute("aria-label", "Play video");
           b.addEventListener("click", () => {
             play();
@@ -4405,9 +4405,9 @@
   var needFilter = () => {
     if (!refs2++) {
       defs = document.createElement("div");
-      defs.className = "efx-morph__defs";
+      defs.className = "spark-morph__defs";
       defs.setAttribute("aria-hidden", "true");
-      defs.innerHTML = '<svg width="0" height="0"><filter id="efx-morph-f"><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 255 -140"/></filter></svg>';
+      defs.innerHTML = '<svg width="0" height="0"><filter id="spark-morph-f"><feColorMatrix type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 255 -140"/></filter></svg>';
       document.body.appendChild(defs);
     }
     return () => {
@@ -4416,13 +4416,13 @@
   };
   var span = (c, t) => {
     const s = document.createElement("span");
-    s.className = "efx-morph__" + c;
+    s.className = "spark-morph__" + c;
     if (t != null) s.textContent = t;
     return s;
   };
   var morph_default = {
     name: "morph",
-    selector: ".efx-morph",
+    selector: ".spark-morph",
     defaults: { words: [], duration: 1200, pause: 1800 },
     init(el, o) {
       const W = o.words.length ? o.words : [el.textContent.trim()];
@@ -4509,15 +4509,15 @@
   };
   var mouse_default = {
     name: "mouse",
-    selector: ".efx-mouse",
+    selector: ".spark-mouse",
     defaults: { strength: 20, scope: "self", invert: false, rotate: 0, ease: 0.12, gyro: false },
     init(el, o) {
       const fine = finePointer(), gy = o.gyro && !fine && "DeviceOrientationEvent" in window;
       if (!(fine || gy) || !motionOK()) return;
-      const found = [...el.querySelectorAll("[data-efx-depth]")];
+      const found = [...el.querySelectorAll("[data-spark-depth]")];
       const layers = (found.length ? found : [el]).map((n) => ({
         n,
-        d: found.length ? parseFloat(n.dataset.efxDepth) || 0 : 1,
+        d: found.length ? parseFloat(n.dataset.sparkDepth) || 0 : 1,
         x: 0,
         y: 0,
         r: 0,
@@ -4584,7 +4584,7 @@
   var BUILTIN = ["shake", "wobble", "ring"];
   var nudge_default = {
     name: "nudge",
-    selector: ".efx-nudge",
+    selector: ".spark-nudge",
     defaults: { every: 6e3, anim: "shake", times: 0, delay: 3e3, stop: "click", dot: false },
     init(el, o) {
       const offs = [];
@@ -4595,7 +4595,7 @@
           restorePos = true;
         }
         dot2 = document.createElement("span");
-        dot2.className = "efx-nudge__dot";
+        dot2.className = "spark-nudge__dot";
         dot2.setAttribute("aria-hidden", "true");
         el.append(dot2);
       }
@@ -4603,7 +4603,7 @@
         if (dot2) dot2.remove();
         if (restorePos) el.style.position = "";
       };
-      const kf = BUILTIN.includes(o.anim) ? "efx-nudge-" + o.anim : o.anim.startsWith("efx-") ? o.anim : "efx-" + o.anim;
+      const kf = BUILTIN.includes(o.anim) ? "spark-nudge-" + o.anim : o.anim.startsWith("spark-") ? o.anim : "spark-" + o.anim;
       let timer = 0, count = 0, vis = false, stopped = false;
       const clear = () => {
         el.style.animation = "";
@@ -4670,7 +4670,7 @@
   var DIGITS = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9";
   var odometer_default = {
     name: "odometer",
-    selector: ".efx-odometer",
+    selector: ".spark-odometer",
     defaults: { duration: 1800, from: "", stagger: 60, once: true },
     init(el, o) {
       const orig = el.innerHTML;
@@ -4680,7 +4680,7 @@
       const ok = (v) => typeof v === "number" ? Number.isFinite(v) : typeof v === "string" && /\d/.test(v);
       const fmt = (v) => typeof v === "number" ? grouped ? v.toLocaleString("en-US", { maximumFractionDigits: 6 }) : String(v) : String(v);
       if (!motionOK()) {
-        const off = on(el, "efx:data", (e) => {
+        const off = on(el, "spark:data", (e) => {
           const v = e.detail && e.detail.value;
           if (ok(v)) el.textContent = fmt(v);
         });
@@ -4694,10 +4694,10 @@
         const n = (text.match(/\d/g) || []).length;
         const src = (fromText.match(/\d/g) || []).join("").padStart(n, "0").slice(-n || 0);
         const sr = document.createElement("span");
-        sr.className = "efx-odometer__sr";
+        sr.className = "spark-odometer__sr";
         sr.textContent = text;
         const vis = document.createElement("span");
-        vis.className = "efx-odometer__v";
+        vis.className = "spark-odometer__v";
         vis.setAttribute("aria-hidden", "true");
         strips = [];
         let k = 0;
@@ -4705,16 +4705,16 @@
           const cell2 = document.createElement("span");
           if (/\d/.test(c)) {
             const strip = document.createElement("span");
-            strip.className = "efx-odometer__s";
+            strip.className = "spark-odometer__s";
             strip.textContent = DIGITS;
             strip.dataset.to = c;
             strip.style.setProperty("--n", src[k++] || 0);
             strip.style.transitionDelay = strips.length * o.stagger + "ms";
-            cell2.className = "efx-odometer__d";
+            cell2.className = "spark-odometer__d";
             cell2.append(strip);
             strips.push(strip);
           } else {
-            cell2.className = "efx-odometer__c";
+            cell2.className = "spark-odometer__c";
             cell2.textContent = c;
           }
           vis.append(cell2);
@@ -4731,7 +4731,7 @@
         build2(target, o.from);
         shown2 = false;
       };
-      el.style.setProperty("--efx-odo-duration", o.duration + "ms");
+      el.style.setProperty("--spark-odo-duration", o.duration + "ms");
       build2(target, o.from);
       let stop = () => {
       };
@@ -4743,7 +4743,7 @@
           }
         } else if (!o.once && shown2) reset();
       });
-      const offData = on(el, "efx:data", (e) => {
+      const offData = on(el, "spark:data", (e) => {
         const v = e.detail && e.detail.value;
         if (!ok(v)) return;
         const next = fmt(v).trim();
@@ -4757,7 +4757,7 @@
         stop();
         offData();
         el.innerHTML = orig;
-        el.style.removeProperty("--efx-odo-duration");
+        el.style.removeProperty("--spark-odo-duration");
       };
     }
   };
@@ -4765,7 +4765,7 @@
   // src/features/parallax.js
   var parallax_default = {
     name: "parallax",
-    selector: ".efx-parallax",
+    selector: ".spark-parallax",
     defaults: { speed: 0.3, axis: "y", bg: false },
     init(el, o) {
       if (!motionOK()) return;
@@ -4775,7 +4775,7 @@
         const cs = getComputedStyle(el);
         saved = [el.style.backgroundImage, el.style.position, el.style.overflow, el.style.isolation];
         layer = document.createElement("div");
-        layer.className = "efx-parallax__bg";
+        layer.className = "spark-parallax__bg";
         layer.setAttribute("aria-hidden", "true");
         layer.style.cssText = `background-image:${cs.backgroundImage};background-size:${cs.backgroundSize === "auto" ? "cover" : cs.backgroundSize};background-position:${cs.backgroundPosition};background-repeat:${cs.backgroundRepeat}`;
         if (cs.position === "static") el.style.position = "relative";
@@ -4865,7 +4865,7 @@
   };
   var particles_default = {
     name: "particles",
-    selector: ".efx-particles",
+    selector: ".spark-particles",
     lazy: true,
     defaults: {
       count: 50,
@@ -4887,7 +4887,7 @@
         restorePos = true;
       }
       const cv2 = document.createElement("canvas");
-      cv2.className = "efx-particles__canvas";
+      cv2.className = "spark-particles__canvas";
       cv2.setAttribute("aria-hidden", "true");
       el.insertBefore(cv2, el.firstChild);
       const ctx2 = cv2.getContext("2d");
@@ -5037,22 +5037,22 @@
   var ease2 = (t) => 1 - Math.pow(1 - t, 3);
   var path_default = {
     name: "path",
-    selector: ".efx-path",
+    selector: ".spark-path",
     defaults: { mode: "scroll", duration: 4e3, rotate: true, showPath: true, start: 0, end: 1, svg: "", d: "", viewbox: "0 0 1000 300", gap: 0.08 },
     init(el, o) {
-      const items = [...el.querySelectorAll(".efx-path__item")];
+      const items = [...el.querySelectorAll(".spark-path__item")];
       const made = [];
       let path, ref = null, vbox = null;
       if (o.d) {
         const vb = o.viewbox.split(/[\s,]+/).map(Number);
         const svg = document.createElementNS(NS4, "svg");
         svg.setAttribute("viewBox", o.viewbox);
-        svg.setAttribute("class", "efx-path__svg");
+        svg.setAttribute("class", "spark-path__svg");
         svg.setAttribute("aria-hidden", "true");
         svg.setAttribute("focusable", "false");
         path = document.createElementNS(NS4, "path");
         path.setAttribute("d", o.d);
-        path.setAttribute("class", "efx-path__line");
+        path.setAttribute("class", "spark-path__line");
         if (!o.showPath) path.style.visibility = "hidden";
         svg.appendChild(path);
         el.insertBefore(svg, el.firstChild);
@@ -5070,7 +5070,7 @@
       if (o.showPath) {
         trail = path.cloneNode(false);
         trail.removeAttribute("id");
-        trail.setAttribute("class", "efx-path__trail");
+        trail.setAttribute("class", "spark-path__trail");
         trail.style.fill = "none";
         trail.style.strokeDasharray = len;
         trail.style.strokeDashoffset = len;
@@ -5171,7 +5171,7 @@
   // src/features/pixelate.js
   var pixelate_default = {
     name: "pixelate",
-    selector: ".efx-pixelate",
+    selector: ".spark-pixelate",
     defaults: { from: 32, duration: 900, trigger: "view" },
     init(el, o) {
       const img = el.tagName === "IMG" ? el : el.querySelector("img");
@@ -5181,7 +5181,7 @@
       if (restorePos) host.style.position = "relative";
       const hover = o.trigger === "hover";
       const cv2 = document.createElement("canvas"), tiny = document.createElement("canvas");
-      cv2.className = "efx-pixelate__canvas";
+      cv2.className = "spark-pixelate__canvas";
       cv2.setAttribute("aria-hidden", "true");
       host.appendChild(cv2);
       const prevOpacity = img.style.opacity;
@@ -5280,7 +5280,7 @@
   // src/features/popout.js
   var popout_default = {
     name: "popout",
-    selector: ".efx-popout",
+    selector: ".spark-popout",
     defaults: { depth: 20, tilt: 8, mode: "both" },
     init(el, o) {
       let restorePos = false;
@@ -5291,18 +5291,18 @@
       const undoPos = () => {
         if (restorePos) el.style.position = "";
       };
-      const bg = el.querySelector(":scope > .efx-popout__bg");
+      const bg = el.querySelector(":scope > .spark-popout__bg");
       if (!bg || !motionOK()) return undoPos;
       const ptr = finePointer() && o.mode !== "scroll", scr = o.mode !== "pointer";
       if (!ptr && !scr) return undoPos;
       const clip = document.createElement("div");
-      clip.className = "efx-popout__clip";
-      const mark = document.createComment("efx-popout");
+      clip.className = "spark-popout__clip";
+      const mark = document.createComment("spark-popout");
       bg.replaceWith(mark);
       clip.appendChild(bg);
       mark.replaceWith(clip);
-      el.style.setProperty("--efx-depth", o.depth + "px");
-      el.style.setProperty("--efx-tilt", o.tilt + "deg");
+      el.style.setProperty("--spark-depth", o.depth + "px");
+      el.style.setProperty("--spark-tilt", o.tilt + "deg");
       el.classList.add("is-popout");
       const offs = [];
       let rect = null;
@@ -5310,26 +5310,26 @@
         const move = rafThrottle((e) => {
           if (!rect) rect = el.getBoundingClientRect();
           const x = (e.clientX - rect.left) / rect.width * 2 - 1, y = (e.clientY - rect.top) / rect.height * 2 - 1;
-          el.style.setProperty("--efx-px", x.toFixed(3));
-          el.style.setProperty("--efx-py", y.toFixed(3));
+          el.style.setProperty("--spark-px", x.toFixed(3));
+          el.style.setProperty("--spark-py", y.toFixed(3));
         });
         const leave = () => {
           move.cancel();
           rect = null;
-          el.style.removeProperty("--efx-px");
-          el.style.removeProperty("--efx-py");
+          el.style.removeProperty("--spark-px");
+          el.style.removeProperty("--spark-py");
         };
         offs.push(on(el, "pointermove", move), on(el, "pointerleave", leave), () => move.cancel());
       }
       const stopScroll = scr ? onScroll((y, vh) => {
         const r = el.getBoundingClientRect();
         const p = Math.max(-1, Math.min(1, (r.top + r.height / 2 - vh / 2) / vh));
-        return () => el.style.setProperty("--efx-sy", p.toFixed(3));
+        return () => el.style.setProperty("--spark-sy", p.toFixed(3));
       }) : null;
       return () => {
         offs.forEach((f2) => f2());
         stopScroll && stopScroll();
-        ["--efx-depth", "--efx-tilt", "--efx-px", "--efx-py", "--efx-sy"].forEach((v) => el.style.removeProperty(v));
+        ["--spark-depth", "--spark-tilt", "--spark-px", "--spark-py", "--spark-sy"].forEach((v) => el.style.removeProperty(v));
         el.classList.remove("is-popout");
         clip.replaceWith(bg);
         undoPos();
@@ -5348,10 +5348,10 @@
   };
   var popup_default = {
     name: "popup",
-    selector: ".efx-popup",
+    selector: ".spark-popup",
     defaults: { delay: -1, scroll: 0, exit: false, frequency: "always", days: 7, id: "" },
     init(el, o) {
-      const id = o.id || el.id, key = "efx-popup:" + id, offs = [];
+      const id = o.id || el.id, key = "spark-popup:" + id, offs = [];
       let timer = 0, opener = null;
       const canAuto = () => {
         if (o.frequency === "session") return !store("sessionStorage", (s) => s.getItem(key));
@@ -5391,15 +5391,15 @@
         opener = null;
       }));
       offs.push(on(el, "click", (e) => {
-        if (e.target.closest("[data-efx-close]")) return close();
+        if (e.target.closest("[data-spark-close]")) return close();
         if (e.target !== el) return;
         const r = el.getBoundingClientRect();
         if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) close();
       }));
       offs.push(on(document, "click", (e) => {
-        const t = e.target.closest && e.target.closest('[data-efx-open],a[href^="#"]');
+        const t = e.target.closest && e.target.closest('[data-spark-open],a[href^="#"]');
         if (!t || !id) return;
-        if ((t.dataset.efxOpen || t.getAttribute("href").slice(1)) !== id) return;
+        if ((t.dataset.sparkOpen || t.getAttribute("href").slice(1)) !== id) return;
         e.preventDefault();
         open(t);
       }));
@@ -5438,24 +5438,24 @@
   var num = /[\d][\d,]*\.?\d*/;
   var pricing_default = {
     name: "pricing",
-    selector: ".efx-pricing",
+    selector: ".spark-pricing",
     defaults: { periods: ["Monthly", "Yearly"], start: 0, duration: 600 },
     init(el, o) {
       const periods = o.periods, undo = [];
       const norm = (s) => String(s).trim().toLowerCase();
-      const btns = [...el.querySelectorAll("[data-efx-period]")];
-      const chk = el.querySelector(".efx-pricing__toggle");
-      const prices = [...el.querySelectorAll("[data-efx-prices]")].map((p) => ({
+      const btns = [...el.querySelectorAll("[data-spark-period]")];
+      const chk = el.querySelector(".spark-pricing__toggle");
+      const prices = [...el.querySelectorAll("[data-spark-prices]")].map((p) => ({
         el: p,
-        vals: p.dataset.efxPrices.split("|").map((s) => s.trim()),
-        odo: p.matches(".efx-odometer") ? p : p.querySelector(".efx-odometer"),
+        vals: p.dataset.sparkPrices.split("|").map((s) => s.trim()),
+        odo: p.matches(".spark-odometer") ? p : p.querySelector(".spark-odometer"),
         orig: p.innerHTML,
         raf: 0
       }));
-      const texts = [...el.querySelectorAll("[data-efx-period-text]")].map((t2) => ({ el: t2, vals: t2.dataset.efxPeriodText.split("|").map((s) => s.trim()), orig: t2.textContent }));
-      const shows = [...el.querySelectorAll("[data-efx-show-on]")].map((s) => ({ el: s, hid: s.hidden }));
+      const texts = [...el.querySelectorAll("[data-spark-period-text]")].map((t2) => ({ el: t2, vals: t2.dataset.sparkPeriodText.split("|").map((s) => s.trim()), orig: t2.textContent }));
+      const shows = [...el.querySelectorAll("[data-spark-show-on]")].map((s) => ({ el: s, hid: s.hidden }));
       const live = document.createElement("span");
-      live.className = "efx-pricing__live";
+      live.className = "spark-pricing__live";
       live.setAttribute("aria-live", "polite");
       live.style.cssText = "position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap";
       el.append(live);
@@ -5471,7 +5471,7 @@
         if (!b.hasAttribute("type") && b.tagName === "BUTTON") setAttr(b, "type", "button");
       });
       const bIdx = (b) => {
-        const v = b.dataset.efxPeriod;
+        const v = b.dataset.sparkPeriod;
         const i = periods.findIndex((p) => norm(p) === norm(v));
         return i >= 0 ? i : parseInt(v, 10) || 0;
       };
@@ -5483,7 +5483,7 @@
       const roll = (p, val, animate) => {
         cancelAnimationFrame(p.raf);
         if (p.odo) {
-          p.odo.dispatchEvent(new CustomEvent("efx:data", { detail: { value: val } }));
+          p.odo.dispatchEvent(new CustomEvent("spark:data", { detail: { value: val } }));
           return;
         }
         const to = val.match(num), from = p.el.textContent.match(num);
@@ -5514,7 +5514,7 @@
           t2.el.textContent = (_a = t2.vals[i]) != null ? _a : t2.vals[t2.vals.length - 1];
         });
         shows.forEach((s) => {
-          s.el.hidden = norm(s.el.dataset.efxShowOn) !== norm(periods[i]);
+          s.el.hidden = norm(s.el.dataset.sparkShowOn) !== norm(periods[i]);
         });
         btns.forEach((b) => {
           const on2 = bIdx(b) === i;
@@ -5526,7 +5526,7 @@
         if (!quiet) {
           const f2 = prices[0], ft = texts[0];
           live.textContent = [periods[i], f2 && f2.vals[i], ft && ft.vals[i]].filter(Boolean).join(" ");
-          el.dispatchEvent(new CustomEvent("efx:period", { bubbles: true, detail: { index: i, period: periods[i] } }));
+          el.dispatchEvent(new CustomEvent("spark:period", { bubbles: true, detail: { index: i, period: periods[i] } }));
         }
       };
       const offs = [];
@@ -5576,21 +5576,21 @@
   // src/features/progress.js
   var progress_default = {
     name: "progress",
-    selector: ".efx-progress",
+    selector: ".spark-progress",
     defaults: { target: "", position: "top", height: 4 },
     init(el, o) {
       const t = o.target && document.querySelector(o.target);
       const pos = o.position === "bottom" ? "bottom" : o.position === "none" ? "" : "top";
       const attrs = ["role", "aria-valuemin", "aria-valuemax", "aria-valuenow"];
       const had = attrs.map((a) => el.getAttribute(a));
-      if (pos) el.classList.add("efx-progress--" + pos);
-      el.style.setProperty("--efx-progress-height", o.height + "px");
+      if (pos) el.classList.add("spark-progress--" + pos);
+      el.style.setProperty("--spark-progress-height", o.height + "px");
       el.setAttribute("role", "progressbar");
       el.setAttribute("aria-valuemin", "0");
       el.setAttribute("aria-valuemax", "100");
       if (!el.hasAttribute("aria-label")) {
         el.setAttribute("aria-label", "Reading progress");
-        el.dataset.efxAl = "";
+        el.dataset.sparkAl = "";
       }
       const stop = onScroll((y, h) => {
         let p;
@@ -5600,19 +5600,19 @@
         } else p = y / (document.documentElement.scrollHeight - h || 1);
         p = Math.min(1, Math.max(0, p));
         return () => {
-          el.style.setProperty("--efx-progress", p.toFixed(4));
+          el.style.setProperty("--spark-progress", p.toFixed(4));
           el.setAttribute("aria-valuenow", Math.round(p * 100));
         };
       });
       return () => {
         stop();
-        el.classList.remove("efx-progress--top", "efx-progress--bottom");
-        el.style.removeProperty("--efx-progress");
-        el.style.removeProperty("--efx-progress-height");
+        el.classList.remove("spark-progress--top", "spark-progress--bottom");
+        el.style.removeProperty("--spark-progress");
+        el.style.removeProperty("--spark-progress-height");
         attrs.forEach((a, i) => had[i] === null ? el.removeAttribute(a) : el.setAttribute(a, had[i]));
-        if (el.dataset.efxAl !== void 0) {
+        if (el.dataset.sparkAl !== void 0) {
           el.removeAttribute("aria-label");
-          delete el.dataset.efxAl;
+          delete el.dataset.sparkAl;
         }
       };
     }
@@ -5634,29 +5634,29 @@
   };
   var proximity_default = {
     name: "proximity",
-    selector: ".efx-proximity",
+    selector: ".spark-proximity",
     defaults: { radius: 120, scale: 1.4, weight: 0, lift: 0, color: "", mode: "letters" },
     init(el, o) {
       if (!finePointer() || !motionOK()) return;
       let saved = null, pieces;
-      if (o.mode === "items") pieces = [...el.querySelectorAll("[data-efx-item]")];
+      if (o.mode === "items") pieces = [...el.querySelectorAll("[data-spark-item]")];
       else {
         const text = (el.textContent || "").replace(/\s+/g, " ").trim();
         if (!text || text.length > 300) return;
         saved = el.innerHTML;
         const sr = document.createElement("span");
-        sr.className = "efx-proximity__sr";
+        sr.className = "spark-proximity__sr";
         sr.textContent = text;
         const vis = document.createElement("span");
-        vis.className = "efx-proximity__pieces";
+        vis.className = "spark-proximity__pieces";
         vis.setAttribute("aria-hidden", "true");
         text.split(" ").forEach((w, k) => {
           if (k) vis.append(" ");
           const wrap = document.createElement("span");
-          wrap.className = "efx-proximity__w";
+          wrap.className = "spark-proximity__w";
           [...w].forEach((c) => {
             const s = document.createElement("span");
-            s.className = "efx-proximity__c";
+            s.className = "spark-proximity__c";
             s.textContent = c;
             wrap.append(s);
           });
@@ -5664,13 +5664,13 @@
         });
         el.textContent = "";
         el.append(sr, vis);
-        pieces = [...vis.querySelectorAll(".efx-proximity__c")];
+        pieces = [...vis.querySelectorAll(".spark-proximity__c")];
       }
       if (!pieces.length) return;
       const base = parseFloat(getComputedStyle(el).fontWeight) || 400;
       const keep = pieces.map((p) => ({ t: p.style.translate, s: p.style.scale, w: p.style.fontWeight }));
       if (o.color) {
-        el.style.setProperty("--efx-pcolor", o.color);
+        el.style.setProperty("--spark-pcolor", o.color);
         el.classList.add("has-pcolor");
       }
       el.classList.add("is-proximity");
@@ -5679,7 +5679,7 @@
         p.style.scale = t ? (1 + (o.scale - 1) * t).toFixed(3) : "";
         p.style.translate = t && o.lift ? "0 " + (-o.lift * t).toFixed(2) + "px" : "";
         if (o.weight) p.style.fontWeight = t ? Math.round(base + (o.weight - base) * t) : "";
-        if (o.color) p.style.setProperty("--efx-p", t.toFixed(3));
+        if (o.color) p.style.setProperty("--spark-p", t.toFixed(3));
       };
       const frame = () => {
         raf2 = 0;
@@ -5719,9 +5719,9 @@
           p.style.translate = keep[i].t;
           p.style.scale = keep[i].s;
           p.style.fontWeight = keep[i].w;
-          p.style.removeProperty("--efx-p");
+          p.style.removeProperty("--spark-p");
         });
-        el.style.removeProperty("--efx-pcolor");
+        el.style.removeProperty("--spark-pcolor");
         el.classList.remove("has-pcolor", "is-proximity");
       };
     }
@@ -5738,10 +5738,10 @@
   };
   var reel_default = {
     name: "reel",
-    selector: ".efx-reel",
+    selector: ".spark-reel",
     defaults: { autoplay: true, loop: false, controls: true, duration: 3e3, transition: "fade" },
     init(el, o) {
-      const scenes = [...el.children].filter((c) => c.matches(".efx-reel__scene,[data-efx-scene]"));
+      const scenes = [...el.children].filter((c) => c.matches(".spark-reel__scene,[data-spark-scene]"));
       const n = scenes.length;
       if (!n) return;
       const calm = !motionOK();
@@ -5757,7 +5757,7 @@
       el.setAttribute("aria-roledescription", "scene sequence");
       if (!el.hasAttribute("aria-label")) el.setAttribute("aria-label", "Scenes");
       if (!el.hasAttribute("tabindex")) el.tabIndex = 0;
-      const dur = (s) => Math.max(200, parseFloat(s.dataset.efxDuration) || o.duration);
+      const dur = (s) => Math.max(200, parseFloat(s.dataset.sparkDuration) || o.duration);
       scenes.forEach((s, i) => {
         undo.push(snap(s, ["role", "aria-roledescription", "aria-label", "aria-hidden", "inert"]));
         s.setAttribute("role", "group");
@@ -5767,25 +5767,25 @@
         s.inert = true;
       });
       const live = document.createElement("span");
-      live.className = "efx-reel__live";
+      live.className = "spark-reel__live";
       live.setAttribute("aria-live", "polite");
       el.appendChild(live);
       let bar, btn;
       const segs = [];
       if (o.controls) {
         bar = document.createElement("div");
-        bar.className = "efx-reel__controls";
+        bar.className = "spark-reel__controls";
         btn = document.createElement("button");
         btn.type = "button";
-        btn.className = "efx-reel__play";
+        btn.className = "spark-reel__play";
         bar.appendChild(btn);
         scenes.forEach((s, i) => {
           const b = document.createElement("button");
           b.type = "button";
-          b.className = "efx-reel__seg";
+          b.className = "spark-reel__seg";
           b.setAttribute("aria-label", `Go to scene ${i + 1} of ${n}`);
-          b.style.setProperty("--efx-d", dur(s) + "ms");
-          b.innerHTML = '<span class="efx-reel__fill"></span>';
+          b.style.setProperty("--spark-d", dur(s) + "ms");
+          b.innerHTML = '<span class="spark-reel__fill"></span>';
           b.onclick = () => go(i, true);
           segs.push(b);
           bar.appendChild(b);
@@ -5829,8 +5829,8 @@
         i = (i % n + n) % n;
         if (i === idx) return;
         const dir = i > idx ? 1 : -1, s = scenes[i], prev = scenes[idx];
-        const type = calm ? "cut" : s.dataset.efxTransition || o.transition;
-        el.style.setProperty("--efx-dir", dir);
+        const type = calm ? "cut" : s.dataset.sparkTransition || o.transition;
+        el.style.setProperty("--spark-dir", dir);
         clearTimeout(leaveT);
         if (leaving) leaving.className = leaving.className.replace(/\s?(is-leave|t-\w+)/g, "");
         scenes.forEach((x) => x.classList.remove("is-enter"));
@@ -5844,7 +5844,7 @@
             leaveT = setTimeout(() => {
               prev.classList.remove("is-leave", "t-" + type);
               leaving = null;
-            }, ms(cssVar(el, "--efx-reel-t", "600ms")) + 50);
+            }, ms(cssVar(el, "--spark-reel-t", "600ms")) + 50);
           }
         }
         idx = i;
@@ -5870,7 +5870,7 @@
         left = dur(s);
         core_default.refresh(s);
         if (manual || !running()) live.textContent = `Scene ${i + 1} of ${n}`;
-        el.dispatchEvent(new CustomEvent("efx:scene", { detail: { index: i }, bubbles: true }));
+        el.dispatchEvent(new CustomEvent("spark:scene", { detail: { index: i }, bubbles: true }));
         sync();
       }
       const toggle = () => {
@@ -5914,7 +5914,7 @@
         scenes.forEach((s) => s.classList.remove("is-active", "is-enter", "is-leave", "t-fade", "t-slide", "t-wipe", "t-zoom", "t-cut"));
         undo.reverse().forEach((f2) => f2());
         el.classList.remove("is-reel", "is-manual", "is-paused", "is-first");
-        el.style.removeProperty("--efx-dir");
+        el.style.removeProperty("--spark-dir");
         if (restorePos) el.style.position = "";
       };
     }
@@ -5923,19 +5923,19 @@
   // src/features/reveal.js
   var reveal_default = {
     name: "reveal",
-    selector: ".efx-reveal",
+    selector: ".spark-reveal",
     defaults: { reveal: "fade-up", delay: 0, once: true, threshold: 0.15 },
     init(el, o) {
       if (!motionOK()) return;
       const group = staggerGroup(el);
       let delay = o.delay;
-      if (group) delay += stagger(group, ".efx-reveal", el);
-      const prevDelay = el.style.getPropertyValue("--efx-delay");
-      if (delay) el.style.setProperty("--efx-delay", delay + "ms");
-      el.setAttribute("data-efx-anim", o.reveal);
-      el.classList.add("efx-reveal-pending");
+      if (group) delay += stagger(group, ".spark-reveal", el);
+      const prevDelay = el.style.getPropertyValue("--spark-delay");
+      if (delay) el.style.setProperty("--spark-delay", delay + "ms");
+      el.setAttribute("data-spark-anim", o.reveal);
+      el.classList.add("spark-reveal-pending");
       const offEnd = on(el, "transitionend", (e) => {
-        if (e.target === el && el.classList.contains("is-in") && o.once) el.classList.remove("efx-reveal-pending");
+        if (e.target === el && el.classList.contains("is-in") && o.once) el.classList.remove("spark-reveal-pending");
       });
       let stop = () => {
       };
@@ -5949,10 +5949,10 @@
       return () => {
         stop();
         offEnd();
-        el.classList.remove("efx-reveal-pending", "is-in");
-        el.removeAttribute("data-efx-anim");
-        if (prevDelay) el.style.setProperty("--efx-delay", prevDelay);
-        else el.style.removeProperty("--efx-delay");
+        el.classList.remove("spark-reveal-pending", "is-in");
+        el.removeAttribute("data-spark-anim");
+        if (prevDelay) el.style.setProperty("--spark-delay", prevDelay);
+        else el.style.removeProperty("--spark-delay");
       };
     }
   };
@@ -5960,12 +5960,12 @@
   // src/features/ripple.js
   var ripple_default = {
     name: "ripple",
-    selector: ".efx-ripple",
+    selector: ".spark-ripple",
     defaults: { color: "", duration: 600, center: false },
     init(el, o) {
       if (!motionOK()) return;
-      if (o.color) el.style.setProperty("--efx-ripple-color", o.color);
-      el.style.setProperty("--efx-ripple-dur", o.duration + "ms");
+      if (o.color) el.style.setProperty("--spark-ripple-color", o.color);
+      el.style.setProperty("--spark-ripple-dur", o.duration + "ms");
       let restorePos = false, clip = null;
       if (getComputedStyle(el).position === "static") {
         el.style.position = "relative";
@@ -5974,7 +5974,7 @@
       const getClip = () => {
         if (!clip) {
           clip = document.createElement("span");
-          clip.className = "efx-ripple__clip";
+          clip.className = "spark-ripple__clip";
           clip.setAttribute("aria-hidden", "true");
           el.appendChild(clip);
         }
@@ -5984,7 +5984,7 @@
         const r = el.getBoundingClientRect();
         const s = Math.hypot(Math.max(x, r.width - x), Math.max(y, r.height - y)) * 2;
         const w = document.createElement("span");
-        w.className = "efx-ripple__wave";
+        w.className = "spark-ripple__wave";
         w.setAttribute("aria-hidden", "true");
         w.style.cssText = "width:" + s + "px;height:" + s + "px;left:" + x + "px;top:" + y + "px";
         w.addEventListener("animationend", () => w.remove(), { once: true });
@@ -6008,8 +6008,8 @@
         clip && clip.remove();
         clip = null;
         if (restorePos) el.style.position = "";
-        el.style.removeProperty("--efx-ripple-color");
-        el.style.removeProperty("--efx-ripple-dur");
+        el.style.removeProperty("--spark-ripple-color");
+        el.style.removeProperty("--spark-ripple-dur");
       };
     }
   };
@@ -6047,7 +6047,7 @@
   };
   var schedule_default = {
     name: "schedule",
-    selector: ".efx-schedule",
+    selector: ".spark-schedule",
     defaults: { from: "", until: "", days: "", hours: "", mode: "show" },
     init(el, o) {
       const from = date(o.from), until = date(o.until);
@@ -6064,7 +6064,7 @@
         el.classList.toggle("is-scheduled-off", !on2);
         if (on2 !== last) {
           last = on2;
-          el.dispatchEvent(new CustomEvent("efx:change", { bubbles: true, detail: { on: on2 } }));
+          el.dispatchEvent(new CustomEvent("spark:change", { bubbles: true, detail: { on: on2 } }));
         }
         const at = (d, mm) => {
           const x = new Date(now);
@@ -6087,7 +6087,7 @@
   // src/features/scramble.js
   var scramble_default = {
     name: "scramble",
-    selector: ".efx-scramble",
+    selector: ".spark-scramble",
     defaults: { trigger: "view", chars: "!<>-_\\/[]{}\u2014=+*^?#________", speed: 30, duration: 900, once: true, words: [], pause: 2e3 },
     init(el, o) {
       const saved = el.innerHTML;
@@ -6104,7 +6104,7 @@
         s.className = c;
         return s;
       };
-      const sr = mk2("efx-scramble__sr"), vis = mk2("efx-scramble__v");
+      const sr = mk2("spark-scramble__sr"), vis = mk2("spark-scramble__v");
       vis.setAttribute("aria-hidden", "true");
       el.textContent = "";
       el.append(sr, vis);
@@ -6200,7 +6200,7 @@
   };
   var scrollspy_default = {
     name: "scrollspy",
-    selector: ".efx-scrollspy",
+    selector: ".spark-scrollspy",
     defaults: { offset: 80, activeClass: "is-active", smooth: true },
     init(el, o) {
       const links = [...el.querySelectorAll('a[href^="#"]')];
@@ -6266,14 +6266,14 @@
   };
   var scrub_default = {
     name: "scrub",
-    selector: ".efx-scrub",
+    selector: ".spark-scrub",
     defaults: { from: "", to: "", start: 0, end: 1, ease: "linear", peak: "none", x: 0, y: 0, rotate: 0, scale: 1, opacity: -1, blur: 0 },
     init(el, o) {
       if (!motionOK()) return;
       const A = { ...NEUTRAL, ...parse2(o.from) };
       const B = { ...NEUTRAL, x: o.x, y: o.y, rotate: o.rotate, scale: o.scale, blur: o.blur, ...o.opacity >= 0 ? { opacity: o.opacity } : {}, ...parse2(o.to) };
       const ease3 = ease(o.ease), span2 = o.end - o.start || 1;
-      const s = el.style, saved = [s.translate, s.rotate, s.scale, s.opacity, s.filter, s.transition, s.willChange, s.getPropertyValue("--efx-p")];
+      const s = el.style, saved = [s.translate, s.rotate, s.scale, s.opacity, s.filter, s.transition, s.willChange, s.getPropertyValue("--spark-p")];
       const use = (k) => A[k] !== B[k];
       const moves = use("x") || use("y"), turns = use("rotate"), zooms = use("scale"), fades = use("opacity"), blurs = use("blur");
       s.transition = "none";
@@ -6289,7 +6289,7 @@
         return () => {
           ty = v("y");
           sc = v("scale");
-          s.setProperty("--efx-p", q.toFixed(3));
+          s.setProperty("--spark-p", q.toFixed(3));
           if (moves) s.translate = `${v("x").toFixed(1)}px ${ty.toFixed(1)}px`;
           if (turns) s.rotate = v("rotate").toFixed(2) + "deg";
           if (zooms) s.scale = sc.toFixed(3);
@@ -6300,7 +6300,7 @@
       return () => {
         stop();
         [s.translate, s.rotate, s.scale, s.opacity, s.filter, s.transition, s.willChange] = saved;
-        saved[7] ? s.setProperty("--efx-p", saved[7]) : s.removeProperty("--efx-p");
+        saved[7] ? s.setProperty("--spark-p", saved[7]) : s.removeProperty("--spark-p");
       };
     }
   };
@@ -6308,13 +6308,13 @@
   // src/features/sequence.js
   var sequence_default = {
     name: "sequence",
-    selector: ".efx-sequence",
+    selector: ".spark-sequence",
     lazy: true,
     defaults: { src: "", list: [], frames: 0, pad: 0, start: 1, height: 300, fit: "cover" },
     init(el, o) {
       const anim = motionOK(), video = el.tagName === "VIDEO";
       const host = document.createElement("div");
-      host.className = "efx-sequence__track";
+      host.className = "spark-sequence__track";
       let canvas, ctx2, ro, parent, saved, pin, saveH = "", dead = false, pump = () => {
       }, stop;
       const loading = /* @__PURE__ */ new Set();
@@ -6330,11 +6330,11 @@
           if (el.duration && Math.abs(el.currentTime - t) > 0.03) el.currentTime = t;
         };
         if (!anim) {
-          host.classList.add("efx-sequence-static");
+          host.classList.add("spark-sequence-static");
           el.addEventListener("loadedmetadata", () => seek(0.01), { once: true });
         } else {
           host.style.height = o.height + "vh";
-          el.classList.add("efx-sequence-on");
+          el.classList.add("spark-sequence-on");
           let p = 0;
           const sync = () => seek(p * (el.duration || 0));
           el.addEventListener("loadedmetadata", sync);
@@ -6356,7 +6356,7 @@
         const imgs = [], req = /* @__PURE__ */ new Set(), loaded = [];
         let active = 0, want = 0, drawn = -1;
         pin = document.createElement("div");
-        pin.className = "efx-sequence__pin";
+        pin.className = "spark-sequence__pin";
         pin.setAttribute("aria-hidden", "true");
         canvas = document.createElement("canvas");
         pin.appendChild(canvas);
@@ -6365,7 +6365,7 @@
         saveH = el.style.height;
         if (anim) {
           el.style.height = o.height + "vh";
-          el.classList.add("efx-sequence-on");
+          el.classList.add("spark-sequence-on");
         }
         const draw2 = () => {
           if (dead || !loaded.length) return;
@@ -6459,7 +6459,7 @@
         } else {
           pin && pin.remove();
           el.style.height = saveH;
-          el.classList.remove("efx-sequence-on");
+          el.classList.remove("spark-sequence-on");
         }
       };
     }
@@ -6537,7 +6537,7 @@
   }
   var shape_default = {
     name: "shape",
-    selector: ".efx-shape",
+    selector: ".spark-shape",
     defaults: { shapes: "", d: "", to: "", points: 64, trigger: "loop", duration: 1200, pause: 800, ease: "ease-in-out", target: "" },
     init(el, o) {
       const isPath = el.localName === "path";
@@ -6558,7 +6558,7 @@
       let path = el;
       if (!isPath) {
         path = document.createElementNS(NS5, "path");
-        path.setAttribute("class", "efx-shape__path");
+        path.setAttribute("class", "spark-shape__path");
         svg.appendChild(path);
       }
       const draw2 = (i, t) => {
@@ -6639,7 +6639,7 @@
   // src/features/shimmer.js
   var shimmer_default = {
     name: "shimmer",
-    selector: ".efx-shimmer[data-efx-until],.efx-shimmer[data-efx-for]",
+    selector: ".spark-shimmer[data-spark-until],.spark-shimmer[data-spark-for]",
     defaults: { until: "", for: 0 },
     init(el, o) {
       const offs = [];
@@ -6667,7 +6667,7 @@
       if (o.until && !pending.length && targets.length) ready();
       else {
         let left = pending.length;
-        pending.forEach((t) => ["load", "error", "loadeddata", "efx:ready"].forEach((ev) => offs.push(on(t, ev, () => {
+        pending.forEach((t) => ["load", "error", "loadeddata", "spark:ready"].forEach((ev) => offs.push(on(t, ev, () => {
           if (--left <= 0) ready();
         }, { once: true }))));
         if (o.for > 0) timer = setTimeout(ready, o.for);
@@ -6688,7 +6688,7 @@
   add("sparkle-shape", "star", (s) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="currentColor"><path d="M12 0c.6 7 4.9 11.4 12 12-7.1.6-11.4 5-12 12-.6-7-4.9-11.4-12-12 7.1-.6 11.4-5 12-12z"/></svg>`);
   var sparkles_default = {
     name: "sparkles",
-    selector: ".efx-sparkles",
+    selector: ".spark-sparkles",
     defaults: { count: 10, color: "", sizeMin: 8, sizeMax: 18, speed: 1, shape: "star" },
     init(el, o) {
       if (!motionOK()) return;
@@ -6698,7 +6698,7 @@
         restore = true;
       }
       const layer = document.createElement("span");
-      layer.className = "efx-sparkles__layer";
+      layer.className = "spark-sparkles__layer";
       layer.setAttribute("aria-hidden", "true");
       const cols = o.color ? o.color.split("|").map((s) => s.trim()).filter(Boolean) : [themeColor(el), "#fbbf24"];
       const shape = get("sparkle-shape", o.shape) || get("sparkle-shape", "star");
@@ -6709,7 +6709,7 @@
       };
       for (let i = 0; i < Math.min(60, o.count); i++) {
         const s = document.createElement("span"), m = shape(r(o.sizeMin, o.sizeMax) | 0);
-        s.className = "efx-sparkles__s";
+        s.className = "spark-sparkles__s";
         typeof m === "string" ? s.innerHTML = m : s.appendChild(m);
         s.style.color = cols[i % cols.length];
         s.style.animationDuration = r(0.8, 1.6) / o.speed + "s";
@@ -6730,28 +6730,28 @@
   // src/features/spinner.js
   var spinner_default = {
     name: "spinner",
-    selector: '.efx-spinner, [class*="efx-spinner-"]',
+    selector: '.spark-spinner, [class*="spark-spinner-"]',
     defaults: { type: "", label: "Loading" },
     init(el, o) {
       const undo = [];
       if (o.type) {
-        const c = "efx-spinner-" + o.type;
+        const c = "spark-spinner-" + o.type;
         if (!el.classList.contains(c)) {
           el.classList.add(c);
           undo.push(() => el.classList.remove(c));
         }
       }
-      if (!el.classList.contains("efx-spinner")) {
-        el.classList.add("efx-spinner");
-        undo.push(() => el.classList.remove("efx-spinner"));
+      if (!el.classList.contains("spark-spinner")) {
+        el.classList.add("spark-spinner");
+        undo.push(() => el.classList.remove("spark-spinner"));
       }
       if (!el.hasAttribute("role")) {
         el.setAttribute("role", "status");
         undo.push(() => el.removeAttribute("role"));
       }
-      if (!el.hasAttribute("aria-label") && !el.querySelector(".efx-spinner__label") && !el.textContent.trim()) {
+      if (!el.hasAttribute("aria-label") && !el.querySelector(".spark-spinner__label") && !el.textContent.trim()) {
         const l = document.createElement("span");
-        l.className = "efx-spinner__label";
+        l.className = "spark-spinner__label";
         l.textContent = o.label;
         el.append(l);
         undo.push(() => l.remove());
@@ -6763,7 +6763,7 @@
   // src/features/split.js
   var split_default = {
     name: "split",
-    selector: ".efx-split",
+    selector: ".spark-split",
     defaults: { by: "word", effect: "fade-up", stagger: 40, duration: 600, once: true, max: 200 },
     init(el, o) {
       if (!motionOK()) return;
@@ -6777,7 +6777,7 @@
       let i = 0;
       const piece = (t) => {
         const s = document.createElement("span");
-        s.className = "efx-split__p";
+        s.className = "spark-split__p";
         s.setAttribute("aria-hidden", "true");
         s.style.setProperty("--i", i++);
         s.textContent = t;
@@ -6787,24 +6787,24 @@
         if (k) frag.append(" ");
         if (!letters) return frag.append(piece(w));
         const wrap = document.createElement("span");
-        wrap.className = "efx-split__w";
+        wrap.className = "spark-split__w";
         wrap.setAttribute("aria-hidden", "true");
         [...w].forEach((c) => wrap.append(piece(c)));
         frag.append(wrap);
       });
       const sr = document.createElement("span");
-      sr.className = "efx-split__sr";
+      sr.className = "spark-split__sr";
       sr.textContent = text;
       const pieces = document.createElement("span");
-      pieces.className = "efx-split__pieces";
+      pieces.className = "spark-split__pieces";
       pieces.setAttribute("aria-hidden", "true");
       pieces.append(frag);
       el.textContent = "";
       el.append(sr, pieces);
-      el.setAttribute("data-efx-effect", o.effect);
-      st.setProperty("--efx-split-stagger", o.stagger + "ms");
-      st.setProperty("--efx-split-dur", o.duration + "ms");
-      el.classList.add(wave2 ? "efx-split-wave" : "efx-split-pending");
+      el.setAttribute("data-spark-effect", o.effect);
+      st.setProperty("--spark-split-stagger", o.stagger + "ms");
+      st.setProperty("--spark-split-dur", o.duration + "ms");
+      el.classList.add(wave2 ? "spark-split-wave" : "spark-split-pending");
       const stop = onVisible(el, (v, e) => {
         if (v) {
           if (e.intersectionRatio >= 0.1 || e.intersectionRect.height >= innerHeight * 0.25) el.classList.add("is-in");
@@ -6813,10 +6813,10 @@
       return () => {
         stop();
         el.innerHTML = saved;
-        el.removeAttribute("data-efx-effect");
-        el.classList.remove("efx-split-pending", "efx-split-wave", "is-in");
-        st.removeProperty("--efx-split-stagger");
-        st.removeProperty("--efx-split-dur");
+        el.removeAttribute("data-spark-effect");
+        el.classList.remove("spark-split-pending", "spark-split-wave", "is-in");
+        st.removeProperty("--spark-split-stagger");
+        st.removeProperty("--spark-split-dur");
       };
     }
   };
@@ -6824,7 +6824,7 @@
   // src/features/spotlight.js
   var spotlight_default = {
     name: "spotlight",
-    selector: ".efx-spotlight",
+    selector: ".spark-spotlight",
     defaults: { size: 240, color: "", opacity: 0.18, border: false },
     init(el, o) {
       if (!finePointer()) return;
@@ -6834,14 +6834,14 @@
         restorePos = true;
       }
       el.classList.add("is-spot");
-      el.style.setProperty("--efx-size", o.size + "px");
-      el.style.setProperty("--efx-spot-o", o.opacity);
-      if (o.color) el.style.setProperty("--efx-spot", o.color);
-      if (o.border) el.classList.add("efx-spotlight--border");
+      el.style.setProperty("--spark-size", o.size + "px");
+      el.style.setProperty("--spark-spot-o", o.opacity);
+      if (o.color) el.style.setProperty("--spark-spot", o.color);
+      if (o.border) el.classList.add("spark-spotlight--border");
       const move = rafThrottle((e) => {
         const r = el.getBoundingClientRect();
-        el.style.setProperty("--efx-x", e.clientX - r.left + "px");
-        el.style.setProperty("--efx-y", e.clientY - r.top + "px");
+        el.style.setProperty("--spark-x", e.clientX - r.left + "px");
+        el.style.setProperty("--spark-y", e.clientY - r.top + "px");
         el.classList.add("is-lit");
       });
       const offs = [on(el, "pointermove", move), on(el, "pointerleave", () => {
@@ -6851,8 +6851,8 @@
       return () => {
         offs.forEach((f2) => f2());
         move.cancel();
-        ["--efx-x", "--efx-y", "--efx-size", "--efx-spot-o", "--efx-spot"].forEach((v) => el.style.removeProperty(v));
-        el.classList.remove("is-lit", "is-spot", "efx-spotlight--border");
+        ["--spark-x", "--spark-y", "--spark-size", "--spark-spot-o", "--spark-spot"].forEach((v) => el.style.removeProperty(v));
+        el.classList.remove("is-lit", "is-spot", "spark-spotlight--border");
         if (restorePos) el.style.position = "";
       };
     }
@@ -6861,7 +6861,7 @@
   // src/features/stack.js
   var stack_default = {
     name: "stack",
-    selector: ".efx-stack",
+    selector: ".spark-stack",
     defaults: { offset: 80, gap: 16, shrink: 0.05, blur: 0, dim: 0.15 },
     init(el, o) {
       const cards = [...el.children], anim = motionOK();
@@ -6899,7 +6899,7 @@
   // src/features/sticky.js
   var sticky_default = {
     name: "sticky",
-    selector: ".efx-sticky",
+    selector: ".spark-sticky",
     defaults: { offset: 0, hide: false, shrink: false, shrinkAt: 80 },
     init(el, o) {
       const top = el.style.top;
@@ -6910,7 +6910,7 @@
       }, `-${o.offset + 1}px 0px 0px 0px`, 1);
       const hide = o.hide && motionOK(), shrink = o.shrink;
       const anim = hide || shrink;
-      if (anim) el.classList.add("efx-sticky-anim");
+      if (anim) el.classList.add("spark-sticky-anim");
       let h = el.offsetHeight, last = scrollY;
       const ro = hide && typeof ResizeObserver !== "undefined" && new ResizeObserver(() => {
         h = el.offsetHeight;
@@ -6930,7 +6930,7 @@
         stopS && stopS();
         ro && ro.disconnect();
         offF && offF();
-        el.classList.remove("is-stuck", "is-hidden", "is-shrunk", "efx-sticky-anim");
+        el.classList.remove("is-stuck", "is-hidden", "is-shrunk", "spark-sticky-anim");
         el.style.top = top;
       };
     }
@@ -6939,7 +6939,7 @@
   // src/features/textfill.js
   var textfill_default = {
     name: "textfill",
-    selector: ".efx-textfill",
+    selector: ".spark-textfill",
     defaults: { start: 0.8, end: 0.3, by: "word", dim: 0.2, color: "" },
     init(el, o) {
       if (!motionOK()) return;
@@ -6950,7 +6950,7 @@
       const spans = [];
       const piece = (t) => {
         const s = document.createElement("span");
-        s.className = "efx-textfill__p";
+        s.className = "spark-textfill__p";
         s.textContent = t;
         spans.push(s);
         return s;
@@ -6973,7 +6973,7 @@
               continue;
             }
             const wrap = document.createElement("span");
-            wrap.className = "efx-textfill__w";
+            wrap.className = "spark-textfill__w";
             [...p].forEach((c) => wrap.append(piece(c)));
             frag.append(wrap);
           }
@@ -6984,18 +6984,18 @@
         wrapText(el);
       } else {
         const pieces = document.createElement("span");
-        pieces.className = "efx-textfill__pieces";
+        pieces.className = "spark-textfill__pieces";
         pieces.setAttribute("aria-hidden", "true");
         while (el.firstChild) pieces.appendChild(el.firstChild);
         wrapText(pieces);
         const sr = document.createElement("span");
-        sr.className = "efx-textfill__sr";
+        sr.className = "spark-textfill__sr";
         sr.textContent = text;
         el.append(sr, pieces);
       }
-      const prev = [st.getPropertyValue("--efx-textfill-dim"), st.getPropertyValue("--efx-textfill-color")];
-      if (el.dataset.efxDim !== void 0) st.setProperty("--efx-textfill-dim", o.dim);
-      if (o.color) st.setProperty("--efx-textfill-color", o.color);
+      const prev = [st.getPropertyValue("--spark-textfill-dim"), st.getPropertyValue("--spark-textfill-color")];
+      if (el.dataset.sparkDim !== void 0) st.setProperty("--spark-textfill-dim", o.dim);
+      if (o.color) st.setProperty("--spark-textfill-color", o.color);
       const n = spans.length, last = [];
       const stop = onScroll((y, vh) => {
         const r = el.getBoundingClientRect();
@@ -7011,8 +7011,8 @@
       return () => {
         stop();
         el.innerHTML = saved;
-        prev[0] ? st.setProperty("--efx-textfill-dim", prev[0]) : st.removeProperty("--efx-textfill-dim");
-        prev[1] ? st.setProperty("--efx-textfill-color", prev[1]) : st.removeProperty("--efx-textfill-color");
+        prev[0] ? st.setProperty("--spark-textfill-dim", prev[0]) : st.removeProperty("--spark-textfill-dim");
+        prev[1] ? st.setProperty("--spark-textfill-color", prev[1]) : st.removeProperty("--spark-textfill-color");
       };
     }
   };
@@ -7020,7 +7020,7 @@
   // src/features/tilt.js
   var tilt_default = {
     name: "tilt",
-    selector: ".efx-tilt",
+    selector: ".spark-tilt",
     defaults: { max: 10, perspective: 900, scale: 1.02, glare: false, reset: true, gyro: false },
     init(el, o) {
       const fine = finePointer(), gy = o.gyro && !fine && "DeviceOrientationEvent" in window;
@@ -7030,12 +7030,12 @@
         el.style.position = "relative";
         restorePos = true;
       }
-      el.style.setProperty("--efx-persp", o.perspective + "px");
-      el.style.setProperty("--efx-tscale", o.scale);
+      el.style.setProperty("--spark-persp", o.perspective + "px");
+      el.style.setProperty("--spark-tscale", o.scale);
       let g = null;
       if (o.glare) {
         g = document.createElement("span");
-        g.className = "efx-tilt__glare";
+        g.className = "spark-tilt__glare";
         g.setAttribute("aria-hidden", "true");
         el.appendChild(g);
       }
@@ -7050,12 +7050,12 @@
         if (!rect) enter();
         const r = rect;
         const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-        el.style.setProperty("--efx-ry", ((x - 0.5) * 2 * o.max).toFixed(2) + "deg");
-        el.style.setProperty("--efx-rx", ((0.5 - y) * 2 * o.max).toFixed(2) + "deg");
+        el.style.setProperty("--spark-ry", ((x - 0.5) * 2 * o.max).toFixed(2) + "deg");
+        el.style.setProperty("--spark-rx", ((0.5 - y) * 2 * o.max).toFixed(2) + "deg");
         el.classList.add("is-tilting");
         if (g) {
-          g.style.setProperty("--efx-gx", x * 100 + "%");
-          g.style.setProperty("--efx-gy", y * 100 + "%");
+          g.style.setProperty("--spark-gx", x * 100 + "%");
+          g.style.setProperty("--spark-gy", y * 100 + "%");
         }
       });
       const reset = () => {
@@ -7063,8 +7063,8 @@
         el.classList.remove("is-tilting");
         rect = null;
         if (o.reset) {
-          el.style.removeProperty("--efx-rx");
-          el.style.removeProperty("--efx-ry");
+          el.style.removeProperty("--spark-rx");
+          el.style.removeProperty("--spark-ry");
           clearTimeout(settle);
           settle = setTimeout(() => {
             el.classList.remove("is-tilt-active");
@@ -7077,13 +7077,13 @@
         if (e.beta == null) return;
         const k = (v) => Math.max(-1, Math.min(1, v / 40));
         el.classList.add("is-tilt-active", "is-tilting");
-        el.style.setProperty("--efx-ry", (k(e.gamma) * o.max).toFixed(2) + "deg");
-        el.style.setProperty("--efx-rx", (-k(e.beta - 45) * o.max).toFixed(2) + "deg");
+        el.style.setProperty("--spark-ry", (k(e.gamma) * o.max).toFixed(2) + "deg");
+        el.style.setProperty("--spark-rx", (-k(e.beta - 45) * o.max).toFixed(2) + "deg");
       }, { passive: true }));
       return () => {
         offs.forEach((f2) => f2());
         move.cancel();
-        ["--efx-rx", "--efx-ry", "--efx-persp", "--efx-tscale"].forEach((v) => el.style.removeProperty(v));
+        ["--spark-rx", "--spark-ry", "--spark-persp", "--spark-tscale"].forEach((v) => el.style.removeProperty(v));
         clearTimeout(settle);
         el.style.willChange = "";
         el.classList.remove("is-tilting", "is-tilt-active");
@@ -7103,9 +7103,9 @@
     let s = stacks.get(pos);
     if (!s) {
       s = document.createElement("div");
-      s.className = "efx-toast__stack";
+      s.className = "spark-toast__stack";
       s.dataset.pos = pos;
-      s.setAttribute("data-efx-skip", "");
+      s.setAttribute("data-spark-skip", "");
       s.setAttribute("popover", "manual");
       document.body.append(s);
       try {
@@ -7120,11 +7120,11 @@
   function show2(fill, o) {
     const stack = stackFor(o.position);
     const t = document.createElement("div");
-    t.className = "toast efx-toast__item" + (/^[\w-]+$/.test(o.tone || "") ? " tone-" + o.tone : "");
+    t.className = "toast spark-toast__item" + (/^[\w-]+$/.test(o.tone || "") ? " tone-" + o.tone : "");
     t.setAttribute("role", "status");
     t.setAttribute("aria-live", "polite");
     const body = document.createElement("div");
-    body.className = "efx-toast__body";
+    body.className = "spark-toast__body";
     fill(body);
     const x = document.createElement("button");
     x.type = "button";
@@ -7180,7 +7180,7 @@
   }
   var toast_default = {
     name: "toast",
-    selector: ".efx-toast",
+    selector: ".spark-toast",
     defaults: { show: -1, position: "bottom-right", duration: 5e3, tone: "" },
     init(el, o) {
       const closers = /* @__PURE__ */ new Set(), timers = /* @__PURE__ */ new Set();
@@ -7191,13 +7191,13 @@
         }, o);
         closers.add(c);
       };
-      if (el.hasAttribute("data-efx-show")) {
+      if (el.hasAttribute("data-spark-show")) {
         const t = setTimeout(fire2, Math.max(0, o.show));
         timers.add(t);
       }
       if (!users++) {
         offGlobal = [
-          on(document, "efx:toast", (e) => {
+          on(document, "spark:toast", (e) => {
             const d = e.detail || {};
             show2((b) => {
               b.textContent = d.text == null ? "" : String(d.text);
@@ -7210,8 +7210,8 @@
         ];
       }
       const offClick = id ? on(document, "click", (e) => {
-        const a = e.target.closest && e.target.closest("[data-efx-toast]");
-        if (a && a.dataset.efxToast === "#" + id) fire2();
+        const a = e.target.closest && e.target.closest("[data-spark-toast]");
+        if (a && a.dataset.sparkToast === "#" + id) fire2();
       }) : () => {
       };
       return () => {
@@ -7231,7 +7231,7 @@
   // src/features/totop.js
   var totop_default = {
     name: "totop",
-    selector: ".efx-totop",
+    selector: ".spark-totop",
     defaults: { show: 400, fixed: true },
     init(el, o) {
       const type = el.getAttribute("type"), label = el.hasAttribute("aria-label");
@@ -7306,20 +7306,20 @@
   };
   var trail_default = {
     name: "trail",
-    selector: ".efx-trail",
+    selector: ".spark-trail",
     defaults: { images: [], spacing: 80, life: 900, size: 140, rotate: 12, max: 12, shape: "", mode: "trail" },
     init(el, o) {
       if (!finePointer() || !motionOK()) return;
       hold(el);
       const layer = document.createElement("div");
-      layer.className = "efx-trail__layer";
+      layer.className = "spark-trail__layer";
       layer.setAttribute("aria-hidden", "true");
       el.append(layer);
       const hover = o.mode === "hover";
       const rnd3 = (d) => (Math.random() * 2 - 1) * d;
       const mkItem = () => {
         const n = document.createElement("div");
-        n.className = "efx-trail__item";
+        n.className = "spark-trail__item";
         n.setAttribute("aria-hidden", "true");
         layer.append(n);
         return n;
@@ -7329,12 +7329,12 @@
       let cleanupMode;
       if (hover) {
         const pv = mkItem();
-        pv.classList.add("efx-trail__item--preview");
-        pv.style.setProperty("--efx-trail-size", o.size + "px");
+        pv.classList.add("spark-trail__item--preview");
+        pv.style.setProperty("--spark-trail-size", o.size + "px");
         let on_ = false;
         const handle = (e) => {
-          const r = el.getBoundingClientRect(), t = e.target.closest && e.target.closest("[data-efx-image]");
-          const src = t && el.contains(t) ? t.dataset.efxImage : "";
+          const r = el.getBoundingClientRect(), t = e.target.closest && e.target.closest("[data-spark-image]");
+          const src = t && el.contains(t) ? t.dataset.sparkImage : "";
           if (!src) {
             if (on_) {
               on_ = false;
@@ -7376,7 +7376,7 @@
           }
           k = (k + 1) % Math.max(1, o.max);
           if (n._a) n._a.cancel();
-          n.className = "efx-trail__item" + (shape ? " efx-trail__item--" + shape.split(":")[0] : "");
+          n.className = "spark-trail__item" + (shape ? " spark-trail__item--" + shape.split(":")[0] : "");
           n.style.width = n.style.height = o.size + "px";
           n.style.backgroundImage = "";
           n.textContent = "";
@@ -7424,14 +7424,14 @@
   };
 
   // src/features/transition.js
-  var KEY = "efx-tr";
+  var KEY = "spark-tr";
   var css = (s, d) => `@view-transition{navigation:auto}::view-transition-group(root){animation-duration:${d}ms}` + ({
-    "slide-up": `::view-transition-new(root){animation:efx-tr-up ${d}ms cubic-bezier(.22,1,.36,1)}@keyframes efx-tr-up{from{transform:translateY(8%);opacity:0}}`,
-    zoom: `::view-transition-new(root){animation:efx-tr-zoom ${d}ms cubic-bezier(.22,1,.36,1)}@keyframes efx-tr-zoom{from{transform:scale(.94);opacity:0}}`
+    "slide-up": `::view-transition-new(root){animation:spark-tr-up ${d}ms cubic-bezier(.22,1,.36,1)}@keyframes spark-tr-up{from{transform:translateY(8%);opacity:0}}`,
+    zoom: `::view-transition-new(root){animation:spark-tr-zoom ${d}ms cubic-bezier(.22,1,.36,1)}@keyframes spark-tr-zoom{from{transform:scale(.94);opacity:0}}`
   }[s] || "");
   var transition_default = {
     name: "transition",
-    selector: ".efx-transition",
+    selector: ".spark-transition",
     defaults: { style: "fade", duration: 400, prefetch: true },
     init(el, o) {
       if (!motionOK()) return;
@@ -7455,15 +7455,15 @@
       };
       if (native) {
         style = document.createElement("style");
-        style.setAttribute("data-efx-transition", "");
+        style.setAttribute("data-spark-transition", "");
         style.textContent = css(o.style, o.duration);
         document.head.appendChild(style);
       } else {
         curtain = document.createElement("div");
-        curtain.className = "efx-transition__curtain";
+        curtain.className = "spark-transition__curtain";
         curtain.setAttribute("aria-hidden", "true");
-        curtain.setAttribute("data-efx-style", o.style);
-        curtain.style.setProperty("--efx-tr-dur", o.duration + "ms");
+        curtain.setAttribute("data-spark-style", o.style);
+        curtain.style.setProperty("--spark-tr-dur", o.duration + "ms");
         document.body.appendChild(curtain);
         if (ss.get()) {
           ss.set(0);
@@ -7478,7 +7478,7 @@
       }
       const link = (e) => {
         const a = e.target.closest && e.target.closest("a[href]");
-        if (!a || a.closest("[data-efx-no-transition]") || a.target && a.target !== "_self" || a.hasAttribute("download")) return null;
+        if (!a || a.closest("[data-spark-no-transition]") || a.target && a.target !== "_self" || a.hasAttribute("download")) return null;
         let u;
         try {
           u = new URL(a.href, location.href);
@@ -7510,7 +7510,7 @@
           const l = document.createElement("link");
           l.rel = "prefetch";
           l.href = u.href;
-          l.setAttribute("data-efx-prefetch-link", "");
+          l.setAttribute("data-spark-prefetch-link", "");
           document.head.appendChild(l);
           links.push(l);
         };
@@ -7527,7 +7527,7 @@
   // src/features/typed.js
   var typed_default = {
     name: "typed",
-    selector: ".efx-typed",
+    selector: ".spark-typed",
     defaults: { words: [], speed: 60, back: 30, pause: 1600, loop: true, cursor: true, mode: "type" },
     init(el, o) {
       const saved = el.innerHTML;
@@ -7544,13 +7544,13 @@
         if (t) s.textContent = t;
         return s;
       };
-      const sr = mk2("efx-typed__sr", words[0]), vis = mk2("efx-typed__v"), txt = mk2("efx-typed__t"), type = o.mode === "type";
+      const sr = mk2("spark-typed__sr", words[0]), vis = mk2("spark-typed__v"), txt = mk2("spark-typed__t"), type = o.mode === "type";
       vis.setAttribute("aria-hidden", "true");
       vis.append(txt);
-      if (o.cursor) vis.append(mk2("efx-typed__cursor"));
+      if (o.cursor) vis.append(mk2("spark-typed__cursor"));
       el.textContent = "";
       el.append(sr, vis);
-      el.setAttribute("data-efx-mode", o.mode);
+      el.setAttribute("data-spark-mode", o.mode);
       let i = 0, n = 0, dir = 1, tm = 0, seen = true;
       const later = (ms2, fn) => {
         clearTimeout(tm);
@@ -7609,7 +7609,7 @@
       return () => {
         stop();
         clearTimeout(tm);
-        el.removeAttribute("data-efx-mode");
+        el.removeAttribute("data-spark-mode");
         el.innerHTML = saved;
       };
     }
@@ -7618,7 +7618,7 @@
   // src/features/zoom.js
   var zoom_default = {
     name: "zoom",
-    selector: ".efx-zoom",
+    selector: ".spark-zoom",
     defaults: { scale: 2.5, size: 160, shape: "circle" },
     init(el, o) {
       const img = el.querySelector("img");
@@ -7630,13 +7630,13 @@
       }
       const inner = o.shape === "inner";
       const lens = document.createElement("div");
-      lens.className = "efx-zoom__lens";
+      lens.className = "spark-zoom__lens";
       lens.setAttribute("aria-hidden", "true");
       lens.dataset.shape = o.shape;
       if (!inner) lens.style.width = lens.style.height = o.size + "px";
       else lens.style.borderRadius = getComputedStyle(img).borderRadius;
       el.appendChild(lens);
-      el.classList.add("efx-zoom-on");
+      el.classList.add("spark-zoom-on");
       let loaded = false;
       const move = (e) => {
         const ir = img.getBoundingClientRect(), er = el.getBoundingClientRect();
@@ -7658,7 +7658,7 @@
           if (e.pointerType === "touch") return;
           if (!loaded) {
             loaded = true;
-            const u = img.dataset.efxFull || el.dataset.efxFull || img.currentSrc || img.src;
+            const u = img.dataset.sparkFull || el.dataset.sparkFull || img.currentSrc || img.src;
             lens.style.backgroundImage = 'url("' + u.replace(/"/g, "%22") + '")';
           }
           move(e);
@@ -7669,15 +7669,15 @@
       return () => {
         offs.forEach((f2) => f2());
         lens.remove();
-        el.classList.remove("efx-zoom-on");
+        el.classList.remove("spark-zoom-on");
         if (restorePos) el.style.position = "";
       };
     }
   };
 
-  // src/effix-entry.js
+  // src/spark-entry.js
   define(ambient_default, animate_default, ascii_default, audio_default, beam_default, border_default, carousel_default, chapter_default, collapse_default, compare_default, confetti_default, copy_default, countdown_default, counter_default, cursor_default, dim_default, direction_default, distort_default, divider_default, drag_default, draggable_default, draw_default, feed_default, flip_default, glitch_default, globe_default, hscroll_default, kenburns_default, kinetic_default, layout_default, lazyimg_default, lightbox_default, lyrics_default, magnetic_default, marquee_default, mask_default, media_default, morph_default, mouse_default, nudge_default, odometer_default, parallax_default, particles_default, path_default, pixelate_default, popout_default, popup_default, pricing_default, progress_default, proximity_default, reel_default, reveal_default, ripple_default, schedule_default, scramble_default, scrollspy_default, scrub_default, sequence_default, shape_default, shimmer_default, sparkles_default, spinner_default, split_default, spotlight_default, stack_default, sticky_default, textfill_default, tilt_default, toast_default, totop_default, trail_default, transition_default, typed_default, zoom_default);
-  if (typeof window !== "undefined") window.Effix = core_default;
+  if (typeof window !== "undefined") window.Spark = core_default;
   autoBoot();
-  var effix_entry_default = core_default;
+  var spark_entry_default = core_default;
 })();

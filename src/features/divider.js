@@ -1,8 +1,8 @@
 /* divider — animated SVG shape dividers between sections.
-   <section style="position:relative"><div class="efx-divider" data-efx-shape="waves" data-efx-position="bottom"
-     data-efx-animate="drift" data-efx-color="#fff"></div></section>
+   <section style="position:relative"><div class="spark-divider" data-spark-shape="waves" data-spark-position="bottom"
+     data-spark-animate="drift" data-spark-color="#fff"></div></section>
    Shapes: wave waves tilt curve triangle arrow zigzag clouds mountains drips steps spikes sawtooth chevron swoosh leaves hills.
-   One-off shape without JS: data-efx-path="M0,60 C300,0 700,120 1200,40 L1200,120 L0,120 Z" (1200x120 viewBox, filled as given). */
+   One-off shape without JS: data-spark-path="M0,60 C300,0 700,120 1200,40 L1200,120 L0,120 Z" (1200x120 viewBox, filled as given). */
 import { onVisible, motionOK, add, get } from '../core.js';
 
 /* parent -> { count, prev }: several dividers may share one parent; the first forces position:relative,
@@ -52,7 +52,7 @@ add('divider-shape', Object.fromEntries(Object.entries(SHAPES).map(([k, [periodi
 
 export default {
   name: 'divider',
-  selector: '.efx-divider',
+  selector: '.spark-divider',
   defaults: { shape: 'wave', color: '', height: 80, flip: false, invert: false, animate: 'none', speed: 12, position: '', path: '' },
   init(el, o) {
     // custom path: sanitised to path-data characters only, so it can never inject markup
@@ -66,7 +66,7 @@ export default {
     const side = layers[0][1];
     const saved = st.cssText;
     let claimed = false;
-    if (o.color) st.setProperty('--efx-divider-color', o.color);
+    if (o.color) st.setProperty('--spark-divider-color', o.color);
     st.height = o.height + 'px';
     if (o.flip || o.invert) st.transform = `scale(${o.flip ? -1 : 1},${o.invert ? -1 : 1})`;
     if (o.position) {
@@ -75,8 +75,8 @@ export default {
       if (parent && (parents.has(parent) || getComputedStyle(parent).position === 'static')) { claimParent(parent); claimed = true; }
     }
     el.setAttribute('aria-hidden', 'true');
-    el.setAttribute('data-efx-mode', move ? mode : 'none');
-    st.setProperty('--efx-dv-dir', side === 't' ? 1 : -1);
+    el.setAttribute('data-spark-mode', move ? mode : 'none');
+    st.setProperty('--spark-dv-dir', side === 't' ? 1 : -1);
     const mk = (k, op) => {
       let body = '';
       layers.forEach(([y0, s, tile], li) => {
@@ -86,8 +86,8 @@ export default {
         d += s === 't' ? `L${W},0L0,0Z` : `L${W},120L0,120Z`;
         body += `<path d="${d}"${ops[li] ? ` opacity="${ops[li]}"` : ''}/>`;
       });
-      const s = `<svg viewBox="0 0 ${W} 120" preserveAspectRatio="none" focusable="false" class="efx-divider__svg" ` +
-        `style="${drift ? 'width:200%;' : ''}${op < 1 ? `opacity:${op};` : ''}--efx-dv-t:${move ? o.speed : 0}s;` +
+      const s = `<svg viewBox="0 0 ${W} 120" preserveAspectRatio="none" focusable="false" class="spark-divider__svg" ` +
+        `style="${drift ? 'width:200%;' : ''}${op < 1 ? `opacity:${op};` : ''}--spark-dv-t:${move ? o.speed : 0}s;` +
         `${k ? `animation-duration:${(o.speed * [1.5, 1, .7][k]).toFixed(1)}s;animation-delay:-${(o.speed * k / 3).toFixed(1)}s;` : ''}">${body}</svg>`;
       return s;
     };
@@ -95,13 +95,13 @@ export default {
     el.innerHTML = copies.map(k => mk(k, copies.length > 1 ? [.35, .6, 1][k] : 1)).join('');
     el.classList.add('is-ready');
     const kind = drift ? 'drift' : move ? 'float' : '';
-    if (kind) el.classList.add('efx-divider--' + kind);
+    if (kind) el.classList.add('spark-divider--' + kind);
     const stop = move ? onVisible(el, v => el.classList.toggle('is-paused', !v)) : () => {};
     return () => {
       stop();
       el.innerHTML = '';
-      el.removeAttribute('aria-hidden'); el.removeAttribute('data-efx-mode');
-      el.classList.remove('is-ready', 'is-paused', 'efx-divider--drift', 'efx-divider--float');
+      el.removeAttribute('aria-hidden'); el.removeAttribute('data-spark-mode');
+      el.classList.remove('is-ready', 'is-paused', 'spark-divider--drift', 'spark-divider--float');
       st.cssText = saved;
       if (claimed) releaseParent(parent);
     };

@@ -1,5 +1,5 @@
 /* ambient — animated canvas backgrounds behind an element's content.
-   <section class="efx-ambient" data-efx-mode="orbs" data-efx-color="#6366f1|#ec4899">…</section>
+   <section class="spark-ambient" data-spark-mode="orbs" data-spark-color="#6366f1|#ec4899">…</section>
    mode: stars | warp | orbs | waves | snow | leaves | bubbles | grid | flicker | meteors | dots. color: one value or a '|' list (commas outside parentheses ok). */
 import { onVisible, motionOK, finePointer, themeColor, on, add, get } from '../core.js';
 
@@ -129,14 +129,14 @@ add('ambient-mode', {
 
 export default {
   name: 'ambient',
-  selector: '.efx-ambient',
+  selector: '.spark-ambient',
   lazy: true,
   defaults: { mode: 'stars', count: 0, color: '', speed: 1, opacity: 1, interact: true },
   init(el, o) {
     let restorePos = false;
     if (getComputedStyle(el).position === 'static') { el.style.position = 'relative'; restorePos = true; }
     const cv = document.createElement('canvas');
-    cv.className = 'efx-ambient__canvas';
+    cv.className = 'spark-ambient__canvas';
     cv.setAttribute('aria-hidden', 'true');
     el.insertBefore(cv, el.firstChild);
     const ctx = cv.getContext('2d');

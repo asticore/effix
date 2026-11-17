@@ -1,9 +1,9 @@
 /* trail — images / shapes spawn along the pointer path inside an element, then fade out.
-   <section class="efx-trail" data-efx-images="a.jpg|b.jpg|c.jpg">…</section>
-   <ul class="efx-trail" data-efx-mode="hover"><li data-efx-image="a.jpg">Link</li></ul>   (floating preview) */
+   <section class="spark-trail" data-spark-images="a.jpg|b.jpg|c.jpg">…</section>
+   <ul class="spark-trail" data-spark-mode="hover"><li data-spark-image="a.jpg">Link</li></ul>   (floating preview) */
 import { on, onVisible, motionOK, finePointer, add, get } from '../core.js';
 
-/* shapes: fn(size, arg) -> DOM node shown inside the pooled item (data-efx-shape="name:arg"). dot and ring are CSS-only. */
+/* shapes: fn(size, arg) -> DOM node shown inside the pooled item (data-spark-shape="name:arg"). dot and ring are CSS-only. */
 add('trail-shape', 'emoji', (s, a) => { const e = document.createElement('span'); e.textContent = a || '✨'; e.style.fontSize = s * .5 + 'px'; return e; });
 
 const subs = new Set();
@@ -28,20 +28,20 @@ const release = el => {
 
 export default {
   name: 'trail',
-  selector: '.efx-trail',
+  selector: '.spark-trail',
   defaults: { images: [], spacing: 80, life: 900, size: 140, rotate: 12, max: 12, shape: '', mode: 'trail' },
   init(el, o) {
     if (!finePointer() || !motionOK()) return;
     hold(el);
     const layer = document.createElement('div');
-    layer.className = 'efx-trail__layer';
+    layer.className = 'spark-trail__layer';
     layer.setAttribute('aria-hidden', 'true');
     el.append(layer);
     const hover = o.mode === 'hover';
     const rnd = d => (Math.random() * 2 - 1) * d;
     const mkItem = () => {
       const n = document.createElement('div');
-      n.className = 'efx-trail__item';
+      n.className = 'spark-trail__item';
       n.setAttribute('aria-hidden', 'true');
       layer.append(n);
       return n;
@@ -51,12 +51,12 @@ export default {
 
     if (hover) {
       const pv = mkItem();
-      pv.classList.add('efx-trail__item--preview');
-      pv.style.setProperty('--efx-trail-size', o.size + 'px');
+      pv.classList.add('spark-trail__item--preview');
+      pv.style.setProperty('--spark-trail-size', o.size + 'px');
       let on_ = false;
       const handle = e => {
-        const r = el.getBoundingClientRect(), t = e.target.closest && e.target.closest('[data-efx-image]');
-        const src = t && el.contains(t) ? t.dataset.efxImage : '';
+        const r = el.getBoundingClientRect(), t = e.target.closest && e.target.closest('[data-spark-image]');
+        const src = t && el.contains(t) ? t.dataset.sparkImage : '';
         if (!src) { if (on_) { on_ = false; pv.classList.remove('is-on'); } return; }
         if (pv.dataset.src !== src) { pv.dataset.src = src; pv.style.backgroundImage = 'url("' + src.replace(/["\\]/g, '') + '")'; }
         pv.style.translate = (e.clientX - r.left) + 'px ' + (e.clientY - r.top) + 'px';
@@ -76,7 +76,7 @@ export default {
         if (!n) { n = pool[k] = mkItem(); }
         k = (k + 1) % Math.max(1, o.max);
         if (n._a) n._a.cancel();
-        n.className = 'efx-trail__item' + (shape ? ' efx-trail__item--' + shape.split(':')[0] : '');
+        n.className = 'spark-trail__item' + (shape ? ' spark-trail__item--' + shape.split(':')[0] : '');
         n.style.width = n.style.height = o.size + 'px';
         n.style.backgroundImage = '';
         n.textContent = '';

@@ -1,4 +1,4 @@
 /* drag — grab cursors; text selection is suppressed only while dragging */
-.efx-drag-on { cursor: grab; }
-.efx-drag-on.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: none; }
-.efx-drag-on.is-dragging * { cursor: grabbing; }
+.spark-drag-on { cursor: grab; }
+.spark-drag-on.is-dragging { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.spark-drag-on.is-dragging * { cursor: grabbing; }

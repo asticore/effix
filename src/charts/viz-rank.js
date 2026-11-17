@@ -1,5 +1,5 @@
 /* viz-rank — bump chart (rank over periods) or slope chart (two periods).
-   <div class="efx-viz-rank" data-efx-mode="bump" data-efx-labels="2022|2023|2024" data-efx-data='[{"name":"A","data":[10,30,50]},{"name":"B","data":[20,25,30]}]'></div> */
+   <div class="spark-viz-rank" data-spark-mode="bump" data-spark-labels="2022|2023|2024" data-spark-data='[{"name":"A","data":[10,30,50]},{"name":"B","data":[20,25,30]}]'></div> */
 import { COMMON, chart, linear, nice, s, esc } from './_lib.js';
 
 const dseg = (px, py, a, b) => {
@@ -18,7 +18,7 @@ const spread = (ys, gap, lo, hi) => {
 
 export default {
   name: 'viz-rank',
-  selector: '.efx-viz-rank',
+  selector: '.spark-viz-rank',
   lazy: true,
   defaults: { ...COMMON, mode: 'bump', ranks: false, smooth: true, legend: false, height: 0 },
   init(el, o) {
@@ -44,23 +44,23 @@ export default {
       const Y = sc.max === sc.min ? () => (top + bot) / 2 : linear(flip ? [sc.min, sc.max] : [sc.min, sc.max], flip ? [bot, top] : [top, bot]);
       const mc = Math.max(4, Math.floor(lw / 6.4) - 2);
       if (!deco) {
-        const ax = s('g', { class: 'efx-chart__axis', 'aria-hidden': 'true' }, g);
+        const ax = s('g', { class: 'spark-chart__axis', 'aria-hidden': 'true' }, g);
         ps.forEach((p, j) => {
-          s('line', { x1: X(j), x2: X(j), y1: pad.t - 6, y2: h - pad.b, class: 'efx-chart__grid' }, ax);
+          s('line', { x1: X(j), x2: X(j), y1: pad.t - 6, y2: h - pad.b, class: 'spark-chart__grid' }, ax);
           s('text', { x: X(j), y: 12, 'text-anchor': slope ? (j ? 'end' : 'start') : 'middle', style: 'font-weight:600' }, ax).textContent = P[p];
         });
       }
       const ly = slope && !deco ? [0, 1].map(j => spread(items.map((_, k) => Y(val(k, j))), 14, top, bot)) : null;
       return items.map((it, k) => {
         const pts = ps.map((_, j) => [X(j), Y(val(k, j))]);
-        const f = s('g', { class: 'efx-chart__mark efx-vr__item' }, g);
+        const f = s('g', { class: 'spark-chart__mark spark-vr__item' }, g);
         const d = pts.reduce((a, [x, y], i) => a + (i ? (o.smooth ? `C${(pts[i - 1][0] + x) / 2},${pts[i - 1][1]} ${(pts[i - 1][0] + x) / 2},${y} ${x},${y}` : `L${x},${y}`) : `M${x},${y}`), '');
-        s('path', { d, fill: 'none', stroke: colors[it.index], 'stroke-width': 3, 'stroke-linecap': 'round', pathLength: 1, class: 'efx-chart__draw', style: `--i:${k}` }, f);
-        const fd = s('g', { class: 'efx-chart__fade', style: `--i:${k}` }, f);
+        s('path', { d, fill: 'none', stroke: colors[it.index], 'stroke-width': 3, 'stroke-linecap': 'round', pathLength: 1, class: 'spark-chart__draw', style: `--i:${k}` }, f);
+        const fd = s('g', { class: 'spark-chart__fade', style: `--i:${k}` }, f);
         pts.forEach(p => s('circle', { cx: p[0], cy: p[1], r: deco ? 3 : 4.5, fill: colors[it.index], style: 'stroke:var(--sh-surface,#fff);stroke-width:2' }, fd));
         if (!deco) [0, n - 1].forEach((j, e) => {
           if (n < 2 && e) return;
-          s('text', { x: X(j) + (e ? 10 : -10), y: ly ? ly[e][k] : pts[j][1], 'text-anchor': e ? 'start' : 'end', 'dominant-baseline': 'middle', class: 'efx-chart__value' }, fd).textContent = cut(txt[k][e], mc);
+          s('text', { x: X(j) + (e ? 10 : -10), y: ly ? ly[e][k] : pts[j][1], 'text-anchor': e ? 'start' : 'end', 'dominant-baseline': 'middle', class: 'spark-chart__value' }, fd).textContent = cut(txt[k][e], mc);
         });
         const dl = slope ? it.values[ps[1]] - it.values[ps[0]] : 0;
         return {

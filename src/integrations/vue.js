@@ -1,11 +1,11 @@
-/* Effix + Vue 3: <div v-effix>…</div>  — register globally with app.use(EffixPlugin) or locally { directives: { effix: vEffix } }.
-   Features must be defined first (import the Effix bundle, or Effix.define(...)). */
-import Effix from '../core.js';
+/* Spark + Vue 3: <div v-spark>…</div>  — register globally with app.use(SparkPlugin) or locally { directives: { spark: vSpark } }.
+   Features must be defined first (import the Spark bundle, or Spark.define(...)). */
+import Spark from '../core.js';
 
-export const vEffix = {
-  mounted: el => { Effix.init(el); },
-  updated: el => { Effix.refresh(el); },
-  unmounted: el => { Effix.destroy(el); },
+export const vSpark = {
+  mounted: el => { Spark.init(el); },
+  updated: el => { Spark.refresh(el); },
+  unmounted: el => { Spark.destroy(el); },
 };
-export const EffixPlugin = { install(app) { app.directive('effix', vEffix); } };
-export default EffixPlugin;
+export const SparkPlugin = { install(app) { app.directive('@asticore/spark', vSpark); } };
+export default SparkPlugin;

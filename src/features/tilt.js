@@ -1,22 +1,22 @@
 /* tilt — 3D tilt toward the pointer.
-   <div class="card efx-tilt" data-efx-glare data-efx-max="12">…</div> */
+   <div class="card spark-tilt" data-spark-glare data-spark-max="12">…</div> */
 import { on, rafThrottle, motionOK, finePointer } from '../core.js';
 
 export default {
   name: 'tilt',
-  selector: '.efx-tilt',
+  selector: '.spark-tilt',
   defaults: { max: 10, perspective: 900, scale: 1.02, glare: false, reset: true, gyro: false },
   init(el, o) {
     const fine = finePointer(), gy = o.gyro && !fine && 'DeviceOrientationEvent' in window;
     if (!(fine || gy) || !motionOK()) return;
     let restorePos = false;
     if (getComputedStyle(el).position === 'static') { el.style.position = 'relative'; restorePos = true; }
-    el.style.setProperty('--efx-persp', o.perspective + 'px');
-    el.style.setProperty('--efx-tscale', o.scale);
+    el.style.setProperty('--spark-persp', o.perspective + 'px');
+    el.style.setProperty('--spark-tscale', o.scale);
     let g = null;
     if (o.glare) {
       g = document.createElement('span');
-      g.className = 'efx-tilt__glare';
+      g.className = 'spark-tilt__glare';
       g.setAttribute('aria-hidden', 'true');
       el.appendChild(g);
     }
@@ -31,17 +31,17 @@ export default {
       if (!rect) enter();
       const r = rect;
       const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-      el.style.setProperty('--efx-ry', ((x - .5) * 2 * o.max).toFixed(2) + 'deg');
-      el.style.setProperty('--efx-rx', ((.5 - y) * 2 * o.max).toFixed(2) + 'deg');
+      el.style.setProperty('--spark-ry', ((x - .5) * 2 * o.max).toFixed(2) + 'deg');
+      el.style.setProperty('--spark-rx', ((.5 - y) * 2 * o.max).toFixed(2) + 'deg');
       el.classList.add('is-tilting');
-      if (g) { g.style.setProperty('--efx-gx', x * 100 + '%'); g.style.setProperty('--efx-gy', y * 100 + '%'); }
+      if (g) { g.style.setProperty('--spark-gx', x * 100 + '%'); g.style.setProperty('--spark-gy', y * 100 + '%'); }
     });
     const reset = () => {
       move.cancel();
       el.classList.remove('is-tilting');
       rect = null;
       if (o.reset) {
-        el.style.removeProperty('--efx-rx'); el.style.removeProperty('--efx-ry');
+        el.style.removeProperty('--spark-rx'); el.style.removeProperty('--spark-ry');
         clearTimeout(settle);
         settle = setTimeout(() => { el.classList.remove('is-tilt-active'); el.style.willChange = ''; }, 300);
       }
@@ -52,12 +52,12 @@ export default {
       if (e.beta == null) return;
       const k = v => Math.max(-1, Math.min(1, v / 40));
       el.classList.add('is-tilt-active', 'is-tilting');
-      el.style.setProperty('--efx-ry', (k(e.gamma) * o.max).toFixed(2) + 'deg');
-      el.style.setProperty('--efx-rx', (-k(e.beta - 45) * o.max).toFixed(2) + 'deg');
+      el.style.setProperty('--spark-ry', (k(e.gamma) * o.max).toFixed(2) + 'deg');
+      el.style.setProperty('--spark-rx', (-k(e.beta - 45) * o.max).toFixed(2) + 'deg');
     }, { passive: true }));
     return () => {
       offs.forEach(f => f()); move.cancel();
-      ['--efx-rx', '--efx-ry', '--efx-persp', '--efx-tscale'].forEach(v => el.style.removeProperty(v));
+      ['--spark-rx', '--spark-ry', '--spark-persp', '--spark-tscale'].forEach(v => el.style.removeProperty(v));
       clearTimeout(settle); el.style.willChange = '';
       el.classList.remove('is-tilting', 'is-tilt-active');
       if (restorePos) el.style.position = '';

@@ -1,9 +1,9 @@
-/* Effix core — registry, auto-init, option parsing and shared loops.
+/* Spark core — registry, auto-init, option parsing and shared loops.
    Every feature is a plain object:
      { name, selector, lazy?, page?, defaults?, init(el, opts, ctx) => cleanup? }
-   - selector: CSS selector the feature claims (usually `.efx-<name>`).
+   - selector: CSS selector the feature claims (usually `.spark-<name>`).
    - lazy:     true = init only when the element first comes near the viewport.
-   - defaults: option defaults; each key is read from `data-efx-<kebab-key>` and
+   - defaults: option defaults; each key is read from `data-spark-<kebab-key>` and
                coerced to the default's type (number, boolean, string, array).
    - init:     sets the element up, returns an optional cleanup function.
    Speed rules: one querySelectorAll per registered feature on boot, nothing runs
@@ -17,14 +17,14 @@ const reduceMQ = mq('(prefers-reduced-motion: reduce)');
 const fineMQ = mq('(hover: hover) and (pointer: fine)');
 
 /* ------------------------------------------------------------------ env */
-export const motionOK = () => !reduceMQ.matches && !(doc && doc.documentElement.hasAttribute('data-efx-reduce'));
+export const motionOK = () => !reduceMQ.matches && !(doc && doc.documentElement.hasAttribute('data-spark-reduce'));
 export const finePointer = () => fineMQ.matches;
 
 /* --------------------------------------------------------------- options */
 const kebab = s => s.replace(/[A-Z]/g, c => '-' + c.toLowerCase());
-const camelKey = k => 'efx' + k[0].toUpperCase() + k.slice(1);
+const camelKey = k => 'spark' + k[0].toUpperCase() + k.slice(1);
 
-/** Read `data-efx-*` options for `el`, typed by `defaults`. */
+/** Read `data-spark-*` options for `el`, typed by `defaults`. */
 export function options(el, defaults = {}) {
   const out = {};
   for (const key in defaults) {
@@ -45,10 +45,10 @@ export function cssVar(el, name, fallback = '') {
   return v || fallback;
 }
 
-/** Brand color: --efx-color, then Shine tone/primary, then indigo. */
+/** Brand color: --spark-color, then Shine tone/primary, then indigo. */
 export function themeColor(el) {
   const cs = getComputedStyle(el);
-  for (const n of ['--efx-color', '--sh-tone', '--sh-primary']) { const v = cs.getPropertyValue(n).trim(); if (v) return v; }
+  for (const n of ['--spark-color', '--sh-tone', '--sh-primary']) { const v = cs.getPropertyValue(n).trim(); if (v) return v; }
   return '#6366f1';
 }
 
@@ -126,7 +126,7 @@ export function onScroll(fn) {
 /* --------------------------------------------------------------- registry */
 const lazyQueue = new WeakMap(); // el -> Set(names)
 let lazyIO = null;
-const lazyMargin = () => (doc && doc.documentElement.dataset.efxMargin) || '200px';
+const lazyMargin = () => (doc && doc.documentElement.dataset.sparkMargin) || '200px';
 
 function mount(el, def) {
   let m = mounted.get(el);
@@ -138,10 +138,10 @@ function mount(el, def) {
   } catch (err) {
     m.delete(def.name);
     if (!m.size) mounted.delete(el);
-    console.error(`[effix] ${def.name} failed`, err);
+    console.error(`[spark] ${def.name} failed`, err);
     return;
   }
-  el.setAttribute('data-efx-ready', [...m.keys()].join(' '));
+  el.setAttribute('data-spark-ready', [...m.keys()].join(' '));
 }
 
 function queueLazy(el, def) {
@@ -152,12 +152,12 @@ function queueLazy(el, def) {
       const names = lazyQueue.get(e.target);
       lazyIO.unobserve(e.target);
       lazyQueue.delete(e.target);
-      e.target.removeAttribute('data-efx-lazy');
+      e.target.removeAttribute('data-spark-lazy');
       if (names) names.forEach(n => registry.has(n) && mount(e.target, registry.get(n)));
     }), { rootMargin: lazyMargin() });
   }
   let s = lazyQueue.get(el);
-  if (!s) { s = new Set(); lazyQueue.set(el, s); lazyIO.observe(el); el.setAttribute('data-efx-lazy', ''); }
+  if (!s) { s = new Set(); lazyQueue.set(el, s); lazyIO.observe(el); el.setAttribute('data-spark-lazy', ''); }
   s.add(def.name);
 }
 
@@ -166,7 +166,7 @@ function scan(root, def) {
   if (root.nodeType === 1 && root.matches(def.selector)) els.push(root);
   if (root.querySelectorAll) els.push(...root.querySelectorAll(def.selector));
   for (const el of els) {
-    if (mounted.get(el)?.has(def.name) || lazyQueue.get(el)?.has(def.name) || el.closest('[data-efx-skip]')) continue;
+    if (mounted.get(el)?.has(def.name) || lazyQueue.get(el)?.has(def.name) || el.closest('[data-spark-skip]')) continue;
     if (!mediaOK(el)) continue;
     if (def.lazy) queueLazy(el, def); else mount(el, def);
   }
@@ -194,7 +194,7 @@ export function init(root = doc, only) {
 /** Tear down features on `root` and its descendants (all, or only `name`). */
 export function destroy(root = doc, name) {
   if (!root) return api;
-  const sel = '[data-efx-ready], [data-efx-lazy]';
+  const sel = '[data-spark-ready], [data-spark-lazy]';
   const els = root.nodeType === 1 ? [root, ...root.querySelectorAll(sel)] : [...root.querySelectorAll(sel)];
   for (const el of els) teardown(el, name);
   return api;
@@ -205,25 +205,25 @@ function teardown(el, name) {
   const q = lazyQueue.get(el);
   if (q) {
     if (name) q.delete(name); else q.clear();
-    if (!q.size) { lazyQueue.delete(el); lazyIO.unobserve(el); el.removeAttribute('data-efx-lazy'); }
+    if (!q.size) { lazyQueue.delete(el); lazyIO.unobserve(el); el.removeAttribute('data-spark-lazy'); }
   }
   const m = mounted.get(el);
   if (!m) return;
   for (const [n, cleanup] of m) {
     if (name && n !== name) continue;
-    try { cleanup && cleanup(); } catch (err) { console.error(`[effix] ${n} cleanup failed`, err); }
+    try { cleanup && cleanup(); } catch (err) { console.error(`[spark] ${n} cleanup failed`, err); }
     m.delete(n);
   }
-  if (m.size) el.setAttribute('data-efx-ready', [...m.keys()].join(' '));
-  else { mounted.delete(el); el.removeAttribute('data-efx-ready'); }
+  if (m.size) el.setAttribute('data-spark-ready', [...m.keys()].join(' '));
+  else { mounted.delete(el); el.removeAttribute('data-spark-ready'); }
 }
 
 /* ------------------------------------------------- responsive gating */
-// <div class="efx-particles" data-efx-media="(min-width: 768px)"> runs only while the query matches;
+// <div class="spark-particles" data-spark-media="(min-width: 768px)"> runs only while the query matches;
 // it starts and stops as the viewport crosses the breakpoint.
 const mediaWatch = new WeakMap();
 function mediaOK(el) {
-  const q = el.getAttribute('data-efx-media');
+  const q = el.getAttribute('data-spark-media');
   if (!q || typeof matchMedia === 'undefined') return true;
   let mql = mediaWatch.get(el);
   if (!mql) {
@@ -238,7 +238,7 @@ function mediaOK(el) {
   return mql.matches;
 }
 
-/** Re-read options: destroy then init again (e.g. after a visual editor changes data-efx-*). */
+/** Re-read options: destroy then init again (e.g. after a visual editor changes data-spark-*). */
 export function refresh(root = doc, name) {
   destroy(root, name);
   return init(root, name ? [name] : undefined);
@@ -246,8 +246,8 @@ export function refresh(root = doc, name) {
 
 /* ------------------------------------------- DOM watching (editors, SPAs) */
 let mo = null;
-// Nodes that features inject themselves (efx-<name>__<part>) never hold features: skip them.
-const injected = n => /(^|\s)efx-[\w-]+__/.test(n.getAttribute('class') || '');
+// Nodes that features inject themselves (spark-<name>__<part>) never hold features: skip them.
+const injected = n => /(^|\s)spark-[\w-]+__/.test(n.getAttribute('class') || '');
 /** Watch the DOM: auto-init added nodes, destroy removed ones.
     Attribute edits are not watched (features toggle their own classes); call refresh(el) instead. */
 export function observe(target = doc && doc.body) {
@@ -255,7 +255,7 @@ export function observe(target = doc && doc.body) {
   mo = new MutationObserver(records => {
     for (const r of records) {
       r.removedNodes.forEach(n => { if (n.nodeType === 1 && !n.isConnected && !injected(n)) destroy(n); });
-      r.addedNodes.forEach(n => { if (n.nodeType === 1 && n.isConnected && !injected(n) && !n.closest('[data-efx-skip]')) init(n); });
+      r.addedNodes.forEach(n => { if (n.nodeType === 1 && n.isConnected && !injected(n) && !n.closest('[data-spark-skip]')) init(n); });
     }
   });
   mo.observe(target, { childList: true, subtree: true });
@@ -266,8 +266,8 @@ export function disconnect() { if (mo) { mo.disconnect(); mo = null; } return ap
 /* ------------------------------------------------------------ extensions */
 // Plugin registry: features look up named implementations by kind, so users can add
 // their own particle shapes, divider shapes, ambient modes, easings, chart formats…
-//   Effix.add('particle-shape', 'heart', (ctx, size) => { … })
-//   <div class="efx-particles" data-efx-shape="heart">
+//   Spark.add('particle-shape', 'heart', (ctx, size) => { … })
+//   <div class="spark-particles" data-spark-shape="heart">
 const ext = new Map(); // kind -> Map(name -> impl)
 /** Register `impl` under `kind`/`name` (or an object of many: add(kind, { a, b })). Returns api. */
 export function add(kind, name, impl) {
@@ -281,10 +281,10 @@ export const get = (kind, name) => ext.get(kind)?.get(name);
 /** Names registered for a kind. */
 export const list = kind => [...(ext.get(kind)?.keys() || [])];
 
-/** Push new data into a chart, odometer or any feature that listens for `efx:data`. */
+/** Push new data into a chart, odometer or any feature that listens for `spark:data`. */
 export function setData(el, data) {
   if (typeof el === 'string') el = doc && doc.querySelector(el);
-  if (el) el.dispatchEvent(new CustomEvent('efx:data', { detail: data }));
+  if (el) el.dispatchEvent(new CustomEvent('spark:data', { detail: data }));
   return api;
 }
 
@@ -304,11 +304,11 @@ export function parseCSV(text) {
   return rows.filter(r => r.length > 1 || r[0] !== '');
 }
 
-/** Register a live chart data source: `<div class="efx-chart-bar" data-efx-live="name">` calls
+/** Register a live chart data source: `<div class="spark-chart-bar" data-spark-live="name">` calls
     fn(push, el) once; call push({ labels, series }) whenever data changes. fn may return a cleanup function. */
 export function chartSource(name, fn) {
   add('chart-source', name, fn);
-  if (doc) doc.querySelectorAll('[data-efx-live]').forEach(el => { if (el.dataset.efxLive === name && el.hasAttribute('data-efx-ready')) refresh(el); });
+  if (doc) doc.querySelectorAll('[data-spark-live]').forEach(el => { if (el.dataset.sparkLive === name && el.hasAttribute('data-spark-ready')) refresh(el); });
   return api;
 }
 
@@ -322,22 +322,22 @@ export const api = {
   motionOK, finePointer, cssVar, themeColor, on, rafThrottle, onVisible, onScroll,
 };
 
-/** Auto-boot unless <html data-efx-manual> or window.EffixConfig = { auto: false }. */
+/** Auto-boot unless <html data-spark-manual> or window.SparkConfig = { auto: false }. */
 export function autoBoot() {
   if (!doc) return;
   const html = doc.documentElement;
-  const cfg = (typeof window !== 'undefined' && window.EffixConfig) || {};
-  // Add-on bundles (e.g. effix-charts) loaded before this file park their features here.
-  const pending = (typeof window !== 'undefined' && window.EffixPending) || [];
+  const cfg = (typeof window !== 'undefined' && window.SparkConfig) || {};
+  // Add-on bundles (e.g. spark-charts) loaded before this file park their features here.
+  const pending = (typeof window !== 'undefined' && window.SparkPending) || [];
   if (pending.length) define(pending.splice(0));
-  if (typeof window !== 'undefined' && window.EffixChartKit && !api.charts) api.charts = window.EffixChartKit;
-  // window.EffixConfig = { extend(Effix) { Effix.add(…) } } runs before the first scan.
-  if (typeof cfg.extend === 'function') { try { cfg.extend(api); } catch (err) { console.error('[effix] extend', err); } }
-  if (cfg.auto === false || html.hasAttribute('data-efx-manual')) return;
+  if (typeof window !== 'undefined' && window.SparkChartKit && !api.charts) api.charts = window.SparkChartKit;
+  // window.SparkConfig = { extend(Spark) { Spark.add(…) } } runs before the first scan.
+  if (typeof cfg.extend === 'function') { try { cfg.extend(api); } catch (err) { console.error('[spark] extend', err); } }
+  if (cfg.auto === false || html.hasAttribute('data-spark-manual')) return;
   const go = () => {
     init();
-    if (cfg.observe || html.hasAttribute('data-efx-observe')) observe();
-    doc.dispatchEvent(new CustomEvent('efx:ready', { detail: api }));
+    if (cfg.observe || html.hasAttribute('data-spark-observe')) observe();
+    doc.dispatchEvent(new CustomEvent('spark:ready', { detail: api }));
   };
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', go, { once: true });
   else go();

@@ -1,11 +1,11 @@
-# Contributing to Effix
+# Contributing to Spark
 
-Thanks for helping. Effix is small on purpose, so read [CONVENTIONS.md](CONVENTIONS.md) first.
+Thanks for helping. Spark is small on purpose, so read [CONVENTIONS.md](CONVENTIONS.md) first.
 
 ## Setup
 ```bash
-git clone https://github.com/asticore/effix.git
-cd effix
+git clone https://github.com/asticore/spark.git
+cd spark
 npm install
 npx playwright install chromium   # for the smoke test
 ```
@@ -23,7 +23,7 @@ Open `docs/index.html` in a browser to try every feature live.
 ## Adding a feature
 1. Create `src/features/<name>.js` (default export `{ name, selector, defaults, init }`; `init` returns a cleanup).
 2. Add `src/features/<name>.css` if it needs styles. Read colors through the Shine chain:
-   `var(--efx-color, var(--sh-tone, var(--sh-primary, #6366f1)))`.
+   `var(--spark-color, var(--sh-tone, var(--sh-primary, #6366f1)))`.
 3. Add `src/features/<name>.meta.js` with title, group, summary, classes, options, vars and at least one example.
    The smoke test renders the first example and checks the feature starts, so make it self-contained.
 4. `npm run build && npm test`.

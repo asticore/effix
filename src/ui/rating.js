@@ -1,7 +1,7 @@
 /* rating — star rating, read-only or input, optional half stars.
-   <div class="efx-rating" data-efx-value="3.5"></div>                      read-only (a plain number inside works too)
-   <div class="efx-rating" data-efx-readonly="false" data-efx-half data-efx-name="score"></div>
-   Fires `change` (detail.value) on user input; sets a hidden input when data-efx-name is given. */
+   <div class="spark-rating" data-spark-value="3.5"></div>                      read-only (a plain number inside works too)
+   <div class="spark-rating" data-spark-readonly="false" data-spark-half data-spark-name="score"></div>
+   Fires `change` (detail.value) on user input; sets a hidden input when data-spark-name is given. */
 import { on, finePointer } from '../core.js';
 import { shineWidgets } from './_shine.js';
 
@@ -9,7 +9,7 @@ let uid = 0;
 
 export default {
   name: 'rating',
-  selector: '.efx-rating',
+  selector: '.spark-rating',
   defaults: { value: -1, count: 5, half: false, readonly: true, name: '', label: 'Rating' },
   init(el, o) {
     const saved = el.innerHTML, attrs = ['role', 'tabindex', 'aria-label', 'aria-valuemin', 'aria-valuemax', 'aria-valuenow', 'aria-valuetext', 'aria-readonly'].map(a => [a, el.getAttribute(a)]);
@@ -26,7 +26,7 @@ export default {
         el.style.setProperty('--sh-rating', value);
         el.setAttribute('role', 'img'); el.setAttribute('aria-label', `${o.label}: ${value} of 5`);
       } else {
-        const id = 'efx-rt' + ++uid, nm = o.name || id;
+        const id = 'spark-rt' + ++uid, nm = o.name || id;
         el.classList.add('rating-input'); if (o.half) el.classList.add('rating-half');
         el.setAttribute('role', 'radiogroup');
         for (let k = 1; k <= 5 / step; k++) {
@@ -54,12 +54,12 @@ export default {
     el.textContent = '';
     for (let i = 0; i < count; i++) {
       const st = document.createElement('span');
-      st.className = 'efx-rating__star'; st.setAttribute('aria-hidden', 'true'); st.textContent = '★';
+      st.className = 'spark-rating__star'; st.setAttribute('aria-hidden', 'true'); st.textContent = '★';
       el.append(st); stars.push(st);
     }
     if (input) el.append(input);
     const text = v => `${v} of ${count}`;
-    const paint = v => stars.forEach((st, i) => st.style.setProperty('--efx-fill', Math.max(0, Math.min(1, v - i))));
+    const paint = v => stars.forEach((st, i) => st.style.setProperty('--spark-fill', Math.max(0, Math.min(1, v - i))));
     const set = (v, fire) => {
       v = clamp(v);
       const changed = v !== value;
@@ -68,7 +68,7 @@ export default {
       if (input) input.value = v;
       if (fire && changed) el.dispatchEvent(new CustomEvent('change', { bubbles: true, detail: { value: v } }));
     };
-    el.classList.add('efx-rating--own'); el.classList.toggle('is-readonly', o.readonly);
+    el.classList.add('spark-rating--own'); el.classList.toggle('is-readonly', o.readonly);
     el.setAttribute('aria-label', o.label);
     if (o.readonly) {
       el.setAttribute('role', 'img'); el.setAttribute('aria-label', `${o.label}: ${text(value)}`); paint(value);
@@ -98,7 +98,7 @@ export default {
     }
     return () => {
       offs.forEach(f => f());
-      el.innerHTML = saved; el.classList.remove('is-readonly', 'efx-rating--own');
+      el.innerHTML = saved; el.classList.remove('is-readonly', 'spark-rating--own');
       attrs.forEach(([a, v]) => v === null ? el.removeAttribute(a) : el.setAttribute(a, v));
     };
   },

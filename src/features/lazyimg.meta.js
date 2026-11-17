@@ -5,24 +5,24 @@ module.exports = {
   group: 'Components',
   summary: 'Blur-up image loading: a tiny placeholder shows first, the full image loads when near the viewport and sharpens in. Works for <img> and background images.',
   classes: [
-    ['efx-lazyimg', 'On an <img> (data-efx-src / data-efx-srcset) or any element with data-efx-bg.'],
+    ['spark-lazyimg', 'On an <img> (data-spark-src / data-spark-srcset) or any element with data-spark-bg.'],
     ['is-lazy / is-loaded / is-error', 'State classes set by JS.'],
   ],
   options: [
-    ['data-efx-margin', '300px', 'How early to start loading (rootMargin).'],
-    ['data-efx-blur', '12', 'Blur radius in px of the placeholder.'],
-    ['data-efx-src', '', 'Full image URL (img).'],
-    ['data-efx-srcset', '', 'Full srcset (img); optional data-efx-sizes.'],
-    ['data-efx-bg', '', 'Full background image URL (any element).'],
+    ['data-spark-margin', '300px', 'How early to start loading (rootMargin).'],
+    ['data-spark-blur', '12', 'Blur radius in px of the placeholder.'],
+    ['data-spark-src', '', 'Full image URL (img).'],
+    ['data-spark-srcset', '', 'Full srcset (img); optional data-spark-sizes.'],
+    ['data-spark-bg', '', 'Full background image URL (any element).'],
   ],
   vars: [
-    ['--efx-blur', 'set by JS', 'Placeholder blur radius.'],
+    ['--spark-blur', 'set by JS', 'Placeholder blur radius.'],
   ],
   examples: [
     { html: `<div class="grid md:grid-cols-2 gap-4">
-  <img class="efx-lazyimg rounded-lg" style="width:100%;height:220px;object-fit:cover" alt="Gradient"
-    src="${svg('#6366f1', 'tiny').replace(/"/g, '&quot;')}" data-efx-src="${svg('#6366f1', 'Sharp image').replace(/"/g, '&quot;')}">
-  <div class="efx-lazyimg rounded-lg" style="height:220px;background-color:#c7d2fe" data-efx-bg="${svg('#0ea5e9', 'Background').replace(/"/g, '&quot;')}"></div>
+  <img class="spark-lazyimg rounded-lg" style="width:100%;height:220px;object-fit:cover" alt="Gradient"
+    src="${svg('#6366f1', 'tiny').replace(/"/g, '&quot;')}" data-spark-src="${svg('#6366f1', 'Sharp image').replace(/"/g, '&quot;')}">
+  <div class="spark-lazyimg rounded-lg" style="height:220px;background-color:#c7d2fe" data-spark-bg="${svg('#0ea5e9', 'Background').replace(/"/g, '&quot;')}"></div>
 </div>` },
   ],
 };

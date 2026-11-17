@@ -1,5 +1,5 @@
 /* viz-pack — circle packing for a hierarchy. Click a circle to zoom in, click the background (or the focused circle) to zoom out.
-   <div class="efx-viz-pack" data-efx-data='{"name":"root","children":[{"name":"a","value":3},{"name":"b","children":[{"name":"c","value":2}]}]}'></div> */
+   <div class="spark-viz-pack" data-spark-data='{"name":"root","children":[{"name":"a","value":3},{"name":"b","children":[{"name":"c","value":2}]}]}'></div> */
 import { COMMON, chart, palette, s, esc } from './_lib.js';
 import { on, motionOK } from '../core.js';
 
@@ -96,14 +96,14 @@ const build = (d, padding) => {
 
 export default {
   name: 'viz-pack',
-  selector: '.efx-viz-pack',
+  selector: '.spark-viz-pack',
   lazy: true,
   defaults: { ...COMMON, height: 420, legend: false, padding: 0.15 },
   init(el, o) {
     const read = r => { try { return typeof r === 'string' ? JSON.parse(r) : r; } catch (e) { return null; } };
     const j = el.querySelector(':scope > script[type="application/json"]');
     let src = read((o.data || '').trim() || (j && j.textContent)), T, focus, raf = 0;
-    const offData = on(el, 'efx:data', e => { src = e.detail || src; T = focus = null; });
+    const offData = on(el, 'spark:data', e => { src = e.detail || src; T = focus = null; });
     const draw = ({ g, w, h, deco, fmt }) => {
       cancelAnimationFrame(raf);
       if (!T) { T = build(src && typeof src === 'object' ? src : {}, o.padding); focus = null; }
@@ -111,22 +111,22 @@ export default {
       if (!root.r) return [];
       const top = root.kids.filter(k => k.r > 0), pal = palette(el, o, top.length);
       const colorOf = n => { while (n.depth > 1) n = n.parent; return pal[top.indexOf(n)] || pal[0]; };
-      const zg = s('g', {}, g), lg = s('g', { class: 'efx-viz__labels' }, g);
+      const zg = s('g', {}, g), lg = s('g', { class: 'spark-viz__labels' }, g);
       const marks = nodes.map((n, i) => {
         const leaf = !n.kids.length, root0 = !n.depth, c = colorOf(n);
-        const node = s('circle', { cx: n.x, cy: n.y, r: n.r, fill: root0 ? 'none' : c, 'fill-opacity': leaf ? 0.8 : 0.06 + 0.05 * n.depth, stroke: root0 ? 'var(--efx-chart-grid)' : c, 'stroke-opacity': 0.55, 'vector-effect': 'non-scaling-stroke', class: 'efx-chart__mark efx-chart__fade', style: `--i:${Math.min(n.depth * 4 + (i % 8), 30)}` }, zg);
+        const node = s('circle', { cx: n.x, cy: n.y, r: n.r, fill: root0 ? 'none' : c, 'fill-opacity': leaf ? 0.8 : 0.06 + 0.05 * n.depth, stroke: root0 ? 'var(--spark-chart-grid)' : c, 'stroke-opacity': 0.55, 'vector-effect': 'non-scaling-stroke', class: 'spark-chart__mark spark-chart__fade', style: `--i:${Math.min(n.depth * 4 + (i % 8), 30)}` }, zg);
         const path = []; for (let q = n; q; q = q.parent) path.unshift(q.name);
         return { x: 0, y: 0, label: n.name || 'Root', series: n.depth > 1 ? path.slice(1, -1).join(' › ') : '', value: n.value, node, index: i, n, rel: [],
           html: `<strong>${esc(path.slice(1).join(' › ') || n.name)}</strong><b>${esc(fmt(n.value))}</b>`,
           hit: (px, py) => Math.hypot(px - marks[i].x, py - marks[i].y) <= n.r * K() };
       });
-      const labels = deco ? [] : marks.filter(m => !m.n.kids.length).map(m => { const t = s('text', { class: 'efx-viz__label', 'text-anchor': 'middle', 'dominant-baseline': 'middle' }, lg); t.textContent = m.label; return [m, t]; });
+      const labels = deco ? [] : marks.filter(m => !m.n.kids.length).map(m => { const t = s('text', { class: 'spark-viz__label', 'text-anchor': 'middle', 'dominant-baseline': 'middle' }, lg); t.textContent = m.label; return [m, t]; });
       let f = focus ? { x: focus.x, y: focus.y, r: focus.r } : { x: root.x, y: root.y, r: root.r };
       const m0 = deco ? 0 : 6, K = () => Math.min(w, h) / 2 / f.r * (1 - m0 / 100);
       const apply = () => {
         const k = K(), tx = w / 2 - f.x * k, ty = h / 2 - f.y * k;
         zg.setAttribute('transform', `translate(${tx} ${ty}) scale(${k})`);
-        marks.forEach(m => { m.x = m.n.x * k + tx; m.y = m.n.y * k + ty; m.node.classList.toggle('efx-viz__out', !!focus && !inside(m.n)); });
+        marks.forEach(m => { m.x = m.n.x * k + tx; m.y = m.n.y * k + ty; m.node.classList.toggle('spark-viz__out', !!focus && !inside(m.n)); });
         labels.forEach(([m, t]) => {
           const show = m.n.r * k * 1.7 > m.label.length * 6 + 6 && m.n.r * k > 9 && inside(m.n);
           t.style.display = show ? '' : 'none';
@@ -161,10 +161,10 @@ export default {
       if (svgClick || n) draw.zoom(cur.parent || root);
     };
     let nodesOf = () => (T ? T.nodes : []);
-    const offSel = on(el, 'efx:select', e => pick(nodesOf()[e.detail.index]));
+    const offSel = on(el, 'spark:select', e => pick(nodesOf()[e.detail.index]));
     const stop = chart(el, o, draw);
-    const svg = el.querySelector('.efx-chart__svg');
-    const offBg = !o.background && svg ? on(svg, 'click', e => { if (!e.target.closest('.efx-chart__mark')) pick(null, true); }) : () => {};
+    const svg = el.querySelector('.spark-chart__svg');
+    const offBg = !o.background && svg ? on(svg, 'click', e => { if (!e.target.closest('.spark-chart__mark')) pick(null, true); }) : () => {};
     return () => { cancelAnimationFrame(raf); offSel(); offBg(); offData(); stop(); };
   },
 };

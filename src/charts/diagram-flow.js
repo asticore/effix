@@ -1,10 +1,10 @@
 /* diagram-flow — HTML-first diagrams: flowcharts, process, architecture, state machines, ER/UML.
    Nodes are real HTML children with ids; an SVG overlay draws the connectors behind them.
-   <div class="efx-diagram-flow" data-efx-layout="auto" data-efx-edges="a>b|b>c:yes|c~>a">
-     <div id="a" data-efx-shape="pill">Start</div> <div id="b" data-efx-shape="diamond">Ok?</div> …</div>
+   <div class="spark-diagram-flow" data-spark-layout="auto" data-spark-edges="a>b|b>c:yes|c~>a">
+     <div id="a" data-spark-shape="pill">Start</div> <div id="b" data-spark-shape="diamond">Ok?</div> …</div>
    Edges: a>b solid, a~>b dashed, a=>b thick, a<>b both ways; ":label"; ER cardinality ":1..n" (1, n, 0n, 01).
-   Place nodes with data-efx-cell="col,row[,colspan,rowspan]" (+ data-efx-cols), or data-efx-layout="auto"
-   (direction TB|LR), or swimlanes data-efx-lanes="A|B" + data-efx-lane on nodes. data-efx-group="Name" boxes nodes. */
+   Place nodes with data-spark-cell="col,row[,colspan,rowspan]" (+ data-spark-cols), or data-spark-layout="auto"
+   (direction TB|LR), or swimlanes data-spark-lanes="A|B" + data-spark-lane on nodes. data-spark-group="Name" boxes nodes. */
 import { on, rafThrottle, motionOK } from '../core.js';
 import { s, esc, palette } from './_lib.js';
 
@@ -43,7 +43,7 @@ function rankOf(ids, edges) {
 
 export default {
   name: 'diagram-flow',
-  selector: '.efx-diagram-flow',
+  selector: '.spark-diagram-flow',
   lazy: true,
   defaults: { edges: '', layout: '', direction: 'TB', cols: 0, lanes: [], route: 'orth', flow: false, colors: [], title: '' },
   init(el, o) {
@@ -53,7 +53,7 @@ export default {
     const E = String(o.edges).split('|').map(p => { const m = p.trim().match(OPS); return m && { a: m[1], b: m[3], op: m[2], label: (m[4] || '').trim() }; }).filter(Boolean);
     const byId = new Map(), nodes = new Set();
     E.forEach(e => [e.a, e.b].forEach(id => { const n = find(id); if (n) { byId.set(id, n); nodes.add(n); } }));
-    el.querySelectorAll('[data-efx-shape],[data-efx-lane]').forEach(n => { nodes.add(n); if (n.id) byId.set(n.id, n); });
+    el.querySelectorAll('[data-spark-shape],[data-spark-lane]').forEach(n => { nodes.add(n); if (n.id) byId.set(n.id, n); });
     const edges = E.filter(e => byId.has(e.a) && byId.has(e.b) && e.a !== e.b);
 
     let restore = false;
@@ -61,7 +61,7 @@ export default {
     el.style.isolation = 'isolate';
     const added = [];
     const addCls = (n, c) => { if (!n.classList.contains(c)) { n.classList.add(c); added.push([n, c]); } };
-    addCls(el, 'efx-diagram');
+    addCls(el, 'spark-diagram');
 
     /* ---------- layout */
     const gridify = (c, cols) => {
@@ -88,15 +88,15 @@ export default {
       place();
       for (let i = 0; i < 3; i++) { for (let l = 1; l <= R; l++) order(l, true); for (let l = R - 1; l >= 0; l--) order(l, false); }
       if (lanes.length) {
-        const laneIdx = n => { const v = n.dataset.efxLane; const i = lanes.indexOf(v); return i >= 0 ? i : Math.max(0, (parseInt(v, 10) || 1) - 1); };
+        const laneIdx = n => { const v = n.dataset.sparkLane; const i = lanes.indexOf(v); return i >= 0 ? i : Math.max(0, (parseInt(v, 10) || 1) - 1); };
         let cols = R + 1;
         byId.forEach((n, id) => {
-          const m = (n.dataset.efxCell || '').split(',').map(x => parseInt(x, 10));
+          const m = (n.dataset.sparkCell || '').split(',').map(x => parseInt(x, 10));
           const c = m[0] || (r.get(id) ?? 0) + 1; cols = Math.max(cols, c);
           cell(n, c, laneIdx(n) + 1);
         });
-        gridify(el, cols); set(el, 'gridTemplateRows', `repeat(${lanes.length},minmax(var(--efx-lane-h,5.5rem),auto))`);
-        addCls(el, 'efx-diagram--lanes');
+        gridify(el, cols); set(el, 'gridTemplateRows', `repeat(${lanes.length},minmax(var(--spark-lane-h,5.5rem),auto))`);
+        addCls(el, 'spark-diagram--lanes');
       } else {
         const LR = /^l/i.test(o.direction), mx = Math.max(...layers.map(L => L.length));
         ids.forEach(id => {
@@ -107,11 +107,11 @@ export default {
         if (LR) set(el, 'gridTemplateRows', `repeat(${mx * 2},auto)`);
       }
     } else {
-      [el, ...el.querySelectorAll('[data-efx-group]')].forEach(c => {
-        const kids = [...c.children].filter(k => k.dataset.efxCell);
-        let cols = parseInt(c.dataset.efxCols, 10) || o.cols * (c === el) || 0;
+      [el, ...el.querySelectorAll('[data-spark-group]')].forEach(c => {
+        const kids = [...c.children].filter(k => k.dataset.sparkCell);
+        let cols = parseInt(c.dataset.sparkCols, 10) || o.cols * (c === el) || 0;
         kids.forEach(k => {
-          const m = k.dataset.efxCell.split(',').map(x => parseInt(x, 10));
+          const m = k.dataset.sparkCell.split(',').map(x => parseInt(x, 10));
           cell(k, m[0] || 1, m[1] || 1, m[2] || 1, m[3] || 1); cols = Math.max(cols, (m[0] || 1) + (m[2] || 1) - 1);
         });
         if (cols) gridify(c, cols);
@@ -121,9 +121,9 @@ export default {
     /* ---------- node semantics */
     const colors = palette(el, o, 7);
     nodes.forEach(n => {
-      addCls(n, 'efx-diagram__node');
-      const t = n.dataset.efxTone;
-      if (t && /^[1-7]$/.test(t)) set(n, '--efx-n', colors[t - 1]);
+      addCls(n, 'spark-diagram__node');
+      const t = n.dataset.sparkTone;
+      if (t && /^[1-7]$/.test(t)) set(n, '--spark-n', colors[t - 1]);
       if (!n.hasAttribute('tabindex') && !n.matches('a[href],button,input,select,textarea,[contenteditable]')) { n.setAttribute('tabindex', '0'); undo.push([n, 'tabindex', null]); }
     });
     const attrs = [];
@@ -132,11 +132,11 @@ export default {
     setAttr(el, 'aria-label', o.title || 'Diagram');
 
     /* ---------- svg + screen-reader list */
-    const svg = s('svg', { class: 'efx-diagram__svg', 'aria-hidden': 'true' });
-    const mid = 'efx-dg-' + ++uid;
+    const svg = s('svg', { class: 'spark-diagram__svg', 'aria-hidden': 'true' });
+    const mid = 'spark-dg-' + ++uid;
     el.appendChild(svg);
     const sr = document.createElement('ul');
-    sr.className = 'efx-chart__sr efx-diagram__sr';
+    sr.className = 'spark-chart__sr spark-diagram__sr';
     sr.innerHTML = edges.map(e => `<li>${esc(nameOf(byId.get(e.a)))} → ${esc(nameOf(byId.get(e.b)))}${e.label ? ' (' + esc(e.label) + ')' : ''}</li>`).join('');
     el.appendChild(sr);
 
@@ -161,7 +161,7 @@ export default {
       const cs = getComputedStyle(el);
       const tracks = lanes.length ? cs.gridTemplateRows.split(' ').map(parseFloat) : [];
       const gap = parseFloat(cs.rowGap) || 0, pt = parseFloat(cs.paddingTop) || 0, pl = parseFloat(cs.paddingLeft) || 0;
-      const tone = edges.map(e => getComputedStyle(byId.get(e.a)).getPropertyValue('--efx-n').trim());
+      const tone = edges.map(e => getComputedStyle(byId.get(e.a)).getPropertyValue('--spark-n').trim());
 
       /* sides + port spreading */
       const sides = edges.map(e => {
@@ -185,19 +185,19 @@ export default {
       const mk = s('marker', { id: mid, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 10, markerHeight: 10, markerUnits: 'userSpaceOnUse', orient: 'auto-start-reverse' }, defs);
       s('path', { d: 'M0,1 L9,5 L0,9 z', fill: 'context-stroke' }, mk);
       if (tracks.length) {
-        const g = s('g', { class: 'efx-diagram__lanes' }, svg);
+        const g = s('g', { class: 'spark-diagram__lanes' }, svg);
         let y = pt;
         tracks.forEach((h, i) => {
           const y0 = i ? y - gap / 2 : 0, y1 = i === tracks.length - 1 ? H : y + h + gap / 2;
-          s('rect', { class: 'efx-diagram__lane', x: 0, y: y0, width: W, height: y1 - y0 }, g);
+          s('rect', { class: 'spark-diagram__lane', x: 0, y: y0, width: W, height: y1 - y0 }, g);
           const words = String(lanes[i]).split(/\s+/), lines = []; let cur = '';
           words.forEach(w => { if ((cur + ' ' + w).trim().length > 13 && cur) { lines.push(cur); cur = w; } else cur = (cur + ' ' + w).trim(); });
           lines.push(cur);
-          const t = s('text', { class: 'efx-diagram__lane-label', x: 14, y: (y0 + y1) / 2 - (lines.length - 1) * 8 }, g);
+          const t = s('text', { class: 'spark-diagram__lane-label', x: 14, y: (y0 + y1) / 2 - (lines.length - 1) * 8 }, g);
           lines.forEach((ln, k) => { const sp = s('tspan', { x: 14, dy: k ? 16 : 0 }, t); sp.textContent = ln; });
           y += h + gap;
         });
-        s('line', { class: 'efx-diagram__lane-sep', x1: pl - 14, x2: pl - 14, y1: 0, y2: H }, g);
+        s('line', { class: 'spark-diagram__lane-sep', x1: pl - 14, x2: pl - 14, y1: 0, y2: H }, g);
       }
       ed.length = 0;
       const route = String(o.route).toLowerCase();
@@ -215,12 +215,12 @@ export default {
           const m = hz ? (p1[0] + p2[0]) / 2 : (p1[1] + p2[1]) / 2;
           d = rounded(hz ? [p1, [m, p1[1]], [m, p2[1]], p2] : [p1, [p1[0], m], [p2[0], m], p2]);
         }
-        const g = s('g', { class: 'efx-diagram__edge', 'data-i': i }, svg);
+        const g = s('g', { class: 'spark-diagram__edge', 'data-i': i }, svg);
         if (tone[i]) g.style.setProperty('--c', tone[i]);
-        s('path', { class: 'efx-diagram__hit', d }, g);
+        s('path', { class: 'spark-diagram__hit', d }, g);
         const er = e.label.split('..');
         const isER = er.length === 2 && CARD.test(er[0]) && CARD.test(er[1]);
-        const line = s('path', { class: 'efx-diagram__line', d }, g);
+        const line = s('path', { class: 'spark-diagram__line', d }, g);
         if (e.op === '~>') line.setAttribute('stroke-dasharray', '6 5');
         if (e.op === '=>') line.setAttribute('stroke-width', 3.4);
         if (!isER) { line.setAttribute('marker-end', `url(#${mid})`); if (e.op === '<>') line.setAttribute('marker-start', `url(#${mid})`); }
@@ -231,19 +231,19 @@ export default {
           if (many) m += `M${f(at(11, 0))}L${f(at(0, 6))}M${f(at(11, 0))}L${f(at(0, -6))}M${f(at(11, 0))}L${f(at(0, 0))}`;
           else m += `M${f(at(8, 6))}L${f(at(8, -6))}`;
           if (t === '1') m += `M${f(at(12, 6))}L${f(at(12, -6))}`;
-          s('path', { class: 'efx-diagram__er', d: m }, g);
-          if (zero) { const c = at(many ? 17 : 15); s('circle', { class: 'efx-diagram__er efx-diagram__er--o', cx: c[0], cy: c[1], r: 4 }, g); }
+          s('path', { class: 'spark-diagram__er', d: m }, g);
+          if (zero) { const c = at(many ? 17 : 15); s('circle', { class: 'spark-diagram__er spark-diagram__er--o', cx: c[0], cy: c[1], r: 4 }, g); }
         });
         let len = 0;
         try { len = line.getTotalLength(); } catch (x) { /* detached */ }
         if (e.label && !isER && len) {
           const m = line.getPointAtLength(len / 2), w = e.label.length * 6.4 + 14;
-          const lb = s('g', { class: 'efx-diagram__lbl' }, g);
+          const lb = s('g', { class: 'spark-diagram__lbl' }, g);
           s('rect', { x: m.x - w / 2, y: m.y - 9, width: w, height: 18, rx: 9 }, lb);
           s('text', { x: m.x, y: m.y }, lb).textContent = e.label;
         }
         if (o.flow && motionOK() && len) {
-          const c = s('circle', { class: 'efx-diagram__dot', r: 3 }, g);
+          const c = s('circle', { class: 'spark-diagram__dot', r: 3 }, g);
           const am = s('animateMotion', { dur: Math.max(1.6, len / 80) + 's', repeatCount: 'indefinite', begin: -(i * 0.7) + 's', path: d }, c);
           am.setAttribute('rotate', '0');
         }
@@ -255,13 +255,13 @@ export default {
     draw();
 
     /* ---------- interaction */
-    const nodeOf = t => { const n = t.closest && t.closest('.efx-diagram__node'); return n && el.contains(n) ? n : null; };
-    const select = n => el.dispatchEvent(new CustomEvent('efx:select', { bubbles: true, detail: { id: n.id, label: nameOf(n), index: [...nodes].indexOf(n) } }));
+    const nodeOf = t => { const n = t.closest && t.closest('.spark-diagram__node'); return n && el.contains(n) ? n : null; };
+    const select = n => el.dispatchEvent(new CustomEvent('spark:select', { bubbles: true, detail: { id: n.id, label: nameOf(n), index: [...nodes].indexOf(n) } }));
     const offs = [
       on(el, 'pointerover', e => {
         const n = nodeOf(e.target);
         if (n) return focusNode(n);
-        const g = e.target.closest && e.target.closest('.efx-diagram__edge');
+        const g = e.target.closest && e.target.closest('.spark-diagram__edge');
         if (g) { const i = +g.dataset.i, x = edges[i]; hl = { n: new Set([byId.get(x.a), byId.get(x.b)]), e: new Set([i]) }; apply(); } else clear();
       }),
       on(el, 'pointerleave', clear),

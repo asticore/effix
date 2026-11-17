@@ -1,13 +1,13 @@
 /* chart-pyramid — layered pyramid (tiers top → bottom), optionally inverted, optional side notes.
-   <div class="efx-chart-pyramid" data-efx-labels="Vision|Strategy|Tactics|Tasks" data-efx-notes="Why we exist|Where we play|How we win|What we do"></div>
-   With data-efx-data="1,3,6,12" the tier heights follow the values. */
+   <div class="spark-chart-pyramid" data-spark-labels="Vision|Strategy|Tactics|Tasks" data-spark-notes="Why we exist|Where we play|How we win|What we do"></div>
+   With data-spark-data="1,3,6,12" the tier heights follow the values. */
 import { COMMON, chart, palette, s, esc } from './_lib.js';
 
 const wrap = (t, n) => { const out = []; let l = ''; String(t).split(/\s+/).forEach(wd => { if (l && (l + ' ' + wd).length > n) { out.push(l); l = wd; } else l = l ? l + ' ' + wd : wd; }); if (l) out.push(l); return out.slice(0, 3); };
 
 export default {
   name: 'chart-pyramid',
-  selector: '.efx-chart-pyramid',
+  selector: '.spark-chart-pyramid',
   lazy: true,
   defaults: { ...COMMON, height: 320, inverted: false, equal: false, notes: [], gap: 3 },
   init(el, o) {
@@ -29,18 +29,18 @@ export default {
         const bh = (wt[k] / sum) * av, y0 = y, y1 = y + bh, ym = (y0 + y1) / 2;
         y = y1 + gp;
         const a = Math.max(0, hw(y0)), b = Math.max(0, hw(y1));
-        const node = s('polygon', { points: `${cx - a},${y0} ${cx + a},${y0} ${cx + b},${y1} ${cx - b},${y1}`, fill: pal[i], class: 'efx-chart__mark efx-pyr__b', style: `--i:${inv ? n - 1 - k : k}` }, g);
+        const node = s('polygon', { points: `${cx - a},${y0} ${cx + a},${y0} ${cx + b},${y1} ${cx - b},${y1}`, fill: pal[i], class: 'spark-chart__mark spark-pyr__b', style: `--i:${inv ? n - 1 - k : k}` }, g);
         const note = o.notes[k];
         if (!deco) {
           const label = data.labels[i], val = has ? fmt(vals[i] || 0) : '', mid = hw(ym) * 2, fit = mid >= label.length * 6.8 + 14;
           const two = val && fit && bh >= 38 && mid >= val.length * 6.4 + 14;
-          const t = (x, yy, cls, str, anchor) => { const e = s('text', { x, y: yy, 'text-anchor': anchor || 'middle', 'dominant-baseline': 'middle', class: cls + ' efx-chart__fade', style: `--i:${(inv ? n - 1 - k : k) * 2 + 2}` }, g); e.textContent = str; };
-          if (fit) { t(cx, ym - (two ? 7 : 0), 'efx-pyr__t', label); if (two) t(cx, ym + 8, 'efx-pyr__t efx-pyr__t2', val); }
-          else t(cx + Math.max(a, b) + 8, ym, 'efx-pyr__o', label + (val ? ' · ' + val : ''), 'start');
+          const t = (x, yy, cls, str, anchor) => { const e = s('text', { x, y: yy, 'text-anchor': anchor || 'middle', 'dominant-baseline': 'middle', class: cls + ' spark-chart__fade', style: `--i:${(inv ? n - 1 - k : k) * 2 + 2}` }, g); e.textContent = str; };
+          if (fit) { t(cx, ym - (two ? 7 : 0), 'spark-pyr__t', label); if (two) t(cx, ym + 8, 'spark-pyr__t spark-pyr__t2', val); }
+          else t(cx + Math.max(a, b) + 8, ym, 'spark-pyr__o', label + (val ? ' · ' + val : ''), 'start');
           if (note) {
             const nx = pad + tw + 14, ex = cx + Math.max(hw(ym), 0) + (fit ? 4 : 0);
-            if (fit) s('line', { x1: ex, x2: nx - 6, y1: ym, y2: ym, class: 'efx-chart__grid efx-chart__fade', style: `--i:${k}` }, g);
-            const lines = wrap(note, Math.max(8, Math.floor(nw / 6.4))), e = s('text', { x: nx, y: ym - ((lines.length - 1) * 7), class: 'efx-pyr__n efx-chart__fade', style: `--i:${k * 2 + 2}` }, g);
+            if (fit) s('line', { x1: ex, x2: nx - 6, y1: ym, y2: ym, class: 'spark-chart__grid spark-chart__fade', style: `--i:${k}` }, g);
+            const lines = wrap(note, Math.max(8, Math.floor(nw / 6.4))), e = s('text', { x: nx, y: ym - ((lines.length - 1) * 7), class: 'spark-pyr__n spark-chart__fade', style: `--i:${k * 2 + 2}` }, g);
             lines.forEach((l, q) => { const sp = s('tspan', { x: nx, dy: q ? 14 : 0, 'dominant-baseline': 'middle' }, e); sp.textContent = l; });
           }
         }

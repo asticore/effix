@@ -6,36 +6,36 @@ module.exports = {
   group: 'Components',
   summary: 'Captions or lyrics synced to an audio/video element: the active line is highlighted and scrolled into view inside its own box, words can fill like karaoke, and clicking a line seeks the media. Cues come from JSON or the media\'s WebVTT track. Reduced motion: no smooth scrolling, whole active line is lit instead of a progressive fill.',
   classes: [
-    ['efx-lyrics', 'The lyrics box (scrolls internally; set a height with --efx-lyrics-height).'],
-    ['efx-lyrics__list', 'Injected <ol> of lines.'],
-    ['efx-lyrics__line', 'Injected <li>; gets aria-current="true" and .is-active while sung.'],
-    ['efx-lyrics__btn', 'Injected seek button (a <span> when data-efx-seek="false").'],
-    ['efx-lyrics__word', 'Injected word span in karaoke mode (--p = 0..1 fill).'],
+    ['spark-lyrics', 'The lyrics box (scrolls internally; set a height with --spark-lyrics-height).'],
+    ['spark-lyrics__list', 'Injected <ol> of lines.'],
+    ['spark-lyrics__line', 'Injected <li>; gets aria-current="true" and .is-active while sung.'],
+    ['spark-lyrics__btn', 'Injected seek button (a <span> when data-spark-seek="false").'],
+    ['spark-lyrics__word', 'Injected word span in karaoke mode (--p = 0..1 fill).'],
   ],
   options: [
-    ['data-efx-for', '(parent audio/video)', 'Selector of the media element, e.g. #song.'],
-    ['data-efx-cues', '', 'JSON [{"t":0,"text":"…","end":2,"words":[{"t":0,"w":"…"}]}]. Alternatives: an inline <script type="application/json"> child, or a captions/subtitles <track> on the media (WebVTT; <00:01.500> stamps give word timing).'],
-    ['data-efx-karaoke', 'false', 'Fill words progressively (background-clip text gradient). Words without timing are spread evenly over the line.'],
-    ['data-efx-scroll', 'true', 'Auto-scroll the active line to the middle of the box (pauses 3s after you scroll it yourself).'],
-    ['data-efx-seek', 'true', 'Clicking a line sets media.currentTime.'],
-    ['data-efx-offset', '0', 'Seconds added to the media time (lyrics early/late).'],
+    ['data-spark-for', '(parent audio/video)', 'Selector of the media element, e.g. #song.'],
+    ['data-spark-cues', '', 'JSON [{"t":0,"text":"…","end":2,"words":[{"t":0,"w":"…"}]}]. Alternatives: an inline <script type="application/json"> child, or a captions/subtitles <track> on the media (WebVTT; <00:01.500> stamps give word timing).'],
+    ['data-spark-karaoke', 'false', 'Fill words progressively (background-clip text gradient). Words without timing are spread evenly over the line.'],
+    ['data-spark-scroll', 'true', 'Auto-scroll the active line to the middle of the box (pauses 3s after you scroll it yourself).'],
+    ['data-spark-seek', 'true', 'Clicking a line sets media.currentTime.'],
+    ['data-spark-offset', '0', 'Seconds added to the media time (lyrics early/late).'],
   ],
   vars: [
-    ['--efx-lyrics-height', '16rem', 'Max height of the box.'],
-    ['--efx-lyrics-active', 'var(--sh-primary)', 'Active line color.'],
-    ['--efx-lyrics-fill', 'var(--sh-primary)', 'Karaoke filled color.'],
-    ['--efx-lyrics-dim', '45% currentColor', 'Karaoke unfilled color.'],
+    ['--spark-lyrics-height', '16rem', 'Max height of the box.'],
+    ['--spark-lyrics-active', 'var(--sh-primary)', 'Active line color.'],
+    ['--spark-lyrics-fill', 'var(--sh-primary)', 'Karaoke filled color.'],
+    ['--spark-lyrics-dim', '45% currentColor', 'Karaoke unfilled color.'],
   ],
   examples: [
     { html: `<div class="stack gap-3 p-4">
-  <audio id="efx-ly-a" controls loop style="width:100%"></audio>
-  <div class="efx-lyrics card" data-efx-for="#efx-ly-a" data-efx-cues='[{"t":0,"text":"Every light is turning on"},{"t":2,"text":"Somewhere past the edge of dawn"},{"t":4,"text":"Carry me, carry me home"},{"t":6,"text":"Where the quiet signals roam"},{"t":8,"text":"Count the stars and let them go"},{"t":10,"text":"Softly now, the river flows"}]' style="--efx-lyrics-height:11rem"></div>
-</div>${tone('efx-ly-a')}` },
+  <audio id="spark-ly-a" controls loop style="width:100%"></audio>
+  <div class="spark-lyrics card" data-spark-for="#spark-ly-a" data-spark-cues='[{"t":0,"text":"Every light is turning on"},{"t":2,"text":"Somewhere past the edge of dawn"},{"t":4,"text":"Carry me, carry me home"},{"t":6,"text":"Where the quiet signals roam"},{"t":8,"text":"Count the stars and let them go"},{"t":10,"text":"Softly now, the river flows"}]' style="--spark-lyrics-height:11rem"></div>
+</div>${tone('spark-ly-a')}` },
     { html: `<div class="stack gap-3 p-4">
-  <audio id="efx-ly-b" controls loop style="width:100%"></audio>
-  <div class="efx-lyrics card" data-efx-for="#efx-ly-b" data-efx-karaoke style="--efx-lyrics-height:11rem">
+  <audio id="spark-ly-b" controls loop style="width:100%"></audio>
+  <div class="spark-lyrics card" data-spark-for="#spark-ly-b" data-spark-karaoke style="--spark-lyrics-height:11rem">
     <script type="application/json">[{"t":0,"text":"Every light is turning on"},{"t":2,"text":"Somewhere past the edge of dawn"},{"t":4,"text":"Carry me, carry me home"},{"t":6,"text":"Where the quiet signals roam"},{"t":8,"text":"Count the stars and let them go"},{"t":10,"text":"Softly now, the river flows"}]</script>
   </div>
-</div>${tone('efx-ly-b')}` },
+</div>${tone('spark-ly-b')}` },
   ],
 };

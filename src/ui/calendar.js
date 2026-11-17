@@ -1,6 +1,6 @@
 /* calendar — month view with events (JSON or ICS) and an optional date / range picker.
-   <div class="efx-calendar" data-efx-events='[{"date":"2026-11-20","title":"Launch"}]'></div>
-   <div class="efx-calendar" data-efx-range data-efx-name="stay"></div>
+   <div class="spark-calendar" data-spark-events='[{"date":"2026-11-20","title":"Launch"}]'></div>
+   <div class="spark-calendar" data-spark-range data-spark-name="stay"></div>
    Events: JSON array [{ date, end?, title, color? }], an .ics / .json URL, or an inline <script type="application/json">.
    Fires `change` (detail = { value, end, events }) when a day (or range) is picked. */
 import { on } from '../core.js';
@@ -42,12 +42,12 @@ export function parseICS(text) {
 
 export default {
   name: 'calendar',
-  selector: '.efx-calendar',
+  selector: '.spark-calendar',
   defaults: { events: '', range: false, picker: true, firstDay: 0, locale: '', month: '', value: '', min: '', max: '', name: '', label: 'Calendar' },
   init(el, o) {
     const saved = el.innerHTML, offs = [], sh = shineWidgets(), cls0 = el.getAttribute('class');
     const c = (shine, own) => (sh ? shine : own); // Shine's .calendar markup when its widgets CSS is loaded
-    el.classList.add(...(sh ? ['calendar'] : ['efx-calendar--own']));
+    el.classList.add(...(sh ? ['calendar'] : ['spark-calendar--own']));
     const jsonTag = el.querySelector(':scope > script[type="application/json"]');
     let dead = false, events = [], sel = [null, null], view, focus;
     const loc = o.locale || undefined;
@@ -60,9 +60,9 @@ export default {
     el.textContent = '';
     const head = document.createElement('div'), title = document.createElement('div'), grid = document.createElement('div'), list = document.createElement('ul');
     const mkBtn = (cls, txt, label) => { const b = document.createElement('button'); b.type = 'button'; b.className = sh ? 'btn btn-ghost btn-icon btn-sm' : cls; b.textContent = txt; b.setAttribute('aria-label', label); return b; };
-    const prev = mkBtn('efx-calendar__nav', '‹', 'Previous month'), nextB = mkBtn('efx-calendar__nav', '›', 'Next month');
-    head.className = c('calendar-head', 'efx-calendar__head'); title.className = 'efx-calendar__title'; title.setAttribute('aria-live', 'polite');
-    grid.className = c('calendar-grid', 'efx-calendar__grid'); grid.setAttribute('role', 'grid'); list.className = 'efx-calendar__events';
+    const prev = mkBtn('spark-calendar__nav', '‹', 'Previous month'), nextB = mkBtn('spark-calendar__nav', '›', 'Next month');
+    head.className = c('calendar-head', 'spark-calendar__head'); title.className = 'spark-calendar__title'; title.setAttribute('aria-live', 'polite');
+    grid.className = c('calendar-grid', 'spark-calendar__grid'); grid.setAttribute('role', 'grid'); list.className = 'spark-calendar__events';
     head.append(prev, title, nextB); el.append(head, grid, list);
     el.setAttribute('aria-label', o.label);
     const input = o.name ? Object.assign(document.createElement('input'), { type: 'hidden', name: o.name }) : null;
@@ -77,10 +77,10 @@ export default {
     const render = () => {
       title.textContent = fmtM.format(view);
       grid.textContent = '';
-      const hr = document.createElement('div'); hr.setAttribute('role', 'row'); hr.className = 'efx-calendar__row'; if (sh) hr.style.display = 'contents';
+      const hr = document.createElement('div'); hr.setAttribute('role', 'row'); hr.className = 'spark-calendar__row'; if (sh) hr.style.display = 'contents';
       for (let i = 0; i < 7; i++) {
         const d = new Date(2023, 0, 1 + ((fd + i) % 7)), c = document.createElement('div'), cc = (a, b) => (sh ? a : b);
-        c.setAttribute('role', 'columnheader'); c.className = cc('calendar-dow', 'efx-calendar__dow'); c.textContent = wk.format(d); c.setAttribute('aria-label', wkL.format(d)); hr.append(c);
+        c.setAttribute('role', 'columnheader'); c.className = cc('calendar-dow', 'spark-calendar__dow'); c.textContent = wk.format(d); c.setAttribute('aria-label', wkL.format(d)); hr.append(c);
       }
       grid.append(hr);
       const first = new Date(view.getFullYear(), view.getMonth(), 1), lead = (first.getDay() - fd + 7) % 7;
@@ -88,11 +88,11 @@ export default {
       const fk = key(focus), inView = focus.getMonth() === view.getMonth() && focus.getFullYear() === view.getFullYear();
       const lo = sel[0] && sel[1] ? (sel[0] < sel[1] ? sel[0] : sel[1]) : sel[0], hi = sel[0] && sel[1] ? (sel[0] < sel[1] ? sel[1] : sel[0]) : sel[0];
       for (let w = 0; w < weeks; w++) {
-        const row = document.createElement('div'); row.setAttribute('role', 'row'); row.className = 'efx-calendar__row'; if (sh) row.style.display = 'contents';
+        const row = document.createElement('div'); row.setAttribute('role', 'row'); row.className = 'spark-calendar__row'; if (sh) row.style.display = 'contents';
         for (let i = 0; i < 7; i++) {
           const d = addDays(first, w * 7 + i - lead), k = key(d), out = d.getMonth() !== view.getMonth();
           const cell = document.createElement('div'); cell.setAttribute('role', 'gridcell'); if (sh) cell.style.display = 'contents';
-          const b = document.createElement('button'); b.type = 'button'; b.className = sh ? 'calendar-day' : 'efx-calendar__day'; b.dataset.date = k;
+          const b = document.createElement('button'); b.type = 'button'; b.className = sh ? 'calendar-day' : 'spark-calendar__day'; b.dataset.date = k;
           b.textContent = d.getDate(); b.tabIndex = k === fk && inView || (!inView && !out && d.getDate() === 1) ? 0 : -1;
           const ev = eventsOn(k);
           b.setAttribute('aria-label', fmtD.format(d) + (ev.length ? `, ${ev.length} event${ev.length > 1 ? 's' : ''}` : ''));
@@ -110,7 +110,7 @@ export default {
           }
           if (ev.length) {
             b.classList.add('has-events');
-            const dots = document.createElement('span'); dots.className = sh ? 'calendar-dots' : 'efx-calendar__dots'; dots.setAttribute('aria-hidden', 'true');
+            const dots = document.createElement('span'); dots.className = sh ? 'calendar-dots' : 'spark-calendar__dots'; dots.setAttribute('aria-hidden', 'true');
             ev.slice(0, 3).forEach(e => { const dot = document.createElement('i'); if (e.color && /^[\w#(),.% -]+$/.test(e.color)) dot.style.background = e.color; dots.append(dot); });
             b.append(dots);
           }
@@ -171,13 +171,13 @@ export default {
       events = (Array.isArray(a) ? a : []).filter(e => e && parse(e.date)).map(e => ({ date: String(e.date).slice(0, 10), end: e.end ? String(e.end).slice(0, 10) : '', title: String(e.title || e.name || ''), color: e.color }));
       if (!dead) render();
     };
-    offs.push(on(el, 'efx:data', e => { try { setEvents(e.detail); } catch (err) { console.warn('[effix] calendar data', err); } }));
+    offs.push(on(el, 'spark:data', e => { try { setEvents(e.detail); } catch (err) { console.warn('[spark] calendar data', err); } }));
     const src = (o.events || '').trim();
     try {
       if (!src && jsonTag) setEvents(jsonTag.textContent);
       else if (src && /^(\[|\{|BEGIN:VCALENDAR)/.test(src)) setEvents(src);
-      else if (src) fetch(src).then(r => r.text()).then(t => { if (!dead) setEvents(t); }).catch(err => console.warn('[effix] calendar events', err));
-    } catch (err) { console.warn('[effix] calendar events', err); }
+      else if (src) fetch(src).then(r => r.text()).then(t => { if (!dead) setEvents(t); }).catch(err => console.warn('[spark] calendar events', err));
+    } catch (err) { console.warn('[spark] calendar events', err); }
     render();
     return () => { dead = true; offs.forEach(f => f()); el.innerHTML = saved; el.removeAttribute('aria-label'); cls0 === null ? el.removeAttribute('class') : el.setAttribute('class', cls0); };
   },

@@ -1,5 +1,5 @@
 /* chart-sunburst — hierarchical radial partition. Click an arc to zoom in, the center to go back up.
-   <div class="efx-chart-sunburst" data-efx-data='{"name":"All","children":[{"name":"A","children":[{"name":"a1","value":4}]},{"name":"B","value":6}]}'></div> */
+   <div class="spark-chart-sunburst" data-spark-data='{"name":"All","children":[{"name":"A","children":[{"name":"a1","value":4}]},{"name":"B","value":6}]}'></div> */
 import { COMMON, chart, palette, polar, arcPath, s, esc } from './_lib.js';
 import { on } from '../core.js';
 
@@ -28,13 +28,13 @@ const cut = (t, px) => (t.length * 6.2 > px ? t.slice(0, Math.max(1, Math.floor(
 
 export default {
   name: 'chart-sunburst',
-  selector: '.efx-chart-sunburst',
+  selector: '.spark-chart-sunburst',
   lazy: true,
   defaults: { ...COMMON, height: 320, depth: 4, captions: true, legend: false },
   init(el, o) {
     let tree = read(el, o), focus = tree, zoomed = false, ct = null;
-    // registered before chart() so it runs before the lib's own efx:data handler
-    const off = on(el, 'efx:data', e => {
+    // registered before chart() so it runs before the lib's own spark:data handler
+    const off = on(el, 'spark:data', e => {
       const d = e.detail;
       if (d && d.zoom) return;
       if (d && (d.children || d.name != null || Array.isArray(d))) tree = build(d); else if (d && d.tree) tree = build(d.tree);
@@ -59,8 +59,8 @@ export default {
       const trail = n => { const p = []; for (; n && n !== focus; n = n.parent) p.unshift(n.name); return p.join(' › '); };
       arcs.forEach(({ n, a0, a1, d }, j) => {
         const r0 = rc + (d - 1) * t, r1 = r0 + t, pct = Math.max(42, 100 - 15 * (n.depth - 1)), am = (a0 + a1) / 2;
-        const cls = anim ? ' efx-sb' : '', st = `--i:${d};--o:${cx}px ${cy}px`;
-        const node = s('path', { d: arcPath(cx, cy, r0, r1, a0, a1), fill: `color-mix(in oklab, ${pal[n.br]} ${pct}%, var(--sh-surface, #fff))`, stroke: 'var(--sh-surface, #fff)', 'stroke-width': 1.5, class: 'efx-chart__mark' + cls, style: st }, g);
+        const cls = anim ? ' spark-sb' : '', st = `--i:${d};--o:${cx}px ${cy}px`;
+        const node = s('path', { d: arcPath(cx, cy, r0, r1, a0, a1), fill: `color-mix(in oklab, ${pal[n.br]} ${pct}%, var(--sh-surface, #fff))`, stroke: 'var(--sh-surface, #fff)', 'stroke-width': 1.5, class: 'spark-chart__mark' + cls, style: st }, g);
         pos.set(n, j);
         const [x, y] = polar(cx, cy, (r0 + r1) / 2, am), arc = (a1 - a0) * (r0 + r1) / 2, deg = am * 180 / Math.PI;
         if (!deco && o.captions) {
@@ -70,7 +70,7 @@ export default {
             tx = arc >= 13 && t >= 34 ? cut(tx, t - 10) : '';
             if (tx.length < 2) tx = '';
           }
-          if (tx) s('text', { x, y, 'text-anchor': 'middle', 'dominant-baseline': 'middle', transform: `rotate(${rot} ${x} ${y})`, class: 'efx-chart__value efx-sb__t' + (anim ? ' efx-sbf' : ''), style: `${st};fill:${pct < 75 ? 'var(--sh-text,#0f172a)' : '#fff'}` }, g).textContent = tx;
+          if (tx) s('text', { x, y, 'text-anchor': 'middle', 'dominant-baseline': 'middle', transform: `rotate(${rot} ${x} ${y})`, class: 'spark-chart__value spark-sb__t' + (anim ? ' spark-sbf' : ''), style: `${st};fill:${pct < 75 ? 'var(--sh-text,#0f172a)' : '#fff'}` }, g).textContent = tx;
         }
         const rel = []; for (let p = n.parent; p && p !== focus; p = p.parent) rel.push(pos.get(p));
         marks.push({ x, y, label: n.name, value: n.v, series: '', node, index: n.i, rel,
@@ -82,7 +82,7 @@ export default {
           } });
       });
       if (!deco) {
-        const up = focus.parent, T = [0, 1, 2].map(i => s('text', { x: cx, y: cy + (i - 1) * 16 - (i ? 0 : 2), 'text-anchor': 'middle', 'dominant-baseline': 'middle', class: i === 1 ? 'efx-chart__value' : 'efx-sb__s' }, g));
+        const up = focus.parent, T = [0, 1, 2].map(i => s('text', { x: cx, y: cy + (i - 1) * 16 - (i ? 0 : 2), 'text-anchor': 'middle', 'dominant-baseline': 'middle', class: i === 1 ? 'spark-chart__value' : 'spark-sb__s' }, g));
         const set = (a, b, c) => { T[0].textContent = cut(a, rc * 2 - 6); T[1].textContent = cut(b, rc * 2 - 6); T[2].textContent = c; };
         const crumbs = []; for (let n = up; n; n = n.parent) crumbs.unshift(n.name || 'total');
         const reset = () => set(crumbs.join(' › '), focus.name || 'Total', fmt(focus.v));
@@ -98,13 +98,13 @@ export default {
     draw.radius = 1;
     draw.onShow = m => { if (ct) ct.set(m && m.node ? m : null); };
     const stop = chart(el, o, draw);
-    const offS = on(el, 'efx:select', e => {
+    const offS = on(el, 'spark:select', e => {
       const i = e.detail.index, n = i < 0 ? focus.parent : tree.all[i];
       if (e.target !== el || !n || n === focus || !n.kids.length) return;
       focus = n; zoomed = true;
-      const svg = el.querySelector('.efx-chart__svg');
+      const svg = el.querySelector('.spark-chart__svg');
       svg.dispatchEvent(new Event('pointerleave'));
-      el.dispatchEvent(new CustomEvent('efx:data', { detail: { zoom: 1 } }));
+      el.dispatchEvent(new CustomEvent('spark:data', { detail: { zoom: 1 } }));
     });
     return () => { off(); offS(); stop(); };
   },

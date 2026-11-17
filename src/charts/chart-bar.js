@@ -1,13 +1,13 @@
 /* chart-bar — vertical/horizontal, grouped or stacked bars.
-   <div class="efx-chart-bar" data-efx-data="12,19,7,24" data-efx-labels="Q1|Q2|Q3|Q4"></div>
-   <div class="efx-chart-bar" data-efx-data="[[3,5,2],[4,1,6]]" data-efx-names="2025|2026" data-efx-stacked></div>
-   Variants: data-efx-style="lollipop", data-efx-radial, data-efx-normalize (100%), data-efx-diverging (negatives, centred zero). */
+   <div class="spark-chart-bar" data-spark-data="12,19,7,24" data-spark-labels="Q1|Q2|Q3|Q4"></div>
+   <div class="spark-chart-bar" data-spark-data="[[3,5,2],[4,1,6]]" data-spark-names="2025|2026" data-spark-stacked></div>
+   Variants: data-spark-style="lollipop", data-spark-radial, data-spark-normalize (100%), data-spark-diverging (negatives, centred zero). */
 import { COMMON, chart, nice, linear, band, axes, arcPath, polar, s } from './_lib.js';
 import { cssVar } from '../core.js';
 
 export default {
   name: 'chart-bar',
-  selector: '.efx-chart-bar',
+  selector: '.spark-chart-bar',
   lazy: true,
   defaults: { ...COMMON, horizontal: false, stacked: false, normalize: false, diverging: false, radial: false, style: 'bar', values: false, radius: 4, grid: true, min: 0 },
   init(el, o) {
@@ -28,14 +28,14 @@ export default {
       const b = band(n, hz ? [pad.t, h - pad.b] : [pad.l, w - pad.r], 0.28);
       if (!deco) {
         if (hz) {
-          const ax = s('g', { class: 'efx-chart__axis', 'aria-hidden': 'true' }, g);
+          const ax = s('g', { class: 'spark-chart__axis', 'aria-hidden': 'true' }, g);
           sc.ticks.forEach(t => {
-            s('line', { x1: v(t), x2: v(t), y1: pad.t, y2: h - pad.b, class: 'efx-chart__grid' }, ax);
+            s('line', { x1: v(t), x2: v(t), y1: pad.t, y2: h - pad.b, class: 'spark-chart__grid' }, ax);
             s('text', { x: v(t), y: h - pad.b + 16, 'text-anchor': 'middle' }, ax).textContent = F(t);
           });
           data.labels.forEach((l, i) => { s('text', { x: pad.l - 8, y: b.x(i) + b.bw / 2, 'text-anchor': 'end', 'dominant-baseline': 'middle' }, ax).textContent = l; });
         } else axes(g, { w, h, pad, y: v, ticks: sc.ticks, labels: data.labels, x: i => b.x(i) + b.bw / 2, fmt: F, grid: o.grid });
-        if (sc.min < 0) s('line', hz ? { x1: v(0), x2: v(0), y1: pad.t, y2: h - pad.b, style: 'stroke:var(--efx-chart-text,#64748b);stroke-opacity:.7' } : { x1: pad.l, x2: w - pad.r, y1: v(0), y2: v(0), style: 'stroke:var(--efx-chart-text,#64748b);stroke-opacity:.7' }, g);
+        if (sc.min < 0) s('line', hz ? { x1: v(0), x2: v(0), y1: pad.t, y2: h - pad.b, style: 'stroke:var(--spark-chart-text,#64748b);stroke-opacity:.7' } : { x1: pad.l, x2: w - pad.r, y1: v(0), y2: v(0), style: 'stroke:var(--spark-chart-text,#64748b);stroke-opacity:.7' }, g);
       }
       const marks = [];
       const per = st ? 1 : visible.length;
@@ -55,7 +55,7 @@ export default {
           const attrs = hz
             ? { x: Math.min(p0, p1), y: off, width: Math.abs(p1 - p0), height: thick }
             : { x: off, y: Math.min(p0, p1), width: thick, height: Math.abs(p1 - p0) };
-          const col = neg && val < 0 ? neg : colors[sr.index], cls = `efx-chart__mark ${hz ? 'efx-chart__grow-x' : 'efx-chart__grow'}`;
+          const col = neg && val < 0 ? neg : colors[sr.index], cls = `spark-chart__mark ${hz ? 'spark-chart__grow-x' : 'spark-chart__grow'}`;
           let node;
           if (lol) { // stick + dot
             const cx0 = attrs.x + attrs.width / 2, cy0 = attrs.y + attrs.height / 2, dr = Math.max(3, Math.min(8, thick / 2));
@@ -64,8 +64,8 @@ export default {
             s('circle', { cx: hz ? p1 : cx0, cy: hz ? cy0 : p1, r: dr, stroke: 'none' }, node);
           } else node = s('rect', { ...attrs, rx: r, fill: col, class: cls, style: `--i:${i}` }, g);
           if (o.values && !deco && !st) {
-            const t = hz ? s('text', { x: val < 0 ? Math.min(p0, p1) - (lol ? 13 : 6) : Math.max(p0, p1) + (lol ? 13 : 6), 'text-anchor': val < 0 ? 'end' : null, y: off + thick / 2, 'dominant-baseline': 'middle', class: 'efx-chart__value efx-chart__fade', style: `--i:${i}` }, g)
-              : s('text', { x: off + thick / 2, y: val < 0 ? Math.max(p0, p1) + (lol ? 20 : 14) : Math.min(p0, p1) - (lol ? 13 : 6), 'text-anchor': 'middle', class: 'efx-chart__value efx-chart__fade', style: `--i:${i}` }, g);
+            const t = hz ? s('text', { x: val < 0 ? Math.min(p0, p1) - (lol ? 13 : 6) : Math.max(p0, p1) + (lol ? 13 : 6), 'text-anchor': val < 0 ? 'end' : null, y: off + thick / 2, 'dominant-baseline': 'middle', class: 'spark-chart__value spark-chart__fade', style: `--i:${i}` }, g)
+              : s('text', { x: off + thick / 2, y: val < 0 ? Math.max(p0, p1) + (lol ? 20 : 14) : Math.min(p0, p1) - (lol ? 13 : 6), 'text-anchor': 'middle', class: 'spark-chart__value spark-chart__fade', style: `--i:${i}` }, g);
             t.textContent = fmt(raw);
           }
           const cx = attrs.x + attrs.width / 2, cy = attrs.y + (hz ? attrs.height / 2 : 0);
@@ -87,8 +87,8 @@ function radial({ g, w, h, data, visible, colors, fmt, deco, V, sc, st }) {
   const rad = val => r0 + Math.max(0, val) * (R - r0) / (rs.max || 1);
   const marks = [];
   if (!deco) {
-    const ax = s('g', { class: 'efx-chart__axis', 'aria-hidden': 'true' }, g);
-    rs.ticks.forEach(t => s('circle', { cx, cy, r: rad(t), fill: 'none', class: 'efx-chart__grid' }, ax));
+    const ax = s('g', { class: 'spark-chart__axis', 'aria-hidden': 'true' }, g);
+    rs.ticks.forEach(t => s('circle', { cx, cy, r: rad(t), fill: 'none', class: 'spark-chart__grid' }, ax));
     data.labels.forEach((l, i) => {
       const am = (i + .5) / n * Math.PI * 2, [x, y] = polar(cx, cy, R + 8, am), sn = Math.sin(am), cs = Math.cos(am);
       s('text', { x, y: y + (cs > .3 ? -2 : cs < -.3 ? 10 : 4), 'text-anchor': sn > .2 ? 'start' : sn < -.2 ? 'end' : 'middle' }, ax).textContent = l;
@@ -102,7 +102,7 @@ function radial({ g, w, h, data, visible, colors, fmt, deco, V, sc, st }) {
       acc += Math.max(0, val);
       const bw = (slot - gap) / per, a0 = i * slot + gap / 2 + (st ? 0 : k * bw), a1 = a0 + bw;
       const ri = st ? rad(lo) : r0, ro = rad(lo + Math.max(0, val));
-      const node = s('path', { d: arcPath(cx, cy, ri, Math.max(ro, ri + 1), a0, a1), fill: colors[sr.index], class: 'efx-chart__mark efx-chart__fade', style: `--i:${i}` }, g);
+      const node = s('path', { d: arcPath(cx, cy, ri, Math.max(ro, ri + 1), a0, a1), fill: colors[sr.index], class: 'spark-chart__mark spark-chart__fade', style: `--i:${i}` }, g);
       const [x, y] = polar(cx, cy, Math.max(ro, ri + 1), (a0 + a1) / 2);
       marks.push({ x, y, label, value: raw, series: visible.length > 1 || data.series.length > 1 ? sr.name : '', node, index: i, hit: (px, py) => {
         const d = Math.hypot(px - cx, py - cy); let a = Math.atan2(px - cx, cy - py); if (a < 0) a += Math.PI * 2;

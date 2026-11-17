@@ -1,5 +1,5 @@
 /* magnetic — element is pulled toward the pointer when it comes close.
-   <button class="btn efx-magnetic" data-efx-strength="0.4">Hover near me</button> */
+   <button class="btn spark-magnetic" data-spark-strength="0.4">Hover near me</button> */
 import { on, onVisible, rafThrottle, motionOK, finePointer } from '../core.js';
 
 /* One shared document pointermove listener for every visible instance. */
@@ -17,13 +17,13 @@ const subscribe = fn => {
 
 export default {
   name: 'magnetic',
-  selector: '.efx-magnetic',
+  selector: '.spark-magnetic',
   defaults: { strength: 0.3, radius: 120, max: 24 },
   init(el, o) {
     if (!finePointer() || !motionOK()) return;
     let unsub = null, pulled = false, settle = 0;
     const clamp = v => Math.max(-o.max, Math.min(o.max, v));
-    const set = (x, y) => { el.style.setProperty('--efx-mx', x + 'px'); el.style.setProperty('--efx-my', y + 'px'); };
+    const set = (x, y) => { el.style.setProperty('--spark-mx', x + 'px'); el.style.setProperty('--spark-my', y + 'px'); };
     /* .is-magnetic carries the translate + transition; it is dropped once the return-to-0 has settled,
        so Shine's own .btn/.card transitions are untouched whenever the effect is idle. */
     const release = () => {
@@ -48,7 +48,7 @@ export default {
     });
     return () => {
       stopVis(); unsub && unsub(); clearTimeout(settle);
-      el.style.removeProperty('--efx-mx'); el.style.removeProperty('--efx-my');
+      el.style.removeProperty('--spark-mx'); el.style.removeProperty('--spark-my');
       el.classList.remove('is-pulled', 'is-magnetic');
     };
   },

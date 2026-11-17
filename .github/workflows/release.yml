@@ -43,16 +43,16 @@ jobs:
       - name: Package dist
         if: steps.v.outputs.exists == 'false'
         run: |
-          cd dist && zip -qr "../effix-$TAG.zip" . -x '_*' && cd ..
+          cd dist && zip -qr "../spark-$TAG.zip" . -x '_*' && cd ..
       - name: Create release
         if: steps.v.outputs.exists == 'false'
         run: >
-          gh release create "$TAG" --target "$GITHUB_SHA" --title "Effix $TAG" --notes-file notes.md
-          "effix-$TAG.zip"
-          dist/effix.auto.min.js dist/effix.core.min.js dist/effix.core.min.css
-          dist/effix.min.js dist/effix.min.css
-          dist/effix-charts.min.js dist/effix-charts.min.css
-          dist/effix-diagrams.min.js dist/effix-diagrams.min.css
-          dist/effix.all.min.js dist/effix.all.min.css
+          gh release create "$TAG" --target "$GITHUB_SHA" --title "Spark $TAG" --notes-file notes.md
+          "spark-$TAG.zip"
+          dist/spark.auto.min.js dist/spark.core.min.js dist/spark.core.min.css
+          dist/spark.min.js dist/spark.min.css
+          dist/spark-charts.min.js dist/spark-charts.min.css
+          dist/spark-diagrams.min.js dist/spark-diagrams.min.css
+          dist/spark.all.min.js dist/spark.all.min.css
         env:
           GH_TOKEN: ${{ github.token }}

@@ -1,5 +1,5 @@
 /* beam — animated SVG connector beams between elements (integration diagrams).
-   <div class="efx-beam" data-efx-links="#a>#hub|#b>#hub|#hub>#c">…nodes…</div>
+   <div class="spark-beam" data-spark-links="#a>#hub|#b>#hub|#hub>#c">…nodes…</div>
    Selectors are scoped to the container. Options: curvature, speed (s), width, color, reverse. */
 import { onVisible, motionOK, on, rafThrottle } from '../core.js';
 
@@ -9,7 +9,7 @@ let uid = 0;
 
 export default {
   name: 'beam',
-  selector: '.efx-beam',
+  selector: '.spark-beam',
   defaults: { links: '', curvature: 40, speed: 3, width: 2, color: '', reverse: false },
   init(el, o) {
     const q = s => { try { return el.querySelector(s); } catch (e) { return null; } };
@@ -18,16 +18,16 @@ export default {
     if (!L.length) return;
     let restore = false;
     if (getComputedStyle(el).position === 'static') { el.style.position = 'relative'; restore = true; }
-    const motion = motionOK(), id = 'efx-beam-' + ++uid;
-    const svg = mk('svg', { class: 'efx-beam__svg', 'aria-hidden': 'true' });
-    svg.style.setProperty('--efx-beam-s', o.speed + 's');
+    const motion = motionOK(), id = 'spark-beam-' + ++uid;
+    const svg = mk('svg', { class: 'spark-beam__svg', 'aria-hidden': 'true' });
+    svg.style.setProperty('--spark-beam-s', o.speed + 's');
     const parts = L.map((l, i) => {
       const g = mk('linearGradient', { id: id + i, gradientUnits: 'userSpaceOnUse' }, svg);
       const stops = o.color ? [o.color, o.color] : ['var(--sh-primary,#6366f1)', 'var(--sh-accent,#ec4899)'];
       stops.forEach((c, k) => mk('stop', { offset: k, style: 'stop-color:' + c }, g));
-      const at = { class: 'efx-beam__path', stroke: `url(#${id + i})`, 'stroke-width': o.width, pathLength: 100 };
+      const at = { class: 'spark-beam__path', stroke: `url(#${id + i})`, 'stroke-width': o.width, pathLength: 100 };
       const base = mk('path', { ...at, opacity: motion ? .18 : .6 }, svg);
-      const run = motion && mk('path', { ...at, class: 'efx-beam__path efx-beam__run' + (o.reverse ? ' efx-beam__rev' : ''), 'stroke-dasharray': '25 200' }, svg);
+      const run = motion && mk('path', { ...at, class: 'spark-beam__path spark-beam__run' + (o.reverse ? ' spark-beam__rev' : ''), 'stroke-dasharray': '25 200' }, svg);
       if (run) run.style.animationDelay = -(i * o.speed / 3) + 's';
       return { g, base, run };
     });

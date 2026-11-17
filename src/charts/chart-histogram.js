@@ -1,10 +1,10 @@
 /* chart-histogram — auto-binned distribution of raw values (Sturges, fixed bin count or step).
-   <div class="efx-chart-histogram" data-efx-data="1.2,3.4,2.2,5.1,3.3,4.8,2.9" data-efx-curve></div> */
+   <div class="spark-chart-histogram" data-spark-data="1.2,3.4,2.2,5.1,3.3,4.8,2.9" data-spark-curve></div> */
 import { COMMON, chart, nice, linear, linePath, tickStep, axes, s, esc } from './_lib.js';
 
 export default {
   name: 'chart-histogram',
-  selector: '.efx-chart-histogram',
+  selector: '.spark-chart-histogram',
   lazy: true,
   defaults: { ...COMMON, bins: 0, step: 0, curve: false, grid: true },
   init(el, o) {
@@ -32,12 +32,12 @@ export default {
       if (!deco) axes(g, { w, h, pad, y: Y, ticks: sc.ticks, labels: edges.map(fmt), x: i => X(edges[i]), fmt: String, grid: o.grid });
       const marks = cnt.map((c, i) => {
         const x0 = X(edges[i]), x1 = X(edges[i + 1]), y = Y(c), label = `[${fmt(edges[i])}, ${fmt(edges[i + 1])}${i === nb - 1 ? ']' : ')'}`;
-        const node = s('rect', { x: x0, y, width: x1 - x0, height: Y(0) - y, fill: colors[0], stroke: 'var(--sh-surface, #fff)', 'stroke-width': deco ? 0 : 1, class: 'efx-chart__mark efx-chart__grow', style: `--i:${Math.min(i, 12)}` }, g);
+        const node = s('rect', { x: x0, y, width: x1 - x0, height: Y(0) - y, fill: colors[0], stroke: 'var(--sh-surface, #fff)', 'stroke-width': deco ? 0 : 1, class: 'spark-chart__mark spark-chart__grow', style: `--i:${Math.min(i, 12)}` }, g);
         return { x: (x0 + x1) / 2, y, label, value: c, series: '', node, index: i,
           html: `<strong>${esc(label)}</strong><b>${c} value${c === 1 ? '' : 's'}</b>`,
           hit: (px, py) => px >= x0 && px <= x1 && py >= pad.t && py <= h - pad.b };
       });
-      if (curve) s('path', { d: linePath(Array.from({ length: 65 }, (_, i) => { const x = lo + (hi - lo) * i / 64; return [X(x), Y(pdf(x))]; }), false), fill: 'none', stroke: colors[1] || colors[0], 'stroke-width': 2, pathLength: 1, class: 'efx-chart__draw', style: 'pointer-events:none' }, g);
+      if (curve) s('path', { d: linePath(Array.from({ length: 65 }, (_, i) => { const x = lo + (hi - lo) * i / 64; return [X(x), Y(pdf(x))]; }), false), fill: 'none', stroke: colors[1] || colors[0], 'stroke-width': 2, pathLength: 1, class: 'spark-chart__draw', style: 'pointer-events:none' }, g);
       return marks;
     };
     draw.radius = 1;

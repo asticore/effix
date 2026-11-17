@@ -1,5 +1,5 @@
 /* feed — animated list: children appear one by one (notifications / activity).
-   <div class="efx-feed stack" data-efx-max="4" data-efx-interval="1500">…items…</div>
+   <div class="spark-feed stack" data-spark-max="4" data-spark-interval="1500">…items…</div>
    order newest = new item enters at the top and pushes the rest down; append = enters at the bottom. */
 import { onVisible, motionOK, on } from '../core.js';
 
@@ -7,7 +7,7 @@ const TR = ['height', 'opacity', 'margin', 'padding', 'border-width'].map(p => p
 
 export default {
   name: 'feed',
-  selector: '.efx-feed',
+  selector: '.spark-feed',
   defaults: { interval: 1500, max: 4, loop: true, order: 'newest' },
   init(el, o) {
     const items = [...el.children], n = items.length;

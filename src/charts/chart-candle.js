@@ -1,5 +1,5 @@
 /* chart-candle — candlestick / OHLC with optional volume.
-   <div class="efx-chart-candle" data-efx-data='[{"label":"Mon","o":10,"h":14,"l":9,"c":13,"v":900}]'></div>
+   <div class="spark-chart-candle" data-spark-data='[{"label":"Mon","o":10,"h":14,"l":9,"c":13,"v":900}]'></div>
    Or series arrays named/ordered open|high|low|close|volume. */
 import { COMMON, chart, nice, linear, band, axes, s, esc } from './_lib.js';
 import { on, cssVar } from '../core.js';
@@ -12,7 +12,7 @@ const objRows = r => {
 
 export default {
   name: 'chart-candle',
-  selector: '.efx-chart-candle',
+  selector: '.spark-chart-candle',
   lazy: true,
   defaults: { ...COMMON, legend: false, style: 'candle', volume: false, grid: true },
   init(el, o) {
@@ -20,7 +20,7 @@ export default {
     const read = r => { try { rows = objRows(typeof r === 'string' ? JSON.parse(r) : r); } catch (e) { rows = null; } };
     const j = el.querySelector(':scope > script[type="application/json"]');
     read(!o.source && o.data ? o.data : j && j.textContent);
-    const offData = on(el, 'efx:data', e => read(e.detail)); // registered before chart(): runs first
+    const offData = on(el, 'spark:data', e => read(e.detail)); // registered before chart(): runs first
     const draw = ({ g, w, h, data, colors, fmt, deco }) => {
       let R = rows && rows.map((d, i) => ({ label: String(d.label ?? i + 1), o: +d.o, h: +d.h, l: +d.l, c: +d.c, v: +d.v || 0 }));
       if (!R) { // series form: by name (open/high/low/close/volume) else by order
@@ -48,9 +48,9 @@ export default {
       const base = h - pad.b;
       return R.map((d, i) => {
         const col = d.c >= d.o ? up : dn, x = cx(i);
-        const node = s('g', { class: 'efx-chart__mark efx-cd__pt' }, g);
-        s('rect', { x: b.x(i) - (b.step - b.bw) / 2, y: pad.t, width: b.step, height: base - pad.t, class: 'efx-cd__band' }, node);
-        const sh = s('g', { class: 'efx-chart__fade', style: `--i:${i * step}`, stroke: col, fill: col }, node);
+        const node = s('g', { class: 'spark-chart__mark spark-cd__pt' }, g);
+        s('rect', { x: b.x(i) - (b.step - b.bw) / 2, y: pad.t, width: b.step, height: base - pad.t, class: 'spark-cd__band' }, node);
+        const sh = s('g', { class: 'spark-chart__fade', style: `--i:${i * step}`, stroke: col, fill: col }, node);
         if (vol && d.v > 0) s('rect', { x: x - bw / 2, y: base - Math.max(1, (d.v / vmax) * vh), width: bw, height: Math.max(1, (d.v / vmax) * vh), 'fill-opacity': .35, stroke: 'none' }, sh);
         s('line', { x1: x, x2: x, y1: y(d.h), y2: y(d.l), 'stroke-width': ohlc ? Math.max(1, Math.min(2, bw / 3)) : 1 }, sh);
         if (ohlc) {

@@ -5,16 +5,16 @@ module.exports = {
   title: 'Ken Burns',
   group: 'Images',
   summary: 'Slow pan and zoom with a random origin and direction per image. Several images in one wrapper become a crossfading slideshow. Pauses off-screen; static with reduced motion.',
-  classes: [['efx-kenburns', 'An <img> (gets wrapped in a clipping frame) or a wrapper holding one or more <img>.']],
+  classes: [['spark-kenburns', 'An <img> (gets wrapped in a clipping frame) or a wrapper holding one or more <img>.']],
   options: [
-    ['data-efx-duration', '12000', 'Pan/zoom length in ms; also the slideshow interval.'],
-    ['data-efx-zoom', '1.15', 'End zoom factor.'],
+    ['data-spark-duration', '12000', 'Pan/zoom length in ms; also the slideshow interval.'],
+    ['data-spark-zoom', '1.15', 'End zoom factor.'],
   ],
-  vars: [['--efx-kb-x0 … --efx-kb-y1', 'random', 'Per-image start/end translation, set by JS.']],
+  vars: [['--spark-kb-x0 … --spark-kb-y1', 'random', 'Per-image start/end translation, set by JS.']],
   examples: [
     { html: `<div class="grid md:grid-cols-2 gap-4">
-  <div class="card p-3"><img class="efx-kenburns rounded-lg" data-efx-duration="8000" src="${A}" alt="Mountain" style="height:220px"><p class="mt-2">single image</p></div>
-  <div class="card p-3"><div class="efx-kenburns rounded-lg" data-efx-duration="4000" style="height:220px"><img src="${B}" alt="Rings"><img src="${C}" alt="City"><img src="${A}" alt="Mountain"></div><p class="mt-2">slideshow</p></div>
+  <div class="card p-3"><img class="spark-kenburns rounded-lg" data-spark-duration="8000" src="${A}" alt="Mountain" style="height:220px"><p class="mt-2">single image</p></div>
+  <div class="card p-3"><div class="spark-kenburns rounded-lg" data-spark-duration="4000" style="height:220px"><img src="${B}" alt="Rings"><img src="${C}" alt="City"><img src="${A}" alt="Mountain"></div><p class="mt-2">slideshow</p></div>
 </div>` },
   ],
 };

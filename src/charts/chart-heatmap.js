@@ -1,6 +1,6 @@
 /* chart-heatmap — grid (labels = columns, series = rows) or GitHub-style calendar.
-   <div class="efx-chart-heatmap" data-efx-data="[[1,4,2],[3,0,5]]" data-efx-labels="A|B|C" data-efx-names="Row 1|Row 2"></div>
-   <div class="efx-chart-heatmap" data-efx-calendar data-efx-data='[{"date":"2026-01-03","value":4}]'></div> */
+   <div class="spark-chart-heatmap" data-spark-data="[[1,4,2],[3,0,5]]" data-spark-labels="A|B|C" data-spark-names="Row 1|Row 2"></div>
+   <div class="spark-chart-heatmap" data-spark-calendar data-spark-data='[{"date":"2026-01-03","value":4}]'></div> */
 import { COMMON, chart, palette, parseData, s } from './_lib.js';
 import { on } from '../core.js';
 
@@ -12,7 +12,7 @@ const rd = (el, t) => { try { const j = el.querySelector(':scope > script[type="
 
 export default {
   name: 'chart-heatmap',
-  selector: '.efx-chart-heatmap',
+  selector: '.spark-chart-heatmap',
   lazy: true,
   defaults: { ...COMMON, height: 0, legend: false, calendar: false, scheme: '', gap: 2, radius: 2 },
   init(el, o) {
@@ -24,11 +24,11 @@ export default {
       return { t0, n, d0, wk, cell: Math.min(20, (w - 30) / wk) };
     };
     if (!o.background && !H0) Object.defineProperty(o, 'height', { get: () => cal ? (days.length ? 18 + 7 * geo(Math.max(40, el.clientWidth)).cell : 60) : 22 + 30 * Math.max(1, rows) });
-    const off = on(el, 'efx:data', e => { const d = e.detail; if (cal) { try { days = parseDays(d); } catch (err) { days = []; } } else rows = (d && d.series || []).length || rows; });
+    const off = on(el, 'spark:data', e => { const d = e.detail; if (cal) { try { days = parseDays(d); } catch (err) { days = []; } } else rows = (d && d.series || []).length || rows; });
     const fmtDate = t => new Date(t).toLocaleDateString(undefined, { dateStyle: 'medium', timeZone: 'UTC' });
     const draw = ({ g, w, h, data, visible, fmt, deco }) => {
       const pal = palette(el, o, 7), c0 = pal[0], c1 = o.colors.length ? pal[1] : pal[5], gap = o.gap, cells = [];
-      const ax = s('g', { class: 'efx-chart__axis', 'aria-hidden': 'true' }, g);
+      const ax = s('g', { class: 'spark-chart__axis', 'aria-hidden': 'true' }, g);
       const text = (a, t) => (s('text', a, ax).textContent = t);
       let cw, ch, ox = 0, oy = 0;
       if (cal) {
@@ -67,8 +67,8 @@ export default {
       const marks = [];
       cells.forEach(k => {
         const t = div ? Math.abs(k.v) / m : (k.v - lo) / (hi - lo || 1), x = ox + k.c * cw, y = oy + k.r * ch, rw = Math.max(1, cw - gap), rh = Math.max(1, ch - gap);
-        const fill = k.v == null ? 'var(--efx-chart-text) 10%' : `${div && k.v < 0 ? c1 : c0} ${Math.round(8 + 92 * t)}%`;
-        const node = s('rect', { x, y, width: rw, height: rh, rx: o.radius, style: `fill:color-mix(in oklab, ${fill}, transparent);--i:${k.c * step}`, class: (k.v == null ? '' : 'efx-chart__mark ') + 'efx-chart__fade' }, g);
+        const fill = k.v == null ? 'var(--spark-chart-text) 10%' : `${div && k.v < 0 ? c1 : c0} ${Math.round(8 + 92 * t)}%`;
+        const node = s('rect', { x, y, width: rw, height: rh, rx: o.radius, style: `fill:color-mix(in oklab, ${fill}, transparent);--i:${k.c * step}`, class: (k.v == null ? '' : 'spark-chart__mark ') + 'spark-chart__fade' }, g);
         if (k.v != null) marks.push({ x: x + rw / 2, y: y + rh / 2, label: k.label, value: k.v, series: k.series, node, index: marks.length, hit: (px, py) => px >= x - gap / 2 && px <= x + rw + gap / 2 && py >= y - gap / 2 && py <= y + rh + gap / 2 });
       });
       return marks;

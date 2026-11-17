@@ -10,19 +10,19 @@ module.exports = {
   group: 'Scroll',
   summary: 'Plays an image sequence (canvas) or a video as you scroll through a tall pinned section. Frames load progressively, nearest first. Shows a still frame with reduced motion.',
   classes: [
-    ['efx-sequence', 'A div (image sequence) or a video (scrubbed by currentTime). Becomes a tall scroll track with a pinned stage.'],
+    ['spark-sequence', 'A div (image sequence) or a video (scrubbed by currentTime). Becomes a tall scroll track with a pinned stage.'],
   ],
   options: [
-    ['data-efx-src', '', 'Frame URL template with {i}, e.g. frames/f{i}.webp.'],
-    ['data-efx-frames', '0', 'Number of frames when using src.'],
-    ['data-efx-pad', '0', 'Zero-pad the frame number to this many digits.'],
-    ['data-efx-start', '1', 'First frame number.'],
-    ['data-efx-list', '', 'Alternative to src: frame URLs separated by |.'],
-    ['data-efx-height', '300', 'Scroll length of the section in vh.'],
-    ['data-efx-fit', 'cover', 'cover · contain'],
+    ['data-spark-src', '', 'Frame URL template with {i}, e.g. frames/f{i}.webp.'],
+    ['data-spark-frames', '0', 'Number of frames when using src.'],
+    ['data-spark-pad', '0', 'Zero-pad the frame number to this many digits.'],
+    ['data-spark-start', '1', 'First frame number.'],
+    ['data-spark-list', '', 'Alternative to src: frame URLs separated by |.'],
+    ['data-spark-height', '300', 'Scroll length of the section in vh.'],
+    ['data-spark-fit', 'cover', 'cover · contain'],
   ],
   vars: [],
   examples: [
-    { html: `<div class="efx-sequence rounded-lg" data-efx-height="200" data-efx-fit="cover" data-efx-list="${frames.join('|')}"></div>` },
+    { html: `<div class="spark-sequence rounded-lg" data-spark-height="200" data-spark-fit="cover" data-spark-list="${frames.join('|')}"></div>` },
   ],
 };

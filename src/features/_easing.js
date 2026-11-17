@@ -1,4 +1,4 @@
-/* shared easing registry (not a feature). Users: Effix.add('easing', 'name', t => t) with t and result in 0..1 (overshoot ok).
+/* shared easing registry (not a feature). Users: Spark.add('easing', 'name', t => t) with t and result in 0..1 (overshoot ok).
    Features call ease(name) -> fn; unknown names fall back to linear. */
 import { add, get } from '../core.js';
 

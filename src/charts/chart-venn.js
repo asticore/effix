@@ -1,5 +1,5 @@
 /* chart-venn — area-proportional Venn diagram for 2 or 3 sets.
-   <div class="efx-chart-venn" data-efx-data='[{"sets":["Design"],"size":12},{"sets":["Dev"],"size":10},{"sets":["Design","Dev"],"size":4}]'></div>
+   <div class="spark-chart-venn" data-spark-data='[{"sets":["Design"],"size":12},{"sets":["Dev"],"size":10},{"sets":["Design","Dev"],"size":4}]'></div>
    A one-set entry is that set's total size; a multi-set entry is the size of the overlap. */
 import { COMMON, chart, palette, s } from './_lib.js';
 import { on } from '../core.js';
@@ -20,19 +20,19 @@ const gap = (a, b, area) => { let lo = Math.abs(a - b), hi = a + b; for (let i =
 
 export default {
   name: 'chart-venn',
-  selector: '.efx-chart-venn',
+  selector: '.spark-chart-venn',
   lazy: true,
   defaults: { ...COMMON, height: 300, legend: false, opacity: 0.4 },
   init(el, o) {
     const read = d => { try { return norm(d); } catch (e) { return []; } };
     const j = el.querySelector(':scope > script[type="application/json"]');
     let items = [];
-    try { items = read(JSON.parse((o.data || '').trim() || (j ? j.textContent : '[]'))); } catch (e) { console.warn('[effix] chart data', e); }
+    try { items = read(JSON.parse((o.data || '').trim() || (j ? j.textContent : '[]'))); } catch (e) { console.warn('[spark] chart data', e); }
     const jt = j && j.getAttribute('type');
-    if (j) j.setAttribute('type', 'application/x-efx-json');
+    if (j) j.setAttribute('type', 'application/x-spark-json');
     o.source = '';
     o.data = '[]';
-    const off = on(el, 'efx:data', e => { items = read(e.detail); });
+    const off = on(el, 'spark:data', e => { items = read(e.detail); });
     const draw = ({ g, w, h, fmt, deco }) => {
       const names = [];
       items.filter(q => q.sets.length === 1).forEach(q => names.includes(q.sets[0]) || names.push(q.sets[0]));
@@ -60,25 +60,25 @@ export default {
       [[0, 1], [0, 2], [1, 2], [0, 1, 2]].forEach(ids => {
         if (ids.every(i => i < names.length) && sizeOf(ids) > 0) regions.push({ ids, size: sizeOf(ids), name: ids.map(i => names[i]).join(' ∩ ') });
       });
-      const id = 'efx-v' + ++uid;
+      const id = 'spark-v' + ++uid;
       // circles
       c.forEach((q, i) => {
-        regions[i].node = s('circle', { cx: q.x, cy: q.y, r: q.r, fill: pal[i], 'fill-opacity': o.opacity, stroke: pal[i], 'stroke-width': 1.5, class: 'efx-chart__mark efx-venn__c efx-chart__fade', style: `--i:${i * 2}` }, g);
+        regions[i].node = s('circle', { cx: q.x, cy: q.y, r: q.r, fill: pal[i], 'fill-opacity': o.opacity, stroke: pal[i], 'stroke-width': 1.5, class: 'spark-chart__mark spark-venn__c spark-chart__fade', style: `--i:${i * 2}` }, g);
       });
       // intersection highlights: circle a clipped to b (and c)
       regions.slice(names.length).forEach((r, m) => {
         const [a, b, d] = r.ids, cp = (n, t) => { const p = s('clipPath', { id: `${id}-${m}-${n}` }, g); s('circle', { cx: c[t].x, cy: c[t].y, r: c[t].r }, p); return `url(#${id}-${m}-${n})`; };
         const host = d == null ? g : s('g', { 'clip-path': cp(1, d) }, g);
-        r.node = s('circle', { cx: c[a].x, cy: c[a].y, r: c[a].r, 'clip-path': cp(0, b), class: 'efx-chart__mark efx-venn__x' }, host);
+        r.node = s('circle', { cx: c[a].x, cy: c[a].y, r: c[a].r, 'clip-path': cp(0, b), class: 'spark-chart__mark spark-venn__x' }, host);
       });
       if (!deco) {
-        const txt = (x, y, cls, str, i, dy) => { const t = s('text', { x, y: y + (dy || 0), 'text-anchor': 'middle', 'dominant-baseline': 'middle', class: cls + ' efx-chart__fade', style: `--i:${i}` }, g); t.textContent = str; };
+        const txt = (x, y, cls, str, i, dy) => { const t = s('text', { x, y: y + (dy || 0), 'text-anchor': 'middle', 'dominant-baseline': 'middle', class: cls + ' spark-chart__fade', style: `--i:${i}` }, g); t.textContent = str; };
         c.forEach((q, i) => {
           const oth = c.filter((_, j) => j !== i), mx = oth.reduce((a, p) => a + p.x, 0) / (oth.length || 1), my = oth.reduce((a, p) => a + p.y, 0) / (oth.length || 1);
           const dx = q.x - mx, dy = q.y - my, l = oth.length ? Math.hypot(dx, dy) || 1 : 1, sh = oth.length ? q.r * (names.length > 2 ? 0.5 : 0.42) : 0;
           const lx = q.x + (oth.length ? dx / l : 0) * sh, ly = q.y + (oth.length ? dy / l : 0) * sh;
-          txt(lx, ly, 'efx-chart__value', names[i], i + 3, -7);
-          txt(lx, ly, 'efx-venn__n', fmt(tot[i]), i + 3, 9);
+          txt(lx, ly, 'spark-chart__value', names[i], i + 3, -7);
+          txt(lx, ly, 'spark-venn__n', fmt(tot[i]), i + 3, 9);
         });
         regions.slice(names.length).forEach((r, m) => {
           let px, py;
@@ -90,7 +90,7 @@ export default {
             const third = names.length > 2 && sizeOf([0, 1, 2]) > 0 ? c[3 - a - b] : null;
             if (third) { const ex = px - third.x, ey = py - third.y, el2 = Math.hypot(ex, ey) || 1, wd = Math.max(0, Math.min(c[a].r + c[b].r - d, 2 * Math.min(c[a].r, c[b].r))); px += (ex / el2) * wd * 0.5; py += (ey / el2) * wd * 0.5; }
           }
-          txt(px, py, 'efx-chart__value efx-venn__i', fmt(r.size), names.length + 3 + m);
+          txt(px, py, 'spark-chart__value spark-venn__i', fmt(r.size), names.length + 3 + m);
         });
       }
       return regions.map((r, i) => ({

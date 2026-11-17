@@ -1,5 +1,5 @@
 /* viz-network — force-directed graph (own velocity-Verlet simulation, no deps).
-   <div class="efx-viz-network" data-efx-data='{"nodes":[{"id":"a","group":"x"},{"id":"b"}],"links":[{"source":"a","target":"b"}]}'></div>
+   <div class="spark-viz-network" data-spark-data='{"nodes":[{"id":"a","group":"x"},{"id":"b"}],"links":[{"source":"a","target":"b"}]}'></div>
    Drag nodes, wheel/drag background to zoom/pan, hover highlights neighbours, arrows move between nodes. */
 import { COMMON, chart, palette, s, esc } from './_lib.js';
 import { on, motionOK } from '../core.js';
@@ -16,14 +16,14 @@ const norm = d => {
 
 export default {
   name: 'viz-network',
-  selector: '.efx-viz-network',
+  selector: '.spark-viz-network',
   lazy: true,
   defaults: { ...COMMON, height: 420, legend: false, label: false, zoom: true, linkDistance: 70, charge: 60, radius: 5 },
   init(el, o) {
     const read = r => { try { return norm(typeof r === 'string' ? JSON.parse(r) : r); } catch (e) { return norm(); } };
     const j = el.querySelector(':scope > script[type="application/json"]');
     let d = read((o.data || '').trim() || (j && j.textContent));
-    const offData = on(el, 'efx:data', e => { d = e.detail ? norm(e.detail) : d; }); // before chart(): runs first
+    const offData = on(el, 'spark:data', e => { d = e.detail ? norm(e.detail) : d; }); // before chart(): runs first
     let S, raf = 0, view = { k: 1, x: 0, y: 0 }, bound = 0, cur;
     const cancel = () => { cancelAnimationFrame(raf); raf = 0; };
 
@@ -67,10 +67,10 @@ export default {
         Object.assign(S, { cx: w / 2, cy: h / 2, a: Math.max(S.a, 0.3) });
       }
       const groups = [...new Set(N.map(n => n.group))], pal = palette(el, o, groups.length);
-      const zg = s('g', { class: 'efx-viz__zoom', transform: `translate(${view.x} ${view.y}) scale(${view.k})` }, g);
-      const lines = L.map(l => s('line', { class: 'efx-viz__link', 'stroke-width': Math.min(4, 0.6 + Math.sqrt(l.v)) }, zg));
-      const circles = N.map((n, i) => s('circle', { r: n.r, fill: pal[groups.indexOf(n.group)], class: 'efx-chart__mark efx-chart__fade efx-viz__node', 'data-i': i, style: `--i:${i % 20}` }, zg));
-      const texts = o.label && !deco ? N.map(n => { const t = s('text', { class: 'efx-viz__label', 'text-anchor': 'middle' }, zg); t.textContent = n.label ?? n.id; return t; }) : [];
+      const zg = s('g', { class: 'spark-viz__zoom', transform: `translate(${view.x} ${view.y}) scale(${view.k})` }, g);
+      const lines = L.map(l => s('line', { class: 'spark-viz__link', 'stroke-width': Math.min(4, 0.6 + Math.sqrt(l.v)) }, zg));
+      const circles = N.map((n, i) => s('circle', { r: n.r, fill: pal[groups.indexOf(n.group)], class: 'spark-chart__mark spark-chart__fade spark-viz__node', 'data-i': i, style: `--i:${i % 20}` }, zg));
+      const texts = o.label && !deco ? N.map(n => { const t = s('text', { class: 'spark-viz__label', 'text-anchor': 'middle' }, zg); t.textContent = n.label ?? n.id; return t; }) : [];
       const marks = N.map((n, i) => ({
         label: String(n.label ?? n.id), series: n.group != null ? String(n.group) : '', value: n.size ?? n.deg, valueText: `${n.deg} link${n.deg === 1 ? '' : 's'}`, node: circles[i], index: i,
         rel: L.filter(l => l.s === i || l.t === i).map(l => (l.s === i ? l.t : l.s)),

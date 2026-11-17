@@ -1,10 +1,10 @@
 /* sticky — is-stuck / is-hidden (hide on scroll down) / is-shrunk state classes.
-   <header class="efx-sticky" data-efx-hide data-efx-shrink>…</header> */
+   <header class="spark-sticky" data-spark-hide data-spark-shrink>…</header> */
 import { onVisible, onScroll, motionOK, on } from '../core.js';
 
 export default {
   name: 'sticky',
-  selector: '.efx-sticky',
+  selector: '.spark-sticky',
   defaults: { offset: 0, hide: false, shrink: false, shrinkAt: 80 },
   init(el, o) {
     const top = el.style.top;
@@ -16,7 +16,7 @@ export default {
     }, `-${o.offset + 1}px 0px 0px 0px`, 1);
     const hide = o.hide && motionOK(), shrink = o.shrink;
     const anim = hide || shrink;
-    if (anim) el.classList.add('efx-sticky-anim');
+    if (anim) el.classList.add('spark-sticky-anim');
     let h = el.offsetHeight, last = scrollY;
     const ro = hide && typeof ResizeObserver !== 'undefined' && new ResizeObserver(() => { h = el.offsetHeight; });
     ro && ro.observe(el);
@@ -31,7 +31,7 @@ export default {
     });
     return () => {
       stopV(); stopS && stopS(); ro && ro.disconnect(); offF && offF();
-      el.classList.remove('is-stuck', 'is-hidden', 'is-shrunk', 'efx-sticky-anim');
+      el.classList.remove('is-stuck', 'is-hidden', 'is-shrunk', 'spark-sticky-anim');
       el.style.top = top;
     };
   },

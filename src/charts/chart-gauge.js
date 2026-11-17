@@ -1,6 +1,6 @@
 /* chart-gauge — gauge (240° arc), progress ring, or concentric radial bars.
-   <div class="efx-chart-gauge" data-efx-value="72" data-efx-label="Uptime" data-efx-suffix="%"></div>
-   <div class="efx-chart-gauge" data-efx-type="radial" data-efx-data="80,60,35" data-efx-labels="Move|Exercise|Stand"></div> */
+   <div class="spark-chart-gauge" data-spark-value="72" data-spark-label="Uptime" data-spark-suffix="%"></div>
+   <div class="spark-chart-gauge" data-spark-type="radial" data-spark-data="80,60,35" data-spark-labels="Move|Exercise|Stand"></div> */
 import { COMMON, chart, palette, s, esc, polar } from './_lib.js';
 import { on } from '../core.js';
 
@@ -8,12 +8,12 @@ const TAU = Math.PI * 2;
 
 export default {
   name: 'chart-gauge',
-  selector: '.efx-chart-gauge',
+  selector: '.spark-chart-gauge',
   lazy: true,
   defaults: { ...COMMON, legend: false, type: 'gauge', value: NaN, min: 0, max: 100, thick: 0.18, needle: false, target: NaN, label: '' },
   init(el, o) {
-    // registered before chart(): a live update replaces any static data-efx-value
-    const off = on(el, 'efx:data', e => { const v = e.detail && e.detail.value; o.value = v != null && v !== '' && Number.isFinite(+v) ? +v : NaN; });
+    // registered before chart(): a live update replaces any static data-spark-value
+    const off = on(el, 'spark:data', e => { const v = e.detail && e.detail.value; o.value = v != null && v !== '' && Number.isFinite(+v) ? +v : NaN; });
     const stop = chart(el, o, ({ g, w, h, data, fmt, deco }) => {
       const ty = o.type, rad = ty === 'radial', gauge = ty === 'gauge', S = data.series[0] || { values: [] };
       const pal = palette(el, o, Math.max(1, data.labels.length));
@@ -34,8 +34,8 @@ export default {
       const text = !deco && Math.min(w, h) >= 90;
       vals.forEach((v, i) => {
         const r = rad ? R - ring / 2 - i * (((R * 0.78) / n)) : R - ring / 2, a1 = a0 + sw * p(v), name = rad ? (data.labels[i] || String(i + 1)) : o.label || (data.labels[0] && data.labels[0] !== '1' ? data.labels[0] : 'Value');
-        s('path', { d: arc(r, a0, a0 + sw), class: 'efx-gauge-track', 'stroke-width': ring, 'stroke-linecap': 'round', fill: 'none' }, g);
-        const node = s('path', { d: arc(r, a0, a1 || a0 + 1e-3), pathLength: 1, class: 'efx-chart__mark efx-gauge-sweep', style: `--i:${i * 3}`, stroke: pal[rad ? i : 0], 'stroke-width': ring, 'stroke-linecap': 'round', fill: 'none', visibility: p(v) > 0 ? null : 'hidden' }, g);
+        s('path', { d: arc(r, a0, a0 + sw), class: 'spark-gauge-track', 'stroke-width': ring, 'stroke-linecap': 'round', fill: 'none' }, g);
+        const node = s('path', { d: arc(r, a0, a1 || a0 + 1e-3), pathLength: 1, class: 'spark-chart__mark spark-gauge-sweep', style: `--i:${i * 3}`, stroke: pal[rad ? i : 0], 'stroke-width': ring, 'stroke-linecap': 'round', fill: 'none', visibility: p(v) > 0 ? null : 'hidden' }, g);
         const [x, y] = polar(cx, cy, r, a1);
         marks.push({
           x, y, label: name, value: v, node, index: i, series: '',
@@ -46,27 +46,27 @@ export default {
           },
         });
         if (rad && text) {
-          const t = s('text', { x: cx - 10, y: cy - r, 'text-anchor': 'end', 'dominant-baseline': 'central', class: 'efx-gauge-lab efx-chart__fade', style: `--i:${i}` }, g);
+          const t = s('text', { x: cx - 10, y: cy - r, 'text-anchor': 'end', 'dominant-baseline': 'central', class: 'spark-gauge-lab spark-chart__fade', style: `--i:${i}` }, g);
           t.textContent = name;
         }
       });
       const v = vals[0], ri = R - ring;
       if (Number.isFinite(o.target) && !rad) {
         const at = a0 + sw * p(o.target), [x1, y1] = polar(cx, cy, R - ring - 3, at), [x2, y2] = polar(cx, cy, R + 3, at);
-        s('line', { x1, y1, x2, y2, class: 'efx-gauge-target' }, g);
+        s('line', { x1, y1, x2, y2, class: 'spark-gauge-target' }, g);
       }
       if (deco || rad) return marks;
       if (gauge && o.needle) {
         const len = R - ring - 4;
-        s('path', { d: `M${cx - 3.5},${cy}L${cx},${cy - len}L${cx + 3.5},${cy}Z`, class: 'efx-gauge-needle', style: `transform-origin:${cx}px ${cy}px;--a:${a0 + sw * p(v)}rad` }, g);
-        s('circle', { cx, cy, r: 6, class: 'efx-gauge-hub' }, g);
+        s('path', { d: `M${cx - 3.5},${cy}L${cx},${cy - len}L${cx + 3.5},${cy}Z`, class: 'spark-gauge-needle', style: `transform-origin:${cx}px ${cy}px;--a:${a0 + sw * p(v)}rad` }, g);
+        s('circle', { cx, cy, r: 6, class: 'spark-gauge-hub' }, g);
       }
       if (text) {
         const str = fmt(v), cap = o.label || (data.labels[0] && data.labels[0] !== '1' ? data.labels[0] : '');
         const f = Math.min(ri * (gauge ? (o.needle ? 0.36 : 0.5) : 0.5), (ri * 1.6) / (str.length * 0.58)), ty0 = gauge ? (o.needle ? cy + ri * 0.4 : cy + ri * 0.02) : cy - (cap ? f * 0.3 : 0);
-        const big = s('text', { x: cx, y: ty0, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'efx-chart__value efx-chart__fade', style: `font-size:${f}px` }, g);
+        const big = s('text', { x: cx, y: ty0, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'spark-chart__value spark-chart__fade', style: `font-size:${f}px` }, g);
         big.textContent = str;
-        if (cap) s('text', { x: cx, y: ty0 + f * 0.8, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'efx-gauge-lab efx-chart__fade' }, g).textContent = cap;
+        if (cap) s('text', { x: cx, y: ty0 + f * 0.8, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'spark-gauge-lab spark-chart__fade' }, g).textContent = cap;
       }
       return marks;
     });

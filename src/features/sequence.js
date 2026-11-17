@@ -1,19 +1,19 @@
 /* sequence — scroll-driven image sequence (canvas) or video scrub.
-   <div class="efx-sequence" data-efx-src="frames/f{i}.webp" data-efx-frames="120" data-efx-pad="3"></div>
-   <div class="efx-sequence" data-efx-list="a.jpg|b.jpg|c.jpg"></div>
-   <video class="efx-sequence" muted playsinline preload="auto" src="clip.mp4"></video>
+   <div class="spark-sequence" data-spark-src="frames/f{i}.webp" data-spark-frames="120" data-spark-pad="3"></div>
+   <div class="spark-sequence" data-spark-list="a.jpg|b.jpg|c.jpg"></div>
+   <video class="spark-sequence" muted playsinline preload="auto" src="clip.mp4"></video>
    The container becomes `height` vh tall; the canvas/video stays pinned while you scroll through it. */
 import { onScroll, motionOK } from '../core.js';
 
 export default {
   name: 'sequence',
-  selector: '.efx-sequence',
+  selector: '.spark-sequence',
   lazy: true,
   defaults: { src: '', list: [], frames: 0, pad: 0, start: 1, height: 300, fit: 'cover' },
   init(el, o) {
     const anim = motionOK(), video = el.tagName === 'VIDEO';
     const host = document.createElement('div'); // tall scroll track
-    host.className = 'efx-sequence__track';
+    host.className = 'spark-sequence__track';
     let canvas, ctx, ro, parent, saved, pin, saveH = '', dead = false, pump = () => {}, stop;
     const loading = new Set();
     const prog = (r, vh) => Math.min(1, Math.max(0, -r.top / ((r.height - vh) || 1)));
@@ -25,9 +25,9 @@ export default {
       el.style.objectFit = o.fit;
       el.pause();
       const seek = t => { if (el.duration && Math.abs(el.currentTime - t) > .03) el.currentTime = t; };
-      if (!anim) { host.classList.add('efx-sequence-static'); el.addEventListener('loadedmetadata', () => seek(0.01), { once: true }); }
+      if (!anim) { host.classList.add('spark-sequence-static'); el.addEventListener('loadedmetadata', () => seek(0.01), { once: true }); }
       else {
-        host.style.height = o.height + 'vh'; el.classList.add('efx-sequence-on');
+        host.style.height = o.height + 'vh'; el.classList.add('spark-sequence-on');
         let p = 0;
         const sync = () => seek(p * (el.duration || 0));
         el.addEventListener('loadedmetadata', sync);
@@ -43,14 +43,14 @@ export default {
       const imgs = [], req = new Set(), loaded = []; // loaded: sorted frame indexes
       let active = 0, want = 0, drawn = -1;
       pin = document.createElement('div');
-      pin.className = 'efx-sequence__pin';
+      pin.className = 'spark-sequence__pin';
       pin.setAttribute('aria-hidden', 'true');
       canvas = document.createElement('canvas');
       pin.appendChild(canvas);
       el.appendChild(pin);
       ctx = canvas.getContext('2d');
       saveH = el.style.height;
-      if (anim) { el.style.height = o.height + 'vh'; el.classList.add('efx-sequence-on'); }
+      if (anim) { el.style.height = o.height + 'vh'; el.classList.add('spark-sequence-on'); }
       const draw = () => {
         if (dead || !loaded.length) return;
         let lo = 0, hi = loaded.length; // first loaded index >= want
@@ -102,7 +102,7 @@ export default {
       stop && stop(); ro && ro.disconnect();
       loading.forEach(im => { im.onload = im.onerror = null; im.src = ''; }); loading.clear();
       if (video) { host.parentNode ? host.parentNode.insertBefore(el, host) : parent.appendChild(el); host.remove(); el.className = saved[0]; el.style.cssText = saved[1]; }
-      else { pin && pin.remove(); el.style.height = saveH; el.classList.remove('efx-sequence-on'); }
+      else { pin && pin.remove(); el.style.height = saveH; el.classList.remove('spark-sequence-on'); }
     };
   },
 };

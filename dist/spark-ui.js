@@ -1,14 +1,14 @@
-/*! Effix UI v0.3.0 | MIT | https://github.com/asticore/effix */
+/*! Spark UI v0.4.0 | MIT | https://github.com/asticore/spark */
 (() => {
-  // effix-host:effix-core
-  var get = (...a) => window.Effix.get(...a);
-  var parseCSV = (...a) => window.Effix.parseCSV(...a);
-  var motionOK = (...a) => window.Effix.motionOK(...a);
-  var finePointer = (...a) => window.Effix.finePointer(...a);
-  var on = (...a) => window.Effix.on(...a);
-  var onVisible = (...a) => window.Effix.onVisible(...a);
-  var onScroll = (...a) => window.Effix.onScroll(...a);
-  var effix_core_default = window.Effix;
+  // spark-host:spark-core
+  var get = (...a) => window.Spark.get(...a);
+  var parseCSV = (...a) => window.Spark.parseCSV(...a);
+  var motionOK = (...a) => window.Spark.motionOK(...a);
+  var finePointer = (...a) => window.Spark.finePointer(...a);
+  var on = (...a) => window.Spark.on(...a);
+  var onVisible = (...a) => window.Spark.onVisible(...a);
+  var onScroll = (...a) => window.Spark.onScroll(...a);
+  var spark_core_default = window.Spark;
 
   // src/ui/_shine.js
   var yes = false;
@@ -63,12 +63,12 @@
   }
   var calendar_default = {
     name: "calendar",
-    selector: ".efx-calendar",
+    selector: ".spark-calendar",
     defaults: { events: "", range: false, picker: true, firstDay: 0, locale: "", month: "", value: "", min: "", max: "", name: "", label: "Calendar" },
     init(el, o) {
       const saved = el.innerHTML, offs = [], sh = shineWidgets(), cls0 = el.getAttribute("class");
       const c = (shine, own) => sh ? shine : own;
-      el.classList.add(...sh ? ["calendar"] : ["efx-calendar--own"]);
+      el.classList.add(...sh ? ["calendar"] : ["spark-calendar--own"]);
       const jsonTag = el.querySelector(':scope > script[type="application/json"]');
       let dead = false, events = [], sel = [null, null], view, focus;
       const loc = o.locale || void 0;
@@ -88,13 +88,13 @@
         b.setAttribute("aria-label", label);
         return b;
       };
-      const prev = mkBtn("efx-calendar__nav", "\u2039", "Previous month"), nextB = mkBtn("efx-calendar__nav", "\u203A", "Next month");
-      head.className = c("calendar-head", "efx-calendar__head");
-      title.className = "efx-calendar__title";
+      const prev = mkBtn("spark-calendar__nav", "\u2039", "Previous month"), nextB = mkBtn("spark-calendar__nav", "\u203A", "Next month");
+      head.className = c("calendar-head", "spark-calendar__head");
+      title.className = "spark-calendar__title";
       title.setAttribute("aria-live", "polite");
-      grid.className = c("calendar-grid", "efx-calendar__grid");
+      grid.className = c("calendar-grid", "spark-calendar__grid");
       grid.setAttribute("role", "grid");
-      list.className = "efx-calendar__events";
+      list.className = "spark-calendar__events";
       head.append(prev, title, nextB);
       el.append(head, grid, list);
       el.setAttribute("aria-label", o.label);
@@ -110,12 +110,12 @@
         grid.textContent = "";
         const hr = document.createElement("div");
         hr.setAttribute("role", "row");
-        hr.className = "efx-calendar__row";
+        hr.className = "spark-calendar__row";
         if (sh) hr.style.display = "contents";
         for (let i = 0; i < 7; i++) {
           const d = new Date(2023, 0, 1 + (fd + i) % 7), c2 = document.createElement("div"), cc = (a, b) => sh ? a : b;
           c2.setAttribute("role", "columnheader");
-          c2.className = cc("calendar-dow", "efx-calendar__dow");
+          c2.className = cc("calendar-dow", "spark-calendar__dow");
           c2.textContent = wk.format(d);
           c2.setAttribute("aria-label", wkL.format(d));
           hr.append(c2);
@@ -128,7 +128,7 @@
         for (let w = 0; w < weeks; w++) {
           const row = document.createElement("div");
           row.setAttribute("role", "row");
-          row.className = "efx-calendar__row";
+          row.className = "spark-calendar__row";
           if (sh) row.style.display = "contents";
           for (let i = 0; i < 7; i++) {
             const d = addDays(first, w * 7 + i - lead), k = key(d), out = d.getMonth() !== view.getMonth();
@@ -137,7 +137,7 @@
             if (sh) cell.style.display = "contents";
             const b = document.createElement("button");
             b.type = "button";
-            b.className = sh ? "calendar-day" : "efx-calendar__day";
+            b.className = sh ? "calendar-day" : "spark-calendar__day";
             b.dataset.date = k;
             b.textContent = d.getDate();
             b.tabIndex = k === fk && inView || !inView && !out && d.getDate() === 1 ? 0 : -1;
@@ -163,7 +163,7 @@
             if (ev.length) {
               b.classList.add("has-events");
               const dots = document.createElement("span");
-              dots.className = sh ? "calendar-dots" : "efx-calendar__dots";
+              dots.className = sh ? "calendar-dots" : "spark-calendar__dots";
               dots.setAttribute("aria-hidden", "true");
               ev.slice(0, 3).forEach((e) => {
                 const dot = document.createElement("i");
@@ -259,11 +259,11 @@
         events = (Array.isArray(a) ? a : []).filter((e) => e && parse(e.date)).map((e) => ({ date: String(e.date).slice(0, 10), end: e.end ? String(e.end).slice(0, 10) : "", title: String(e.title || e.name || ""), color: e.color }));
         if (!dead) render();
       };
-      offs.push(on(el, "efx:data", (e) => {
+      offs.push(on(el, "spark:data", (e) => {
         try {
           setEvents(e.detail);
         } catch (err) {
-          console.warn("[effix] calendar data", err);
+          console.warn("[spark] calendar data", err);
         }
       }));
       const src = (o.events || "").trim();
@@ -272,9 +272,9 @@
         else if (src && /^(\[|\{|BEGIN:VCALENDAR)/.test(src)) setEvents(src);
         else if (src) fetch(src).then((r) => r.text()).then((t) => {
           if (!dead) setEvents(t);
-        }).catch((err) => console.warn("[effix] calendar events", err));
+        }).catch((err) => console.warn("[spark] calendar events", err));
       } catch (err) {
-        console.warn("[effix] calendar events", err);
+        console.warn("[spark] calendar events", err);
       }
       render();
       return () => {
@@ -304,13 +304,13 @@
   }));
   var lottie_default = {
     name: "lottie",
-    selector: ".efx-lottie",
+    selector: ".spark-lottie",
     lazy: true,
     defaults: { src: "", autoplay: true, loop: true, speed: 1, trigger: "auto", still: 0, lib: LIB, label: "" },
     init(el, o) {
       if (!o.src) return;
       const canvas = document.createElement("canvas");
-      canvas.className = "efx-lottie__canvas";
+      canvas.className = "spark-lottie__canvas";
       el.append(canvas);
       const a0 = ["role", "aria-label"].map((a) => [a, el.getAttribute(a)]);
       if (o.label) {
@@ -360,18 +360,18 @@
           if (dead || ready) return;
           ready = true;
           el.classList.add("is-ready");
-          el.dispatchEvent(new CustomEvent("efx:ready", { bubbles: true }));
+          el.dispatchEvent(new CustomEvent("spark:ready", { bubbles: true }));
           start();
         };
         player.addEventListener("load", done);
         player.addEventListener("loadError", () => {
           if (!dead) el.classList.add("is-error");
         });
-        player.addEventListener("complete", () => el.dispatchEvent(new CustomEvent("efx:done", { bubbles: true })));
+        player.addEventListener("complete", () => el.dispatchEvent(new CustomEvent("spark:done", { bubbles: true })));
       }).catch((e) => {
         if (!dead) {
           el.classList.add("is-error");
-          console.warn("[effix] lottie player failed to load", e);
+          console.warn("[spark] lottie player failed to load", e);
         }
       });
       return () => {
@@ -392,7 +392,7 @@
   var uid = 0;
   var rating_default = {
     name: "rating",
-    selector: ".efx-rating",
+    selector: ".spark-rating",
     defaults: { value: -1, count: 5, half: false, readonly: true, name: "", label: "Rating" },
     init(el, o) {
       const saved = el.innerHTML, attrs = ["role", "tabindex", "aria-label", "aria-valuemin", "aria-valuemax", "aria-valuenow", "aria-valuetext", "aria-readonly"].map((a) => [a, el.getAttribute(a)]);
@@ -410,7 +410,7 @@
           el.setAttribute("role", "img");
           el.setAttribute("aria-label", `${o.label}: ${value} of 5`);
         } else {
-          const id = "efx-rt" + ++uid, nm = o.name || id;
+          const id = "spark-rt" + ++uid, nm = o.name || id;
           el.classList.add("rating-input");
           if (o.half) el.classList.add("rating-half");
           el.setAttribute("role", "radiogroup");
@@ -445,7 +445,7 @@
       el.textContent = "";
       for (let i = 0; i < count; i++) {
         const st = document.createElement("span");
-        st.className = "efx-rating__star";
+        st.className = "spark-rating__star";
         st.setAttribute("aria-hidden", "true");
         st.textContent = "\u2605";
         el.append(st);
@@ -453,7 +453,7 @@
       }
       if (input) el.append(input);
       const text = (v) => `${v} of ${count}`;
-      const paint = (v) => stars.forEach((st, i) => st.style.setProperty("--efx-fill", Math.max(0, Math.min(1, v - i))));
+      const paint = (v) => stars.forEach((st, i) => st.style.setProperty("--spark-fill", Math.max(0, Math.min(1, v - i))));
       const set = (v, fire) => {
         v = clamp(v);
         const changed = v !== value;
@@ -465,7 +465,7 @@
         if (input) input.value = v;
         if (fire && changed) el.dispatchEvent(new CustomEvent("change", { bubbles: true, detail: { value: v } }));
       };
-      el.classList.add("efx-rating--own");
+      el.classList.add("spark-rating--own");
       el.classList.toggle("is-readonly", o.readonly);
       el.setAttribute("aria-label", o.label);
       if (o.readonly) {
@@ -516,7 +516,7 @@
       return () => {
         offs.forEach((f) => f());
         el.innerHTML = saved;
-        el.classList.remove("is-readonly", "efx-rating--own");
+        el.classList.remove("is-readonly", "spark-rating--own");
         attrs.forEach(([a, v]) => v === null ? el.removeAttribute(a) : el.setAttribute(a, v));
       };
     }
@@ -525,10 +525,10 @@
   // src/ui/steps.js
   var steps_default = {
     name: "steps",
-    selector: ".efx-steps",
+    selector: ".spark-steps",
     defaults: { start: 0, hash: false, linear: true, native: true, validate: "", back: "Back", next: "Next", finish: "Finish", label: "Progress" },
     init(el, o) {
-      const panels = [...el.children].filter((c) => c.classList.contains("efx-step"));
+      const panels = [...el.children].filter((c) => c.classList.contains("spark-step"));
       if (!panels.length) return;
       const n = panels.length, key2 = el.id || "step", offs = [], sh = shineWidgets();
       const saved = panels.map((p) => [p.hidden, p.getAttribute("aria-labelledby"), p.getAttribute("role"), p.id]);
@@ -539,20 +539,20 @@
         if (txt != null) x.textContent = txt;
         return x;
       };
-      const list = mk2("ol", sh ? "stepper" : "efx-steps__list"), bar = mk2("div", "efx-steps__bar"), status = mk2("div", "efx-steps__status");
-      const nav = mk2("div", "efx-steps__nav"), back = mk2("button", "btn btn-outline efx-steps__back", o.back), next = mk2("button", "btn efx-steps__next", o.next);
+      const list = mk2("ol", sh ? "stepper" : "spark-steps__list"), bar = mk2("div", "spark-steps__bar"), status = mk2("div", "spark-steps__status");
+      const nav = mk2("div", "spark-steps__nav"), back = mk2("button", "btn btn-outline spark-steps__back", o.back), next = mk2("button", "btn spark-steps__next", o.next);
       back.type = next.type = "button";
       status.setAttribute("aria-live", "polite");
       list.setAttribute("aria-label", o.label);
       bar.setAttribute("aria-hidden", "true");
       const items = panels.map((p, i) => {
-        const li = mk2("li", sh ? "step" : "efx-steps__item"), b = mk2("button", sh ? "step-marker" : "efx-steps__btn"), t = mk2("span", sh ? "step-label" : "efx-steps__title", p.dataset.efxTitle || `Step ${i + 1}`);
+        const li = mk2("li", sh ? "step" : "spark-steps__item"), b = mk2("button", sh ? "step-marker" : "spark-steps__btn"), t = mk2("span", sh ? "step-label" : "spark-steps__title", p.dataset.sparkTitle || `Step ${i + 1}`);
         b.type = "button";
         if (sh) {
           b.textContent = i + 1;
           li.append(b, t);
         } else {
-          b.append(mk2("span", "efx-steps__num", i + 1), t);
+          b.append(mk2("span", "spark-steps__num", i + 1), t);
           li.append(b);
         }
         list.append(li);
@@ -571,7 +571,7 @@
       el.prepend(list);
       el.prepend(bar);
       el.append(status, nav);
-      el.classList.add("efx-steps--on");
+      el.classList.add("spark-steps--on");
       let cur = -1, doneAll = false;
       const valid = (i) => {
         const p = panels[i];
@@ -587,10 +587,10 @@
           try {
             if (fn(p, i) === false) return false;
           } catch (e) {
-            console.warn("[effix] steps validate", e);
+            console.warn("[spark] steps validate", e);
           }
         }
-        return p.dispatchEvent(new CustomEvent("efx:validate", { bubbles: true, cancelable: true, detail: { index: i } }));
+        return p.dispatchEvent(new CustomEvent("spark:validate", { bubbles: true, cancelable: true, detail: { index: i } }));
       };
       function show(i, quiet) {
         const prevI = cur;
@@ -605,8 +605,8 @@
           else cur2.removeAttribute("aria-current");
           it.b.disabled = o.linear && k > i && !(k < reached + 1);
         });
-        el.style.setProperty("--efx-steps-progress", n > 1 ? i / (n - 1) : 1);
-        el.setAttribute("data-efx-step", i);
+        el.style.setProperty("--spark-steps-progress", n > 1 ? i / (n - 1) : 1);
+        el.setAttribute("data-spark-step", i);
         back.disabled = i === 0;
         next.textContent = i === n - 1 ? o.finish : o.next;
         next.classList.toggle("is-last", i === n - 1);
@@ -615,7 +615,7 @@
           const h = `#${key2}=${i + 1}`;
           if (location.hash !== h) history.replaceState(null, "", h);
         }
-        if (!quiet || prevI < 0) el.dispatchEvent(new CustomEvent("efx:step", { bubbles: true, detail: { index: i, count: n, previous: prevI } }));
+        if (!quiet || prevI < 0) el.dispatchEvent(new CustomEvent("spark:step", { bubbles: true, detail: { index: i, count: n, previous: prevI } }));
       }
       let reached = 0;
       function go(i, userNav) {
@@ -643,9 +643,9 @@
           if (sh) it.li.classList.add("done");
         });
         el.classList.add("is-done");
-        el.dispatchEvent(new CustomEvent("efx:done", { bubbles: true }));
+        el.dispatchEvent(new CustomEvent("spark:done", { bubbles: true }));
       }));
-      offs.push(on(el, "efx:goto", (e) => {
+      offs.push(on(el, "spark:goto", (e) => {
         const i = Math.round(e.detail && e.detail.index);
         if (Number.isFinite(i)) {
           reached = Math.max(reached, i);
@@ -674,9 +674,9 @@
           [["aria-labelledby", saved[i][1]], ["role", saved[i][2]]].forEach(([a, v]) => v === null ? p.removeAttribute(a) : p.setAttribute(a, v));
           if (bits.includes(p)) p.removeAttribute("id");
         });
-        el.classList.remove("efx-steps--on", "is-done");
-        el.style.removeProperty("--efx-steps-progress");
-        el.removeAttribute("data-efx-step");
+        el.classList.remove("spark-steps--on", "is-done");
+        el.style.removeProperty("--spark-steps-progress");
+        el.removeAttribute("data-spark-step");
       };
     }
   };
@@ -712,7 +712,7 @@
   }
   var table_default = {
     name: "table",
-    selector: ".efx-table",
+    selector: ".spark-table",
     defaults: {
       data: "",
       sort: true,
@@ -734,12 +734,12 @@
       if (!table) return;
       const saved = table.innerHTML, parent = table.parentNode;
       const sh = shineWidgets();
-      const cls0 = table.className, bar = mk("div", sh ? "dt-toolbar" : "efx-table__bar"), pager = mk("div", sh ? "dt-pagebar" : "efx-table__pager");
+      const cls0 = table.className, bar = mk("div", sh ? "dt-toolbar" : "spark-table__bar"), pager = mk("div", sh ? "dt-pagebar" : "spark-table__pager");
       const mark = (tr, on_) => {
         tr.classList.toggle("is-selected", on_);
         if (sh) tr.setAttribute("aria-selected", String(on_));
       };
-      const live = mk("span", "efx-table__live");
+      const live = mk("span", "spark-table__live");
       live.setAttribute("aria-live", "polite");
       const offs = [];
       let dead = false, rows = [], cols = [], wrap = null, order = [], view = [], page = 0;
@@ -752,7 +752,7 @@
           const tds = [...tr.children];
           return { tr, cells: tds.map((td) => td.textContent.trim()), vals: tds.map((td) => {
             var _a;
-            return (_a = td.dataset.efxValue) != null ? _a : td.textContent.trim();
+            return (_a = td.dataset.sparkValue) != null ? _a : td.textContent.trim();
           }) };
         });
         if (!cols.length && rows[0]) cols = rows[0].cells.map((_, i) => "Column " + (i + 1));
@@ -801,7 +801,7 @@
           empty = null;
         }
         if (!shown.length) {
-          empty = mk("tr", "efx-table__empty");
+          empty = mk("tr", "spark-table__empty");
           const td = mk("td", "", sh ? null : o.empty);
           td.colSpan = Math.max(1, cols.length + (o.select ? 1 : 0));
           if (sh) td.append(mk("div", "dt-empty", o.empty));
@@ -819,7 +819,7 @@
         }
         if (o.pageSize > 0) {
           pager.hidden = pages < 2;
-          pager.querySelector(".dt-info, .efx-table__info").textContent = view.length ? `${page * size2 + 1}\u2013${page * size2 + shown.length} of ${view.length}` : "0 of 0";
+          pager.querySelector(".dt-info, .spark-table__info").textContent = view.length ? `${page * size2 + 1}\u2013${page * size2 + shown.length} of ${view.length}` : "0 of 0";
           pager.querySelector('[data-p="prev"]').disabled = page <= 0;
           pager.querySelector('[data-p="next"]').disabled = page >= pages - 1;
         }
@@ -830,7 +830,7 @@
         const row0 = table.querySelector("thead tr:first-child");
         if (!row0) return;
         if (o.select) {
-          const th = mk("th", "efx-table__sel");
+          const th = mk("th", "spark-table__sel");
           th.scope = "col";
           all = mk("input", "checkbox");
           all.type = "checkbox";
@@ -850,7 +850,7 @@
         }
         rows.forEach((r) => {
           if (o.select) {
-            const td = mk("td", "efx-table__sel"), b = mk("input", "checkbox");
+            const td = mk("td", "spark-table__sel"), b = mk("input", "checkbox");
             b.type = "checkbox";
             b.setAttribute("aria-label", "Select row");
             td.append(b);
@@ -871,7 +871,7 @@
         cols.forEach((c, i) => {
           const th = headCell(i);
           if (!th || !o.sort) return;
-          const b = mk("button", sh ? "" : "efx-table__sort");
+          const b = mk("button", sh ? "" : "spark-table__sort");
           b.type = "button";
           th.setAttribute("aria-sort", "none");
           while (th.firstChild) b.append(th.firstChild);
@@ -883,7 +883,7 @@
           }));
         });
         if (o.filters) {
-          const fr = mk("tr", "efx-table__filters");
+          const fr = mk("tr", "spark-table__filters");
           if (o.select) fr.append(mk("th", ""));
           cols.forEach((c, i) => {
             const th = mk("th", ""), inp = mk("input", "input input-sm");
@@ -904,7 +904,7 @@
       };
       const buildBar = () => {
         if (o.search) {
-          const inp = mk("input", sh ? "input input-sm dt-search" : "input input-sm efx-table__search");
+          const inp = mk("input", sh ? "input input-sm dt-search" : "input input-sm spark-table__search");
           inp.type = "search";
           inp.placeholder = o.placeholder;
           inp.setAttribute("aria-label", "Search table");
@@ -916,7 +916,7 @@
           }));
         }
         if (o.columns && cols.length) {
-          const d = mk("details", "efx-table__cols"), sm = mk("summary", "btn btn-sm btn-outline", "Columns"), list = mk("div", "efx-table__colist");
+          const d = mk("details", "spark-table__cols"), sm = mk("summary", "btn btn-sm btn-outline", "Columns"), list = mk("div", "spark-table__colist");
           cols.forEach((c, i) => {
             const lab = mk("label", ""), cb = mk("input", "checkbox");
             cb.type = "checkbox";
@@ -937,7 +937,7 @@
           bar.append(d);
         }
         if (o.csv) {
-          const b = mk("button", "btn btn-sm btn-outline efx-table__csv", "Download CSV");
+          const b = mk("button", "btn btn-sm btn-outline spark-table__csv", "Download CSV");
           b.type = "button";
           bar.append(b);
           offs.push(on(b, "click", () => {
@@ -954,7 +954,7 @@
           }));
         }
         if (o.pageSize > 0) {
-          pager.append(mk("span", sh ? "dt-info" : "efx-table__info"));
+          pager.append(mk("span", sh ? "dt-info" : "spark-table__info"));
           ["prev", "next"].forEach((k) => {
             const b = mk("button", "btn btn-sm btn-outline", k === "prev" ? "Previous" : "Next");
             b.type = "button";
@@ -970,7 +970,7 @@
       const applyCols = () => {
         const off = o.select ? 1 : 0;
         table.querySelectorAll("tr").forEach((tr) => {
-          if (!tr.classList.contains("efx-table__empty")) [...tr.children].forEach((c, i) => {
+          if (!tr.classList.contains("spark-table__empty")) [...tr.children].forEach((c, i) => {
             c.hidden = i >= off && hiddenCols.has(i - off);
           });
         });
@@ -994,7 +994,7 @@
         prep();
         render();
         bar.hidden = !bar.children.length;
-        el.setAttribute("data-efx-rows", rows.length);
+        el.setAttribute("data-spark-rows", rows.length);
       };
       const parse2 = (src) => /^\s*[[{]/.test(src) ? JSON.parse(src) : src;
       const load = async () => {
@@ -1005,19 +1005,19 @@
           try {
             src = await (await fetch(d)).text();
           } catch (e) {
-            console.warn("[effix] table data", e);
+            console.warn("[spark] table data", e);
             return start();
           }
         }
         try {
           start(parse2(src));
         } catch (e) {
-          console.warn("[effix] table data", e);
+          console.warn("[spark] table data", e);
           start();
         }
       };
-      table.classList.add("efx-table--on");
-      if (o.stack) table.classList.add("efx-table--stack");
+      table.classList.add("spark-table--on");
+      if (o.stack) table.classList.add("spark-table--stack");
       const size = /^\d+$/.test(o.height) ? o.height + "px" : o.height;
       let unit = table, tw = null, dt = null, unitStyle = null;
       if (sh) {
@@ -1037,18 +1037,18 @@
         dt.after(live);
       } else {
         if (o.height) {
-          wrap = mk("div", "efx-table__wrap");
+          wrap = mk("div", "spark-table__wrap");
           wrap.style.maxHeight = size;
           parent.insertBefore(wrap, table);
           wrap.append(table);
           unit = wrap;
         }
-        if (o.sticky || o.height) table.classList.add("efx-table--sticky");
+        if (o.sticky || o.height) table.classList.add("spark-table--sticky");
         unit.before(bar);
         unit.after(pager, live);
       }
       bar.hidden = pager.hidden = true;
-      const stat = [on(el, "efx:data", (e) => start(e.detail))];
+      const stat = [on(el, "spark:data", (e) => start(e.detail))];
       load();
       return () => {
         dead = true;
@@ -1072,7 +1072,7 @@
             tw.remove();
           }
         }
-        el.removeAttribute("data-efx-rows");
+        el.removeAttribute("data-spark-rows");
       };
     }
   };
@@ -1081,34 +1081,34 @@
   var LAYOUTS = ["vertical", "alternate", "horizontal"];
   var timeline_default = {
     name: "timeline",
-    selector: ".efx-timeline",
+    selector: ".spark-timeline",
     defaults: { layout: "vertical", reveal: true, progress: false, threshold: 0.2 },
     init(el, o) {
-      const items = [...el.querySelectorAll(":scope > .efx-timeline__item")];
+      const items = [...el.querySelectorAll(":scope > .spark-timeline__item")];
       if (!items.length) return;
       const layout = LAYOUTS.includes(o.layout) ? o.layout : "vertical";
       const cls0 = el.getAttribute("class"), role0 = el.getAttribute("role");
       const added = [], shClass = [], offs = [], saved = items.map((i) => i.getAttribute("role"));
       const sh = shineWidgets();
-      el.classList.add("efx-timeline--on");
+      el.classList.add("spark-timeline--on");
       if (sh) el.classList.add("timeline", ...layout === "alternate" ? ["timeline-alt"] : layout === "horizontal" ? ["timeline-horizontal"] : []);
-      else el.classList.add("efx-timeline--own", "efx-timeline--" + layout);
+      else el.classList.add("spark-timeline--own", "spark-timeline--" + layout);
       if (el.tagName !== "OL" && el.tagName !== "UL") el.setAttribute("role", "list");
       items.forEach((it) => {
         if (it.tagName !== "LI") it.setAttribute("role", "listitem");
         const m = document.createElement("span");
-        m.className = "efx-timeline__marker" + (sh ? " timeline-marker" : "");
+        m.className = "spark-timeline__marker" + (sh ? " timeline-marker" : "");
         m.setAttribute("aria-hidden", "true");
-        if (it.dataset.efxIcon) m.textContent = it.dataset.efxIcon;
+        if (it.dataset.sparkIcon) m.textContent = it.dataset.sparkIcon;
         else m.classList.add("is-dot");
         if (sh) {
           it.classList.add("timeline-item");
           shClass.push(it);
-          it.querySelectorAll(":scope > .efx-timeline__time").forEach((x) => {
+          it.querySelectorAll(":scope > .spark-timeline__time").forEach((x) => {
             x.classList.add("timeline-date");
             shClass.push(x);
           });
-          it.querySelectorAll(":scope > .efx-timeline__body").forEach((x) => {
+          it.querySelectorAll(":scope > .spark-timeline__body").forEach((x) => {
             x.classList.add("timeline-body");
             shClass.push(x);
           });
@@ -1117,13 +1117,13 @@
         added.push(m);
       });
       if (o.reveal && motionOK()) {
-        el.classList.add("efx-timeline--reveal");
+        el.classList.add("spark-timeline--reveal");
         items.forEach((it, i) => {
           it.style.setProperty("--i", i % 6);
-          it.classList.add("efx-timeline__pending");
+          it.classList.add("spark-timeline__pending");
           offs.push(onVisible(it, (v, e) => {
             if (!v) return;
-            it.classList.remove("efx-timeline__pending");
+            it.classList.remove("spark-timeline__pending");
             it.classList.add("is-in");
           }, "0px 0px -8% 0px", o.threshold));
         });
@@ -1131,18 +1131,18 @@
       if (o.progress && !sh && layout !== "horizontal") {
         offs.push(onScroll((y, h) => {
           const r = el.getBoundingClientRect(), p = Math.max(0, Math.min(1, (h / 2 - r.top) / (r.height || 1)));
-          return () => el.style.setProperty("--efx-timeline-progress", p.toFixed(3));
+          return () => el.style.setProperty("--spark-timeline-progress", p.toFixed(3));
         }));
       }
       return () => {
         offs.forEach((f) => f());
         added.forEach((m) => m.remove());
         items.forEach((it, i) => {
-          it.classList.remove("efx-timeline__pending", "is-in");
+          it.classList.remove("spark-timeline__pending", "is-in");
           it.style.removeProperty("--i");
           saved[i] === null ? it.removeAttribute("role") : it.setAttribute("role", saved[i]);
         });
-        el.style.removeProperty("--efx-timeline-progress");
+        el.style.removeProperty("--spark-timeline-progress");
         shClass.forEach((x) => x.classList.remove("timeline-item", "timeline-date", "timeline-body"));
         cls0 === null ? el.removeAttribute("class") : el.setAttribute("class", cls0);
         role0 === null ? el.removeAttribute("role") : el.setAttribute("role", role0);
@@ -1150,8 +1150,8 @@
     }
   };
 
-  // src/effix-entry.js
+  // src/spark-entry.js
   var defs = [calendar_default, lottie_default, rating_default, steps_default, table_default, timeline_default];
-  if (window.Effix) window.Effix.define(defs);
-  else (window.EffixPending = window.EffixPending || []).push(...defs);
+  if (window.Spark) window.Spark.define(defs);
+  else (window.SparkPending = window.SparkPending || []).push(...defs);
 })();

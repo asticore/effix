@@ -1,9 +1,9 @@
 /* lottie — small dotLottie / Lottie player. The player library is NOT bundled: it is fetched on demand,
-   only when a .efx-lottie element nears the viewport (lazy), so pages without one pay nothing.
-   <div class="efx-lottie" data-efx-src="/anim/hero.lottie" data-efx-trigger="visible" style="width:240px"></div>
+   only when a .spark-lottie element nears the viewport (lazy), so pages without one pay nothing.
+   <div class="spark-lottie" data-spark-src="/anim/hero.lottie" data-spark-trigger="visible" style="width:240px"></div>
    Triggers: auto · visible (play in view, pause out) · hover · click · scroll (scrub with scroll position).
    Reduced motion: shows one still frame, never plays. Any content inside the element stays as the fallback until it is ready.
-   Player: window.DotLottie, else Effix.add('lottie-lib', 'default', () => import('…')), else data-efx-lib (ES module URL exporting DotLottie). */
+   Player: window.DotLottie, else Spark.add('lottie-lib', 'default', () => import('…')), else data-spark-lib (ES module URL exporting DotLottie). */
 import { on, onVisible, onScroll, motionOK, get } from '../core.js';
 
 const LIB = 'https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web@0/+esm';
@@ -17,13 +17,13 @@ const loadLib = url => libP || (libP = (async () => {
 
 export default {
   name: 'lottie',
-  selector: '.efx-lottie',
+  selector: '.spark-lottie',
   lazy: true,
   defaults: { src: '', autoplay: true, loop: true, speed: 1, trigger: 'auto', still: 0, lib: LIB, label: '' },
   init(el, o) {
     if (!o.src) return;
     const canvas = document.createElement('canvas');
-    canvas.className = 'efx-lottie__canvas';
+    canvas.className = 'spark-lottie__canvas';
     el.append(canvas);
     const a0 = ['role', 'aria-label'].map(a => [a, el.getAttribute(a)]);
     if (o.label) { el.setAttribute('role', 'img'); el.setAttribute('aria-label', o.label); } else canvas.setAttribute('aria-hidden', 'true');
@@ -59,13 +59,13 @@ export default {
       const done = () => {
         if (dead || ready) return;
         ready = true; el.classList.add('is-ready');
-        el.dispatchEvent(new CustomEvent('efx:ready', { bubbles: true }));
+        el.dispatchEvent(new CustomEvent('spark:ready', { bubbles: true }));
         start();
       };
       player.addEventListener('load', done);
       player.addEventListener('loadError', () => { if (!dead) el.classList.add('is-error'); });
-      player.addEventListener('complete', () => el.dispatchEvent(new CustomEvent('efx:done', { bubbles: true })));
-    }).catch(e => { if (!dead) { el.classList.add('is-error'); console.warn('[effix] lottie player failed to load', e); } });
+      player.addEventListener('complete', () => el.dispatchEvent(new CustomEvent('spark:done', { bubbles: true })));
+    }).catch(e => { if (!dead) { el.classList.add('is-error'); console.warn('[spark] lottie player failed to load', e); } });
 
     return () => {
       dead = true; offs.forEach(f => f());

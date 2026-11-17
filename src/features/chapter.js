@@ -1,29 +1,29 @@
 /* chapter — current-section chip: shows the title of the section in view, text slides up on change, optional progress ring.
-   <a class="efx-chapter" href="#" data-efx-sections="section[data-efx-title]"></a>   title = data-efx-title or the section's first heading.
-   Links to the current section on click. aria-live="polite". data-efx-ring="false" hides the ring. */
+   <a class="spark-chapter" href="#" data-spark-sections="section[data-spark-title]"></a>   title = data-spark-title or the section's first heading.
+   Links to the current section on click. aria-live="polite". data-spark-ring="false" hides the ring. */
 import { onVisible, onScroll, motionOK, on } from '../core.js';
 
 const NS = 'http://www.w3.org/2000/svg';
-const titleOf = s => s.dataset.efxTitle || (s.querySelector('h1,h2,h3,h4,h5,h6') || {}).textContent || '';
+const titleOf = s => s.dataset.sparkTitle || (s.querySelector('h1,h2,h3,h4,h5,h6') || {}).textContent || '';
 
 export default {
   name: 'chapter',
-  selector: '.efx-chapter',
-  defaults: { sections: 'section[data-efx-title]', ring: true },
+  selector: '.spark-chapter',
+  defaults: { sections: 'section[data-spark-title]', ring: true },
   init(el, o) {
     const secs = [...document.querySelectorAll(o.sections)];
     if (!secs.length) return;
     const prevLive = el.getAttribute('aria-live'), prevHref = el.getAttribute('href');
     if (!prevLive) el.setAttribute('aria-live', 'polite');
-    el.classList.add('efx-chapter-on', 'is-empty');
+    el.classList.add('spark-chapter-on', 'is-empty');
     const nodes = [];
     const add = (tag, cls, ns) => { const n = ns ? document.createElementNS(NS, tag) : document.createElement(tag); n.setAttribute('class', cls); nodes.push(n); return n; };
-    const text = add('span', 'efx-chapter__text');
+    const text = add('span', 'spark-chapter__text');
     let circle = null;
     if (o.ring) {
-      const svg = add('svg', 'efx-chapter__ring', 1);
+      const svg = add('svg', 'spark-chapter__ring', 1);
       svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true');
-      const bg = add('circle', 'efx-chapter__track', 1); circle = add('circle', 'efx-chapter__bar', 1);
+      const bg = add('circle', 'spark-chapter__track', 1); circle = add('circle', 'spark-chapter__bar', 1);
       [bg, circle].forEach(c => { c.setAttribute('cx', 12); c.setAttribute('cy', 12); c.setAttribute('r', 9); c.setAttribute('pathLength', 100); svg.append(c); });
       el.append(svg);
     }
@@ -65,7 +65,7 @@ export default {
       stops.forEach(f => f()); stopScroll && stopScroll(); offClick();
       nodes.forEach(n => n.remove());
       [...text.children].forEach(n => n.remove());
-      el.classList.remove('efx-chapter-on', 'is-empty');
+      el.classList.remove('spark-chapter-on', 'is-empty');
       prevLive === null ? el.removeAttribute('aria-live') : el.setAttribute('aria-live', prevLive);
       prevHref === null ? el.removeAttribute('href') : el.setAttribute('href', prevHref);
     };

@@ -1,13 +1,13 @@
 /* tilt — only active while JS has added .is-tilt-active (pointer inside + short settle); idle elements keep their own transforms/transitions */
-.efx-tilt.is-tilt-active {
-  transform: perspective(var(--efx-persp, 900px)) rotateX(var(--efx-rx, 0deg)) rotateY(var(--efx-ry, 0deg)) scale(1);
+.spark-tilt.is-tilt-active {
+  transform: perspective(var(--spark-persp, 900px)) rotateX(var(--spark-rx, 0deg)) rotateY(var(--spark-ry, 0deg)) scale(1);
   transition: transform .25s ease-out;
 }
-.efx-tilt.is-tilt-active.is-tilting {
-  transform: perspective(var(--efx-persp, 900px)) rotateX(var(--efx-rx, 0deg)) rotateY(var(--efx-ry, 0deg)) scale(var(--efx-tscale, 1.02));
+.spark-tilt.is-tilt-active.is-tilting {
+  transform: perspective(var(--spark-persp, 900px)) rotateX(var(--spark-rx, 0deg)) rotateY(var(--spark-ry, 0deg)) scale(var(--spark-tscale, 1.02));
 }
-.efx-tilt__glare {
+.spark-tilt__glare {
   position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .25s ease-out;
-  background: radial-gradient(circle at var(--efx-gx, 50%) var(--efx-gy, 50%), rgba(255,255,255,.35), transparent 60%);
+  background: radial-gradient(circle at var(--spark-gx, 50%) var(--spark-gy, 50%), rgba(255,255,255,.35), transparent 60%);
 }
-.efx-tilt.is-tilting > .efx-tilt__glare { opacity: 1; }
+.spark-tilt.is-tilting > .spark-tilt__glare { opacity: 1; }

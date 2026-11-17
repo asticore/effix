@@ -1,19 +1,19 @@
 /* border — animated borders for any element (Shine .btn, .card, …).
-   <button class="btn efx-border-spin" data-efx-colors="#f0f|#0ff|#f0f">Save</button>
-   <button class="btn efx-border-trace" data-efx-loading="click" data-efx-timeout="3000">Send</button>
-   Also: efx-border-wipe (draws on hover/focus), efx-border-pulse (expanding ring).
-   loading: click -> animates while .is-loading; stop with el.dispatchEvent(new Event('efx:done')). */
+   <button class="btn spark-border-spin" data-spark-colors="#f0f|#0ff|#f0f">Save</button>
+   <button class="btn spark-border-trace" data-spark-loading="click" data-spark-timeout="3000">Send</button>
+   Also: spark-border-wipe (draws on hover/focus), spark-border-pulse (expanding ring).
+   loading: click -> animates while .is-loading; stop with el.dispatchEvent(new Event('spark:done')). */
 import { onVisible, motionOK, on } from '../core.js';
 
 export default {
   name: 'border',
-  selector: '.efx-border-spin,.efx-border-trace,.efx-border-glow,.efx-border-gradient,.efx-border-wipe,.efx-border-pulse',
+  selector: '.spark-border-spin,.spark-border-trace,.spark-border-glow,.spark-border-gradient,.spark-border-wipe,.spark-border-pulse',
   defaults: { colors: [], speed: 0, width: 0, loading: '', timeout: 0 },
   init(el, o) {
     const st = el.style, cl = el.classList, offs = [];
-    if (o.colors.length) st.setProperty('--efx-border-colors', o.colors.join(','));
-    if (o.speed > 0) st.setProperty('--efx-border-speed', o.speed + 's');
-    if (o.width > 0) st.setProperty('--efx-border-width', o.width + 'px');
+    if (o.colors.length) st.setProperty('--spark-border-colors', o.colors.join(','));
+    if (o.speed > 0) st.setProperty('--spark-border-speed', o.speed + 's');
+    if (o.width > 0) st.setProperty('--spark-border-width', o.width + 'px');
     let restorePos = false;
     if (getComputedStyle(el).position === 'static') { st.position = 'relative'; restorePos = true; }
     const ok = motionOK();
@@ -39,7 +39,7 @@ export default {
         cl.add('is-loading'); el.setAttribute('aria-busy', 'true'); el.setAttribute('aria-disabled', 'true');
         if (o.timeout > 0) t = setTimeout(stop, o.timeout);
         sync();
-      }), on(el, 'efx:done', stop));
+      }), on(el, 'spark:done', stop));
     }
     if (ok) offs.push(onVisible(el, v => { vis = v; sync(); }));
     sync();
@@ -48,7 +48,7 @@ export default {
       if (busy) restoreAria();
       if (restorePos) st.position = '';
       cl.remove('is-paused', 'is-static', 'is-loading'); el.removeAttribute('aria-busy');
-      ['--efx-border-colors', '--efx-border-speed', '--efx-border-width'].forEach(p => st.removeProperty(p));
+      ['--spark-border-colors', '--spark-border-speed', '--spark-border-width'].forEach(p => st.removeProperty(p));
     };
   },
 };

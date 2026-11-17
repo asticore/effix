@@ -1,11 +1,11 @@
 /* textfill — Apple-style text that lights up word by word (or letter) as you scroll.
-   <p class="efx-textfill" data-efx-by="word">Long paragraph…</p>
+   <p class="spark-textfill" data-spark-by="word">Long paragraph…</p>
    Fill starts when the element top reaches `start` of the viewport height and ends when its bottom reaches `end`. */
 import { onScroll, motionOK } from '../core.js';
 
 export default {
   name: 'textfill',
-  selector: '.efx-textfill',
+  selector: '.spark-textfill',
   defaults: { start: 0.8, end: 0.3, by: 'word', dim: 0.2, color: '' },
   init(el, o) {
     if (!motionOK()) return;
@@ -16,7 +16,7 @@ export default {
     const spans = [];
     const piece = t => {
       const s = document.createElement('span');
-      s.className = 'efx-textfill__p'; s.textContent = t; spans.push(s); return s;
+      s.className = 'spark-textfill__p'; s.textContent = t; spans.push(s); return s;
     };
     // Wrap words inside text nodes only, so links / <em> / <strong> keep their markup.
     const wrapText = root => {
@@ -31,7 +31,7 @@ export default {
           if (/^\s+$/.test(p)) { frag.append(' '); continue; }
           if (!letters) { frag.append(piece(p)); continue; }
           const wrap = document.createElement('span');
-          wrap.className = 'efx-textfill__w';
+          wrap.className = 'spark-textfill__w';
           [...p].forEach(c => wrap.append(piece(c)));
           frag.append(wrap);
         }
@@ -42,18 +42,18 @@ export default {
       wrapText(el); // interactive children: wrap in place, keep them reachable by AT and keyboard
     } else {
       const pieces = document.createElement('span');
-      pieces.className = 'efx-textfill__pieces';
+      pieces.className = 'spark-textfill__pieces';
       pieces.setAttribute('aria-hidden', 'true');
       while (el.firstChild) pieces.appendChild(el.firstChild);
       wrapText(pieces);
       const sr = document.createElement('span');
-      sr.className = 'efx-textfill__sr';
+      sr.className = 'spark-textfill__sr';
       sr.textContent = text;
       el.append(sr, pieces);
     }
-    const prev = [st.getPropertyValue('--efx-textfill-dim'), st.getPropertyValue('--efx-textfill-color')];
-    if (el.dataset.efxDim !== undefined) st.setProperty('--efx-textfill-dim', o.dim);
-    if (o.color) st.setProperty('--efx-textfill-color', o.color);
+    const prev = [st.getPropertyValue('--spark-textfill-dim'), st.getPropertyValue('--spark-textfill-color')];
+    if (el.dataset.sparkDim !== undefined) st.setProperty('--spark-textfill-dim', o.dim);
+    if (o.color) st.setProperty('--spark-textfill-color', o.color);
     const n = spans.length, last = [];
     const stop = onScroll((y, vh) => {
       const r = el.getBoundingClientRect();
@@ -66,8 +66,8 @@ export default {
     return () => {
       stop();
       el.innerHTML = saved;
-      prev[0] ? st.setProperty('--efx-textfill-dim', prev[0]) : st.removeProperty('--efx-textfill-dim');
-      prev[1] ? st.setProperty('--efx-textfill-color', prev[1]) : st.removeProperty('--efx-textfill-color');
+      prev[0] ? st.setProperty('--spark-textfill-dim', prev[0]) : st.removeProperty('--spark-textfill-dim');
+      prev[1] ? st.setProperty('--spark-textfill-color', prev[1]) : st.removeProperty('--spark-textfill-color');
     };
   },
 };

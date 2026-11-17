@@ -1,22 +1,22 @@
 /* compare — before/after image slider.
-   <div class="efx-compare"><img src="before.jpg" alt="Before"><img src="after.jpg" alt="After"></div>
+   <div class="spark-compare"><img src="before.jpg" alt="Before"><img src="after.jpg" alt="After"></div>
    Drag anywhere; keyboard and screen readers use a hidden range input. */
 import { on, finePointer } from '../core.js';
 
 export default {
   name: 'compare',
-  selector: '.efx-compare',
+  selector: '.spark-compare',
   defaults: { start: 50, vertical: false, hover: false },
   init(el, o) {
     const after = el.querySelectorAll(':scope > img')[1];
     if (!after) return;
-    const mk = (tag, cls) => { const n = document.createElement(tag); n.className = 'efx-compare__' + cls; return n; };
+    const mk = (tag, cls) => { const n = document.createElement(tag); n.className = 'spark-compare__' + cls; return n; };
     const clip = mk('div', 'clip'), handle = mk('div', 'handle'), knob = mk('span', 'knob'), input = mk('input', 'range');
     handle.setAttribute('aria-hidden', 'true');
     handle.appendChild(knob);
     Object.assign(input, { type: 'range', min: 0, max: 100, step: 1 });
     input.setAttribute('aria-label', 'Comparison position');
-    if (o.vertical) { el.classList.add('efx-compare-vertical'); input.setAttribute('aria-orientation', 'vertical'); }
+    if (o.vertical) { el.classList.add('spark-compare-vertical'); input.setAttribute('aria-orientation', 'vertical'); }
     const pos = el.style.position, setPos = getComputedStyle(el).position === 'static';
     if (setPos) el.style.position = 'relative';
     after.before(clip);
@@ -25,7 +25,7 @@ export default {
 
     const set = p => {
       p = Math.max(0, Math.min(100, p));
-      el.style.setProperty('--efx-pos', p + '%');
+      el.style.setProperty('--spark-pos', p + '%');
       input.value = p;
       input.setAttribute('aria-valuetext', Math.round(p) + '%');
     };
@@ -49,8 +49,8 @@ export default {
       offs.forEach(f => f());
       clip.replaceWith(after);
       input.remove(); handle.remove();
-      el.classList.remove('efx-compare-vertical', 'is-dragging');
-      el.style.removeProperty('--efx-pos');
+      el.classList.remove('spark-compare-vertical', 'is-dragging');
+      el.style.removeProperty('--spark-pos');
       if (setPos) el.style.position = pos;
     };
   },

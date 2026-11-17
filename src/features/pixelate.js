@@ -1,11 +1,11 @@
 /* pixelate — mosaic → sharp image. Canvas overlay, drawImage only (no pixel reads, CORS-safe).
-   <img class="efx-pixelate" src="…"> or <div class="efx-pixelate"><img …></div>
+   <img class="spark-pixelate" src="…"> or <div class="spark-pixelate"><img …></div>
    trigger: view (sharpens when scrolled into view) | hover (pixelates on hover, sharp on leave). */
 import { on, onVisible, motionOK } from '../core.js';
 
 export default {
   name: 'pixelate',
-  selector: '.efx-pixelate',
+  selector: '.spark-pixelate',
   defaults: { from: 32, duration: 900, trigger: 'view' },
   init(el, o) {
     const img = el.tagName === 'IMG' ? el : el.querySelector('img');
@@ -15,7 +15,7 @@ export default {
     if (restorePos) host.style.position = 'relative';
     const hover = o.trigger === 'hover';
     const cv = document.createElement('canvas'), tiny = document.createElement('canvas');
-    cv.className = 'efx-pixelate__canvas';
+    cv.className = 'spark-pixelate__canvas';
     cv.setAttribute('aria-hidden', 'true');
     host.appendChild(cv);
     const prevOpacity = img.style.opacity;

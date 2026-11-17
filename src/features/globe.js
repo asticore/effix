@@ -1,22 +1,22 @@
 /* globe — lightweight rotating dot globe (canvas, no deps).
-   <div class="efx-globe" data-efx-markers="51.5,-0.12|40.7,-74" style="max-width:360px"></div> */
+   <div class="spark-globe" data-spark-markers="51.5,-0.12|40.7,-74" style="max-width:360px"></div> */
 import { onVisible, motionOK, themeColor, on } from '../core.js';
 
 export default {
   name: 'globe',
-  selector: '.efx-globe',
+  selector: '.spark-globe',
   lazy: true,
   defaults: { dots: 1200, speed: 0.2, markers: [], color: '', tilt: 0.3, drag: true },
   init(el, o) {
     let restore = 0;
     if (getComputedStyle(el).position === 'static') { el.style.position = 'relative'; restore = 1; }
     const cv = document.createElement('canvas'), c = cv.getContext('2d'), col = o.color || themeColor(el);
-    cv.className = 'efx-globe__canvas';
+    cv.className = 'spark-globe__canvas';
     cv.setAttribute('aria-hidden', 'true');
     el.appendChild(cv);
     const N = Math.min(6e3, o.dots), P = [];
     for (let i = 0, y, r, a; i < N; i++) { y = 1 - 2 * (i + .5) / N; r = Math.sqrt(1 - y * y); a = i * 2.39996; P.push([Math.cos(a) * r, y, Math.sin(a) * r]); }
-    const M = (el.dataset.efxMarkers || '').split('|').map(s => s.split(',').map(parseFloat)).filter(m => m.length > 1 && m.every(isFinite))
+    const M = (el.dataset.sparkMarkers || '').split('|').map(s => s.split(',').map(parseFloat)).filter(m => m.length > 1 && m.every(isFinite))
       .map(([la, lo]) => { la *= Math.PI / 180; lo *= Math.PI / 180; return [Math.cos(la) * Math.cos(lo), Math.sin(la), Math.cos(la) * Math.sin(lo)]; });
     let w = 0, h = 0, R = 0, rot = 0, tilt = o.tilt, raf = 0, last = 0, vis = true, dx = null, dy = 0;
     const draw = t => {

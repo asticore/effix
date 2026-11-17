@@ -1,11 +1,11 @@
 /* zoom — hover magnifier lens for images (fine pointer only).
-   <div class="efx-zoom"><img src="a.jpg" data-efx-full="a-large.jpg" alt="…"></div>
+   <div class="spark-zoom"><img src="a.jpg" data-spark-full="a-large.jpg" alt="…"></div>
    shape: circle | square | inner (the whole image zooms in place and follows the pointer). */
 import { on, finePointer } from '../core.js';
 
 export default {
   name: 'zoom',
-  selector: '.efx-zoom',
+  selector: '.spark-zoom',
   defaults: { scale: 2.5, size: 160, shape: 'circle' },
   init(el, o) {
     const img = el.querySelector('img');
@@ -14,13 +14,13 @@ export default {
     if (getComputedStyle(el).position === 'static') { el.style.position = 'relative'; restorePos = true; }
     const inner = o.shape === 'inner';
     const lens = document.createElement('div');
-    lens.className = 'efx-zoom__lens';
+    lens.className = 'spark-zoom__lens';
     lens.setAttribute('aria-hidden', 'true');
     lens.dataset.shape = o.shape;
     if (!inner) lens.style.width = lens.style.height = o.size + 'px';
     else lens.style.borderRadius = getComputedStyle(img).borderRadius;
     el.appendChild(lens);
-    el.classList.add('efx-zoom-on');
+    el.classList.add('spark-zoom-on');
     let loaded = false;
     const move = e => {
       const ir = img.getBoundingClientRect(), er = el.getBoundingClientRect();
@@ -39,7 +39,7 @@ export default {
         if (e.pointerType === 'touch') return;
         if (!loaded) {
           loaded = true;
-          const u = img.dataset.efxFull || el.dataset.efxFull || img.currentSrc || img.src;
+          const u = img.dataset.sparkFull || el.dataset.sparkFull || img.currentSrc || img.src;
           lens.style.backgroundImage = 'url("' + u.replace(/"/g, '%22') + '")';
         }
         move(e);
@@ -50,7 +50,7 @@ export default {
     return () => {
       offs.forEach(f => f());
       lens.remove();
-      el.classList.remove('efx-zoom-on');
+      el.classList.remove('spark-zoom-on');
       if (restorePos) el.style.position = '';
     };
   },

@@ -6,11 +6,11 @@
 
   // Theme
   var sel = document.getElementById('page-theme');
-  var saved = store.get('effix-page-theme');
+  var saved = store.get('spark-page-theme');
   if (saved) html.setAttribute('data-theme', saved);
   if (sel) {
     sel.value = html.getAttribute('data-theme') || 'auto';
-    sel.addEventListener('change', function () { html.setAttribute('data-theme', sel.value); store.set('effix-page-theme', sel.value); });
+    sel.addEventListener('change', function () { html.setAttribute('data-theme', sel.value); store.set('spark-page-theme', sel.value); });
   }
 
   // Live demos: editing the textarea re-renders the demo and restarts its effects.
@@ -22,10 +22,10 @@
     clearTimeout(timers[id]);
     timers[id] = setTimeout(function () {
       var demo = document.getElementById(id);
-      if (!demo || !window.Effix) return;
-      Effix.destroy(demo);
+      if (!demo || !window.Spark) return;
+      Spark.destroy(demo);
       demo.innerHTML = ta.value;
-      Effix.init(demo);
+      Spark.init(demo);
     }, 300);
   });
 
@@ -47,8 +47,8 @@
     var names = on.map(function (b) { return b.value; });
     sizeEl.textContent = kb(total);
     cmd.textContent = on.length === boxes.length ? 'node build.js' : 'node build.js --only=' + names.join(',');
-    esm.textContent = "import { define, init } from 'effix/core';\n" +
-      on.map(function (b) { var n = b.value; return 'import ' + ident(n) + " from 'effix/" + (b.getAttribute('data-kind') === 'chart' ? 'charts/' : 'features/') + n + "';"; }).join('\n') +
+    esm.textContent = "import { define, init } from '@asticore/spark/core';\n" +
+      on.map(function (b) { var n = b.value; return 'import ' + ident(n) + " from '@asticore/spark/" + (b.getAttribute('data-kind') === 'chart' ? 'charts/' : 'features/') + n + "';"; }).join('\n') +
       '\n\ndefine(' + names.map(ident).join(', ') + ');\ninit();';
   }
   picker.addEventListener('change', update);
@@ -63,7 +63,7 @@
   if (!btn) return;
   var rnd = function () { return Array.from({ length: 5 }, function () { return 5 + Math.round(Math.random() * 25); }); };
   btn.addEventListener('click', function () {
-    Effix.setData('#data-demo', {
+    Spark.setData('#data-demo', {
       labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
       series: [{ name: 'Web', data: rnd() }, { name: 'Mobile', data: rnd() }],
     });

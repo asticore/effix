@@ -1,6 +1,6 @@
 /* draw — SVG stroke drawing, scrubbed by scroll or played once when visible.
-   <svg class="efx-draw" data-efx-mode="scroll">…paths…</svg>   or a container holding an <svg>.
-   Only elements marked [data-efx-draw-item] are drawn if any exist. Reduced motion = fully drawn. */
+   <svg class="spark-draw" data-spark-mode="scroll">…paths…</svg>   or a container holding an <svg>.
+   Only elements marked [data-spark-draw-item] are drawn if any exist. Reduced motion = fully drawn. */
 import { onScroll, onVisible, motionOK } from '../core.js';
 
 const SHAPES = 'path,line,polyline,polygon,circle,ellipse,rect';
@@ -8,13 +8,13 @@ const clamp = v => Math.min(1, Math.max(0, v));
 
 export default {
   name: 'draw',
-  selector: '.efx-draw',
+  selector: '.spark-draw',
   defaults: { mode: 'scroll', duration: 1500, start: 0, end: 0.7, stagger: 0, fill: false },
   init(el, o) {
     if (!motionOK()) return;
     const root = el.matches('svg') ? el : el.querySelector('svg');
     if (!root) return;
-    const marked = root.querySelectorAll('[data-efx-draw-item]');
+    const marked = root.querySelectorAll('[data-spark-draw-item]');
     const items = [...(marked.length ? marked : root.querySelectorAll(SHAPES))].filter(n => n.getTotalLength);
     const parts = items.map(n => {
       let len = 0;

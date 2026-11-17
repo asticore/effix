@@ -1,28 +1,28 @@
 /* lightbox — click images to view them in one shared Shine modal.
-   <div class="efx-lightbox"><a href="full.jpg" data-efx-caption="Sunset"><img src="thumb.jpg" alt="Sunset"></a>…</div>
-   Links stay normal links without JS. Links in containers sharing data-efx-group form one set. */
+   <div class="spark-lightbox"><a href="full.jpg" data-spark-caption="Sunset"><img src="thumb.jpg" alt="Sunset"></a>…</div>
+   Links stay normal links without JS. Links in containers sharing data-spark-group form one set. */
 import { on } from '../core.js';
 
-const SEL = 'a[href],[data-efx-src]';
+const SEL = 'a[href],[data-spark-src]';
 let S = null; // shared dialog state, created lazily, removed when the last instance goes
 
 const meta = a => {
   const img = a.querySelector('img'), fig = a.closest('figure');
   const fc = fig && fig.querySelector('figcaption');
-  return { src: a.dataset.efxSrc || a.getAttribute('href'), cap: a.dataset.efxCaption || (img && img.alt) || (fc && fc.textContent.trim()) || '' };
+  return { src: a.dataset.sparkSrc || a.getAttribute('href'), cap: a.dataset.sparkCaption || (img && img.alt) || (fc && fc.textContent.trim()) || '' };
 };
 
 function build() {
   const d = document.createElement('dialog');
-  d.className = 'modal modal-lg efx-lightbox__dialog';
+  d.className = 'modal modal-lg spark-lightbox__dialog';
   d.setAttribute('aria-label', 'Image viewer');
-  d.innerHTML = '<button type="button" class="btn-close efx-lightbox__close" aria-label="Close"></button>'
-    + '<button type="button" class="btn btn-icon efx-lightbox__prev" aria-label="Previous image">‹</button>'
-    + '<figure class="efx-lightbox__fig"><img alt=""><figcaption></figcaption></figure>'
-    + '<button type="button" class="btn btn-icon efx-lightbox__next" aria-label="Next image">›</button>'
-    + '<div class="efx-lightbox__count" aria-live="polite"></div>';
+  d.innerHTML = '<button type="button" class="btn-close spark-lightbox__close" aria-label="Close"></button>'
+    + '<button type="button" class="btn btn-icon spark-lightbox__prev" aria-label="Previous image">‹</button>'
+    + '<figure class="spark-lightbox__fig"><img alt=""><figcaption></figcaption></figure>'
+    + '<button type="button" class="btn btn-icon spark-lightbox__next" aria-label="Next image">›</button>'
+    + '<div class="spark-lightbox__count" aria-live="polite"></div>';
   document.body.appendChild(d);
-  const q = c => d.querySelector('.efx-lightbox__' + c);
+  const q = c => d.querySelector('.spark-lightbox__' + c);
   const s = { d, img: q('fig').firstChild, cap: q('fig').lastChild, count: q('count'), prev: q('prev'), next: q('next'), items: [], i: 0, opts: {}, opener: null, refs: 0, offs: [] };
   const step = k => {
     const n = s.items.length;
@@ -70,13 +70,13 @@ function show(i) {
 
 export default {
   name: 'lightbox',
-  selector: '.efx-lightbox',
+  selector: '.spark-lightbox',
   defaults: { loop: true, captions: true, group: '' },
   init(el, o) {
     if (!S) S = build();
     S.refs++;
     const links = () => {
-      const roots = o.group ? [...document.querySelectorAll('.efx-lightbox')].filter(r => r.dataset.efxGroup === o.group) : [el];
+      const roots = o.group ? [...document.querySelectorAll('.spark-lightbox')].filter(r => r.dataset.sparkGroup === o.group) : [el];
       return roots.flatMap(r => [...r.querySelectorAll(SEL)]);
     };
     const off = on(el, 'click', e => {

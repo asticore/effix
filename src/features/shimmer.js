@@ -1,12 +1,12 @@
 /* shimmer — reveal real content once it is ready; skeleton shimmer until then.
-   <div class="efx-shimmer" data-efx-until="#photo" style="min-height:8rem"><img id="photo" src="…"></div>
-   <div class="efx-shimmer" data-efx-for="2000">…content…</div>   (until + for: whichever comes first)
-   Pure-CSS skeletons need no JS: .efx-shimmer, .efx-shimmer-text, .efx-shimmer-btn, .efx-skeleton-line|circle|rect */
+   <div class="spark-shimmer" data-spark-until="#photo" style="min-height:8rem"><img id="photo" src="…"></div>
+   <div class="spark-shimmer" data-spark-for="2000">…content…</div>   (until + for: whichever comes first)
+   Pure-CSS skeletons need no JS: .spark-shimmer, .spark-shimmer-text, .spark-shimmer-btn, .spark-skeleton-line|circle|rect */
 import { on, motionOK } from '../core.js';
 
 export default {
   name: 'shimmer',
-  selector: '.efx-shimmer[data-efx-until],.efx-shimmer[data-efx-for]',
+  selector: '.spark-shimmer[data-spark-until],.spark-shimmer[data-spark-for]',
   defaults: { until: '', for: 0 },
   init(el, o) {
     const offs = [];
@@ -32,7 +32,7 @@ export default {
     if (o.until && !pending.length && targets.length) ready();
     else {
       let left = pending.length;
-      pending.forEach(t => ['load', 'error', 'loadeddata', 'efx:ready'].forEach(ev => offs.push(on(t, ev, () => { if (--left <= 0) ready(); }, { once: true }))));
+      pending.forEach(t => ['load', 'error', 'loadeddata', 'spark:ready'].forEach(ev => offs.push(on(t, ev, () => { if (--left <= 0) ready(); }, { once: true }))));
       if (o.for > 0) timer = setTimeout(ready, o.for);
       else if (!pending.length) timer = setTimeout(ready, 0); // nothing to wait for
     }

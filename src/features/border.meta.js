@@ -4,36 +4,36 @@ module.exports = {
   group: 'Buttons & borders',
   summary: 'Spinning, tracing, glowing or shifting gradient borders for buttons, cards or anything. Optional loading mode driven by clicks.',
   classes: [
-    ['efx-border-spin', 'Rotating conic-gradient ring.'],
-    ['efx-border-trace', 'A short comet segment travelling around the border (loading indicator).'],
-    ['efx-border-glow', 'Gradient ring with a pulsing glow.'],
-    ['efx-border-gradient', 'Slowly shifting linear gradient border.'],
-    ['efx-border-wipe', 'Border draws itself around the edges on hover / keyboard focus (straight edges).'],
-    ['efx-border-pulse', 'Expanding ring pulse radiating from the element (loops).'],
+    ['spark-border-spin', 'Rotating conic-gradient ring.'],
+    ['spark-border-trace', 'A short comet segment travelling around the border (loading indicator).'],
+    ['spark-border-glow', 'Gradient ring with a pulsing glow.'],
+    ['spark-border-gradient', 'Slowly shifting linear gradient border.'],
+    ['spark-border-wipe', 'Border draws itself around the edges on hover / keyboard focus (straight edges).'],
+    ['spark-border-pulse', 'Expanding ring pulse radiating from the element (loops).'],
   ],
   options: [
-    ['data-efx-colors', '(Shine primary/accent/secondary)', 'Gradient colors, e.g. #f0f|#0ff|#f0f (end with the first color for a seamless loop).'],
-    ['data-efx-speed', '0', 'Seconds per cycle; 0 = CSS default (3s).'],
-    ['data-efx-width', '0', 'Border width in px; 0 = CSS default (2px).'],
-    ['data-efx-loading', '', '"" = always animate · click = animate only while loading (after a click) · always.'],
-    ['data-efx-timeout', '0', 'With loading=click: auto-stop after ms (0 = until efx:done).'],
+    ['data-spark-colors', '(Shine primary/accent/secondary)', 'Gradient colors, e.g. #f0f|#0ff|#f0f (end with the first color for a seamless loop).'],
+    ['data-spark-speed', '0', 'Seconds per cycle; 0 = CSS default (3s).'],
+    ['data-spark-width', '0', 'Border width in px; 0 = CSS default (2px).'],
+    ['data-spark-loading', '', '"" = always animate · click = animate only while loading (after a click) · always.'],
+    ['data-spark-timeout', '0', 'With loading=click: auto-stop after ms (0 = until spark:done).'],
   ],
   vars: [
-    ['--efx-border-colors', 'primary, accent, secondary', 'Comma list of gradient colors.'],
-    ['--efx-border-color', 'var(--sh-tone, --sh-primary)', 'Single color for trace and glow.'],
-    ['--efx-border-width', '2px', 'Ring thickness.'],
-    ['--efx-border-speed', '3s', 'Cycle duration.'],
-    ['--efx-border-radius', 'inherit', 'Ring radius (inherits Shine button/card radius).'],
+    ['--spark-border-colors', 'primary, accent, secondary', 'Comma list of gradient colors.'],
+    ['--spark-border-color', 'var(--sh-tone, --sh-primary)', 'Single color for trace and glow.'],
+    ['--spark-border-width', '2px', 'Ring thickness.'],
+    ['--spark-border-speed', '3s', 'Cycle duration.'],
+    ['--spark-border-radius', 'inherit', 'Ring radius (inherits Shine button/card radius).'],
   ],
   examples: [
     { html: `<div class="grid md:grid-cols-2 gap-4 p-6">
-  <div class="card p-6 efx-border-spin">Spinning border</div>
-  <div class="card p-6 efx-border-glow">Glow pulse</div>
-  <div class="card p-6 efx-border-gradient">Shifting gradient</div>
-  <div class="stack gap-3 p-6"><button class="btn efx-border-trace" data-efx-loading="click" data-efx-timeout="3000">Click to load</button>
-  <button class="btn efx-border-spin" data-efx-speed="1.5">Fast spin</button>
-  <button class="btn efx-border-wipe">Hover: wipe</button>
-  <button class="btn efx-border-pulse">Pulse ring</button></div>
+  <div class="card p-6 spark-border-spin">Spinning border</div>
+  <div class="card p-6 spark-border-glow">Glow pulse</div>
+  <div class="card p-6 spark-border-gradient">Shifting gradient</div>
+  <div class="stack gap-3 p-6"><button class="btn spark-border-trace" data-spark-loading="click" data-spark-timeout="3000">Click to load</button>
+  <button class="btn spark-border-spin" data-spark-speed="1.5">Fast spin</button>
+  <button class="btn spark-border-wipe">Hover: wipe</button>
+  <button class="btn spark-border-pulse">Pulse ring</button></div>
 </div>` },
   ],
 };

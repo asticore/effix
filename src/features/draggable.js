@@ -1,13 +1,13 @@
 /* draggable — pointer-drag any element (mouse, touch, pen) with spring snap-back, inertia, bounds and grid snap.
-   <div class="efx-draggable" data-efx-bounds="parent" data-efx-release="spring">Drag me</div>
-   Moves with the `translate` property. Arrow keys nudge it when focused. Emits efx:dragstart / efx:drag / efx:dragend ({x,y}). */
+   <div class="spark-draggable" data-spark-bounds="parent" data-spark-release="spring">Drag me</div>
+   Moves with the `translate` property. Arrow keys nudge it when focused. Emits spark:dragstart / spark:drag / spark:dragend ({x,y}). */
 import { on, motionOK } from '../core.js';
 
 const KEYS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
 
 export default {
   name: 'draggable',
-  selector: '.efx-draggable',
+  selector: '.spark-draggable',
   defaults: { axis: 'both', bounds: 'parent', release: 'spring', spring: '170,18', friction: 0.92, bounce: 0.5, snap: 0, step: 10, handle: '' },
   init(el, o) {
     const ax = o.axis === 'x' || o.axis === 'y' ? o.axis : 'both';
@@ -16,7 +16,7 @@ export default {
     const st = el.style, hs = handle.style;
     const saved = { tr: st.translate, ta: hs.touchAction, cu: hs.cursor, ti: el.getAttribute('tabindex'), ro: el.getAttribute('role'), rd: el.getAttribute('aria-roledescription') };
     let x = 0, y = 0, id = 0, drag = null, block = false, lim = [-Infinity, Infinity, -Infinity, Infinity], offW = [];
-    const emit = n => el.dispatchEvent(new CustomEvent('efx:' + n, { bubbles: true, detail: { x, y } }));
+    const emit = n => el.dispatchEvent(new CustomEvent('spark:' + n, { bubbles: true, detail: { x, y } }));
     const put = () => { st.translate = x + 'px ' + y + 'px'; };
     const stop = () => { cancelAnimationFrame(id); id = 0; };
     const snap = v => (o.snap > 0 ? Math.round(v / o.snap) * o.snap : v);
@@ -111,13 +111,13 @@ export default {
     if (saved.ti === null) el.setAttribute('tabindex', '0');
     if (saved.ro === null) el.setAttribute('role', 'group');
     el.setAttribute('aria-roledescription', 'draggable');
-    el.classList.add('efx-draggable-on');
+    el.classList.add('spark-draggable-on');
     return () => {
       stop(); offs.forEach(f => f()); offW.forEach(f => f());
       st.translate = saved.tr; hs.touchAction = saved.ta; hs.cursor = saved.cu;
       const attr = (n, v) => (v === null ? el.removeAttribute(n) : el.setAttribute(n, v));
       attr('tabindex', saved.ti); attr('role', saved.ro); attr('aria-roledescription', saved.rd);
-      el.classList.remove('efx-draggable-on', 'is-dragging');
+      el.classList.remove('spark-draggable-on', 'is-dragging');
     };
   },
 };

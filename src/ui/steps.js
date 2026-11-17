@@ -1,34 +1,34 @@
 /* steps — stepper / multi-step helper: one panel at a time, progress list, back / next, validation, URL hash sync.
-   <div class="efx-steps" data-efx-hash>
-     <section class="efx-step" data-efx-title="Account">…</section>
-     <section class="efx-step" data-efx-title="Plan">…</section>
+   <div class="spark-steps" data-spark-hash>
+     <section class="spark-step" data-spark-title="Account">…</section>
+     <section class="spark-step" data-spark-title="Plan">…</section>
    </div>
-   Before moving forward the step is validated: native form validity of its fields, a `data-efx-validate` name
-   registered with Effix.add('step-validate', name, (panel, index) => bool), and a cancelable `efx:validate` event.
-   Fires `efx:step` ({ index, count, previous }) on every change and `efx:done` when the last step is completed. */
+   Before moving forward the step is validated: native form validity of its fields, a `data-spark-validate` name
+   registered with Spark.add('step-validate', name, (panel, index) => bool), and a cancelable `spark:validate` event.
+   Fires `spark:step` ({ index, count, previous }) on every change and `spark:done` when the last step is completed. */
 import { on, get } from '../core.js';
 import { shineWidgets } from './_shine.js';
 
 export default {
   name: 'steps',
-  selector: '.efx-steps',
+  selector: '.spark-steps',
   defaults: { start: 0, hash: false, linear: true, native: true, validate: '', back: 'Back', next: 'Next', finish: 'Finish', label: 'Progress' },
   init(el, o) {
-    const panels = [...el.children].filter(c => c.classList.contains('efx-step'));
+    const panels = [...el.children].filter(c => c.classList.contains('spark-step'));
     if (!panels.length) return;
     const n = panels.length, key = el.id || 'step', offs = [], sh = shineWidgets();
     const saved = panels.map(p => [p.hidden, p.getAttribute('aria-labelledby'), p.getAttribute('role'), p.id]);
     const bits = [];
     const mk = (tag, cls, txt) => { const x = document.createElement(tag); x.className = cls; if (txt != null) x.textContent = txt; return x; };
-    const list = mk('ol', sh ? 'stepper' : 'efx-steps__list'), bar = mk('div', 'efx-steps__bar'), status = mk('div', 'efx-steps__status');
-    const nav = mk('div', 'efx-steps__nav'), back = mk('button', 'btn btn-outline efx-steps__back', o.back), next = mk('button', 'btn efx-steps__next', o.next);
+    const list = mk('ol', sh ? 'stepper' : 'spark-steps__list'), bar = mk('div', 'spark-steps__bar'), status = mk('div', 'spark-steps__status');
+    const nav = mk('div', 'spark-steps__nav'), back = mk('button', 'btn btn-outline spark-steps__back', o.back), next = mk('button', 'btn spark-steps__next', o.next);
     back.type = next.type = 'button';
     status.setAttribute('aria-live', 'polite'); list.setAttribute('aria-label', o.label); bar.setAttribute('aria-hidden', 'true');
     const items = panels.map((p, i) => {
       // Shine widgets: <li class="step"><button class="step-marker">1</button><span class="step-label">…</span></li>
-      const li = mk('li', sh ? 'step' : 'efx-steps__item'), b = mk('button', sh ? 'step-marker' : 'efx-steps__btn'), t = mk('span', sh ? 'step-label' : 'efx-steps__title', p.dataset.efxTitle || `Step ${i + 1}`);
+      const li = mk('li', sh ? 'step' : 'spark-steps__item'), b = mk('button', sh ? 'step-marker' : 'spark-steps__btn'), t = mk('span', sh ? 'step-label' : 'spark-steps__title', p.dataset.sparkTitle || `Step ${i + 1}`);
       b.type = 'button';
-      if (sh) { b.textContent = i + 1; li.append(b, t); } else { b.append(mk('span', 'efx-steps__num', i + 1), t); li.append(b); }
+      if (sh) { b.textContent = i + 1; li.append(b, t); } else { b.append(mk('span', 'spark-steps__num', i + 1), t); li.append(b); }
       list.append(li);
       if (!p.id) { p.id = `${key}-panel-${i + 1}`; bits.push(p); }
       p.setAttribute('role', 'group'); b.id = `${key}-tab-${i + 1}`; p.setAttribute('aria-labelledby', b.id);
@@ -38,7 +38,7 @@ export default {
     });
     nav.append(back, next);
     el.prepend(list); el.prepend(bar); el.append(status, nav);
-    el.classList.add('efx-steps--on');
+    el.classList.add('spark-steps--on');
     let cur = -1, doneAll = false;
 
     const valid = i => {
@@ -48,8 +48,8 @@ export default {
         if (bad) { bad.reportValidity(); return false; }
       }
       const fn = o.validate && get('step-validate', o.validate);
-      if (typeof fn === 'function') { try { if (fn(p, i) === false) return false; } catch (e) { console.warn('[effix] steps validate', e); } }
-      return p.dispatchEvent(new CustomEvent('efx:validate', { bubbles: true, cancelable: true, detail: { index: i } }));
+      if (typeof fn === 'function') { try { if (fn(p, i) === false) return false; } catch (e) { console.warn('[spark] steps validate', e); } }
+      return p.dispatchEvent(new CustomEvent('spark:validate', { bubbles: true, cancelable: true, detail: { index: i } }));
     };
     function show(i, quiet) {
       const prevI = cur; cur = i;
@@ -60,14 +60,14 @@ export default {
         if (k === i) cur.setAttribute('aria-current', 'step'); else cur.removeAttribute('aria-current');
         it.b.disabled = o.linear && k > i && !(k < reached + 1);
       });
-      el.style.setProperty('--efx-steps-progress', n > 1 ? i / (n - 1) : 1);
-      el.setAttribute('data-efx-step', i);
+      el.style.setProperty('--spark-steps-progress', n > 1 ? i / (n - 1) : 1);
+      el.setAttribute('data-spark-step', i);
       back.disabled = i === 0;
       next.textContent = i === n - 1 ? o.finish : o.next;
       next.classList.toggle('is-last', i === n - 1);
       status.textContent = `Step ${i + 1} of ${n}: ${items[i].t.textContent}`;
       if (o.hash && !quiet) { const h = `#${key}=${i + 1}`; if (location.hash !== h) history.replaceState(null, '', h); }
-      if (!quiet || prevI < 0) el.dispatchEvent(new CustomEvent('efx:step', { bubbles: true, detail: { index: i, count: n, previous: prevI } }));
+      if (!quiet || prevI < 0) el.dispatchEvent(new CustomEvent('spark:step', { bubbles: true, detail: { index: i, count: n, previous: prevI } }));
     }
     let reached = 0;
     function go(i, userNav) {
@@ -88,9 +88,9 @@ export default {
       if (!valid(cur)) return;
       doneAll = true; items.forEach(it => { it.li.classList.add('is-done'); if (sh) it.li.classList.add('done'); });
       el.classList.add('is-done');
-      el.dispatchEvent(new CustomEvent('efx:done', { bubbles: true }));
+      el.dispatchEvent(new CustomEvent('spark:done', { bubbles: true }));
     }));
-    offs.push(on(el, 'efx:goto', e => { const i = Math.round(e.detail && e.detail.index); if (Number.isFinite(i)) { reached = Math.max(reached, i); go(i, 'quiet'); } }));
+    offs.push(on(el, 'spark:goto', e => { const i = Math.round(e.detail && e.detail.index); if (Number.isFinite(i)) { reached = Math.max(reached, i); go(i, 'quiet'); } }));
     const fromHash = () => { const m = new RegExp(`[#&]${key.replace(/[^\w-]/g, '')}=(\\d+)`).exec(location.hash); return m ? +m[1] - 1 : null; };
     if (o.hash) offs.push(on(window, 'hashchange', () => { const i = fromHash(); if (i != null && i >= 0 && i < n && i !== cur) { reached = Math.max(reached, i); show(i, true); } }));
     const h0 = o.hash ? fromHash() : null, s0 = Math.max(0, Math.min(n - 1, Math.round(h0 != null ? h0 : o.start)));
@@ -104,7 +104,7 @@ export default {
         [['aria-labelledby', saved[i][1]], ['role', saved[i][2]]].forEach(([a, v]) => v === null ? p.removeAttribute(a) : p.setAttribute(a, v));
         if (bits.includes(p)) p.removeAttribute('id');
       });
-      el.classList.remove('efx-steps--on', 'is-done'); el.style.removeProperty('--efx-steps-progress'); el.removeAttribute('data-efx-step');
+      el.classList.remove('spark-steps--on', 'is-done'); el.style.removeProperty('--spark-steps-progress'); el.removeAttribute('data-spark-step');
     };
   },
 };

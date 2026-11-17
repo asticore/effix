@@ -1,11 +1,11 @@
 /* carousel — buttons, dots, keyboard, autoplay and fade mode for Shine's .carousel (the scroll-snap track).
-   <div class="carousel efx-carousel" data-efx-autoplay="5000" tabindex="0" aria-label="Gallery">
+   <div class="carousel spark-carousel" data-spark-autoplay="5000" tabindex="0" aria-label="Gallery">
      <div>Slide 1</div><div>Slide 2</div></div> */
 import { on, onVisible, motionOK } from '../core.js';
 
 export default {
   name: 'carousel',
-  selector: '.efx-carousel',
+  selector: '.spark-carousel',
   defaults: { autoplay: 0, loop: true, dots: true, arrows: true, perView: 0, fade: false },
   init(el, o) {
     const slides = [...el.children], n = slides.length;
@@ -20,28 +20,28 @@ export default {
       return b;
     };
     const nav = document.createElement('div');
-    nav.className = 'efx-carousel__nav';
-    const prev = btn('btn btn-icon btn-ghost efx-carousel__prev', 'Previous slide', '‹');
-    const next = btn('btn btn-icon btn-ghost efx-carousel__next', 'Next slide', '›');
-    const dots = slides.map((_, i) => btn('efx-carousel__dot', `Go to slide ${i + 1}`));
+    nav.className = 'spark-carousel__nav';
+    const prev = btn('btn btn-icon btn-ghost spark-carousel__prev', 'Previous slide', '‹');
+    const next = btn('btn btn-icon btn-ghost spark-carousel__next', 'Next slide', '›');
+    const dots = slides.map((_, i) => btn('spark-carousel__dot', `Go to slide ${i + 1}`));
     const dotBox = document.createElement('div');
-    dotBox.className = 'efx-carousel__dots';
+    dotBox.className = 'spark-carousel__dots';
     if (o.arrows) nav.appendChild(prev);
     if (o.dots) { dotBox.append(...dots); nav.appendChild(dotBox); }
     if (o.arrows) nav.appendChild(next);
     let pause;
     if (auto) {
-      pause = btn('btn btn-icon btn-ghost efx-carousel__pause', 'Pause autoplay', '⏸');
+      pause = btn('btn btn-icon btn-ghost spark-carousel__pause', 'Pause autoplay', '⏸');
       nav.appendChild(pause);
     }
     if (nav.children.length) el.after(nav);
 
     const tab = el.getAttribute('tabindex');
     if (tab === null) el.setAttribute('tabindex', '0');
-    if (o.fade) el.classList.add('efx-carousel-fade');
+    if (o.fade) el.classList.add('spark-carousel-fade');
     if (o.perView > 0 && !o.fade) {
-      el.style.setProperty('--efx-per-view', o.perView);
-      slides.forEach(s => { s.style.flexBasis = 'calc(100% / var(--efx-per-view))'; });
+      el.style.setProperty('--spark-per-view', o.perView);
+      slides.forEach(s => { s.style.flexBasis = 'calc(100% / var(--spark-per-view))'; });
     }
 
     const mark = () => {
@@ -101,8 +101,8 @@ export default {
       io && io.disconnect();
       nav.remove();
       if (tab === null) el.removeAttribute('tabindex');
-      el.classList.remove('efx-carousel-fade');
-      el.style.removeProperty('--efx-per-view');
+      el.classList.remove('spark-carousel-fade');
+      el.style.removeProperty('--spark-per-view');
       slides.forEach(s => { s.classList.remove('is-active'); s.style.flexBasis = ''; });
     };
   },

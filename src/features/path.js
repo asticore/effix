@@ -1,8 +1,8 @@
 /* path — an element travels along an SVG path.
-   <div class="efx-path" data-efx-svg="#route"><span class="efx-path__item">✈︎</span></div>      (existing <svg>/<path>)
-   <div class="efx-path" data-efx-d="M0,250 C300,0 600,300 1000,50" data-efx-viewbox="0 0 1000 300">…</div>   (path drawn for you)
-   Modes: scroll (container progress through viewport) · loop (data-efx-duration ms) · view (plays once when seen).
-   Several items are spaced along the path by data-efx-gap (fraction of the path). */
+   <div class="spark-path" data-spark-svg="#route"><span class="spark-path__item">✈︎</span></div>      (existing <svg>/<path>)
+   <div class="spark-path" data-spark-d="M0,250 C300,0 600,300 1000,50" data-spark-viewbox="0 0 1000 300">…</div>   (path drawn for you)
+   Modes: scroll (container progress through viewport) · loop (data-spark-duration ms) · view (plays once when seen).
+   Several items are spaced along the path by data-spark-gap (fraction of the path). */
 import { onScroll, onVisible, on, motionOK } from '../core.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -11,22 +11,22 @@ const ease = t => 1 - Math.pow(1 - t, 3);
 
 export default {
   name: 'path',
-  selector: '.efx-path',
+  selector: '.spark-path',
   defaults: { mode: 'scroll', duration: 4000, rotate: true, showPath: true, start: 0, end: 1, svg: '', d: '', viewbox: '0 0 1000 300', gap: 0.08 },
   init(el, o) {
-    const items = [...el.querySelectorAll('.efx-path__item')];
+    const items = [...el.querySelectorAll('.spark-path__item')];
     const made = [];
     let path, ref = null, vbox = null;
     if (o.d) {
       const vb = o.viewbox.split(/[\s,]+/).map(Number);
       const svg = document.createElementNS(NS, 'svg');
       svg.setAttribute('viewBox', o.viewbox);
-      svg.setAttribute('class', 'efx-path__svg');
+      svg.setAttribute('class', 'spark-path__svg');
       svg.setAttribute('aria-hidden', 'true');
       svg.setAttribute('focusable', 'false');
       path = document.createElementNS(NS, 'path');
       path.setAttribute('d', o.d);
-      path.setAttribute('class', 'efx-path__line');
+      path.setAttribute('class', 'spark-path__line');
       if (!o.showPath) path.style.visibility = 'hidden';
       svg.appendChild(path);
       el.insertBefore(svg, el.firstChild);
@@ -45,7 +45,7 @@ export default {
     if (o.showPath) {
       trail = path.cloneNode(false);
       trail.removeAttribute('id');
-      trail.setAttribute('class', 'efx-path__trail');
+      trail.setAttribute('class', 'spark-path__trail');
       trail.style.fill = 'none';
       trail.style.strokeDasharray = len;
       trail.style.strokeDashoffset = len;

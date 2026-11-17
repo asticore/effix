@@ -5,16 +5,16 @@ module.exports = {
   title: 'Pixelate',
   group: 'Images',
   summary: 'Mosaic that sharpens into the real image when it scrolls into view, or pixelates on hover. Draws with canvas drawImage only (no pixel reads), so cross-origin images work. Reduced motion shows the plain image.',
-  classes: [['efx-pixelate', 'The <img>, or a wrapper that contains one.']],
+  classes: [['spark-pixelate', 'The <img>, or a wrapper that contains one.']],
   options: [
-    ['data-efx-from', '32', 'Largest block size in px.'],
-    ['data-efx-duration', '900', 'Transition time in ms.'],
-    ['data-efx-trigger', 'view', 'view (sharpen on scroll-in) · hover (pixelate on hover, sharpen on leave).'],
+    ['data-spark-from', '32', 'Largest block size in px.'],
+    ['data-spark-duration', '900', 'Transition time in ms.'],
+    ['data-spark-trigger', 'view', 'view (sharpen on scroll-in) · hover (pixelate on hover, sharpen on leave).'],
   ],
   examples: [
     { html: `<div class="grid md:grid-cols-2 gap-4">
-  <div class="card p-3"><img class="efx-pixelate rounded-lg" src="${A}" alt="Mountain" style="display:block;width:100%;height:200px;object-fit:cover"><p class="mt-2">trigger: view</p></div>
-  <div class="card p-3"><img class="efx-pixelate rounded-lg" data-efx-trigger="hover" data-efx-from="24" src="${C}" alt="City" style="display:block;width:100%;height:200px;object-fit:cover"><p class="mt-2">trigger: hover</p></div>
+  <div class="card p-3"><img class="spark-pixelate rounded-lg" src="${A}" alt="Mountain" style="display:block;width:100%;height:200px;object-fit:cover"><p class="mt-2">trigger: view</p></div>
+  <div class="card p-3"><img class="spark-pixelate rounded-lg" data-spark-trigger="hover" data-spark-from="24" src="${C}" alt="City" style="display:block;width:100%;height:200px;object-fit:cover"><p class="mt-2">trigger: hover</p></div>
 </div>` },
   ],
 };

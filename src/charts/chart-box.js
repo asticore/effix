@@ -1,6 +1,6 @@
 /* chart-box — box-and-whisker plot (quartiles by linear interpolation, 1.5×IQR whiskers, outlier dots).
-   <div class="efx-chart-box" data-efx-data='{"labels":["A","B"],"series":[{"data":[[1,2,3,4,9],[3,4,5,6,7]]}]}'></div>
-   <div class="efx-chart-box" data-efx-data='[{"label":"A","min":1,"q1":2,"median":3,"q3":4,"max":5,"outliers":[9]}]'></div> */
+   <div class="spark-chart-box" data-spark-data='{"labels":["A","B"],"series":[{"data":[[1,2,3,4,9],[3,4,5,6,7]]}]}'></div>
+   <div class="spark-chart-box" data-spark-data='[{"label":"A","min":1,"q1":2,"median":3,"q3":4,"max":5,"outliers":[9]}]'></div> */
 import { COMMON, chart, nice, linear, band, axes, s, esc } from './_lib.js';
 import { on } from '../core.js';
 
@@ -28,13 +28,13 @@ const read = (el, o, raw) => {
 
 export default {
   name: 'chart-box',
-  selector: '.efx-chart-box',
+  selector: '.spark-chart-box',
   lazy: true,
   defaults: { ...COMMON, horizontal: false, grid: true },
   init(el, o) {
     let m = read(el, o);
-    // registered before chart() so it runs before the lib's own efx:data handler
-    const off = on(el, 'efx:data', e => { m = read(el, o, e.detail || {}); });
+    // registered before chart() so it runs before the lib's own spark:data handler
+    const off = on(el, 'spark:data', e => { m = read(el, o, e.detail || {}); });
     const draw = ({ g, w, h, visible, colors, fmt, deco }) => {
       const { groups, L } = m, n = L.length, vg = visible.filter(x => groups[x.index]);
       const all = vg.flatMap(x => groups[x.index].boxes.filter(Boolean).flatMap(b => [b.min, b.max, ...b.out]));
@@ -47,9 +47,9 @@ export default {
       const P = (c, val) => (hz ? [v(val), c] : [c, v(val)]);
       if (!deco) {
         if (hz) {
-          const ax = s('g', { class: 'efx-chart__axis', 'aria-hidden': 'true' }, g);
+          const ax = s('g', { class: 'spark-chart__axis', 'aria-hidden': 'true' }, g);
           sc.ticks.forEach(t => {
-            s('line', { x1: v(t), x2: v(t), y1: pad.t, y2: h - pad.b, class: 'efx-chart__grid' }, ax);
+            s('line', { x1: v(t), x2: v(t), y1: pad.t, y2: h - pad.b, class: 'spark-chart__grid' }, ax);
             s('text', { x: v(t), y: h - pad.b + 16, 'text-anchor': 'middle' }, ax).textContent = fmt(t);
           });
           L.forEach((l, i) => { s('text', { x: pad.l - 8, y: b.x(i) + b.bw / 2, 'text-anchor': 'end', 'dominant-baseline': 'middle' }, ax).textContent = l; });
@@ -60,7 +60,7 @@ export default {
         const bx = groups[x.index].boxes[i];
         if (!bx) return;
         const col = colors[x.index], c0 = b.x(i) + k * sw + (sw - cw) / 2, cm = c0 + cw / 2;
-        const gr = s('g', { class: 'efx-chart__mark efx-chart__fade', style: `--i:${i}`, stroke: col, 'stroke-width': 1.5, fill: 'none' }, g);
+        const gr = s('g', { class: 'spark-chart__mark spark-chart__fade', style: `--i:${i}`, stroke: col, 'stroke-width': 1.5, fill: 'none' }, g);
         const ln = (c, a, d, z, e) => { const [x1, y1] = P(c, a), [x2, y2] = P(d, z); return s('line', { x1, y1, x2, y2, ...e }, gr); };
         ln(cm, bx.min, cm, bx.q1); ln(cm, bx.q3, cm, bx.max);
         ln(cm - cw / 4, bx.min, cm + cw / 4, bx.min); ln(cm - cw / 4, bx.max, cm + cw / 4, bx.max);

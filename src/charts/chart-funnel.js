@@ -1,6 +1,6 @@
 /* chart-funnel — funnel / pyramid / centered bars with conversion rates.
-   <div class="efx-chart-funnel" data-efx-data="1200,780,420,180" data-efx-labels="Visits|Signups|Trials|Paid"></div>
-   Several series = compare mode (data-efx-compare="mirror|ghost"). All geometry is built in (u = along the flow,
+   <div class="spark-chart-funnel" data-spark-data="1200,780,420,180" data-spark-labels="Visits|Signups|Trials|Paid"></div>
+   Several series = compare mode (data-spark-compare="mirror|ghost"). All geometry is built in (u = along the flow,
    v = across it) and mapped to x/y by P(), so horizontal and flipped (pyramid) variants share one code path. */
 import { COMMON, chart, palette, s, esc } from './_lib.js';
 
@@ -9,7 +9,7 @@ const cut = (t, n) => (t.length > n ? t.slice(0, Math.max(1, n - 1)) + '…' : t
 
 export default {
   name: 'chart-funnel',
-  selector: '.efx-chart-funnel',
+  selector: '.spark-chart-funnel',
   lazy: true,
   defaults: { ...COMMON, height: 320, style: 'curved', horizontal: false, neck: 0.25, gap: 4, conversion: true, show: 'inside', dynamic: true, compare: 'mirror' },
   init(el, o) {
@@ -74,7 +74,7 @@ export default {
         if (k === n - 1) return;
         (cmp && !ghost ? [[0, -1, 0], [1, 0, 1]] : [[0, -1, 1]]).forEach(([j, lo, hi]) => {
           const a = G[j][k], b = G[j][k + 1];
-          s('path', { d: `M${q(a.u1, lo * a.eb)}L${q(b.u0, lo * b.ea)}L${q(b.u0, hi * b.ea)}L${q(a.u1, hi * a.eb)}Z`, fill: pal[i], 'fill-opacity': 0.16, class: 'efx-chart__fade', style: `--i:${k}` }, g);
+          s('path', { d: `M${q(a.u1, lo * a.eb)}L${q(b.u0, lo * b.ea)}L${q(b.u0, hi * b.ea)}L${q(a.u1, hi * a.eb)}Z`, fill: pal[i], 'fill-opacity': 0.16, class: 'spark-chart__fade', style: `--i:${k}` }, g);
         });
       });
       // stages: ghost (series 2 outline) first, then the solid shapes
@@ -90,7 +90,7 @@ export default {
             'fill-opacity': pass ? 0.14 : half && gj ? 0.55 : null,
             stroke: pass || ins ? pal[i] : null, 'stroke-width': pass ? 1.5 : ins ? 8 : null,
             'stroke-dasharray': pass ? '5 4' : null, 'stroke-linejoin': ins ? 'round' : null,
-            class: 'efx-chart__mark ' + (pass ? 'efx-chart__fade' : hz ? 'efx-fn-y' : 'efx-fn-x'),
+            class: 'spark-chart__mark ' + (pass ? 'spark-chart__fade' : hz ? 'spark-fn-y' : 'spark-fn-x'),
             style: `--i:${k};` + (pass ? '' : `transform-origin:${org}`),
           }, g);
           const first = V[gj](idx[0]), prev = k ? V[0](idx[k - 1]) : v, vv = V[0](i), other = V[1](i);
@@ -112,7 +112,7 @@ export default {
       rows.forEach(r => r.forEach(m => m && marks.push(m)));
 
       // labels + drop-off rates
-      const txt = (x, y, cls, str, k, anchor = 'middle') => { s('text', { x, y, 'text-anchor': anchor, 'dominant-baseline': 'central', class: cls + ' efx-chart__fade', style: `--i:${k}` }, g).textContent = str; };
+      const txt = (x, y, cls, str, k, anchor = 'middle') => { s('text', { x, y, 'text-anchor': anchor, 'dominant-baseline': 'central', class: cls + ' spark-chart__fade', style: `--i:${k}` }, g).textContent = str; };
       if (sh !== 'none') idx.forEach((i, k) => {
         const a = G[0][k], len = a.u1 - a.u0, u = (a.u0 + a.u1) / 2, name = data.labels[i], v = V[0](i), first = V[0](idx[0]);
         const l2 = fmt(v) + (cmp ? ' / ' + fmt(V[1](i)) : '') + (conv ? ' · ' + pc(first ? (v / first) * 100 : 0) : '');
@@ -122,18 +122,18 @@ export default {
         const lines = fit(Math.max(t1, t2), 30) ? 2 : fit(t1, 14) ? 1 : 0;
         const [x, y] = P(u, 0), e = ext(k, u);
         if (lines) {
-          txt(x, y - (lines > 1 ? 7 : 0), 'efx-fn-t', name, k);
-          if (lines > 1) txt(x, y + 8, 'efx-fn-t efx-fn-2', l2, k);
+          txt(x, y - (lines > 1 ? 7 : 0), 'spark-fn-t', name, k);
+          if (lines > 1) txt(x, y + 8, 'spark-fn-t spark-fn-2', l2, k);
         } else if (hz) {
           const m = Math.max(4, Math.floor((len + gp) / 6.4)), by = cy + W / 2;
-          s('line', { x1: x, x2: x, y1: cy + e + 3, y2: by + 3, class: 'efx-fn-l efx-chart__fade', style: `--i:${k}` }, g);
-          txt(x, by + 12, 'efx-chart__value', cut(name, m), k);
-          txt(x, by + 25, 'efx-fn-s', cut(l2, m), k);
+          s('line', { x1: x, x2: x, y1: cy + e + 3, y2: by + 3, class: 'spark-fn-l spark-chart__fade', style: `--i:${k}` }, g);
+          txt(x, by + 12, 'spark-chart__value', cut(name, m), k);
+          txt(x, by + 25, 'spark-fn-s', cut(l2, m), k);
         } else {
           const ex = sh === 'side' ? pd.l - 10 : cx - e - 10;
-          if (sh === 'side') s('line', { x1: ex + 5, x2: cx - e - 3, y1: y, y2: y, class: 'efx-fn-l efx-chart__fade', style: `--i:${k}` }, g);
-          txt(ex, y - 7, 'efx-chart__value', name, k, 'end');
-          txt(ex, y + 8, 'efx-fn-s', l2, k, 'end');
+          if (sh === 'side') s('line', { x1: ex + 5, x2: cx - e - 3, y1: y, y2: y, class: 'spark-fn-l spark-chart__fade', style: `--i:${k}` }, g);
+          txt(ex, y - 7, 'spark-chart__value', name, k, 'end');
+          txt(ex, y + 8, 'spark-fn-s', l2, k, 'end');
         }
       });
       if (conv) idx.forEach((i, k) => {
@@ -141,9 +141,9 @@ export default {
         if (k === n - 1 || !a) return;
         const dr = (1 - b / a) * 100, str = (dr >= 0 ? '−' : '+') + pc(Math.abs(dr)), uB = (G[0][k].u1 + G[0][k + 1].u0) / 2;
         const e = Math.max(...G.map(gs => Math.max(gs[k].eb, gs[k + 1].ea)));
-        if (bars) { const [x, y] = P(uB, 0); txt(x, y, 'efx-fn-d', str, k); }
-        else if (hz) { const [x, y] = P(uB, -e - 9); txt(x, y, 'efx-fn-d', str, k); }
-        else { const [x, y] = P(uB, e + 8); txt(x, y, 'efx-fn-d', str, k, 'start'); }
+        if (bars) { const [x, y] = P(uB, 0); txt(x, y, 'spark-fn-d', str, k); }
+        else if (hz) { const [x, y] = P(uB, -e - 9); txt(x, y, 'spark-fn-d', str, k); }
+        else { const [x, y] = P(uB, e + 8); txt(x, y, 'spark-fn-d', str, k, 'start'); }
       });
       return marks;
     };

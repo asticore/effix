@@ -1,31 +1,31 @@
 /* pricing — price toggle that rolls the numbers.
-   <div class="efx-pricing" data-efx-periods="Monthly|Yearly">
-     <button data-efx-period="Monthly">Monthly</button><button data-efx-period="Yearly">Yearly</button>   (or <input type=checkbox class="efx-pricing__toggle">)
-     <span data-efx-prices="9|90">$<span class="efx-odometer">9</span></span> <small data-efx-period-text="per month|per year"></small>
-     <span data-efx-show-on="Yearly">Save 20%</span>
+   <div class="spark-pricing" data-spark-periods="Monthly|Yearly">
+     <button data-spark-period="Monthly">Monthly</button><button data-spark-period="Yearly">Yearly</button>   (or <input type=checkbox class="spark-pricing__toggle">)
+     <span data-spark-prices="9|90">$<span class="spark-odometer">9</span></span> <small data-spark-period-text="per month|per year"></small>
+     <span data-spark-show-on="Yearly">Save 20%</span>
    </div>
-   A price inside/being an .efx-odometer gets efx:data {value}; others count up/down. Emits efx:period on the container. */
+   A price inside/being an .spark-odometer gets spark:data {value}; others count up/down. Emits spark:period on the container. */
 import { on, motionOK } from '../core.js';
 
 const num = /[\d][\d,]*\.?\d*/;
 
 export default {
   name: 'pricing',
-  selector: '.efx-pricing',
+  selector: '.spark-pricing',
   defaults: { periods: ['Monthly', 'Yearly'], start: 0, duration: 600 },
   init(el, o) {
     const periods = o.periods, undo = [];
     const norm = s => String(s).trim().toLowerCase();
-    const btns = [...el.querySelectorAll('[data-efx-period]')];
-    const chk = el.querySelector('.efx-pricing__toggle');
-    const prices = [...el.querySelectorAll('[data-efx-prices]')].map(p => ({
-      el: p, vals: p.dataset.efxPrices.split('|').map(s => s.trim()),
-      odo: p.matches('.efx-odometer') ? p : p.querySelector('.efx-odometer'), orig: p.innerHTML, raf: 0,
+    const btns = [...el.querySelectorAll('[data-spark-period]')];
+    const chk = el.querySelector('.spark-pricing__toggle');
+    const prices = [...el.querySelectorAll('[data-spark-prices]')].map(p => ({
+      el: p, vals: p.dataset.sparkPrices.split('|').map(s => s.trim()),
+      odo: p.matches('.spark-odometer') ? p : p.querySelector('.spark-odometer'), orig: p.innerHTML, raf: 0,
     }));
-    const texts = [...el.querySelectorAll('[data-efx-period-text]')].map(t => ({ el: t, vals: t.dataset.efxPeriodText.split('|').map(s => s.trim()), orig: t.textContent }));
-    const shows = [...el.querySelectorAll('[data-efx-show-on]')].map(s => ({ el: s, hid: s.hidden }));
+    const texts = [...el.querySelectorAll('[data-spark-period-text]')].map(t => ({ el: t, vals: t.dataset.sparkPeriodText.split('|').map(s => s.trim()), orig: t.textContent }));
+    const shows = [...el.querySelectorAll('[data-spark-show-on]')].map(s => ({ el: s, hid: s.hidden }));
     const live = document.createElement('span');
-    live.className = 'efx-pricing__live'; live.setAttribute('aria-live', 'polite');
+    live.className = 'spark-pricing__live'; live.setAttribute('aria-live', 'polite');
     live.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap';
     el.append(live);
 
@@ -33,12 +33,12 @@ export default {
     const group = btns.length && btns[0].parentElement;
     if (group && !group.hasAttribute('role')) setAttr(group, 'role', 'radiogroup');
     btns.forEach(b => { if (!b.hasAttribute('role')) setAttr(b, 'role', 'radio'); if (!b.hasAttribute('type') && b.tagName === 'BUTTON') setAttr(b, 'type', 'button'); });
-    const bIdx = b => { const v = b.dataset.efxPeriod; const i = periods.findIndex(p => norm(p) === norm(v)); return i >= 0 ? i : (parseInt(v, 10) || 0); };
+    const bIdx = b => { const v = b.dataset.sparkPeriod; const i = periods.findIndex(p => norm(p) === norm(v)); return i >= 0 ? i : (parseInt(v, 10) || 0); };
     const fmtLike = (tpl, n) => { const dec = (tpl.split('.')[1] || '').length; const s = n.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }); return tpl.includes(',') ? s : s.replace(/,/g, ''); };
     const roll = (p, val, animate) => {
       cancelAnimationFrame(p.raf);
       if (p.odo) {
-        p.odo.dispatchEvent(new CustomEvent('efx:data', { detail: { value: val } }));
+        p.odo.dispatchEvent(new CustomEvent('spark:data', { detail: { value: val } }));
         return;
       }
       const to = val.match(num), from = p.el.textContent.match(num);
@@ -60,13 +60,13 @@ export default {
       const anim = animate && motionOK();
       prices.forEach(p => roll(p, p.vals[i] ?? p.vals[p.vals.length - 1], anim));
       texts.forEach(t => { t.el.textContent = t.vals[i] ?? t.vals[t.vals.length - 1]; });
-      shows.forEach(s => { s.el.hidden = norm(s.el.dataset.efxShowOn) !== norm(periods[i]); });
+      shows.forEach(s => { s.el.hidden = norm(s.el.dataset.sparkShowOn) !== norm(periods[i]); });
       btns.forEach(b => { const on = bIdx(b) === i; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; b.classList.toggle('is-active', on); });
       if (chk) chk.checked = i > 0;
       if (!quiet) {
         const f = prices[0], ft = texts[0];
         live.textContent = [periods[i], f && f.vals[i], ft && ft.vals[i]].filter(Boolean).join(' ');
-        el.dispatchEvent(new CustomEvent('efx:period', { bubbles: true, detail: { index: i, period: periods[i] } }));
+        el.dispatchEvent(new CustomEvent('spark:period', { bubbles: true, detail: { index: i, period: periods[i] } }));
       }
     };
 

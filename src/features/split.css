@@ -1,16 +1,16 @@
 /* split — pieces hidden only after JS claims the element */
-.efx-split__p { display: inline-block; white-space: pre; }
-.efx-split__w { display: inline-block; white-space: nowrap; }
-.efx-split-pending .efx-split__p {
+.spark-split__p { display: inline-block; white-space: pre; }
+.spark-split__w { display: inline-block; white-space: nowrap; }
+.spark-split-pending .spark-split__p {
   opacity: 0;
-  transition: opacity var(--efx-split-dur, 600ms) var(--efx-ease, ease), transform var(--efx-split-dur, 600ms) var(--efx-ease, ease),
-    filter var(--efx-split-dur, 600ms) var(--efx-ease, ease);
-  transition-delay: calc(var(--i) * var(--efx-split-stagger, 40ms));
+  transition: opacity var(--spark-split-dur, 600ms) var(--spark-ease, ease), transform var(--spark-split-dur, 600ms) var(--spark-ease, ease),
+    filter var(--spark-split-dur, 600ms) var(--spark-ease, ease);
+  transition-delay: calc(var(--i) * var(--spark-split-stagger, 40ms));
 }
-.efx-split-pending[data-efx-effect="fade-up"] .efx-split__p { transform: translateY(.6em); }
-.efx-split-pending[data-efx-effect="slide"] .efx-split__p { transform: translateX(-.6em); }
-.efx-split-pending[data-efx-effect="blur"] .efx-split__p { filter: blur(.4em); }
-.efx-split-pending.is-in .efx-split__p { opacity: 1; transform: none; filter: none; }
-.efx-split-wave.is-in .efx-split__p { animation: efx-split-wave 1.4s ease-in-out infinite; animation-delay: calc(var(--i) * var(--efx-split-stagger, 40ms)); }
-@keyframes efx-split-wave { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-.35em); } }
-.efx-split__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.spark-split-pending[data-spark-effect="fade-up"] .spark-split__p { transform: translateY(.6em); }
+.spark-split-pending[data-spark-effect="slide"] .spark-split__p { transform: translateX(-.6em); }
+.spark-split-pending[data-spark-effect="blur"] .spark-split__p { filter: blur(.4em); }
+.spark-split-pending.is-in .spark-split__p { opacity: 1; transform: none; filter: none; }
+.spark-split-wave.is-in .spark-split__p { animation: spark-split-wave 1.4s ease-in-out infinite; animation-delay: calc(var(--i) * var(--spark-split-stagger, 40ms)); }
+@keyframes spark-split-wave { 0%, 60%, 100% { transform: none; } 30% { transform: translateY(-.35em); } }
+.spark-split__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }

@@ -5,18 +5,18 @@ module.exports = {
   title: 'Distort',
   group: 'Images',
   summary: 'Liquid ripple warp from an inline SVG filter (feTurbulence + feDisplacementMap) on images or any element. Animates only while active and eases back; no effect with reduced motion.',
-  classes: [['efx-distort', 'Image or element to warp. One hidden <svg><filter> per instance, removed on cleanup.']],
+  classes: [['spark-distort', 'Image or element to warp. One hidden <svg><filter> per instance, removed on cleanup.']],
   options: [
-    ['data-efx-scale', '30', 'Maximum displacement in px.'],
-    ['data-efx-frequency', '0.02', 'Noise base frequency (lower = broader waves).'],
-    ['data-efx-speed', '1', 'Animation speed multiplier.'],
-    ['data-efx-trigger', 'hover', 'hover · always (while on screen) · view (one pulse when scrolled in).'],
+    ['data-spark-scale', '30', 'Maximum displacement in px.'],
+    ['data-spark-frequency', '0.02', 'Noise base frequency (lower = broader waves).'],
+    ['data-spark-speed', '1', 'Animation speed multiplier.'],
+    ['data-spark-trigger', 'hover', 'hover · always (while on screen) · view (one pulse when scrolled in).'],
   ],
   examples: [
     { html: `<div class="grid md:grid-cols-3 gap-4">
-  <div class="card p-3"><img class="efx-distort rounded-lg" src="${B}" alt="Rings" style="display:block;width:100%;height:200px;object-fit:cover"><p class="mt-2">hover</p></div>
-  <div class="card p-3"><img class="efx-distort rounded-lg" data-efx-trigger="always" data-efx-scale="18" data-efx-frequency="0.012" src="${A}" alt="Mountain" style="display:block;width:100%;height:200px;object-fit:cover"><p class="mt-2">always</p></div>
-  <div class="card p-3"><h3 class="efx-distort" data-efx-scale="14" data-efx-frequency="0.03">Any element</h3><p>Text warps too.</p></div>
+  <div class="card p-3"><img class="spark-distort rounded-lg" src="${B}" alt="Rings" style="display:block;width:100%;height:200px;object-fit:cover"><p class="mt-2">hover</p></div>
+  <div class="card p-3"><img class="spark-distort rounded-lg" data-spark-trigger="always" data-spark-scale="18" data-spark-frequency="0.012" src="${A}" alt="Mountain" style="display:block;width:100%;height:200px;object-fit:cover"><p class="mt-2">always</p></div>
+  <div class="card p-3"><h3 class="spark-distort" data-spark-scale="14" data-spark-frequency="0.03">Any element</h3><p>Text warps too.</p></div>
 </div>` },
   ],
 };

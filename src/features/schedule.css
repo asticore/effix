@@ -1,2 +1,2 @@
 /* schedule — beat display utilities (.grid, .flex…) so [hidden] always hides */
-.efx-schedule[hidden] { display: none !important; }
+.spark-schedule[hidden] { display: none !important; }

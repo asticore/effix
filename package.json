@@ -1,36 +1,36 @@
 {
-  "name": "effix",
-  "version": "0.3.0",
+  "name": "@asticore/spark",
+  "version": "0.4.0",
   "description": "Class-driven JavaScript effects (particles, parallax, reveal, tilt, carousels, popups\u2026) plus interactive SVG charts and funnels, built to pair with Shine CSS. Only features found on the page start.",
-  "main": "dist/effix.min.js",
-  "module": "dist/effix.esm.js",
-  "style": "dist/effix.min.css",
-  "unpkg": "dist/effix.min.js",
-  "jsdelivr": "dist/effix.min.js",
+  "main": "dist/spark.min.js",
+  "module": "dist/spark.esm.js",
+  "style": "dist/spark.min.css",
+  "unpkg": "dist/spark.min.js",
+  "jsdelivr": "dist/spark.min.js",
   "exports": {
     ".": {
-      "import": "./dist/effix.esm.js",
-      "default": "./dist/effix.min.js"
+      "import": "./dist/spark.esm.js",
+      "default": "./dist/spark.min.js"
     },
     "./all": {
-      "import": "./dist/effix.all.esm.js",
-      "default": "./dist/effix.all.min.js"
+      "import": "./dist/spark.all.esm.js",
+      "default": "./dist/spark.all.min.js"
     },
-    "./charts": "./dist/effix-charts.min.js",
-    "./ui": "./dist/effix-ui.min.js",
-    "./ui.css": "./dist/effix-ui.min.css",
+    "./charts": "./dist/spark-charts.min.js",
+    "./ui": "./dist/spark-ui.min.js",
+    "./ui.css": "./dist/spark-ui.min.css",
     "./ui/*": "./src/ui/*.js",
-    "./css": "./dist/effix.min.css",
-    "./charts.css": "./dist/effix-charts.min.css",
-    "./all.css": "./dist/effix.all.min.css",
+    "./css": "./dist/spark.min.css",
+    "./charts.css": "./dist/spark-charts.min.css",
+    "./all.css": "./dist/spark.all.min.css",
     "./core": "./src/core.js",
     "./features/*": "./src/features/*.js",
     "./charts/*": "./src/charts/*.js",
     "./src/*": "./src/*",
     "./dist/*": "./dist/*",
     "./package.json": "./package.json",
-    "./auto": "./dist/effix.auto.min.js",
-    "./core.min": "./dist/effix.core.min.js",
+    "./auto": "./dist/spark.auto.min.js",
+    "./core.min": "./dist/spark.core.min.js",
     "./react": "./src/integrations/react.js",
     "./vue": "./src/integrations/vue.js",
     "./svelte": "./src/integrations/svelte.js"
@@ -51,7 +51,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/asticore/effix.git"
+    "url": "git+https://github.com/asticore/spark.git"
   },
   "keywords": [
     "effects",
@@ -74,5 +74,5 @@
     "esbuild": "^0.24.0",
     "playwright": "^1.56.0"
   },
-  "homepage": "https://asticore.github.io/effix/docs/"
+  "homepage": "https://asticore.github.io/spark/docs/"
 }

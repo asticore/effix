@@ -1,33 +1,33 @@
 /* cursor — custom cursor (ring / dot / dot-ring) that eases toward the pointer.
-   <body class="efx-cursor" data-efx-style="dot-ring" data-efx-blend> */
+   <body class="spark-cursor" data-spark-style="dot-ring" data-spark-blend> */
 import { on, motionOK, finePointer, themeColor } from '../core.js';
 
 export default {
   name: 'cursor',
-  selector: '.efx-cursor',
+  selector: '.spark-cursor',
   defaults: {
     style: 'ring', size: 32, color: '', hideNative: false, blend: false,
-    hover: 'a,button,[role=button],input,select,textarea,label,summary,.efx-cursor-hover',
+    hover: 'a,button,[role=button],input,select,textarea,label,summary,.spark-cursor-hover',
   },
   init(el, o) {
     if (!finePointer() || !motionOK()) return;
     let hoverSel = o.hover;
-    try { document.querySelector(hoverSel); } catch { hoverSel = 'a,button,[role=button],input,select,textarea,label,summary,.efx-cursor-hover'; }
+    try { document.querySelector(hoverSel); } catch { hoverSel = 'a,button,[role=button],input,select,textarea,label,summary,.spark-cursor-hover'; }
     const mk = k => {
       const d = document.createElement('div');
-      d.className = 'efx-cursor__' + k;
+      d.className = 'spark-cursor__' + k;
       d.setAttribute('aria-hidden', 'true');
-      d.style.cssText = 'opacity:0;--efx-cursor-size:' + (k === 'ring' ? o.size : Math.max(6, o.size / 5)) + 'px';
-      if (o.color) d.style.setProperty('--efx-cursor-color', o.color);
-      else d.style.setProperty('--efx-cursor-color', themeColor(el));
-      if (o.blend) d.classList.add('efx-cursor--blend');
+      d.style.cssText = 'opacity:0;--spark-cursor-size:' + (k === 'ring' ? o.size : Math.max(6, o.size / 5)) + 'px';
+      if (o.color) d.style.setProperty('--spark-cursor-color', o.color);
+      else d.style.setProperty('--spark-cursor-color', themeColor(el));
+      if (o.blend) d.classList.add('spark-cursor--blend');
       document.body.appendChild(d);
       return d;
     };
     const ring = o.style !== 'dot' ? mk('ring') : null;
     const dot = o.style !== 'ring' ? mk('dot') : null;
     const parts = [ring, dot].filter(Boolean);
-    if (o.hideNative) el.classList.add('efx-cursor-hide');
+    if (o.hideNative) el.classList.add('spark-cursor-hide');
     let tx = 0, ty = 0, rx = 0, ry = 0, raf = 0, seen = false;
     const put = (n, x, y) => { n.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) translate(-50%,-50%)'; };
     const tick = () => {
@@ -55,7 +55,7 @@ export default {
     return () => {
       offs.forEach(f => f()); cancelAnimationFrame(raf);
       parts.forEach(n => n.remove());
-      el.classList.remove('efx-cursor-hide');
+      el.classList.remove('spark-cursor-hide');
     };
   },
 };

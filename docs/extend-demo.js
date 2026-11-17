@@ -1,4 +1,4 @@
-window.EffixConfig = {
+window.SparkConfig = {
   extend(E) {
     // 1. A particle shape: draw centred on 0,0 at the given size (fill colour is already set).
     E.add('particle-shape', 'heart', (ctx, size) => {
@@ -10,19 +10,19 @@ window.EffixConfig = {
       ctx.fill();
     });
 
-    // 2. A number format any chart can use with data-efx-format="gbp".
+    // 2. A number format any chart can use with data-spark-format="gbp".
     E.add('format', 'gbp', v => '£' + Math.round(v).toLocaleString('en-GB'));
   },
 };
 
-// 3. A whole new chart type built on the chart toolkit (Effix.charts),
-//    and 4. a tiny custom feature. Both work like built-ins: class + data-efx-*.
-document.addEventListener('efx:ready', ({ detail: E }) => {
+// 3. A whole new chart type built on the chart toolkit (Spark.charts),
+//    and 4. a tiny custom feature. Both work like built-ins: class + data-spark-*.
+document.addEventListener('spark:ready', ({ detail: E }) => {
   const { chart, COMMON, nice, linear, axes, s } = E.charts;
 
   E.define({
     name: 'chart-dots',
-    selector: '.efx-chart-dots',
+    selector: '.spark-chart-dots',
     lazy: true,
     defaults: { ...COMMON, radius: 6 },
     init: (el, o) => chart(el, o, ({ g, w, h, data, visible, colors, fmt }) => {
@@ -34,17 +34,17 @@ document.addEventListener('efx:ready', ({ detail: E }) => {
       const marks = [];
       visible.forEach(sr => sr.values.forEach((v, i) => {
         s('line', { x1: x(i), x2: x(i), y1: y(0), y2: y(v), stroke: colors[sr.index], 'stroke-width': 2 }, g);
-        const node = s('circle', { cx: x(i), cy: y(v), r: o.radius, fill: colors[sr.index], class: 'efx-chart__mark' }, g);
+        const node = s('circle', { cx: x(i), cy: y(v), r: o.radius, fill: colors[sr.index], class: 'spark-chart__mark' }, g);
         marks.push({ x: x(i), y: y(v), label: data.labels[i], value: v, series: sr.name, node, index: i });
       }));
-      return marks; // tooltips, keyboard, legend and efx:select come free
+      return marks; // tooltips, keyboard, legend and spark:select come free
     }),
   });
 
   E.define({
     name: 'blink',
     selector: '.my-blink',
-    defaults: { speed: 600 },                  // read from data-efx-speed
+    defaults: { speed: 600 },                  // read from data-spark-speed
     init(el, o) {
       const t = setInterval(() => el.classList.toggle('is-on'), o.speed);
       return () => { clearInterval(t); el.classList.remove('is-on'); }; // cleanup

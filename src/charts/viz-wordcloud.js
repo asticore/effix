@@ -1,6 +1,6 @@
 /* viz-wordcloud — word cloud with Archimedean spiral placement and box collision.
-   <div class="efx-viz-wordcloud" data-efx-data="design:40|code:28|motion:19|type:12"></div>
-   <div class="efx-viz-wordcloud" data-efx-text="any long text, counted and stripped of stop words"></div> */
+   <div class="spark-viz-wordcloud" data-spark-data="design:40|code:28|motion:19|type:12"></div>
+   <div class="spark-viz-wordcloud" data-spark-text="any long text, counted and stripped of stop words"></div> */
 import { COMMON, chart, palette, s, esc } from './_lib.js';
 import { on } from '../core.js';
 
@@ -19,14 +19,14 @@ const norm = d => {
 
 export default {
   name: 'viz-wordcloud',
-  selector: '.efx-viz-wordcloud',
+  selector: '.spark-viz-wordcloud',
   lazy: true,
   defaults: { ...COMMON, text: '', minSize: 12, maxSize: 56, rotate: [], max: 80, padding: 2, legend: false, height: 0 },
   init(el, o) {
     const j = el.querySelector(':scope > script[type="application/json"]');
     let words = norm(o.update || o.text || o.data || (j && j.textContent) || '');
     if (o.text) words = norm(o.text);
-    const off = on(el, 'efx:data', e => { const d = e.detail; if (d && (d.words || d.text || Array.isArray(d))) words = norm(Array.isArray(d) ? d : d.words || d.text); });
+    const off = on(el, 'spark:data', e => { const d = e.detail; if (d && (d.words || d.text || Array.isArray(d))) words = norm(Array.isArray(d) ? d : d.words || d.text); });
     const cv = document.createElement('canvas').getContext('2d');
     const angles = o.rotate.map(Number).filter(Number.isFinite);
     if (!angles.length) angles.push(0);
@@ -54,7 +54,7 @@ export default {
         }
         if (!box) return;
         placed.push(box);
-        const node = s('text', { x: 0, y: 0, transform: `translate(${box.x} ${box.y})${a ? ` rotate(${a})` : ''}`, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': size / 0.85, fill: cols[i % cols.length], 'font-weight': 600, 'font-family': ff, class: 'efx-chart__mark efx-chart__fade', style: `--i:${Math.min(i, 30) / 2}` }, g);
+        const node = s('text', { x: 0, y: 0, transform: `translate(${box.x} ${box.y})${a ? ` rotate(${a})` : ''}`, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': size / 0.85, fill: cols[i % cols.length], 'font-weight': 600, 'font-family': ff, class: 'spark-chart__mark spark-chart__fade', style: `--i:${Math.min(i, 30) / 2}` }, g);
         node.textContent = d.text;
         marks.push({ x: box.x, y: box.y - box.h / 2, label: d.text, value: d.value, node, index: i, hit: (px, py) => Math.abs(px - box.x) <= box.w / 2 && Math.abs(py - box.y) <= box.h / 2 });
       });

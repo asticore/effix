@@ -1,10 +1,10 @@
 /* totop — back-to-top button that appears after scrolling.
-   <button class="btn efx-totop" aria-label="Back to top">↑</button> */
+   <button class="btn spark-totop" aria-label="Back to top">↑</button> */
 import { onScroll, motionOK, on } from '../core.js';
 
 export default {
   name: 'totop',
-  selector: '.efx-totop',
+  selector: '.spark-totop',
   defaults: { show: 400, fixed: true },
   init(el, o) {
     const type = el.getAttribute('type'), label = el.hasAttribute('aria-label');

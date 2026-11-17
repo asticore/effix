@@ -1,7 +1,7 @@
 /* lyrics — captions/lyrics synced to an <audio>/<video>: active line highlight, auto-scroll inside the box, karaoke fill, click to seek.
    <audio id="song" controls src="a.mp3"><track kind="captions" src="a.vtt"></audio>
-   <div class="efx-lyrics" data-efx-for="#song" data-efx-karaoke data-efx-cues='[{"t":0,"text":"Hello"},{"t":2.5,"text":"world","words":[{"t":2.5,"w":"wor"},{"t":3,"w":"ld"}]}]'></div>
-   Cues come from data-efx-cues, an inline <script type="application/json"> child, or the media's captions/subtitles <track> (WebVTT; <00:01.500> word stamps drive karaoke). */
+   <div class="spark-lyrics" data-spark-for="#song" data-spark-karaoke data-spark-cues='[{"t":0,"text":"Hello"},{"t":2.5,"text":"world","words":[{"t":2.5,"w":"wor"},{"t":3,"w":"ld"}]}]'></div>
+   Cues come from data-spark-cues, an inline <script type="application/json"> child, or the media's captions/subtitles <track> (WebVTT; <00:01.500> word stamps drive karaoke). */
 import { on, motionOK } from '../core.js';
 
 const ts = s => s.split(':').reduce((a, v) => a * 60 + parseFloat(v), 0);
@@ -9,11 +9,11 @@ const parse = a => (Array.isArray(a) ? a : []).map(c => ({ t: +c.t || 0, end: c.
 
 export default {
   name: 'lyrics',
-  selector: '.efx-lyrics',
+  selector: '.spark-lyrics',
   defaults: { for: '', karaoke: false, scroll: true, seek: true, offset: 0 },
   init(el, o) {
     const m = (o.for && document.querySelector(o.for)) || (el.parentElement && el.parentElement.querySelector('audio,video'));
-    if (!m) return console.warn('[effix] lyrics: media not found', o.for);
+    if (!m) return console.warn('[spark] lyrics: media not found', o.for);
     const orig = el.innerHTML;
     const offs = [];
     let cues = [], lines = [], W = [], cur = -2, raf = 0, hold = 0, rm = [];
@@ -21,22 +21,22 @@ export default {
 
     // 1. cues from attribute / inline JSON
     const sc = el.querySelector('script[type="application/json"]');
-    try { cues = parse(JSON.parse(el.dataset.efxCues || (sc && sc.textContent) || '[]')); } catch (e) { console.warn('[effix] lyrics: bad cue JSON', e); }
+    try { cues = parse(JSON.parse(el.dataset.sparkCues || (sc && sc.textContent) || '[]')); } catch (e) { console.warn('[spark] lyrics: bad cue JSON', e); }
 
     const ol = document.createElement('ol');
-    ol.className = 'efx-lyrics__list';
+    ol.className = 'spark-lyrics__list';
     el.textContent = '';
     el.appendChild(ol);
-    el.classList.toggle('efx-lyrics--karaoke', o.karaoke);
+    el.classList.toggle('spark-lyrics--karaoke', o.karaoke);
 
     const build = () => {
       ol.textContent = '';
       W = []; cur = -2;
       lines = cues.map((c, i) => {
         const li = document.createElement('li');
-        li.className = 'efx-lyrics__line';
+        li.className = 'spark-lyrics__line';
         const b = document.createElement(o.seek ? 'button' : 'span');
-        b.className = 'efx-lyrics__btn';
+        b.className = 'spark-lyrics__btn';
         if (o.seek) { b.type = 'button'; b.onclick = () => { m.currentTime = Math.max(0, c.t - o.offset); }; }
         if (o.karaoke) {
           const end = c.end != null ? c.end : cues[i + 1] ? cues[i + 1].t : c.t + 4;
@@ -48,7 +48,7 @@ export default {
           }
           W[i] = ws.map((w, k) => {
             const s = document.createElement('span');
-            s.className = 'efx-lyrics__word';
+            s.className = 'spark-lyrics__word';
             s.textContent = w.w;
             if (k) b.appendChild(document.createTextNode(' '));
             b.appendChild(s);
@@ -119,7 +119,7 @@ export default {
       cancelAnimationFrame(raf); raf = 0;
       offs.forEach(f => f());
       rm.forEach(([t, md]) => { t.mode = md; });
-      el.classList.remove('efx-lyrics--karaoke');
+      el.classList.remove('spark-lyrics--karaoke');
       el.innerHTML = orig;
     };
   },

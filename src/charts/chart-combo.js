@@ -1,6 +1,6 @@
 /* chart-combo — bars + lines on one plot, optional second (right) y-axis.
-   <div class="efx-chart-combo" data-efx-data='[{"name":"Revenue","data":[4,6,5],"type":"bar"},{"name":"Margin %","data":[20,30,25],"type":"line","axis":"right"}]' data-efx-labels="Jan|Feb|Mar"></div>
-   Or plain data + data-efx-types="bar|line" data-efx-axes="left|right". */
+   <div class="spark-chart-combo" data-spark-data='[{"name":"Revenue","data":[4,6,5],"type":"bar"},{"name":"Margin %","data":[20,30,25],"type":"line","axis":"right"}]' data-spark-labels="Jan|Feb|Mar"></div>
+   Or plain data + data-spark-types="bar|line" data-spark-axes="left|right". */
 import { COMMON, chart, nice, linear, band, linePath, axes, formatter, s, esc } from './_lib.js';
 import { on } from '../core.js';
 
@@ -10,18 +10,18 @@ let uid = 0;
 
 export default {
   name: 'chart-combo',
-  selector: '.efx-chart-combo',
+  selector: '.spark-chart-combo',
   lazy: true,
   defaults: { ...COMMON, types: [], axes: [], smooth: true, dots: true, area: false, stacked: false, grid: true, radius: 4, prefix2: '', suffix2: '' },
   init(el, o) {
-    // per-series type/axis live in the raw JSON (parseData drops them); keep them in step with efx:data
+    // per-series type/axis live in the raw JSON (parseData drops them); keep them in step with spark:data
     let meta = [];
     try {
       const j = el.querySelector(':scope > script[type="application/json"]');
       const raw = !o.source && o.data && /^\s*[[{]/.test(o.data) ? o.data : j && j.textContent;
       if (raw) meta = metaOf(JSON.parse(raw));
     } catch (e) {}
-    const offData = on(el, 'efx:data', e => { if (e.detail && e.detail.series) meta = metaOf(e.detail); }); // before chart(): runs first
+    const offData = on(el, 'spark:data', e => { if (e.detail && e.detail.series) meta = metaOf(e.detail); }); // before chart(): runs first
     const fmt2 = formatter({ ...o, prefix: o.prefix2, suffix: o.suffix2 });
     const kind = i => { const t = (meta[i] && meta[i].type) || o.types[i] || (i ? 'line' : 'bar'); return t === 'line' ? 'line' : 'bar'; };
     const side = i => ((meta[i] && meta[i].axis) || o.axes[i]) === 'right' ? 1 : 0;
@@ -50,7 +50,7 @@ export default {
       if (!deco) {
         axes(g, { w, h, pad, y: L.f, ticks: L.ticks, labels: data.labels, x: cx, fmt: sc[0] ? fmt : fmt2, grid: o.grid });
         if (right) {
-          const ax = s('g', { class: 'efx-chart__axis', 'aria-hidden': 'true' }, g);
+          const ax = s('g', { class: 'spark-chart__axis', 'aria-hidden': 'true' }, g);
           const R = sc[1];
           R.ticks.forEach(t => { s('text', { x: w - pad.r + 8, y: R.f(t), 'dominant-baseline': 'middle' }, ax).textContent = fmt2(t); });
         }
@@ -64,26 +64,26 @@ export default {
           const y1 = f(v || 0), thick = Math.max(1, bw - (!st && bars.length > 1 ? 2 : 0));
           let y = Math.min(z, y1), hh = Math.abs(y1 - z);
           if (st) { const t = acc[r.a][i], j = (v || 0) < 0 ? 1 : 0; y = j ? f(t[1]) : f(t[0] + (v || 0)); t[j] += v || 0; }
-          s('rect', { x: b.x(i) + (st ? 0 : k * bw), y, width: thick, height: hh, rx: st ? 0 : Math.min(o.radius, thick / 2), fill: r.c, class: 'efx-chart__grow', style: `--i:${i}` }, g);
+          s('rect', { x: b.x(i) + (st ? 0 : k * bw), y, width: thick, height: hh, rx: st ? 0 : Math.min(o.radius, thick / 2), fill: r.c, class: 'spark-chart__grow', style: `--i:${i}` }, g);
         });
       });
       const base = h - pad.b;
       rows.filter(r => r.k === 'line').forEach((r, k) => {
         const pts = r.sr.values.slice(0, n).map((v, i) => [cx(i), Y(r)(v || 0)]);
         if (o.area && pts.length > 1) {
-          const id = 'efx-cg' + ++uid, defs = s('defs', {}, g), lg = s('linearGradient', { id, x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+          const id = 'spark-cg' + ++uid, defs = s('defs', {}, g), lg = s('linearGradient', { id, x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
           s('stop', { offset: 0, 'stop-color': r.c, 'stop-opacity': .3 }, lg);
           s('stop', { offset: 1, 'stop-color': r.c, 'stop-opacity': 0 }, lg);
-          s('path', { d: linePath(pts, o.smooth) + `L${pts[pts.length - 1][0]},${base}L${pts[0][0]},${base}Z`, fill: `url(#${id})`, class: 'efx-chart__fade', style: `--i:${k}` }, g);
+          s('path', { d: linePath(pts, o.smooth) + `L${pts[pts.length - 1][0]},${base}L${pts[0][0]},${base}Z`, fill: `url(#${id})`, class: 'spark-chart__fade', style: `--i:${k}` }, g);
         }
-        s('path', { d: linePath(pts, o.smooth), pathLength: 1, fill: 'none', stroke: r.c, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', class: 'efx-chart__draw' }, g);
+        s('path', { d: linePath(pts, o.smooth), pathLength: 1, fill: 'none', stroke: r.c, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', class: 'spark-chart__draw' }, g);
       });
       if (deco) return [];
       const step = Math.min(1, 16 / n);
       return data.labels.map((label, i) => {
-        const node = s('g', { class: 'efx-chart__mark efx-combo__pt' }, g);
-        s('rect', { x: b.x(i) - (b.step - b.bw) / 2, y: pad.t, width: b.step, height: base - pad.t, class: 'efx-combo__band' }, node);
-        rows.filter(r => r.k === 'line').forEach(r => s('circle', { cx: cx(i), cy: Y(r)(r.sr.values[i] || 0), r: 4, fill: r.c, class: 'efx-combo__dot ' + (o.dots ? 'efx-chart__fade' : 'efx-combo__hid'), style: `--i:${i * step}` }, node));
+        const node = s('g', { class: 'spark-chart__mark spark-combo__pt' }, g);
+        s('rect', { x: b.x(i) - (b.step - b.bw) / 2, y: pad.t, width: b.step, height: base - pad.t, class: 'spark-combo__band' }, node);
+        rows.filter(r => r.k === 'line').forEach(r => s('circle', { cx: cx(i), cy: Y(r)(r.sr.values[i] || 0), r: 4, fill: r.c, class: 'spark-combo__dot ' + (o.dots ? 'spark-chart__fade' : 'spark-combo__hid'), style: `--i:${i * step}` }, node));
         const F = r => (r.a ? fmt2 : fmt);
         return {
           x: cx(i), y: Math.min(...rows.map(r => Y(r)(r.sr.values[i] || 0))), label, node, index: i, xOnly: true, group: i,

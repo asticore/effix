@@ -1,7 +1,7 @@
 /* viz-map — map from your own GeoJSON: choropleth, bubbles and animated route arcs.
-   <div class="efx-viz-map" data-efx-geo-url="/world.geojson" data-efx-data='[{"name":"France","value":12}]'
-        data-efx-points='[{"lat":48.8,"lon":2.3,"value":9,"label":"Paris"}]' data-efx-zoom></div>
-   No map data is bundled: supply GeoJSON (inline script, data-efx-geo, or data-efx-geo-url). */
+   <div class="spark-viz-map" data-spark-geo-url="/world.geojson" data-spark-data='[{"name":"France","value":12}]'
+        data-spark-points='[{"lat":48.8,"lon":2.3,"value":9,"label":"Paris"}]' data-spark-zoom></div>
+   No map data is bundled: supply GeoJSON (inline script, data-spark-geo, or data-spark-geo-url). */
 import { COMMON, chart, palette, s, esc } from './_lib.js';
 import { on } from '../core.js';
 
@@ -36,7 +36,7 @@ const pip = (rings, x, y) => { // even-odd point in polygon
 
 export default {
   name: 'viz-map',
-  selector: '.efx-viz-map',
+  selector: '.spark-viz-map',
   lazy: true,
   defaults: { ...COMMON, geo: '', geoUrl: '', projection: 'mercator', points: '', routes: '', zoom: false, steps: 6, legend: true, height: 0 },
   init(el, o) {
@@ -50,8 +50,8 @@ export default {
       if (d.points != null) pts = rowsOf(d.points);
       if (d.routes != null) routes = rowsOf(d.routes);
     };
-    const offData = on(el, 'efx:data', e => set(e.detail || {}));
-    if (o.geoUrl) fetch(o.geoUrl).then(r => r.json()).then(g => { if (alive) el.dispatchEvent(new CustomEvent('efx:data', { detail: { geo: g } })); }).catch(e => console.warn('[effix] map geo', e));
+    const offData = on(el, 'spark:data', e => set(e.detail || {}));
+    if (o.geoUrl) fetch(o.geoUrl).then(r => r.json()).then(g => { if (alive) el.dispatchEvent(new CustomEvent('spark:data', { detail: { geo: g } })); }).catch(e => console.warn('[spark] map geo', e));
 
     // projected bounds -> fit transform (cached per geo)
     const fit = (w, h, pad) => {
@@ -70,7 +70,7 @@ export default {
       cur.g.setAttribute('transform', `translate(${T.x} ${T.y}) scale(${T.k})`);
       cur.marks.forEach(m => { m.x = m.bx * T.k + T.x; m.y = m.by * T.k + T.y; });
     };
-    const svgPos = e => { const sv = el.querySelector('.efx-chart__svg'), r = sv.getBoundingClientRect(); return [(e.clientX - r.left) * (cur.w / r.width), (e.clientY - r.top) * (cur.h / r.height)]; };
+    const svgPos = e => { const sv = el.querySelector('.spark-chart__svg'), r = sv.getBoundingClientRect(); return [(e.clientX - r.left) * (cur.w / r.width), (e.clientY - r.top) * (cur.h / r.height)]; };
     const offs = [];
     if (o.zoom) {
       let drag = null;
@@ -111,7 +111,7 @@ export default {
         const rings = f.polys.map(pl => pl.map(r => r.map(c => P(c[0], c[1]))));
         const d = rings.map(pl => pl.map(r => 'M' + r.map(c => c[0].toFixed(1) + ',' + c[1].toFixed(1)).join('L') + 'Z').join('')).join('');
         const fill = v != null ? ramp(bin(v)) : vv.length ? 'color-mix(in oklab, var(--sh-border, #e2e8f0) 55%, var(--sh-surface, #fff))' : ramp(0);
-        const node = s('path', { d, 'fill-rule': 'evenodd', style: `fill:${fill};--i:${i}`, class: 'efx-chart__mark efx-viz-map__f efx-chart__fade' }, g);
+        const node = s('path', { d, 'fill-rule': 'evenodd', style: `fill:${fill};--i:${i}`, class: 'spark-chart__mark spark-viz-map__f spark-chart__fade' }, g);
         // label point = centre of the biggest ring's box
         let best = null, ba = -1;
         rings.forEach(pl => { const r = pl[0] || []; const xs = r.map(c => c[0]), ys = r.map(c => c[1]); const a = (Math.max(...xs) - Math.min(...xs)) * (Math.max(...ys) - Math.min(...ys)); if (a > ba) { ba = a; best = [(Math.max(...xs) + Math.min(...xs)) / 2, (Math.max(...ys) + Math.min(...ys)) / 2]; } });
@@ -124,7 +124,7 @@ export default {
         if (a.length < 2 || b.length < 2) return;
         const [x0, y0] = P(+a[1], +a[0]), [x1, y1] = P(+b[1], +b[0]), dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy) || 1;
         const nx = -dy / len, ny = dx / len, f = (ny > 0 ? -1 : 1) * len * 0.2, cx = (x0 + x1) / 2 + nx * f, cy = (y0 + y1) / 2 + ny * f;
-        s('path', { d: `M${x0},${y0}Q${cx},${cy} ${x1},${y1}`, fill: 'none', stroke: pt, 'stroke-width': 1.6, 'stroke-linecap': 'round', 'vector-effect': 'non-scaling-stroke', class: 'efx-viz-map__route efx-chart__fade', style: `--i:${i + 4}` }, g);
+        s('path', { d: `M${x0},${y0}Q${cx},${cy} ${x1},${y1}`, fill: 'none', stroke: pt, 'stroke-width': 1.6, 'stroke-linecap': 'round', 'vector-effect': 'non-scaling-stroke', class: 'spark-viz-map__route spark-chart__fade', style: `--i:${i + 4}` }, g);
       });
       // bubbles
       const bv = pts.map(q => +q.value || 0), bmax = Math.max(...bv, 1), R = Math.max(8, Math.min(30, Math.min(w, h) * 0.06));
@@ -132,12 +132,12 @@ export default {
       pts.forEach((q, i) => {
         if (!isFinite(+q.lat) || !isFinite(+q.lon)) return;
         const [x, y] = P(+q.lon, +q.lat), r = Math.max(3, R * Math.sqrt(bv[i] / bmax));
-        const node = s('circle', { cx: x, cy: y, r, fill: pt, 'fill-opacity': 0.6, stroke: pt, 'stroke-width': 1.5, 'vector-effect': 'non-scaling-stroke', class: 'efx-chart__mark efx-chart__fade', style: `--i:${i + 6}` }, g);
+        const node = s('circle', { cx: x, cy: y, r, fill: pt, 'fill-opacity': 0.6, stroke: pt, 'stroke-width': 1.5, 'vector-effect': 'non-scaling-stroke', class: 'spark-chart__mark spark-chart__fade', style: `--i:${i + 6}` }, g);
         bm.push({ x, y, bx: x, by: y, label: String(q.label ?? `${q.lat}, ${q.lon}`), value: bv[i], node, index: i, group: 0, hit: (px, py) => Math.hypot((px - T.x) / T.k - x, (py - T.y) / T.k - y) <= r + 3 / T.k });
       });
       // legend (choropleth)
       if (!deco && o.legend && vv.length) {
-        const lg = s('g', { 'aria-hidden': 'true', class: 'efx-chart__axis', transform: `translate(${pad + 4} ${h - pad - 22})` }, root), sw = 18;
+        const lg = s('g', { 'aria-hidden': 'true', class: 'spark-chart__axis', transform: `translate(${pad + 4} ${h - pad - 22})` }, root), sw = 18;
         for (let i = 0; i < N; i++) s('rect', { x: i * sw, y: 0, width: sw, height: 8, style: `fill:${ramp(i)}` }, lg);
         s('text', { x: 0, y: 20 }, lg).textContent = fmt(lo);
         s('text', { x: N * sw, y: 20, 'text-anchor': 'end' }, lg).textContent = fmt(hi);

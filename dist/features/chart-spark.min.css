@@ -1,2 +1,2 @@
-/*! Effix chart-spark v0.3.0 | MIT | https://github.com/asticore/effix */
-/*! Effix chart-spark v0.3.0 | MIT | https://github.com/asticore/effix */@layer shine,effix;@layer effix{.efx-chart__plot .efx-chart-spark__pt{opacity:0}.efx-chart__plot .efx-chart-spark__pt.is-active{opacity:1}.efx-chart-spark .efx-chart__svg{overflow:visible}}
+/*! Spark chart-spark v0.4.0 | MIT | https://github.com/asticore/spark */
+/*! Spark chart-spark v0.4.0 | MIT | https://github.com/asticore/spark */@layer shine,spark;@layer spark{.spark-chart__plot .spark-chart-spark__pt{opacity:0}.spark-chart__plot .spark-chart-spark__pt.is-active{opacity:1}.spark-chart-spark .spark-chart__svg{overflow:visible}}

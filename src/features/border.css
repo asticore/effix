@@ -1,68 +1,68 @@
 /* border — masked ring pseudo-element; only the border area shows */
-@property --efx-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@property --spark-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
 /* position:relative is added by border.js only when the element is statically positioned */
-.efx-border-spin, .efx-border-trace, .efx-border-glow, .efx-border-gradient { isolation: isolate; }
-.efx-border-spin::before, .efx-border-trace::before, .efx-border-glow::before, .efx-border-gradient::before {
+.spark-border-spin, .spark-border-trace, .spark-border-glow, .spark-border-gradient { isolation: isolate; }
+.spark-border-spin::before, .spark-border-trace::before, .spark-border-glow::before, .spark-border-gradient::before {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  padding: var(--efx-border-width, 2px);
-  border-radius: var(--efx-border-radius, inherit);
-  background: conic-gradient(from var(--efx-angle), var(--efx-border-colors,
+  padding: var(--spark-border-width, 2px);
+  border-radius: var(--spark-border-radius, inherit);
+  background: conic-gradient(from var(--spark-angle), var(--spark-border-colors,
     var(--sh-primary, #6366f1), var(--sh-accent, #ec4899), var(--sh-secondary, #06b6d4), var(--sh-primary, #6366f1)));
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  animation: efx-border-rot var(--efx-border-speed, 3s) linear infinite;
+  animation: spark-border-rot var(--spark-border-speed, 3s) linear infinite;
 }
-.efx-border-trace::before {
-  background: conic-gradient(from var(--efx-angle), transparent 0 70%,
-    var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 100%);
+.spark-border-trace::before {
+  background: conic-gradient(from var(--spark-angle), transparent 0 70%,
+    var(--spark-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 100%);
 }
-.efx-border-gradient::before {
-  background: linear-gradient(90deg, var(--efx-border-colors,
+.spark-border-gradient::before {
+  background: linear-gradient(90deg, var(--spark-border-colors,
     var(--sh-primary, #6366f1), var(--sh-accent, #ec4899), var(--sh-secondary, #06b6d4), var(--sh-primary, #6366f1)));
   background-size: 300% 100%;
-  animation: efx-border-shift calc(var(--efx-border-speed, 3s) * 3) linear infinite;
+  animation: spark-border-shift calc(var(--spark-border-speed, 3s) * 3) linear infinite;
 }
-.efx-border-glow { animation: efx-border-pulse var(--efx-border-speed, 3s) ease-in-out infinite; }
-@keyframes efx-border-rot { to { --efx-angle: 360deg; } }
-@keyframes efx-border-shift { to { background-position: 300% 0; } }
-@keyframes efx-border-pulse {
-  0%, 100% { box-shadow: 0 0 4px 0 color-mix(in srgb, var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 40%, transparent); }
-  50% { box-shadow: 0 0 20px 2px color-mix(in srgb, var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 70%, transparent); }
+.spark-border-glow { animation: spark-border-pulse var(--spark-border-speed, 3s) ease-in-out infinite; }
+@keyframes spark-border-rot { to { --spark-angle: 360deg; } }
+@keyframes spark-border-shift { to { background-position: 300% 0; } }
+@keyframes spark-border-pulse {
+  0%, 100% { box-shadow: 0 0 4px 0 color-mix(in srgb, var(--spark-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 40%, transparent); }
+  50% { box-shadow: 0 0 20px 2px color-mix(in srgb, var(--spark-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 70%, transparent); }
 }
-.efx-border-spin.is-paused, .efx-border-trace.is-paused, .efx-border-glow.is-paused, .efx-border-gradient.is-paused { animation-play-state: paused; }
-[class*="efx-border-"].is-paused::before { animation-play-state: paused; }
-[class*="efx-border-"].is-static, [class*="efx-border-"].is-static::before { animation: none !important; }
-.efx-border-trace.is-paused:not(.is-loading):not(.is-static)::before { opacity: .35; }
+.spark-border-spin.is-paused, .spark-border-trace.is-paused, .spark-border-glow.is-paused, .spark-border-gradient.is-paused { animation-play-state: paused; }
+[class*="spark-border-"].is-paused::before { animation-play-state: paused; }
+[class*="spark-border-"].is-static, [class*="spark-border-"].is-static::before { animation: none !important; }
+.spark-border-trace.is-paused:not(.is-loading):not(.is-static)::before { opacity: .35; }
 @media (prefers-reduced-motion: reduce) {
-  .efx-border-spin, .efx-border-trace, .efx-border-glow, .efx-border-gradient,
-  .efx-border-spin::before, .efx-border-trace::before, .efx-border-glow::before, .efx-border-gradient::before { animation: none !important; }
+  .spark-border-spin, .spark-border-trace, .spark-border-glow, .spark-border-gradient,
+  .spark-border-spin::before, .spark-border-trace::before, .spark-border-glow::before, .spark-border-gradient::before { animation: none !important; }
 }
 /* wipe: four edge lines drawn in sequence on hover/focus (animatable via @property); pulse: expanding ring */
-@property --efx-bw-a { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
-@property --efx-bw-b { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
-@property --efx-bw-c { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
-@property --efx-bw-d { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
-.efx-border-wipe::before {
+@property --spark-bw-a { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+@property --spark-bw-b { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+@property --spark-bw-c { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+@property --spark-bw-d { syntax: '<percentage>'; inherits: false; initial-value: 0%; }
+.spark-border-wipe::before {
   content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-  --c: linear-gradient(var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))), var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))));
-  --w: var(--efx-border-width, 2px);
-  background: var(--c) top left / var(--efx-bw-a) var(--w) no-repeat, var(--c) top right / var(--w) var(--efx-bw-b) no-repeat,
-    var(--c) bottom right / var(--efx-bw-c) var(--w) no-repeat, var(--c) bottom left / var(--w) var(--efx-bw-d) no-repeat;
-  transition: --efx-bw-a calc(var(--efx-duration) / 4) linear, --efx-bw-b calc(var(--efx-duration) / 4) linear,
-    --efx-bw-c calc(var(--efx-duration) / 4) linear, --efx-bw-d calc(var(--efx-duration) / 4) linear;
+  --c: linear-gradient(var(--spark-border-color, var(--sh-tone, var(--sh-primary, #6366f1))), var(--spark-border-color, var(--sh-tone, var(--sh-primary, #6366f1))));
+  --w: var(--spark-border-width, 2px);
+  background: var(--c) top left / var(--spark-bw-a) var(--w) no-repeat, var(--c) top right / var(--w) var(--spark-bw-b) no-repeat,
+    var(--c) bottom right / var(--spark-bw-c) var(--w) no-repeat, var(--c) bottom left / var(--w) var(--spark-bw-d) no-repeat;
+  transition: --spark-bw-a calc(var(--spark-duration) / 4) linear, --spark-bw-b calc(var(--spark-duration) / 4) linear,
+    --spark-bw-c calc(var(--spark-duration) / 4) linear, --spark-bw-d calc(var(--spark-duration) / 4) linear;
 }
-.efx-border-wipe:is(:hover, :focus-visible)::before { --efx-bw-a: 100%; --efx-bw-b: 100%; --efx-bw-c: 100%; --efx-bw-d: 100%;
-  transition: --efx-bw-a calc(var(--efx-duration) / 4) linear, --efx-bw-b calc(var(--efx-duration) / 4) linear calc(var(--efx-duration) / 4),
-    --efx-bw-c calc(var(--efx-duration) / 4) linear calc(var(--efx-duration) / 2), --efx-bw-d calc(var(--efx-duration) / 4) linear calc(var(--efx-duration) * .75); }
-.efx-border-pulse::after {
+.spark-border-wipe:is(:hover, :focus-visible)::before { --spark-bw-a: 100%; --spark-bw-b: 100%; --spark-bw-c: 100%; --spark-bw-d: 100%;
+  transition: --spark-bw-a calc(var(--spark-duration) / 4) linear, --spark-bw-b calc(var(--spark-duration) / 4) linear calc(var(--spark-duration) / 4),
+    --spark-bw-c calc(var(--spark-duration) / 4) linear calc(var(--spark-duration) / 2), --spark-bw-d calc(var(--spark-duration) / 4) linear calc(var(--spark-duration) * .75); }
+.spark-border-pulse::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-  animation: efx-border-ring var(--efx-border-speed, 1.8s) ease-out infinite;
+  animation: spark-border-ring var(--spark-border-speed, 1.8s) ease-out infinite;
 }
-@keyframes efx-border-ring {
-  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--efx-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 55%, transparent); }
-  to { box-shadow: 0 0 0 var(--efx-border-reach, 14px) transparent; }
+@keyframes spark-border-ring {
+  from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--spark-border-color, var(--sh-tone, var(--sh-primary, #6366f1))) 55%, transparent); }
+  to { box-shadow: 0 0 0 var(--spark-border-reach, 14px) transparent; }
 }
-.efx-border-pulse.is-paused::after { animation-play-state: paused; }
-.efx-border-pulse.is-static::after { animation: none !important; }
-@media (prefers-reduced-motion: reduce) { .efx-border-pulse::after { animation: none !important; } .efx-border-wipe::before { transition: none; } }
+.spark-border-pulse.is-paused::after { animation-play-state: paused; }
+.spark-border-pulse.is-static::after { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .spark-border-pulse::after { animation: none !important; } .spark-border-wipe::before { transition: none; } }

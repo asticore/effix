@@ -1,7 +1,7 @@
 /* shape — SVG shape morph: resamples every shape to N points and interpolates the polygon.
-   <svg class="efx-shape" viewBox="0 0 100 100" data-efx-d="blob|star|heart"></svg>        named shapes (Effix.add('shape', name, 'M…'))
-   <svg class="efx-shape" data-efx-shapes="#s1|#s2|#s3">…<defs><path id="s1" d="…"/>…</defs></svg>   existing geometry
-   <path class="efx-shape" d="M…" data-efx-to="M…"/>     or data-efx-d="d1|d2"
+   <svg class="spark-shape" viewBox="0 0 100 100" data-spark-d="blob|star|heart"></svg>        named shapes (Spark.add('shape', name, 'M…'))
+   <svg class="spark-shape" data-spark-shapes="#s1|#s2|#s3">…<defs><path id="s1" d="…"/>…</defs></svg>   existing geometry
+   <path class="spark-shape" d="M…" data-spark-to="M…"/>     or data-spark-d="d1|d2"
    Triggers: loop (cycle, duration + pause) · hover (first -> second on hover/focus) · scroll (progress). */
 import { add, get, on, onScroll, onVisible, motionOK } from '../core.js';
 import { ease } from './_easing.js';
@@ -63,7 +63,7 @@ function align(a, b, closed) {
 
 export default {
   name: 'shape',
-  selector: '.efx-shape',
+  selector: '.spark-shape',
   defaults: { shapes: '', d: '', to: '', points: 64, trigger: 'loop', duration: 1200, pause: 800, ease: 'ease-in-out', target: '' },
   init(el, o) {
     const isPath = el.localName === 'path';
@@ -85,7 +85,7 @@ export default {
     let path = el;
     if (!isPath) {
       path = document.createElementNS(NS, 'path');
-      path.setAttribute('class', 'efx-shape__path');
+      path.setAttribute('class', 'spark-shape__path');
       svg.appendChild(path);
     }
     const draw = (i, t) => {

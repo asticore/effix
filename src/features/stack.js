@@ -1,11 +1,11 @@
 /* stack — cards pile up as you scroll; covered cards scale down (and optionally blur/dim).
-   <div class="efx-stack" data-efx-offset="80" data-efx-gap="16"><div class="card">1</div><div class="card">2</div></div>
+   <div class="spark-stack" data-spark-offset="80" data-spark-gap="16"><div class="card">1</div><div class="card">2</div></div>
    The container's ancestors must not clip overflow (position:sticky). */
 import { onScroll, motionOK } from '../core.js';
 
 export default {
   name: 'stack',
-  selector: '.efx-stack',
+  selector: '.spark-stack',
   defaults: { offset: 80, gap: 16, shrink: 0.05, blur: 0, dim: 0.15 },
   init(el, o) {
     const cards = [...el.children], anim = motionOK();

@@ -1,6 +1,6 @@
 /* viz-arc — arc diagram: nodes on a line, links as arcs above (width = value).
-   <div class="efx-viz-arc" data-efx-data='{"nodes":[{"id":"a","group":"x"},{"id":"b"}],"links":[{"source":"a","target":"b","value":3}]}'></div>
-   Same graph JSON as viz-network. data-efx-sort="group|degree" reorders nodes. */
+   <div class="spark-viz-arc" data-spark-data='{"nodes":[{"id":"a","group":"x"},{"id":"b"}],"links":[{"source":"a","target":"b","value":3}]}'></div>
+   Same graph JSON as viz-network. data-spark-sort="group|degree" reorders nodes. */
 import { COMMON, chart, palette, s, esc } from './_lib.js';
 import { on } from '../core.js';
 
@@ -18,14 +18,14 @@ const norm = (d, sort) => {
 
 export default {
   name: 'viz-arc',
-  selector: '.efx-viz-arc',
+  selector: '.spark-viz-arc',
   lazy: true,
   defaults: { ...COMMON, height: 280, legend: false, sort: '', radius: 5 },
   init(el, o) {
     const read = r => { try { return norm(typeof r === 'string' ? JSON.parse(r) : r, o.sort); } catch (e) { return norm(null); } };
     const j = el.querySelector(':scope > script[type="application/json"]');
     let d = read((o.data || '').trim() || (j && j.textContent));
-    const offData = on(el, 'efx:data', e => { d = e.detail ? read(e.detail) : d; });
+    const offData = on(el, 'spark:data', e => { d = e.detail ? read(e.detail) : d; });
     const draw = ({ g, w, h, deco }) => {
       const { N, L } = d, n = N.length;
       if (!n) return [];
@@ -40,17 +40,17 @@ export default {
       const marks = N.map((x, i) => ({ x: X(i), y: y0, label: x.label ?? x.id, series: x.group != null ? String(x.group) : '', value: x.deg, valueText: `${x.deg} link${x.deg === 1 ? '' : 's'}`, index: i, rel: [] }));
       L.forEach((l, k) => {
         const a = ix.get(l.s), b = ix.get(l.t), x1 = X(Math.min(a, b)), x2 = X(Math.max(a, b)), rx = (x2 - x1) / 2;
-        const node = s('path', { d: `M${x1},${y0}A${rx},${rx * ratio} 0 0 1 ${x2},${y0}`, fill: 'none', stroke: col(N[a]), 'stroke-opacity': 0.4, 'stroke-width': +(1 + 4 * Math.sqrt(l.v / maxV)).toFixed(2), pathLength: 1, class: 'efx-chart__mark efx-chart__draw efx-viz__arc', style: `--i:${k % 20}` }, g);
+        const node = s('path', { d: `M${x1},${y0}A${rx},${rx * ratio} 0 0 1 ${x2},${y0}`, fill: 'none', stroke: col(N[a]), 'stroke-opacity': 0.4, 'stroke-width': +(1 + 4 * Math.sqrt(l.v / maxV)).toFixed(2), pathLength: 1, class: 'spark-chart__mark spark-chart__draw spark-viz__arc', style: `--i:${k % 20}` }, g);
         const m = marks.length;
         marks[a].rel.push(m); marks[b].rel.push(m);
         marks.push({ x: (x1 + x2) / 2, y: y0 - rx * ratio, label: `${N[a].label ?? N[a].id} → ${N[b].label ?? N[b].id}`, value: l.v, node, index: m, rel: [a, b], hit: (px, py) => py < y0 - 9 && node.isPointInStroke(new DOMPoint(px, py)) });
       });
       N.forEach((x, i) => {
         const r = o.radius * (1 + Math.min(1, x.deg / 8)) * (deco ? 0.7 : 1);
-        marks[i].node = s('circle', { cx: X(i), cy: y0, r, fill: col(x), class: 'efx-chart__mark efx-chart__fade', style: `--i:${i % 20}` }, g);
+        marks[i].node = s('circle', { cx: X(i), cy: y0, r, fill: col(x), class: 'spark-chart__mark spark-chart__fade', style: `--i:${i % 20}` }, g);
         marks[i].hit = (px, py) => Math.hypot(px - X(i), py - y0) <= r + 4;
         if (!deco && step > 11) {
-          const t = s('text', { x: X(i), y: y0 + r + 8, class: 'efx-viz__label efx-chart__fade', 'text-anchor': step < 40 ? 'end' : 'middle', 'dominant-baseline': 'hanging', style: `--i:${i % 20}` }, g);
+          const t = s('text', { x: X(i), y: y0 + r + 8, class: 'spark-viz__label spark-chart__fade', 'text-anchor': step < 40 ? 'end' : 'middle', 'dominant-baseline': 'hanging', style: `--i:${i % 20}` }, g);
           if (step < 40) t.setAttribute('transform', `rotate(-60 ${X(i)} ${y0 + r + 8})`);
           t.textContent = x.label ?? x.id;
         }

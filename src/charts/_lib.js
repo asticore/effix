@@ -1,4 +1,4 @@
-/* Effix charts — shared toolkit (bundled once, used by every chart-* feature).
+/* Spark charts — shared toolkit (bundled once, used by every chart-* feature).
    Tiny re-implementations of the d3 ideas charts need: data parsing, linear/band
    scales with "nice" ticks, monotone curves, arcs, number formatting, a shared
    tooltip, a toggle legend, keyboard navigation, resize + entrance animation.
@@ -6,7 +6,7 @@
    Every chart is mounted with chart(el, opts, draw):
      draw(ctx) -> marks[]   ctx = { svg, w, h, data, colors, o, g(), add(), sx/sy helpers… }
      marks: [{ x, y, label, value, series, html?, node? }] — used for tooltip, keyboard
-     focus (←/→) and the efx:select event. */
+     focus (←/→) and the spark:select event. */
 import { onVisible, motionOK, on, rafThrottle, get, parseCSV } from '../core.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -28,9 +28,9 @@ export const COMMON = {
   suffix: '',
   decimals: -1,      // -1 = auto
   compact: false,    // 12.3k
-  format: '',        // name of a registered formatter: Effix.add('format', 'gbp', v => '£' + v.toFixed(2))
+  format: '',        // name of a registered formatter: Spark.add('format', 'gbp', v => '£' + v.toFixed(2))
   csv: '',           // CSV text or URL: header row = names, first column = labels (or inline <script type="text/csv">)
-  live: '',          // name of a source registered with Effix.chartSource(name, (push, el) => …)
+  live: '',          // name of a source registered with Spark.chartSource(name, (push, el) => …)
   title: '',         // accessible name (falls back to aria-label / first heading)
 };
 
@@ -62,7 +62,7 @@ export function parseData(el, o) {
   let out = null;
   const json = el.querySelector(':scope > script[type="application/json"]');
   try {
-    // Precedence: live update (o.update) > table source > data-efx-data > inline <script> JSON.
+    // Precedence: live update (o.update) > table source > data-spark-data > inline <script> JSON.
     if (o.update) out = o.update;
     if (!out && o.source) { const t = document.querySelector(o.source); if (t) out = fromTable(t); }
     if (!out && o.csv && !isUrl(o.csv)) out = fromCSV(o.csv);
@@ -74,7 +74,7 @@ export function parseData(el, o) {
       else out = { series: raw.split('|').map(s => ({ values: s.split(',').map(num) })) };
     }
     if (!out && json) out = JSON.parse(json.textContent);
-  } catch (err) { console.warn('[effix] chart data', err); }
+  } catch (err) { console.warn('[spark] chart data', err); }
   if (!out || typeof out !== 'object') out = {};
   const arr = v => (Array.isArray(v) ? v : []);
   // Flat shorthands: [1,2,3] -> one series; [{label,value}] -> labels + one series.
@@ -98,11 +98,11 @@ export function parseData(el, o) {
 /* -------------------------------------------------------------- colors */
 const TOKENS = ['--sh-primary', '--sh-accent', '--sh-success', '--sh-warning', '--sh-info', '--sh-danger', '--sh-secondary'];
 const FALLBACK = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#0ea5e9', '#ef4444', '#8b5cf6'];
-/** n colors: data-efx-colors, else --efx-chart-1..7, else Shine tones, else defaults. */
+/** n colors: data-spark-colors, else --spark-chart-1..7, else Shine tones, else defaults. */
 export function palette(el, o, n) {
   const cs = getComputedStyle(el);
   const base = o.colors.length ? o.colors
-    : TOKENS.map((t, i) => cs.getPropertyValue(`--efx-chart-${i + 1}`).trim() || cs.getPropertyValue(t).trim() || FALLBACK[i]);
+    : TOKENS.map((t, i) => cs.getPropertyValue(`--spark-chart-${i + 1}`).trim() || cs.getPropertyValue(t).trim() || FALLBACK[i]);
   return Array.from({ length: Math.max(n, 1) }, (_, i) => base[i % base.length]);
 }
 
@@ -192,10 +192,10 @@ export { esc };
 
 /** Y axis gridlines + labels and X labels. Returns nothing; draws into g. */
 export function axes(g, { w, h, pad, y, ticks, labels, x, fmt, grid = true, rotate = false }) {
-  const ax = s('g', { class: 'efx-chart__axis', 'aria-hidden': 'true' }, g);
+  const ax = s('g', { class: 'spark-chart__axis', 'aria-hidden': 'true' }, g);
   for (const t of ticks) {
     const yy = y(t);
-    if (grid) s('line', { x1: pad.l, x2: w - pad.r, y1: yy, y2: yy, class: 'efx-chart__grid' }, ax);
+    if (grid) s('line', { x1: pad.l, x2: w - pad.r, y1: yy, y2: yy, class: 'spark-chart__grid' }, ax);
     s('text', { x: pad.l - 8, y: yy, 'text-anchor': 'end', 'dominant-baseline': 'middle' }, ax).textContent = fmt(t);
   }
   if (labels && x) {
@@ -214,7 +214,7 @@ let uid = 0;
 
 /** Mount a chart on el. Handles container, svg, legend, tooltip, keyboard, resize, entrance, data updates. */
 export function chart(el, o, draw) {
-  const id = 'efx-c' + ++uid;
+  const id = 'spark-c' + ++uid;
   const restore = { pos: el.style.position, iso: el.style.isolation };
   const deco = o.background;
   if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
@@ -223,21 +223,21 @@ export function chart(el, o, draw) {
 
   // Keep author content (e.g. a fallback <script type=application/json> or text); add our layer.
   const wrap = document.createElement('div');
-  wrap.className = 'efx-chart__wrap' + (deco ? ' efx-chart__wrap--bg' : '');
+  wrap.className = 'spark-chart__wrap' + (deco ? ' spark-chart__wrap--bg' : '');
   if (deco) wrap.setAttribute('aria-hidden', 'true');
-  const svg = s('svg', { class: 'efx-chart__svg', role: deco ? null : 'img', 'aria-labelledby': deco ? null : id + '-t', focusable: 'false' });
+  const svg = s('svg', { class: 'spark-chart__svg', role: deco ? null : 'img', 'aria-labelledby': deco ? null : id + '-t', focusable: 'false' });
   const title = s('title', { id: id + '-t' }, svg);
   wrap.appendChild(svg);
   const tip = document.createElement('div');
-  tip.className = 'efx-chart__tip';
+  tip.className = 'spark-chart__tip';
   tip.setAttribute('role', 'status');
   tip.hidden = true;
   const legend = document.createElement('div');
-  legend.className = 'efx-chart__legend';
+  legend.className = 'spark-chart__legend';
   const sr = document.createElement('ul');
-  sr.className = 'efx-chart__sr';
+  sr.className = 'spark-chart__sr';
   if (deco) el.prepend(wrap); else el.append(wrap, tip, legend, sr);
-  el.classList.add('efx-chart');
+  el.classList.add('spark-chart');
 
   let data = parseData(el, o);
   const hidden = new Set();
@@ -257,7 +257,7 @@ export function chart(el, o, draw) {
     // Series legends hide series; label legends (pie, funnel) pass `hidden` so draw() can skip labels.
     const visible = draw.legendByLabel ? data.series.map((s0, i) => ({ ...s0, index: i })) : data.series.map((s0, i) => ({ ...s0, index: i })).filter(x => !hidden.has(x.index));
     const colors = palette(el, o, data.series.length).map((c, i) => data.series[i] && data.series[i].color || c);
-    const g = s('g', { class: 'efx-chart__plot' + (played ? ' is-in' : '') }, svg);
+    const g = s('g', { class: 'spark-chart__plot' + (played ? ' is-in' : '') }, svg);
     marks = draw({ el, svg, g, w, h, o, data, visible, hidden, colors, fmt, deco, again }) || [];
     if (!deco) {
       sr.innerHTML = marks.slice(0, 200).map(m => `<li>${esc(m.label)}${m.series ? ' (' + esc(m.series) + ')' : ''}: ${esc(m.valueText ?? fmt(m.value))}</li>`).join('');
@@ -273,9 +273,9 @@ export function chart(el, o, draw) {
     items.forEach((label, i) => {
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'efx-chart__key';
+      b.className = 'spark-chart__key';
       b.setAttribute('aria-pressed', String(!hidden.has(i)));
-      b.style.setProperty('--efx-key', (data.series[i] && data.series[i].color) || colors[i]);
+      b.style.setProperty('--spark-key', (data.series[i] && data.series[i].color) || colors[i]);
       b.textContent = label;
       b.addEventListener('click', () => {
         hidden.has(i) ? hidden.delete(i) : hidden.add(i);
@@ -349,11 +349,11 @@ export function chart(el, o, draw) {
   }
   function select(i) {
     const m = marks[i];
-    el.dispatchEvent(new CustomEvent('efx:select', { bubbles: true, detail: { index: m.index ?? i, label: m.label, value: m.value, series: m.series } }));
+    el.dispatchEvent(new CustomEvent('spark:select', { bubbles: true, detail: { index: m.index ?? i, label: m.label, value: m.value, series: m.series } }));
   }
 
-  /* data updates: el.dispatchEvent(new CustomEvent('efx:data', { detail: { labels, series } })) */
-  offs.push(on(el, 'efx:data', e => {
+  /* data updates: el.dispatchEvent(new CustomEvent('spark:data', { detail: { labels, series } })) */
+  offs.push(on(el, 'spark:data', e => {
     const d = e.detail || {};
     data = parseData(el, { ...o, update: d, labels: Array.isArray(d.labels) ? d.labels : [] });
     hidden.clear(); // old hidden indexes may not exist in the new data
@@ -365,12 +365,12 @@ export function chart(el, o, draw) {
   const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onResize) : null;
   if (ro) ro.observe(el);
 
-  // csv URL / live source: push data in through the same path as efx:data
-  const feed = d => el.dispatchEvent(new CustomEvent('efx:data', { detail: d }));
+  // csv URL / live source: push data in through the same path as spark:data
+  const feed = d => el.dispatchEvent(new CustomEvent('spark:data', { detail: d }));
   let gone = false;
-  if (o.csv && isUrl(o.csv)) fetch(o.csv).then(r => r.text()).then(t => { const d = !gone && fromCSV(t); if (d) feed(d); }).catch(e => console.warn('[effix] chart csv', e));
+  if (o.csv && isUrl(o.csv)) fetch(o.csv).then(r => r.text()).then(t => { const d = !gone && fromCSV(t); if (d) feed(d); }).catch(e => console.warn('[spark] chart csv', e));
   const src = o.live && get('chart-source', o.live);
-  if (typeof src === 'function') { try { const c = src(d => { if (!gone) feed(d); }, el); if (typeof c === 'function') offs.push(c); } catch (e) { console.warn('[effix] chart source', e); } }
+  if (typeof src === 'function') { try { const c = src(d => { if (!gone) feed(d); }, el); if (typeof c === 'function') offs.push(c); } catch (e) { console.warn('[spark] chart source', e); } }
 
   renderLegend();
   render(false);
@@ -379,7 +379,7 @@ export function chart(el, o, draw) {
     // play at 25% visible, or when a tall element fills a quarter of the viewport
     if (!vis || (e.intersectionRatio < 0.25 && e.intersectionRect.height < innerHeight * 0.25)) return;
     played = true;
-    svg.querySelectorAll('.efx-chart__plot').forEach(p => p.classList.add('is-in'));
+    svg.querySelectorAll('.spark-chart__plot').forEach(p => p.classList.add('is-in'));
     stopVis();
   }, '0px', [0, 0.01, 0.05, 0.1, 0.25]);
 
@@ -390,7 +390,7 @@ export function chart(el, o, draw) {
     onResize.cancel();
     if (ro) ro.disconnect();
     wrap.remove(); tip.remove(); legend.remove(); sr.remove();
-    el.classList.remove('efx-chart');
+    el.classList.remove('spark-chart');
     el.style.position = restore.pos;
     el.style.isolation = restore.iso;
   };

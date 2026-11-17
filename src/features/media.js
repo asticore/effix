@@ -1,28 +1,28 @@
 /* media — smart video: plays in view, pauses off-screen, hover mode, lazy source, reduced-motion friendly.
-   <video class="efx-media" muted playsinline loop data-efx-src="clip.mp4" poster="p.jpg"></video>
-   Or a container with videos: <div class="efx-media" data-efx-play="hover">…<video>…</div>
-   play: view (default) | hover (also data-efx-hover) | none. Reduced motion: no autoplay, poster + play control. */
+   <video class="spark-media" muted playsinline loop data-spark-src="clip.mp4" poster="p.jpg"></video>
+   Or a container with videos: <div class="spark-media" data-spark-play="hover">…<video>…</div>
+   play: view (default) | hover (also data-spark-hover) | none. Reduced motion: no autoplay, poster + play control. */
 import { on, onVisible, motionOK } from '../core.js';
 
 export default {
   name: 'media',
-  selector: '.efx-media',
+  selector: '.spark-media',
   defaults: { play: 'view', threshold: 0.4, reset: false },
   init(el, o) {
     const vids = el.matches('video') ? [el] : [...el.querySelectorAll('video')];
     if (!vids.length) return;
-    const hover = o.play === 'hover' || el.hasAttribute('data-efx-hover');
+    const hover = o.play === 'hover' || el.hasAttribute('data-spark-hover');
     const reduce = !motionOK();
     const offs = [], undo = [];
     const play = () => vids.forEach(v => { const p = v.play(); p && p.catch(() => {}); });
     const stop = () => vids.forEach(v => { v.pause(); if (o.reset) v.currentTime = 0; });
     // lazy sources: only set when near the viewport
-    const lazy = [el, ...el.querySelectorAll('[data-efx-src]')].filter(n => n.dataset.efxSrc);
+    const lazy = [el, ...el.querySelectorAll('[data-spark-src]')].filter(n => n.dataset.sparkSrc);
     if (lazy.length) {
       const s = onVisible(el, v => {
         if (!v) return;
         s();
-        lazy.forEach(n => { n.src = n.dataset.efxSrc; });
+        lazy.forEach(n => { n.src = n.dataset.sparkSrc; });
         vids.forEach(x => x.load());
       }, '300px');
       offs.push(s);
@@ -36,7 +36,7 @@ export default {
       });
       if (el !== vids[0]) {
         const b = document.createElement('button');
-        b.type = 'button'; b.className = 'efx-media__play'; b.setAttribute('aria-label', 'Play video');
+        b.type = 'button'; b.className = 'spark-media__play'; b.setAttribute('aria-label', 'Play video');
         b.addEventListener('click', () => { play(); b.hidden = true; });
         let restore = false;
         if (getComputedStyle(el).position === 'static') { el.style.position = 'relative'; restore = true; }

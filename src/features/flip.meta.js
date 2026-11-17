@@ -6,25 +6,25 @@ module.exports = {
   group: 'Images',
   summary: 'A card that flips in 3D on hover (or on click / Enter / Space). Height is the taller face, so nothing is clipped. Reduced motion crossfades instead of rotating.',
   classes: [
-    ['efx-flip', 'The card wrapper.'],
-    ['efx-flip__front', 'Front face (child of .efx-flip).'],
-    ['efx-flip__back', 'Back face (child of .efx-flip). Hidden from assistive tech until shown.'],
+    ['spark-flip', 'The card wrapper.'],
+    ['spark-flip__front', 'Front face (child of .spark-flip).'],
+    ['spark-flip__back', 'Back face (child of .spark-flip). Hidden from assistive tech until shown.'],
   ],
   options: [
-    ['data-efx-trigger', 'hover', 'hover · click. Click mode makes the card a button with aria-pressed. Touch devices always use click.'],
-    ['data-efx-axis', 'y', 'y (horizontal flip) · x (vertical flip).'],
-    ['data-efx-duration', '600', 'Flip time in ms.'],
+    ['data-spark-trigger', 'hover', 'hover · click. Click mode makes the card a button with aria-pressed. Touch devices always use click.'],
+    ['data-spark-axis', 'y', 'y (horizontal flip) · x (vertical flip).'],
+    ['data-spark-duration', '600', 'Flip time in ms.'],
   ],
-  vars: [['--efx-ease', 'cubic-bezier(.22,1,.36,1)', 'Easing.']],
+  vars: [['--spark-ease', 'cubic-bezier(.22,1,.36,1)', 'Easing.']],
   examples: [
     { html: `<div class="grid md:grid-cols-2 gap-4">
-  <div class="efx-flip">
-    <div class="efx-flip__front card p-0 overflow-hidden"><img src="${A}" alt="Mountain at sunrise" style="display:block;width:100%;height:220px;object-fit:cover"><div class="p-4">Hover to flip</div></div>
-    <div class="efx-flip__back card tone-primary p-6"><h3>Back side</h3><p>Any content, any height.</p></div>
+  <div class="spark-flip">
+    <div class="spark-flip__front card p-0 overflow-hidden"><img src="${A}" alt="Mountain at sunrise" style="display:block;width:100%;height:220px;object-fit:cover"><div class="p-4">Hover to flip</div></div>
+    <div class="spark-flip__back card tone-primary p-6"><h3>Back side</h3><p>Any content, any height.</p></div>
   </div>
-  <div class="efx-flip" data-efx-trigger="click" data-efx-axis="x">
-    <div class="efx-flip__front card p-0 overflow-hidden"><img src="${C}" alt="City skyline" style="display:block;width:100%;height:220px;object-fit:cover"><div class="p-4">Click, Enter or Space (vertical)</div></div>
-    <div class="efx-flip__back card tone-success p-6"><h3>Flipped</h3><p>Press again to flip back.</p></div>
+  <div class="spark-flip" data-spark-trigger="click" data-spark-axis="x">
+    <div class="spark-flip__front card p-0 overflow-hidden"><img src="${C}" alt="City skyline" style="display:block;width:100%;height:220px;object-fit:cover"><div class="p-4">Click, Enter or Space (vertical)</div></div>
+    <div class="spark-flip__back card tone-success p-6"><h3>Flipped</h3><p>Press again to flip back.</p></div>
   </div>
 </div>` },
   ],

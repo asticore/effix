@@ -1,7 +1,7 @@
 /* toast — notification toasts that nudge in. Uses Shine .toast + .btn-close, adds motion only.
-   <div class="efx-toast" data-efx-show="3000" data-efx-position="bottom-right" data-efx-duration="5000" hidden>New message</div>
-   Trigger:  <button data-efx-toast="#id">   Ad-hoc (needs at least one .efx-toast on the page):
-   document.dispatchEvent(new CustomEvent('efx:toast', { detail: { text, tone, duration, position } })) */
+   <div class="spark-toast" data-spark-show="3000" data-spark-position="bottom-right" data-spark-duration="5000" hidden>New message</div>
+   Trigger:  <button data-spark-toast="#id">   Ad-hoc (needs at least one .spark-toast on the page):
+   document.dispatchEvent(new CustomEvent('spark:toast', { detail: { text, tone, duration, position } })) */
 import { on } from '../core.js';
 
 const POS = ['top-left', 'top-center', 'top-right', 'bottom-left', 'bottom-center', 'bottom-right'];
@@ -13,7 +13,7 @@ const stackFor = pos => {
   let s = stacks.get(pos);
   if (!s) {
     s = document.createElement('div');
-    s.className = 'efx-toast__stack'; s.dataset.pos = pos; s.setAttribute('data-efx-skip', '');
+    s.className = 'spark-toast__stack'; s.dataset.pos = pos; s.setAttribute('data-spark-skip', '');
     s.setAttribute('popover', 'manual');
     document.body.append(s);
     try { s.showPopover(); } catch (e) { s.removeAttribute('popover'); }
@@ -25,10 +25,10 @@ const stackFor = pos => {
 function show(fill, o) {
   const stack = stackFor(o.position);
   const t = document.createElement('div');
-  t.className = 'toast efx-toast__item' + (/^[\w-]+$/.test(o.tone || '') ? ' tone-' + o.tone : '');
+  t.className = 'toast spark-toast__item' + (/^[\w-]+$/.test(o.tone || '') ? ' tone-' + o.tone : '');
   t.setAttribute('role', 'status'); t.setAttribute('aria-live', 'polite');
   const body = document.createElement('div');
-  body.className = 'efx-toast__body';
+  body.className = 'spark-toast__body';
   fill(body);
   const x = document.createElement('button');
   x.type = 'button'; x.className = 'btn-close'; x.setAttribute('aria-label', 'Close');
@@ -58,7 +58,7 @@ function show(fill, o) {
 
 export default {
   name: 'toast',
-  selector: '.efx-toast',
+  selector: '.spark-toast',
   defaults: { show: -1, position: 'bottom-right', duration: 5000, tone: '' },
   init(el, o) {
     const closers = new Set(), timers = new Set();
@@ -67,10 +67,10 @@ export default {
       const c = show(b => { for (const n of el.childNodes) b.append(n.cloneNode(true)); }, o);
       closers.add(c);
     };
-    if (el.hasAttribute('data-efx-show')) { const t = setTimeout(fire, Math.max(0, o.show)); timers.add(t); }
+    if (el.hasAttribute('data-spark-show')) { const t = setTimeout(fire, Math.max(0, o.show)); timers.add(t); }
     if (!users++) {
       offGlobal = [
-        on(document, 'efx:toast', e => {
+        on(document, 'spark:toast', e => {
           const d = e.detail || {};
           show(b => { b.textContent = d.text == null ? '' : String(d.text); }, {
             position: d.position || 'bottom-right', tone: d.tone || '', duration: Number.isFinite(+d.duration) && d.duration !== undefined ? +d.duration : 5000,
@@ -79,8 +79,8 @@ export default {
       ];
     }
     const offClick = id ? on(document, 'click', e => {
-      const a = e.target.closest && e.target.closest('[data-efx-toast]');
-      if (a && a.dataset.efxToast === '#' + id) fire();
+      const a = e.target.closest && e.target.closest('[data-spark-toast]');
+      if (a && a.dataset.sparkToast === '#' + id) fire();
     }) : () => {};
     return () => {
       timers.forEach(clearTimeout); offClick();

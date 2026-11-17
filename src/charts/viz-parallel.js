@@ -1,5 +1,5 @@
 /* viz-parallel — parallel coordinates with axis brushing.
-   <div class="efx-viz-parallel" data-efx-data='[{"name":"A","group":"x","mpg":30,"hp":90},{"name":"B","group":"y","mpg":18,"hp":180}]'></div>
+   <div class="spark-viz-parallel" data-spark-data='[{"name":"A","group":"x","mpg":30,"hp":90},{"name":"B","group":"y","mpg":18,"hp":180}]'></div>
    Or labels = dimensions, series = rows. Drag an axis to filter, double-click it to clear. */
 import { COMMON, chart, palette, nice, linear, s, esc } from './_lib.js';
 import { on } from '../core.js';
@@ -19,7 +19,7 @@ const stub = P => ({ labels: P.groups, series: [{ name: '', values: P.groups.map
 
 export default {
   name: 'viz-parallel',
-  selector: '.efx-viz-parallel',
+  selector: '.spark-viz-parallel',
   lazy: true,
   defaults: { ...COMMON, dims: [], group: 'group', height: 340, opacity: 0.65 },
   init(el, o) {
@@ -30,9 +30,9 @@ export default {
     mk();
     const o2 = { ...o, source: '', data: P ? JSON.stringify(stub(P)) : o.data };
     const brush = {};
-    const offData = on(el, 'efx:data', e => {
+    const offData = on(el, 'spark:data', e => {
       const r = rowsOf(e.detail);
-      if (r && Array.isArray(e.detail)) { e.stopImmediatePropagation(); P = prep(r, o); R = r; draw.legendByLabel = P.groups.length > 1; el.dispatchEvent(new CustomEvent('efx:data', { detail: { ...stub(P), rows: r } })); return; }
+      if (r && Array.isArray(e.detail)) { e.stopImmediatePropagation(); P = prep(r, o); R = r; draw.legendByLabel = P.groups.length > 1; el.dispatchEvent(new CustomEvent('spark:data', { detail: { ...stub(P), rows: r } })); return; }
       R = r; mk();
     });
     draw = ({ g, svg, w, h, data, hidden, visible, colors, deco, fmt }) => {
@@ -46,19 +46,19 @@ export default {
       const pad = deco ? { t: 4, r: 4, b: 4, l: 4 } : { t: 30, r: 16, b: 12, l: 38 };
       const X = i => nd > 1 ? pad.l + i * (w - pad.l - pad.r) / (nd - 1) : w / 2;
       const ys = D.map((_, i) => { const a = rows.map(r => r.vals[i]).filter(Number.isFinite), sc = nice(Math.min(...a), Math.max(...a), 4); return { sc, y: linear([sc.min, sc.max], [h - pad.b, pad.t]) }; });
-      const ax = s('g', { class: 'efx-chart__axis', 'aria-hidden': 'true' }, g);
+      const ax = s('g', { class: 'spark-chart__axis', 'aria-hidden': 'true' }, g);
       if (!deco) D.forEach((d, i) => {
-        s('line', { x1: X(i), x2: X(i), y1: pad.t, y2: h - pad.b, stroke: 'var(--efx-chart-text)', 'stroke-opacity': 0.5 }, ax);
+        s('line', { x1: X(i), x2: X(i), y1: pad.t, y2: h - pad.b, stroke: 'var(--spark-chart-text)', 'stroke-opacity': 0.5 }, ax);
         s('text', { x: X(i), y: pad.t - 12, 'text-anchor': i === 0 && nd > 1 ? 'start' : i === nd - 1 && nd > 1 ? 'end' : 'middle', style: 'font-weight:600' }, ax).textContent = d;
         ys[i].sc.ticks.forEach(t => {
-          s('line', { x1: X(i) - 3, x2: X(i), y1: ys[i].y(t), y2: ys[i].y(t), stroke: 'var(--efx-chart-text)', 'stroke-opacity': 0.5 }, ax);
+          s('line', { x1: X(i) - 3, x2: X(i), y1: ys[i].y(t), y2: ys[i].y(t), stroke: 'var(--spark-chart-text)', 'stroke-opacity': 0.5 }, ax);
           s('text', { x: X(i) - 6, y: ys[i].y(t), 'text-anchor': 'end', 'dominant-baseline': 'middle', style: 'font-size:10px' }, ax).textContent = fmt(t);
         });
       });
       const marks = [];
       const nodes = rows.map((r, k) => {
         const pts = r.vals.map((v, i) => [X(i), ys[i].y(Number.isFinite(v) ? v : ys[i].sc.min)]);
-        const node = s('path', { d: 'M' + pts.map(p => p.join(',')).join('L'), fill: 'none', stroke: r.color, 'stroke-width': deco ? 1.5 : 1.6, 'stroke-opacity': o.opacity, 'stroke-linejoin': 'round', pathLength: 1, class: 'efx-chart__mark efx-chart__draw efx-pc__line', style: `--i:${k * Math.min(1, 12 / rows.length)}` }, g);
+        const node = s('path', { d: 'M' + pts.map(p => p.join(',')).join('L'), fill: 'none', stroke: r.color, 'stroke-width': deco ? 1.5 : 1.6, 'stroke-opacity': o.opacity, 'stroke-linejoin': 'round', pathLength: 1, class: 'spark-chart__mark spark-chart__draw spark-pc__line', style: `--i:${k * Math.min(1, 12 / rows.length)}` }, g);
         const mid = Math.floor((nd - 1) / 2);
         marks.push({ x: pts[mid][0], y: pts[mid][1], label: r.name, value: 0, node, index: k, group: undefined,
           html: `<strong>${esc(r.name)}</strong>` + D.map((d, i) => `<span>${esc(d)} <b>${esc(fmt(r.vals[i]))}</b></span>`).join(''),
@@ -72,8 +72,8 @@ export default {
         sels.forEach((r, i) => { const b = brush[D[i]]; r.setAttribute('visibility', b ? 'visible' : 'hidden'); if (b) { r.setAttribute('y', ys[i].y(b[1])); r.setAttribute('height', ys[i].y(b[0]) - ys[i].y(b[1])); } });
       };
       if (!deco) D.forEach((d, i) => {
-        const sel = s('rect', { x: X(i) - 5, width: 10, rx: 2, class: 'efx-pc__sel', visibility: 'hidden' }, g); sels.push(sel);
-        const ov = s('rect', { x: X(i) - 12, y: pad.t, width: 24, height: h - pad.t - pad.b, fill: 'transparent', class: 'efx-pc__ov' }, g);
+        const sel = s('rect', { x: X(i) - 5, width: 10, rx: 2, class: 'spark-pc__sel', visibility: 'hidden' }, g); sels.push(sel);
+        const ov = s('rect', { x: X(i) - 12, y: pad.t, width: 24, height: h - pad.t - pad.b, fill: 'transparent', class: 'spark-pc__ov' }, g);
         on(ov, 'click', e => e.stopPropagation());
         on(ov, 'dblclick', () => { delete brush[d]; apply(); });
         on(ov, 'pointerdown', e => {

@@ -1,24 +1,24 @@
 /* typed — typewriter / rotating words.
-   <span class="efx-typed" data-efx-words="fast|light|accessible">fast</span>
+   <span class="spark-typed" data-spark-words="fast|light|accessible">fast</span>
    modes: type (default) · fade · slide. Reduced motion: static first word. */
 import { onVisible, motionOK } from '../core.js';
 
 export default {
   name: 'typed',
-  selector: '.efx-typed',
+  selector: '.spark-typed',
   defaults: { words: [], speed: 60, back: 30, pause: 1600, loop: true, cursor: true, mode: 'type' },
   init(el, o) {
     const saved = el.innerHTML;
     const words = o.words.length ? o.words : [el.textContent.trim()];
     if (words.length < 2 || !motionOK()) { if (o.words.length) el.textContent = words[0]; return () => { el.innerHTML = saved; }; }
     const mk = (c, t) => { const s = document.createElement('span'); s.className = c; if (t) s.textContent = t; return s; };
-    const sr = mk('efx-typed__sr', words[0]), vis = mk('efx-typed__v'), txt = mk('efx-typed__t'), type = o.mode === 'type';
+    const sr = mk('spark-typed__sr', words[0]), vis = mk('spark-typed__v'), txt = mk('spark-typed__t'), type = o.mode === 'type';
     vis.setAttribute('aria-hidden', 'true');
     vis.append(txt);
-    if (o.cursor) vis.append(mk('efx-typed__cursor'));
+    if (o.cursor) vis.append(mk('spark-typed__cursor'));
     el.textContent = '';
     el.append(sr, vis);
-    el.setAttribute('data-efx-mode', o.mode);
+    el.setAttribute('data-spark-mode', o.mode);
     let i = 0, n = 0, dir = 1, tm = 0, seen = true;
     const later = (ms, fn) => { clearTimeout(tm); tm = setTimeout(fn, ms); };
     const swap = () => {
@@ -46,6 +46,6 @@ export default {
     if (type) n = words[0].length;
     later(o.pause, () => { if (type) { dir = -1; } tick(); });
     const stop = onVisible(el, v => { const was = seen; seen = v; if (!v) clearTimeout(tm); else if (!was) later(o.pause, () => { if (type && dir > 0 && n >= words[i].length) dir = -1; tick(); }); });
-    return () => { stop(); clearTimeout(tm); el.removeAttribute('data-efx-mode'); el.innerHTML = saved; };
+    return () => { stop(); clearTimeout(tm); el.removeAttribute('data-spark-mode'); el.innerHTML = saved; };
   },
 };

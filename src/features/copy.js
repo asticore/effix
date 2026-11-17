@@ -1,5 +1,5 @@
 /* copy — copy text to the clipboard.
-   <button class="btn efx-copy" data-efx-target="#code">Copy</button>   or   data-efx-text="literal" */
+   <button class="btn spark-copy" data-spark-target="#code">Copy</button>   or   data-spark-text="literal" */
 import { on } from '../core.js';
 
 const fallback = text => {
@@ -17,12 +17,12 @@ const fallback = text => {
 
 export default {
   name: 'copy',
-  selector: '.efx-copy',
+  selector: '.spark-copy',
   defaults: { target: '', text: '', done: 'Copied!', duration: 1800 },
   init(el, o) {
     const html = el.innerHTML;
     const live = document.createElement('span');
-    live.className = 'efx-copy__live';
+    live.className = 'spark-copy__live';
     live.setAttribute('aria-live', 'polite');
     el.after(live);
     let timer = 0, dead = false, changed = false;

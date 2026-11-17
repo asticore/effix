@@ -1,13 +1,13 @@
 /* typed */
-.efx-typed__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.efx-typed__t { display: inline-block; white-space: pre; }
-.efx-typed[data-efx-mode="fade"] .efx-typed__t, .efx-typed[data-efx-mode="slide"] .efx-typed__t {
-  transition: opacity .28s var(--efx-ease, ease), transform .28s var(--efx-ease, ease); }
-.efx-typed .efx-typed__t.is-out { opacity: 0; }
-.efx-typed[data-efx-mode="slide"] .efx-typed__t.is-out { transform: translateY(-.5em); }
-.efx-typed[data-efx-mode="slide"] .efx-typed__t.is-pre { transform: translateY(.5em); transition: none; }
-.efx-typed__t.is-pre { transition: none !important; }
-.efx-typed__cursor { display: inline-block; width: .08em; height: 1em; margin-left: .08em; vertical-align: -.12em;
-  background: currentColor; animation: efx-typed-blink 1s steps(1) infinite; }
-@keyframes efx-typed-blink { 50% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .efx-typed__cursor { animation: none; } }
+.spark-typed__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.spark-typed__t { display: inline-block; white-space: pre; }
+.spark-typed[data-spark-mode="fade"] .spark-typed__t, .spark-typed[data-spark-mode="slide"] .spark-typed__t {
+  transition: opacity .28s var(--spark-ease, ease), transform .28s var(--spark-ease, ease); }
+.spark-typed .spark-typed__t.is-out { opacity: 0; }
+.spark-typed[data-spark-mode="slide"] .spark-typed__t.is-out { transform: translateY(-.5em); }
+.spark-typed[data-spark-mode="slide"] .spark-typed__t.is-pre { transform: translateY(.5em); transition: none; }
+.spark-typed__t.is-pre { transition: none !important; }
+.spark-typed__cursor { display: inline-block; width: .08em; height: 1em; margin-left: .08em; vertical-align: -.12em;
+  background: currentColor; animation: spark-typed-blink 1s steps(1) infinite; }
+@keyframes spark-typed-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .spark-typed__cursor { animation: none; } }

@@ -1,11 +1,11 @@
 /* parallax — shift an element at a different speed than the page scroll.
-   <div class="efx-parallax" data-efx-speed="0.3">…</div>
-   <section class="efx-parallax" data-efx-bg style="background-image:url(…)">…</section>  (bg layer) */
+   <div class="spark-parallax" data-spark-speed="0.3">…</div>
+   <section class="spark-parallax" data-spark-bg style="background-image:url(…)">…</section>  (bg layer) */
 import { onScroll, onVisible, motionOK } from '../core.js';
 
 export default {
   name: 'parallax',
-  selector: '.efx-parallax',
+  selector: '.spark-parallax',
   defaults: { speed: 0.3, axis: 'y', bg: false },
   init(el, o) {
     if (!motionOK()) return;
@@ -15,7 +15,7 @@ export default {
       const cs = getComputedStyle(el);
       saved = [el.style.backgroundImage, el.style.position, el.style.overflow, el.style.isolation];
       layer = document.createElement('div');
-      layer.className = 'efx-parallax__bg';
+      layer.className = 'spark-parallax__bg';
       layer.setAttribute('aria-hidden', 'true');
       layer.style.cssText = `background-image:${cs.backgroundImage};background-size:${cs.backgroundSize === 'auto' ? 'cover' : cs.backgroundSize};background-position:${cs.backgroundPosition};background-repeat:${cs.backgroundRepeat}`;
       if (cs.position === 'static') el.style.position = 'relative';

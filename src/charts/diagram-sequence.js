@@ -1,5 +1,5 @@
 /* diagram-sequence — UML sequence diagram from text (or JSON), drawn as SVG.
-   <div class="efx-diagram-sequence"><script type="text/plain">
+   <div class="spark-diagram-sequence"><script type="text/plain">
      Client -> API: GET /me          (solid = sync)
      API --> Client: 401             (dashed = return)
      Client ->> Queue: enqueue       (open arrow = async)
@@ -8,7 +8,7 @@
      participant DB as "Primary DB"   activate API / deactivate API   (or ->+ / -->-)
    </script></div>
    Hover a message to highlight it and its participants; ← → step through messages;
-   data-efx-play draws the messages in one by one when scrolled into view. */
+   data-spark-play draws the messages in one by one when scrolled into view. */
 import { s, palette } from './_lib.js';
 import { onVisible, motionOK, on } from '../core.js';
 
@@ -60,7 +60,7 @@ function parseJSON(d) {
 
 export default {
   name: 'diagram-sequence',
-  selector: '.efx-diagram-sequence',
+  selector: '.spark-diagram-sequence',
   lazy: true,
   defaults: { data: '', play: false, step: 420, activations: false, numbers: false, bottom: false, gap: 0, colors: [], title: '', tooltip: true },
   init(el, o) {
@@ -76,14 +76,14 @@ export default {
     if (pre) pre.hidden = true;
     const restore = { pos: el.style.position };
     if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
-    el.classList.add('efx-seq');
+    el.classList.add('spark-seq');
     const wrap = document.createElement('div');
-    wrap.className = 'efx-seq__wrap';
-    const svg = s('svg', { class: 'efx-seq__svg', role: 'img', focusable: 'false', tabindex: '0' });
+    wrap.className = 'spark-seq__wrap';
+    const svg = s('svg', { class: 'spark-seq__svg', role: 'img', focusable: 'false', tabindex: '0' });
     const tip = document.createElement('div');
-    tip.className = 'efx-seq__tip'; tip.setAttribute('role', 'status'); tip.hidden = true;
+    tip.className = 'spark-seq__tip'; tip.setAttribute('role', 'status'); tip.hidden = true;
     const sr = document.createElement('ol');
-    sr.className = 'efx-seq__sr';
+    sr.className = 'spark-seq__sr';
     wrap.appendChild(svg);
     el.append(wrap, tip, sr);
 
@@ -125,7 +125,7 @@ export default {
       svg.setAttribute('aria-label', label + (o.tooltip ? '. Use arrow keys to step through the messages.' : ''));
       sr.innerHTML = '';
       if (!parts.length) { svg.setAttribute('viewBox', '0 0 10 10'); return; }
-      meas = s('text', { class: 'efx-seq__m', x: 0, y: 0, 'aria-hidden': 'true' }, svg);
+      meas = s('text', { class: 'spark-seq__m', x: 0, y: 0, 'aria-hidden': 'true' }, svg);
       const idx = Object.fromEntries(parts.map((p, i) => [p.id, i]));
       const n = parts.length, colors = palette(el, o, n);
 
@@ -206,7 +206,7 @@ export default {
       svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
       svg.setAttribute('width', W); svg.setAttribute('height', H);
       svg.style.maxWidth = W + 'px';
-      const plot = s('g', { class: 'efx-seq__plot' + (played ? ' is-in' : '') }, svg);
+      const plot = s('g', { class: 'spark-seq__plot' + (played ? ' is-in' : '') }, svg);
       const step = i => `--i:${i}`;
       const ext = it => {
         if (it.t === 'msg') return it.self ? [X[it.a] - 8, X[it.a] + 50 + tw(it.e.text)] : [Math.min(X[it.a], X[it.b]), Math.max(X[it.a], X[it.b])];
@@ -219,43 +219,43 @@ export default {
       frames.slice().sort((p, q) => p.depth - q.depth).forEach(f => {
         const xs = f.items.length ? f.items.map(ext) : [[X[0], X[n - 1]]];
         const x0 = Math.min(...xs.map(v => v[0])) - f.pad, x1 = Math.max(...xs.map(v => v[1])) + f.pad;
-        const g = s('g', { class: 'efx-seq__frame efx-seq__step', style: step(f.step) }, plot);
-        s('rect', { x: x0, y: f.y0, width: x1 - x0, height: f.y1 - f.y0, rx: 4, class: 'efx-seq__frame-box' }, g);
+        const g = s('g', { class: 'spark-seq__frame spark-seq__step', style: step(f.step) }, plot);
+        s('rect', { x: x0, y: f.y0, width: x1 - x0, height: f.y1 - f.y0, rx: 4, class: 'spark-seq__frame-box' }, g);
         const tgw = tw(f.kind) + 18;
-        s('path', { d: `M${x0},${f.y0}h${tgw}v10l-8,8h${-tgw + 8}z`, class: 'efx-seq__tag' }, g);
-        s('text', { x: x0 + 9, y: f.y0 + 13, class: 'efx-seq__tag-t' }, g).textContent = f.kind;
-        if (f.text) s('text', { x: x0 + tgw + 8, y: f.y0 + 14, class: 'efx-seq__frame-t' }, g).textContent = '[' + f.text + ']';
+        s('path', { d: `M${x0},${f.y0}h${tgw}v10l-8,8h${-tgw + 8}z`, class: 'spark-seq__tag' }, g);
+        s('text', { x: x0 + 9, y: f.y0 + 13, class: 'spark-seq__tag-t' }, g).textContent = f.kind;
+        if (f.text) s('text', { x: x0 + tgw + 8, y: f.y0 + 14, class: 'spark-seq__frame-t' }, g).textContent = '[' + f.text + ']';
         f.elses.forEach(l => {
-          s('line', { x1: x0, x2: x1, y1: l.y, y2: l.y, class: 'efx-seq__else' }, g);
-          if (l.text) s('text', { x: x0 + 9, y: l.y + 15, class: 'efx-seq__frame-t' }, g).textContent = '[' + l.text + ']';
+          s('line', { x1: x0, x2: x1, y1: l.y, y2: l.y, class: 'spark-seq__else' }, g);
+          if (l.text) s('text', { x: x0 + 9, y: l.y + 15, class: 'spark-seq__frame-t' }, g).textContent = '[' + l.text + ']';
         });
       });
       // lifelines + headers
       const life = [], head = [];
       parts.forEach((p, i) => {
-        const g = s('g', { class: 'efx-seq__p', style: `--c:${colors[i]}` }, plot);
+        const g = s('g', { class: 'spark-seq__p', style: `--c:${colors[i]}` }, plot);
         life.push(g);
-        s('line', { x1: X[i], x2: X[i], y1: 8 + HH, y2: bottom, class: 'efx-seq__life' }, g);
+        s('line', { x1: X[i], x2: X[i], y1: 8 + HH, y2: bottom, class: 'spark-seq__life' }, g);
         const box = (yy) => {
-          s('rect', { x: X[i] - hw[i] / 2, y: yy, width: hw[i], height: HH, rx: 6, class: 'efx-seq__head' }, g);
-          s('text', { x: X[i], y: yy + HH / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'efx-seq__head-t' }, g).textContent = p.label;
+          s('rect', { x: X[i] - hw[i] / 2, y: yy, width: hw[i], height: HH, rx: 6, class: 'spark-seq__head' }, g);
+          s('text', { x: X[i], y: yy + HH / 2, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'spark-seq__head-t' }, g).textContent = p.label;
         };
         box(8);
         if (o.bottom) box(bottom);
         head.push(g);
       });
-      bars.forEach(b => s('rect', { x: X[b.c] - 5 + b.d * 4, y: b.y0, width: 10, height: Math.max(8, b.y1 - b.y0), class: 'efx-seq__bar', style: `--c:${colors[b.c]}` }, plot));
+      bars.forEach(b => s('rect', { x: X[b.c] - 5 + b.d * 4, y: b.y0, width: 10, height: Math.max(8, b.y1 - b.y0), class: 'spark-seq__bar', style: `--c:${colors[b.c]}` }, plot));
       // events in order
       const nodeFor = new Map();
       items.forEach(it => {
         if (it.t === 'note') {
           const [x0, x1] = ext(it);
-          const g = s('g', { class: 'efx-seq__note efx-seq__step', style: step(it.step) }, plot);
-          s('rect', { x: x0, y: it.y, width: x1 - x0, height: it.h, rx: 3, class: 'efx-seq__note-box' }, g);
-          it.lines.forEach((l, i) => s('text', { x: (x0 + x1) / 2, y: it.y + 6 + 16 * i + 8, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'efx-seq__note-t' }, g).textContent = l);
+          const g = s('g', { class: 'spark-seq__note spark-seq__step', style: step(it.step) }, plot);
+          s('rect', { x: x0, y: it.y, width: x1 - x0, height: it.h, rx: 3, class: 'spark-seq__note-box' }, g);
+          it.lines.forEach((l, i) => s('text', { x: (x0 + x1) / 2, y: it.y + 6 + 16 * i + 8, 'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'spark-seq__note-t' }, g).textContent = l);
         } else {
           const { e } = it, dir = X[it.b] >= X[it.a] ? 1 : -1;
-          const g = s('g', { class: `efx-seq__msg efx-seq__step is-${e.kind}${it.self ? ' is-self' : ''} ${it.self || dir > 0 ? 'to-r' : 'to-l'}`, style: `${step(it.step)};--c:${colors[it.a]}`, 'data-i': msgs.indexOf(it) }, plot);
+          const g = s('g', { class: `spark-seq__msg spark-seq__step is-${e.kind}${it.self ? ' is-self' : ''} ${it.self || dir > 0 ? 'to-r' : 'to-l'}`, style: `${step(it.step)};--c:${colors[it.a]}`, 'data-i': msgs.indexOf(it) }, plot);
           const text = (showNum ? it.num + '. ' : '') + e.text;
           let d, ax, ay, adir, lx, ly, anchor = 'middle';
           if (it.self) {
@@ -265,12 +265,12 @@ export default {
             const x0 = X[it.a] + dir * it.oa, x1 = X[it.b] - dir * it.ob;
             d = `M${x0},${it.y}H${x1}`; ax = x1; ay = it.y; adir = dir; lx = (x0 + x1) / 2; ly = it.y - 7;
           }
-          s('path', { d, class: 'efx-seq__hit' }, g);
-          s('path', { d, class: 'efx-seq__line' + (e.dashed ? ' is-dashed' : '') }, g);
+          s('path', { d, class: 'spark-seq__hit' }, g);
+          s('path', { d, class: 'spark-seq__line' + (e.dashed ? ' is-dashed' : '') }, g);
           const sz = 8;
-          if (e.kind === 'sync') s('path', { d: `M${ax},${ay}l${-adir * sz},-4.5v9z`, class: 'efx-seq__arrow is-fill' }, g);
-          else s('path', { d: `M${ax - adir * sz},${ay - 4.5}L${ax},${ay}L${ax - adir * sz},${ay + 4.5}`, class: 'efx-seq__arrow', fill: 'none' }, g);
-          if (text) s('text', { x: lx, y: ly, 'text-anchor': anchor, class: 'efx-seq__label' }, g).textContent = text;
+          if (e.kind === 'sync') s('path', { d: `M${ax},${ay}l${-adir * sz},-4.5v9z`, class: 'spark-seq__arrow is-fill' }, g);
+          else s('path', { d: `M${ax - adir * sz},${ay - 4.5}L${ax},${ay}L${ax - adir * sz},${ay + 4.5}`, class: 'spark-seq__arrow', fill: 'none' }, g);
+          if (text) s('text', { x: lx, y: ly, 'text-anchor': anchor, class: 'spark-seq__label' }, g).textContent = text;
           it.node = g; it.from = parts[it.a], it.to = parts[it.b];
           it.mx = it.self ? X[it.a] + 36 : (X[it.a] + X[it.b]) / 2;
           nodeFor.set(g, it);
@@ -316,11 +316,11 @@ export default {
       tip.style.left = Math.max(0, Math.min(r.width - tip.offsetWidth, x - tip.offsetWidth / 2)) + 'px';
       tip.style.top = yy + 12 + 'px';
     }
-    const at = e => { const g = e.target.closest && e.target.closest('.efx-seq__msg'); return g ? +g.getAttribute('data-i') : -1; };
+    const at = e => { const g = e.target.closest && e.target.closest('.spark-seq__msg'); return g ? +g.getAttribute('data-i') : -1; };
     const offs = [
       on(svg, 'pointerover', e => { const i = at(e); if (i >= 0) { if (i !== active) hot(i, false); } else if (active >= 0) clear(); }),
       on(svg, 'pointerleave', clear),
-      on(svg, 'click', e => { const i = at(e); if (i >= 0) { const it = msgs[i]; el.dispatchEvent(new CustomEvent('efx:select', { bubbles: true, detail: { index: i, label: it.e.text, from: it.from.id, to: it.to.id } })); } }),
+      on(svg, 'click', e => { const i = at(e); if (i >= 0) { const it = msgs[i]; el.dispatchEvent(new CustomEvent('spark:select', { bubbles: true, detail: { index: i, label: it.e.text, from: it.from.id, to: it.to.id } })); } }),
       on(svg, 'keydown', e => {
         if (!msgs.length) return;
         const k = e.key;
@@ -333,18 +333,18 @@ export default {
         e.preventDefault();
       }),
       on(svg, 'blur', clear),
-      on(el, 'efx:data', e => { const d = e.detail; if (d != null) { src = typeof d === 'string' ? d : JSON.stringify(d); render(); } }),
+      on(el, 'spark:data', e => { const d = e.detail; if (d != null) { src = typeof d === 'string' ? d : JSON.stringify(d); render(); } }),
     ];
 
     render();
     let stopVis = () => {};
     if (playing) {
       svg.classList.add('is-play');
-      svg.style.setProperty('--efx-seq-step', o.step + 'ms');
+      svg.style.setProperty('--spark-seq-step', o.step + 'ms');
       stopVis = onVisible(el, (vis, e) => {
         if (!vis || (e.intersectionRatio < 0.25 && e.intersectionRect.height < innerHeight * 0.25)) return;
         played = true; stopVis();
-        svg.querySelectorAll('.efx-seq__plot').forEach(p => p.classList.add('is-in'));
+        svg.querySelectorAll('.spark-seq__plot').forEach(p => p.classList.add('is-in'));
       }, '0px', [0, 0.1, 0.25, 0.5]);
     }
 
@@ -352,7 +352,7 @@ export default {
       offs.forEach(f => f());
       stopVis();
       wrap.remove(); tip.remove(); sr.remove();
-      el.classList.remove('efx-seq');
+      el.classList.remove('spark-seq');
       el.style.position = restore.pos;
       if (!el.getAttribute('style')) el.removeAttribute('style');
       if (pre) pre.hidden = preHidden;

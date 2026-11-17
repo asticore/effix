@@ -1,15 +1,15 @@
 /* layout — FLIP layout animations. Children that are added, removed, hidden, reordered or resized glide to their new spot;
    entering items fade/scale in, leaving items fade out from a clone.
-   <div class="efx-layout grid grid-cols-3 gap-4" id="grid">…<div data-efx-tags="design dev" data-efx-key-price="19">…</div></div>
-   Controls (inside or linked with data-efx-for="#grid"): <button data-efx-filter="design"> · <button data-efx-sort="price">
-   (filter "*" = all; sort toggles asc/desc; keys read from data-efx-key-<name>). A polite live region announces "6 items". */
+   <div class="spark-layout grid grid-cols-3 gap-4" id="grid">…<div data-spark-tags="design dev" data-spark-key-price="19">…</div></div>
+   Controls (inside or linked with data-spark-for="#grid"): <button data-spark-filter="design"> · <button data-spark-sort="price">
+   (filter "*" = all; sort toggles asc/desc; keys read from data-spark-key-<name>). A polite live region announces "6 items". */
 import { on, motionOK } from '../core.js';
 
-const SKIP = '.efx-layout__ghost,.efx-layout__status,[data-efx-filter],[data-efx-sort],[data-efx-controls]';
+const SKIP = '.spark-layout__ghost,.spark-layout__status,[data-spark-filter],[data-spark-sort],[data-spark-controls]';
 
 export default {
   name: 'layout',
-  selector: '.efx-layout',
+  selector: '.spark-layout',
   defaults: { duration: 400, ease: 'cubic-bezier(.22,1,.36,1)', scale: 0.9, noun: 'item', count: '' },
   init(el, o) {
     const animate = motionOK() && !!el.animate;
@@ -35,8 +35,8 @@ export default {
     };
     const ghost = (c, r) => {
       const g = c.cloneNode(true);
-      g.classList.add('efx-layout__ghost');
-      g.removeAttribute('id'); g.removeAttribute('hidden'); g.removeAttribute('data-efx-ready');
+      g.classList.add('spark-layout__ghost');
+      g.removeAttribute('id'); g.removeAttribute('hidden'); g.removeAttribute('data-spark-ready');
       g.setAttribute('aria-hidden', 'true');
       g.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
       Object.assign(g.style, { position: 'absolute', margin: '0', boxSizing: 'border-box', left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px' });
@@ -68,7 +68,7 @@ export default {
     if (target) { if (savedLive === null) target.setAttribute('aria-live', 'polite'); status = target; }
     else {
       status = document.createElement('span');
-      status.className = 'efx-layout__status';
+      status.className = 'spark-layout__status';
       status.setAttribute('role', 'status');
       status.setAttribute('aria-live', 'polite');
       el.after(status); made.push(status);
@@ -79,21 +79,21 @@ export default {
     };
 
     /* ---- filter / sort controls ---- */
-    const ctl = new Set([...el.querySelectorAll('[data-efx-filter],[data-efx-sort]')]);
-    document.querySelectorAll('[data-efx-for]').forEach(b => { if (b.matches('[data-efx-filter],[data-efx-sort]') && el.matches(b.dataset.efxFor || '\0')) ctl.add(b); });
-    const filters = [...ctl].filter(b => b.hasAttribute('data-efx-filter'));
-    const sorts = [...ctl].filter(b => b.hasAttribute('data-efx-sort'));
+    const ctl = new Set([...el.querySelectorAll('[data-spark-filter],[data-spark-sort]')]);
+    document.querySelectorAll('[data-spark-for]').forEach(b => { if (b.matches('[data-spark-filter],[data-spark-sort]') && el.matches(b.dataset.sparkFor || '\0')) ctl.add(b); });
+    const filters = [...ctl].filter(b => b.hasAttribute('data-spark-filter'));
+    const sorts = [...ctl].filter(b => b.hasAttribute('data-spark-sort'));
     const savedPressed = new Map([...ctl].map(b => [b, b.getAttribute('aria-pressed')]));
     const hid = new Set();
     const setPressed = (list, on_) => list.forEach(b => b.setAttribute('aria-pressed', b === on_ ? 'true' : 'false'));
     const applyFilter = tag => {
       items().forEach(c => {
-        const ok = tag === '*' || (c.getAttribute('data-efx-tags') || '').split(/\s+/).includes(tag);
+        const ok = tag === '*' || (c.getAttribute('data-spark-tags') || '').split(/\s+/).includes(tag);
         if (!ok && !c.hidden) { c.hidden = true; hid.add(c); } else if (ok && c.hidden && hid.has(c)) { c.hidden = false; hid.delete(c); }
       });
     };
     const sortBy = (key, dir) => {
-      const val = c => c.getAttribute('data-efx-key-' + key) || '';
+      const val = c => c.getAttribute('data-spark-key-' + key) || '';
       const list = items();
       if (!list.length) return;
       const end = list[list.length - 1].nextSibling;
@@ -104,26 +104,26 @@ export default {
       }).forEach(c => el.insertBefore(c, end));
     };
     const offs = [];
-    filters.forEach(b => offs.push(on(b, 'click', () => { applyFilter(b.getAttribute('data-efx-filter')); setPressed(filters, b); })));
+    filters.forEach(b => offs.push(on(b, 'click', () => { applyFilter(b.getAttribute('data-spark-filter')); setPressed(filters, b); })));
     sorts.forEach(b => offs.push(on(b, 'click', () => {
-      const dir = b.getAttribute('aria-pressed') === 'true' && b.getAttribute('data-efx-dir') !== 'desc' ? 'desc' : 'asc';
-      sorts.forEach(s => s.removeAttribute('data-efx-dir'));
-      b.setAttribute('data-efx-dir', dir);
-      sortBy(b.getAttribute('data-efx-sort'), dir); setPressed(sorts, b);
+      const dir = b.getAttribute('aria-pressed') === 'true' && b.getAttribute('data-spark-dir') !== 'desc' ? 'desc' : 'asc';
+      sorts.forEach(s => s.removeAttribute('data-spark-dir'));
+      b.setAttribute('data-spark-dir', dir);
+      sortBy(b.getAttribute('data-spark-sort'), dir); setPressed(sorts, b);
     })));
     // initial state from aria-pressed="true" on a filter button
     const start = filters.find(b => b.getAttribute('aria-pressed') === 'true');
-    if (start) { applyFilter(start.getAttribute('data-efx-filter')); setPressed(filters, start); }
-    else filters.forEach(b => { if (b.getAttribute('data-efx-filter') === '*') b.setAttribute('aria-pressed', 'true'); else b.setAttribute('aria-pressed', 'false'); });
+    if (start) { applyFilter(start.getAttribute('data-spark-filter')); setPressed(filters, start); }
+    else filters.forEach(b => { if (b.getAttribute('data-spark-filter') === '*') b.setAttribute('aria-pressed', 'true'); else b.setAttribute('aria-pressed', 'false'); });
     sorts.forEach(b => { if (b.getAttribute('aria-pressed') === null) b.setAttribute('aria-pressed', 'false'); });
 
     /* ---- observers ---- */
-    el.classList.add('efx-layout-on');
+    el.classList.add('spark-layout-on');
     snapshot(); count();
     let mo = null, ro = null, raf = 0;
     if (animate) {
-      const relevant = r => [...r.addedNodes, ...r.removedNodes].some(n => !(n.nodeType === 1 && n.classList.contains('efx-layout__ghost') || n.classList && n.classList.contains('efx-layout__status')))
-        || (r.type === 'attributes' && !r.target.classList.contains('efx-layout__ghost') && !(r.target.closest && r.target.closest('.efx-layout__ghost')));
+      const relevant = r => [...r.addedNodes, ...r.removedNodes].some(n => !(n.nodeType === 1 && n.classList.contains('spark-layout__ghost') || n.classList && n.classList.contains('spark-layout__status')))
+        || (r.type === 'attributes' && !r.target.classList.contains('spark-layout__ghost') && !(r.target.closest && r.target.closest('.spark-layout__ghost')));
       mo = new MutationObserver(rs => { if (rs.some(relevant)) { flip(); count(); } });
       mo.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'class', 'style'] });
       if (typeof ResizeObserver !== 'undefined') {
@@ -144,9 +144,9 @@ export default {
       if (target) { if (savedLive === null) target.removeAttribute('aria-live'); }
       hid.forEach(c => { c.hidden = false; });
       savedPressed.forEach((v, b) => (v === null ? b.removeAttribute('aria-pressed') : b.setAttribute('aria-pressed', v)));
-      ctl.forEach(b => b.removeAttribute('data-efx-dir'));
+      ctl.forEach(b => b.removeAttribute('data-spark-dir'));
       el.style.position = savedPos;
-      el.classList.remove('efx-layout-on');
+      el.classList.remove('spark-layout-on');
     };
   },
 };

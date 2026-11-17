@@ -1,12 +1,12 @@
 /* chart-treemap — squarified treemap (Bruls et al., as d3.treemapSquarify) of labels/values.
-   <div class="efx-chart-treemap" data-efx-data="40,25,15,10,6,4" data-efx-labels="A|B|C|D|E|F"></div> */
+   <div class="spark-chart-treemap" data-spark-data="40,25,15,10,6,4" data-spark-labels="A|B|C|D|E|F"></div> */
 import { COMMON, chart, palette, s, esc } from './_lib.js';
 
 const PHI = (1 + Math.sqrt(5)) / 2;
 
 export default {
   name: 'chart-treemap',
-  selector: '.efx-chart-treemap',
+  selector: '.spark-chart-treemap',
   lazy: true,
   defaults: { ...COMMON, gap: 2, radius: 4, captions: true, sort: true },
   init(el, o) {
@@ -49,13 +49,13 @@ export default {
         const x = a + q, y = b + q, tw = Math.max(0, c - a - o.gap), th = Math.max(0, e - b - o.gap);
         const pct = ramp ? 100 - 55 * items.filter(z => z.v > d.v).length / Math.max(1, n - 1) : 100;
         const fill = ramp ? `color-mix(in oklab, ${pal[0]} ${pct}%, var(--sh-surface, #fff))` : pal[d.i];
-        const node = s('rect', { x, y, width: tw, height: th, rx: Math.min(o.radius, tw / 2, th / 2), fill, class: 'efx-chart__mark' + (fresh ? ' efx-tm' : ''), style: `--i:${j}` }, g);
+        const node = s('rect', { x, y, width: tw, height: th, rx: Math.min(o.radius, tw / 2, th / 2), fill, class: 'spark-chart__mark' + (fresh ? ' spark-tm' : ''), style: `--i:${j}` }, g);
         if (o.captions && !deco && tw >= 44 && th >= 26) {
           const st = `pointer-events:none;fill:${pct < 70 ? 'var(--sh-text,#0f172a)' : '#fff'}`;
-          const t = s('text', { x: x + 7, y: y + 17, class: 'efx-chart__value' + (fresh ? ' efx-tm' : ''), style: `${st};--i:${j}` }, g);
+          const t = s('text', { x: x + 7, y: y + 17, class: 'spark-chart__value' + (fresh ? ' spark-tm' : ''), style: `${st};--i:${j}` }, g);
           t.textContent = d.l.length * 6.6 > tw - 12 ? d.l.slice(0, Math.max(1, Math.floor((tw - 12) / 6.6) - 1)) + '…' : d.l;
           if (th >= 44) {
-            const u = s('text', { x: x + 7, y: y + 33, class: fresh ? 'efx-tm' : '', style: `${st};opacity:.85;--i:${j}` }, g);
+            const u = s('text', { x: x + 7, y: y + 33, class: fresh ? 'spark-tm' : '', style: `${st};opacity:.85;--i:${j}` }, g);
             u.textContent = fmt(d.v);
           }
         }

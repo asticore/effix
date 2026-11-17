@@ -1,12 +1,12 @@
 /* scramble — text decode / scramble effect.
-   <h2 class="efx-scramble" data-efx-trigger="view">Decode me</h2>
-   <button class="btn efx-scramble" data-efx-trigger="hover">Hover</button>
-   <span class="efx-scramble" data-efx-words="one|two|three"></span>   (rotating headline) */
+   <h2 class="spark-scramble" data-spark-trigger="view">Decode me</h2>
+   <button class="btn spark-scramble" data-spark-trigger="hover">Hover</button>
+   <span class="spark-scramble" data-spark-words="one|two|three"></span>   (rotating headline) */
 import { on, onVisible, motionOK } from '../core.js';
 
 export default {
   name: 'scramble',
-  selector: '.efx-scramble',
+  selector: '.spark-scramble',
   defaults: { trigger: 'view', chars: '!<>-_\\/[]{}—=+*^?#________', speed: 30, duration: 900, once: true, words: [], pause: 2000 },
   init(el, o) {
     const saved = el.innerHTML;
@@ -14,7 +14,7 @@ export default {
     const cycle = o.words.length > 1;
     if (!motionOK()) { if (o.words.length) el.textContent = words[0]; return () => { el.innerHTML = saved; }; }
     const mk = c => { const s = document.createElement('span'); s.className = c; return s; };
-    const sr = mk('efx-scramble__sr'), vis = mk('efx-scramble__v');
+    const sr = mk('spark-scramble__sr'), vis = mk('spark-scramble__v');
     vis.setAttribute('aria-hidden', 'true');
     el.textContent = '';
     el.append(sr, vis);

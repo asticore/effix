@@ -1,5 +1,5 @@
 /* chart-timeline — Gantt / timeline. One row per item, optional group headers, date or numeric axis.
-   <div class="efx-chart-timeline" data-efx-data='[{"label":"Design","start":"2026-01-05","end":"2026-02-01","progress":0.6}]'></div> */
+   <div class="spark-chart-timeline" data-spark-data='[{"label":"Design","start":"2026-01-05","end":"2026-02-01","progress":0.6}]'></div> */
 import { COMMON, chart, nice, linear, palette, s, esc } from './_lib.js';
 import { on } from '../core.js';
 
@@ -31,7 +31,7 @@ const readRows = r => { r = Array.isArray(r) ? r : r && (r.rows || r.data); retu
 
 export default {
   name: 'chart-timeline',
-  selector: '.efx-chart-timeline',
+  selector: '.spark-chart-timeline',
   lazy: true,
   defaults: { ...COMMON, legend: false, today: true, grid: true, radius: 4 },
   init(el, o) {
@@ -39,7 +39,7 @@ export default {
     const read = r => { try { rows = readRows(typeof r === 'string' ? JSON.parse(r) : r); } catch (e) { rows = []; } };
     const j = el.querySelector(':scope > script[type="application/json"]');
     read(o.data || (j && j.textContent));
-    const offData = on(el, 'efx:data', e => read(e.detail)); // before chart(): runs first
+    const offData = on(el, 'spark:data', e => read(e.detail)); // before chart(): runs first
     let uid = 0;
     let items = [], lanes = [];
     const prep = () => {
@@ -67,23 +67,23 @@ export default {
       const nh = grouped() ? lanes.length : 0;
       const rh = deco ? (h - pad.t - pad.b) / (items.length + nh * 0.6) : ROW;
       let yy = pad.t, last = null;
-      const ax = s('g', { class: 'efx-chart__axis', 'aria-hidden': 'true' }, g);
+      const ax = s('g', { class: 'spark-chart__axis', 'aria-hidden': 'true' }, g);
       if (!deco) ticks.forEach(k => {
-        s('line', { x1: x(k.t), x2: x(k.t), y1: pad.t, y2: h - pad.b, class: 'efx-chart__grid' }, ax);
+        s('line', { x1: x(k.t), x2: x(k.t), y1: pad.t, y2: h - pad.b, class: 'spark-chart__grid' }, ax);
         s('text', { x: x(k.t), y: h - pad.b + 18, 'text-anchor': 'middle' }, ax).textContent = k.text;
       });
       const marks = [];
       items.forEach((it, i) => {
         if (grouped() && it.g !== last) {
           last = it.g;
-          if (!deco) s('text', { x: 0, y: yy + rh * 0.35, 'dominant-baseline': 'middle', class: 'efx-tl__grp' }, ax).textContent = it.g || '—';
+          if (!deco) s('text', { x: 0, y: yy + rh * 0.35, 'dominant-baseline': 'middle', class: 'spark-tl__grp' }, ax).textContent = it.g || '—';
           yy += rh * 0.6;
         }
         const d = it.d, col = d.color || pal[Math.max(0, lanes.indexOf(it.g)) % pal.length];
         const x0 = x(it.a), bw = Math.max(3, x(it.b) - x0), bh = Math.min(rh * 0.6, 20), by = yy + (rh - bh) / 2;
         const p = d.progress == null ? null : Math.max(0, Math.min(1, +d.progress > 1 ? +d.progress / 100 : +d.progress));
-        const node = s('g', { class: 'efx-chart__mark efx-chart__grow-x', style: `--i:${i}` }, g);
-        const id = 'efx-tl' + ++uid + '-' + i;
+        const node = s('g', { class: 'spark-chart__mark spark-chart__grow-x', style: `--i:${i}` }, g);
+        const id = 'spark-tl' + ++uid + '-' + i;
         s('rect', { x: x0, y: by, width: bw, height: bh, rx: o.radius, fill: col, 'fill-opacity': p == null ? 1 : 0.28 }, node);
         if (p != null) {
           const cp = s('clipPath', { id }, node);
@@ -107,8 +107,8 @@ export default {
       if (!deco && dates && o.today) {
         const now = Date.now();
         if (now >= lo && now <= hi) {
-          s('line', { x1: x(now), x2: x(now), y1: pad.t, y2: h - pad.b, class: 'efx-tl__today', stroke: pal[5] }, g);
-          s('text', { x: x(now), y: pad.t - 4, 'text-anchor': 'middle', class: 'efx-tl__tt', fill: pal[5] }, g).textContent = 'Today';
+          s('line', { x1: x(now), x2: x(now), y1: pad.t, y2: h - pad.b, class: 'spark-tl__today', stroke: pal[5] }, g);
+          s('text', { x: x(now), y: pad.t - 4, 'text-anchor': 'middle', class: 'spark-tl__tt', fill: pal[5] }, g).textContent = 'Today';
         }
       }
       return marks;

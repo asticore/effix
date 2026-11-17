@@ -1,12 +1,12 @@
 /* odometer — rolling digit counter. Text is the final value (no JS = final).
-   <span class="efx-odometer">$12,840</span>   Update live: el.dispatchEvent(new CustomEvent('efx:data', { detail: { value: 13002 } })) */
+   <span class="spark-odometer">$12,840</span>   Update live: el.dispatchEvent(new CustomEvent('spark:data', { detail: { value: 13002 } })) */
 import { onVisible, on, motionOK } from '../core.js';
 
 const DIGITS = '0\n1\n2\n3\n4\n5\n6\n7\n8\n9';
 
 export default {
   name: 'odometer',
-  selector: '.efx-odometer',
+  selector: '.spark-odometer',
   defaults: { duration: 1800, from: '', stagger: 60, once: true },
   init(el, o) {
     const orig = el.innerHTML;
@@ -16,7 +16,7 @@ export default {
     const ok = v => (typeof v === 'number' ? Number.isFinite(v) : typeof v === 'string' && /\d/.test(v));
     const fmt = v => (typeof v === 'number' ? (grouped ? v.toLocaleString('en-US', { maximumFractionDigits: 6 }) : String(v)) : String(v));
     if (!motionOK()) {
-      const off = on(el, 'efx:data', e => { const v = e.detail && e.detail.value; if (ok(v)) el.textContent = fmt(v); });
+      const off = on(el, 'spark:data', e => { const v = e.detail && e.detail.value; if (ok(v)) el.textContent = fmt(v); });
       return () => { off(); el.innerHTML = orig; };
     }
     let strips = [], shown = false;
@@ -24,20 +24,20 @@ export default {
       const n = (text.match(/\d/g) || []).length;
       const src = (fromText.match(/\d/g) || []).join('').padStart(n, '0').slice(-n || 0);
       const sr = document.createElement('span');
-      sr.className = 'efx-odometer__sr'; sr.textContent = text;
+      sr.className = 'spark-odometer__sr'; sr.textContent = text;
       const vis = document.createElement('span');
-      vis.className = 'efx-odometer__v'; vis.setAttribute('aria-hidden', 'true');
+      vis.className = 'spark-odometer__v'; vis.setAttribute('aria-hidden', 'true');
       strips = [];
       let k = 0;
       for (const c of text) {
         const cell = document.createElement('span');
         if (/\d/.test(c)) {
           const strip = document.createElement('span');
-          strip.className = 'efx-odometer__s'; strip.textContent = DIGITS;
+          strip.className = 'spark-odometer__s'; strip.textContent = DIGITS;
           strip.dataset.to = c; strip.style.setProperty('--n', src[k++] || 0);
           strip.style.transitionDelay = strips.length * o.stagger + 'ms';
-          cell.className = 'efx-odometer__d'; cell.append(strip); strips.push(strip);
-        } else { cell.className = 'efx-odometer__c'; cell.textContent = c; }
+          cell.className = 'spark-odometer__d'; cell.append(strip); strips.push(strip);
+        } else { cell.className = 'spark-odometer__c'; cell.textContent = c; }
         vis.append(cell);
       }
       el.textContent = '';
@@ -45,14 +45,14 @@ export default {
     };
     const roll = () => { void el.offsetWidth; strips.forEach(s => s.style.setProperty('--n', s.dataset.to)); shown = true; };
     const reset = () => { build(target, o.from); shown = false; };
-    el.style.setProperty('--efx-odo-duration', o.duration + 'ms');
+    el.style.setProperty('--spark-odo-duration', o.duration + 'ms');
     build(target, o.from);
     let stop = () => {};
     stop = onVisible(el, v => {
       if (v) { if (!shown) { roll(); if (o.once) stop(); } }
       else if (!o.once && shown) reset();
     });
-    const offData = on(el, 'efx:data', e => {
+    const offData = on(el, 'spark:data', e => {
       const v = e.detail && e.detail.value;
       if (!ok(v)) return;
       const next = fmt(v).trim();
@@ -65,7 +65,7 @@ export default {
     return () => {
       stop(); offData();
       el.innerHTML = orig;
-      el.style.removeProperty('--efx-odo-duration');
+      el.style.removeProperty('--spark-odo-duration');
     };
   },
 };
